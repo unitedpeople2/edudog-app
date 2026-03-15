@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduDog Pro - Micro SaaS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #e2e8f0; 
+        }
+
+        .app-container { 
+            max-width: 420px; 
+            margin: 0 auto; 
+            height: 100vh;
+            min-height: 100vh; 
+            position: relative; 
+            background: #ffffff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen { 
+            display: none; 
+            flex: 1;
+            flex-direction: column;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-color: #f8fafc;
+        }
+
+        .screen.active { 
+            display: flex; 
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        ::-webkit-scrollbar { display: none; }
+
+        .premium-input:focus-within {
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+            border-color: #8b5cf6;
+        }
+
+        input::-webkit-outer-spin-button, 
+        input::-webkit-inner-spin-button { 
+            -webkit-appearance: none; margin: 0; 
+        }
+        
+        .loader-dots div { animation-timing-function: cubic-bezier(0, 1, 1, 0); }
+        .loader-dots div:nth-child(1) { left: 8px; animation: loader-dots1 0.6s infinite; }
+        .loader-dots div:nth-child(2) { left: 8px; animation: loader-dots2 0.6s infinite; }
+        .loader-dots div:nth-child(3) { left: 32px; animation: loader-dots2 0.6s infinite; }
+        .loader-dots div:nth-child(4) { left: 56px; animation: loader-dots3 0.6s infinite; }
+        @keyframes loader-dots1 { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        @keyframes loader-dots3 { 0% { transform: scale(1); } 100% { transform: scale(0); } }
+        @keyframes loader-dots2 { 0% { transform: translate(0, 0); } 100% { transform: translate(24px, 0); } }
+    </style>
+</head>
+<body class="antialiased text-slate-900 md:py-8">
+
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-full shadow-2xl z-50 transform -translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 font-semibold text-sm pointer-events-none w-max max-w-[90%]">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-msg">Mensaje</span>
+    </div>
+
+    <div class="app-container md:rounded-[2.5rem] md:border-[6px] md:border-slate-900 relative">
+
+        <section id="screen-login" class="screen active relative bg-slate-50">
+            <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-violet-600 to-slate-900 rounded-b-[4rem] opacity-100 z-0"></div>
+            <div class="absolute top-10 left-10 w-32 h-32 bg-white rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
+
+            <div class="relative z-10 flex flex-col justify-center px-8 pt-20 pb-10 min-h-full">
+                <div class="text-center mb-10">
+                    <div class="w-24 h-24 bg-white/10 backdrop-blur-md rounded-[2.5rem] border border-white/20 flex items-center justify-center mx-auto mb-6 shadow-2xl relative">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-violet-500 to-amber-400 rounded-[2.5rem] opacity-20 animate-pulse"></div>
+                        <i class="fa-solid fa-shield-dog text-[2.75rem] text-white drop-shadow-lg"></i>
+                    </div>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight">EduDog Pro</h1>
+                    <p class="text-violet-200 font-medium mt-2 text-sm">Ecosistema Canino Inteligente</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 space-y-5">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Tu Celular</label>
+                        <div class="relative group premium-input transition-all rounded-2xl border border-slate-200 flex bg-slate-50/50 overflow-hidden">
+                            <div class="relative flex items-center border-r border-slate-200 bg-transparent">
+                                <select id="country-code" class="h-full bg-transparent text-slate-600 font-bold pl-3 pr-6 py-4 outline-none appearance-none cursor-pointer text-sm focus:ring-0 border-none w-[95px]">
+                                    <option value="51">🇵🇪 +51</option>
+                                    <option value="52">🇲🇽 +52</option>
+                                    <option value="57">🇨🇴 +57</option>
+                                    <option value="56">🇨🇱 +56</option>
+                                    <option value="54">🇦🇷 +54</option>
+                                    <option value="593">🇪🇨 +593</option>
+                                    <option value="34">🇪🇸 +34</option>
+                                    <option value="1">🇺🇸 +1</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-slate-400">
+                                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                                </div>
+                            </div>
+                            <input type="number" id="login-phone" placeholder="971 337 730" 
+                                class="flex-1 bg-transparent text-slate-900 py-4 px-4 outline-none transition-all font-bold text-lg w-full">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">PIN Secreto</label>
+                        <div class="relative premium-input transition-all rounded-2xl border border-slate-200">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <input type="password" id="login-pin" maxlength="4" placeholder="••••"
+                                class="w-full bg-slate-50/50 text-slate-900 rounded-2xl py-4 pl-12 pr-4 outline-none transition-all font-black text-2xl tracking-[0.5em]">
+                        </div>
+                    </div>
+
+                    <button onclick="handleLoginButton()" id="btn-login" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-lg shadow-slate-900/30 hover:bg-slate-800 active:scale-95 transition-all text-[15px] mt-2 flex items-center justify-center gap-3 relative overflow-hidden">
+                        <span id="btn-text">Ingresar a mi cuenta</span>
+                        <i id="btn-icon" class="fa-solid fa-arrow-right text-sm"></i>
+                        <div id="btn-loader" class="hidden absolute inset-0 bg-slate-900 flex items-center justify-center">
+                            <div class="loader-dots relative w-20 h-5">
+                                <div class="absolute top-1 w-2.5 h-2.5 rounded-full bg-white"></div>
+                                <div class="absolute top-1 w-2.5 h-2.5 rounded-full bg-white"></div>
+                                <div class="absolute top-1 w-2.5 h-2.5 rounded-full bg-white"></div>
+                                <div class="absolute top-1 w-2.5 h-2.5 rounded-full bg-white"></div>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <p class="text-xs text-slate-500 font-medium">¿Problemas con tu acceso?</p>
+                    <a href="https://wa.me/51932335202?text=Hola%20Soporte,%20tengo%20problemas%20para%20ingresar%20a%20mi%20Hub%20de%20EduDog%20Pro" target="_blank" class="inline-block mt-1 text-sm text-violet-600 font-bold hover:underline flex justify-center items-center gap-1">
+                        <i class="fa-brands fa-whatsapp"></i> Contactar a Soporte
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="screen-welcome" class="screen relative bg-slate-50">
+            <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-violet-600 to-slate-900 rounded-b-[4rem] opacity-100 z-0"></div>
+            <div class="absolute top-10 left-10 w-32 h-32 bg-white rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
+
+            <div class="relative z-10 flex flex-col justify-center px-8 pt-20 pb-10 min-h-full">
+                <div class="text-center mb-10">
+                    <div class="w-24 h-24 bg-white/10 backdrop-blur-md rounded-[2.5rem] border border-white/20 flex items-center justify-center mx-auto mb-6 shadow-2xl relative">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-violet-500 to-amber-400 rounded-[2.5rem] opacity-20 animate-pulse"></div>
+                        <i class="fa-solid fa-bone text-[2.75rem] text-white drop-shadow-lg"></i>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-white tracking-tight">¡Bienvenido! 🎉</h2>
+                    <p class="text-violet-200 font-medium mt-2 text-sm">Personalicemos tu experiencia</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 space-y-5">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">¿Cómo se llama tu peludo?</label>
+                        <div class="relative premium-input transition-all rounded-2xl border border-slate-200">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
+                                <i class="fa-solid fa-dog"></i>
+                            </span>
+                            <input type="text" id="welcome-dog-name" placeholder="Ej. Firulais" 
+                                class="w-full bg-slate-50/50 text-slate-900 rounded-2xl py-4 pl-12 pr-4 outline-none transition-all font-bold text-lg">
+                        </div>
+                    </div>
+
+                    <button id="btn-welcome" onclick="saveWelcomeName()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-lg shadow-slate-900/30 hover:bg-slate-800 active:scale-95 transition-all text-[15px] mt-2 flex items-center justify-center gap-3 relative overflow-hidden">
+                        <span id="btn-welcome-text">Comenzar Entrenamiento</span>
+                        <i id="btn-welcome-icon" class="fa-solid fa-arrow-right text-sm"></i>
+                        <div id="btn-welcome-loader" class="hidden absolute inset-0 bg-slate-900 flex items-center justify-center">
+                            <div class="loader-dots relative w-20 h-5">
+                                <div class="absolute top-1 w-2.5 h-2.5 rounded-full bg-white"></div>
+                                <div class="absolute top-1 w-2.5 h-2.5 rounded-full bg-white"></div>
+                                <div class="absolute top-1 w-2.5 h-2.5 rounded-full bg-white"></div>
+                                <div class="absolute top-1 w-2.5 h-2.5 rounded-full bg-white"></div>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="screen-hub" class="screen bg-[#f8fafc]">
+            <div class="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 py-4 flex justify-between items-center z-30">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-md">
+                        <i class="fa-solid fa-shield-dog text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-extrabold text-slate-900 text-sm leading-tight">EduDog Pro</h2>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Centro de Control</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:text-rose-500 hover:bg-rose-50 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 px-5 py-6 space-y-6">
+                <div class="bg-slate-900 rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-violet-500 rounded-full mix-blend-screen filter blur-3xl opacity-40 translate-x-10 -translate-y-10"></div>
+                    <div class="absolute bottom-0 left-0 w-32 h-32 bg-amber-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 -translate-x-10 translate-y-10"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-violet-300 text-[10px] font-black uppercase tracking-widest mb-1" id="user-display-phone">+51 971 337 730</p>
+                                <h3 class="text-xl font-black tracking-tight leading-tight">
+                                    <span id="display-dog-name">Entrenamiento de Firulais</span> 🐾
+                               </h3>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg shadow-amber-500/30 flex items-center gap-1">
+                                    <i class="fa-solid fa-crown"></i> Elite
+                                </span>
+                                <button onclick="openProfileModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center border border-white/20 mt-1 shadow-sm">
+                                    <i class="fa-solid fa-gear text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+                            <div class="flex justify-between items-center text-xs font-bold mb-2">
+                                <span class="text-slate-200">Apps Desbloqueadas</span>
+                                <span id="apps-count" class="text-white">0/1</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                <div id="progress-bar" class="bg-amber-400 h-full rounded-full transition-all duration-1000 ease-out relative" style="width: 0%">
+                                    <div class="absolute inset-0 bg-white/30 w-full animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-4 px-1">
+                        <h3 class="font-extrabold text-slate-900 text-lg">Tus Herramientas</h3>
+                        <div class="flex items-center gap-1 text-[10px] font-bold text-slate-400">
+                            <i class="fa-solid fa-cloud text-emerald-500"></i> Sincronizado
+                        </div>
+                    </div>
+                    <div id="tools-container" class="space-y-4"></div>
+                </div>
+
+                <div class="pt-2">
+                    <div class="flex items-center justify-between mb-4 px-1">
+                        <h3 class="font-extrabold text-slate-900 text-lg">Biblioteca Elite</h3>
+                        <div class="flex items-center gap-1 text-[10px] font-bold text-slate-400 bg-rose-100 text-rose-600 px-2 py-1 rounded-md">
+                            <i class="fa-solid fa-book-open"></i> Interactivos
+                        </div>
+                    </div>
+                    <div id="ebooks-container" class="space-y-4"></div>
+                </div>
+                
+                <div class="h-6"></div>
+            </div>
+        </section>
+
+        <div id="profile-modal" class="hidden absolute inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex-col justify-end">
+            <div id="profile-modal-content" class="bg-white rounded-t-[2rem] p-6 pb-8 transform translate-y-full transition-transform duration-300">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-black text-slate-900">Perfil de tu Peludo</h3>
+                    <button onclick="closeProfileModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Nombre del Perro</label>
+                        <div class="relative premium-input transition-all rounded-2xl border border-slate-200">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
+                                <i class="fa-solid fa-dog"></i>
+                            </span>
+                            <input type="text" id="edit-dog-name" placeholder="Ej. Firulais" 
+                                class="w-full bg-slate-50/50 text-slate-900 rounded-2xl py-3.5 pl-12 pr-4 outline-none transition-all font-bold">
+                        </div>
+                    </div>
+                    
+                    <button id="btn-save-profile" onclick="saveProfile()" class="w-full bg-violet-600 text-white font-bold py-3.5 rounded-xl text-sm transition-all hover:bg-violet-700 active:scale-95 shadow-lg shadow-violet-600/30 flex justify-center items-center gap-2">
+                        <span>Guardar Cambios</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // SEGURIDAD: MEDIDAS DISUASORIAS
+        // ==========================================
+        document.addEventListener('contextmenu', event => event.preventDefault()); 
+        
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123) return false; 
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; 
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false; 
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; 
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; 
+        };
+
+        // ==========================================
+        // 1. CONEXIÓN AL BACKEND Y BASE DE DATOS LOCAL
+        // ==========================================
+        const API_URL = "https://bot-cursos-digitales-500394828639.southamerica-west1.run.app";
+        const TIPO_CAMBIO = 3.50; 
+
+        // Solo dejamos NutriCan Vital como herramienta principal
+        const appsList = [
+            { id: "nutrican", name: "NutriCan Vital", desc: "Calculadora exacta de dieta natural y transición.", icon: "fa-bowl-food", color: "text-amber-600", bg: "bg-amber-100", price: "9.99" }
+        ];
+
+        // Añadimos nuestro nuevo interactivo y eliminamos los de prueba
+        const ebooksList = [
+            { id: "nutrichef", name: "NutriChef Vital", desc: "Recetario dinámico adaptado a los ingredientes de tu país.", icon: "fa-fire-burner", color: "text-rose-600", bg: "bg-rose-100", price: "4.99" }
+        ];
+
+        let currentUser = null;
+
+        // ==========================================
+        // AUTO-LOGIN (LocalStorage)
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedSession = localStorage.getItem('eduDogSession');
+            if(savedSession) {
+                const creds = JSON.parse(savedSession);
+                performLogin(creds.phone, creds.pin, true);
+            }
+        });
+
+        // ==========================================
+        // 2. SISTEMA DE NOTIFICACIONES (TOAST)
+        // ==========================================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-msg');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.innerText = message;
+            if (type === 'error') iconEl.className = 'fa-solid fa-circle-exclamation text-rose-400 text-lg';
+            else if (type === 'info') iconEl.className = 'fa-solid fa-circle-info text-blue-400 text-lg';
+            else iconEl.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
+
+            toast.classList.remove('-translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        // ==========================================
+        // 3. LÓGICA DEL MODAL DE PERFIL
+        // ==========================================
+        function openProfileModal() {
+            const modal = document.getElementById('profile-modal');
+            const content = document.getElementById('profile-modal-content');
+            document.getElementById('edit-dog-name').value = currentUser.dogName || '';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            setTimeout(() => {
+                content.classList.remove('translate-y-full');
+                content.classList.add('translate-y-0');
+            }, 10);
+        }
+
+        function closeProfileModal() {
+            const modal = document.getElementById('profile-modal');
+            const content = document.getElementById('profile-modal-content');
+            
+            content.classList.remove('translate-y-0');
+            content.classList.add('translate-y-full');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        async function saveProfile() {
+            const newName = document.getElementById('edit-dog-name').value.trim();
+            if (!newName) {
+                showToast('El nombre no puede estar vacío', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-save-profile');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/hub/perfil`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telefono: currentUser.phone, pin: currentUser.pin, dogName: newName })
+                });
+                
+                if (response.ok) {
+                    currentUser.dogName = newName;
+                    document.getElementById('display-dog-name').innerText = `Entrenamiento de ${newName}`;
+                    closeProfileModal();
+                    showToast('¡Nombre actualizado!', 'success');
+                } else {
+                    showToast('Ocurrió un error al guardar', 'error');
+                }
+            } catch (e) {
+                showToast('Error de conexión', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Guardar Cambios</span>';
+            }
+        }
+
+        // ==========================================
+        // 4. LÓGICA DEL LOGIN 
+        // ==========================================
+        function handleLoginButton() {
+            const countryCode = document.getElementById('country-code').value;
+            const phoneInput = document.getElementById('login-phone').value;
+            const pinInput = document.getElementById('login-pin').value;
+            
+            if (!phoneInput || !pinInput) {
+                showToast('Completa todos los campos', 'error');
+                return;
+            }
+
+            const fullPhone = countryCode + phoneInput;
+            performLogin(fullPhone, pinInput, false);
+        }
+
+        async function performLogin(phone, pin, isAutoLoad = false) {
+            if(!isAutoLoad) {
+                document.getElementById('btn-text').classList.add('opacity-0');
+                document.getElementById('btn-icon').classList.add('opacity-0');
+                document.getElementById('btn-loader').classList.remove('hidden');
+            } 
+
+            try {
+                const response = await fetch(`${API_URL}/api/hub/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telefono: phone, pin: pin })
+                });
+                
+                const data = await response.json();
+
+                if(!isAutoLoad) {
+                    document.getElementById('btn-text').classList.remove('opacity-0');
+                    document.getElementById('btn-icon').classList.remove('opacity-0');
+                    document.getElementById('btn-loader').classList.add('hidden');
+                }
+
+                if (response.ok && data.status === 'ok') {
+                    currentUser = { 
+                        phone: phone, 
+                        pin: pin,
+                        dogName: data.dogName || "",
+                        apps: data.apps || [],
+                        ebooks: data.ebooks || []
+                    };
+                    
+                    localStorage.setItem('eduDogSession', JSON.stringify({phone: phone, pin: pin}));
+                    
+                    if (currentUser.dogName && currentUser.dogName.trim() !== "") {
+                        renderHub();
+                        showScreen('screen-hub');
+                    } else {
+                        showScreen('screen-welcome');
+                        if(!isAutoLoad) showToast('¡Acceso concedido!', 'success');
+                    }
+                } else {
+                    if(!isAutoLoad) showToast(data.error || 'Credenciales incorrectas', 'error');
+                    else localStorage.removeItem('eduDogSession'); 
+                }
+            } catch (error) {
+                if(!isAutoLoad) {
+                    document.getElementById('btn-text').classList.remove('opacity-0');
+                    document.getElementById('btn-icon').classList.remove('opacity-0');
+                    document.getElementById('btn-loader').classList.add('hidden');
+                    showToast('Error conectando al servidor', 'error');
+                }
+            }
+        }
+
+        async function saveWelcomeName() {
+            const dogName = document.getElementById('welcome-dog-name').value.trim();
+            
+            if (!dogName) {
+                showToast('Por favor, ingresa el nombre de tu peludo', 'error');
+                return;
+            }
+            
+            const btnText = document.getElementById('btn-welcome-text');
+            const btnIcon = document.getElementById('btn-welcome-icon');
+            const btnLoader = document.getElementById('btn-welcome-loader');
+            
+            btnText.classList.add('opacity-0');
+            btnIcon.classList.add('opacity-0');
+            btnLoader.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${API_URL}/api/hub/perfil`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telefono: currentUser.phone, pin: currentUser.pin, dogName: dogName })
+                });
+
+                if (response.ok) {
+                    currentUser.dogName = dogName;
+                    renderHub();
+                    showScreen('screen-hub');
+                    showToast(`¡Todo listo para ${dogName}! 🎉`, 'success');
+                } else {
+                    showToast('Error al guardar el nombre', 'error');
+                }
+            } catch (error) {
+                showToast('Error conectando al servidor', 'error');
+            } finally {
+                btnText.classList.remove('opacity-0');
+                btnIcon.classList.remove('opacity-0');
+                btnLoader.classList.add('hidden');
+            }
+        }
+
+        // ==========================================
+        // 5. RENDERIZADO INTELIGENTE
+        // ==========================================
+        function renderHub() {
+            document.getElementById('user-display-phone').innerText = `+${currentUser.phone}`;
+            document.getElementById('display-dog-name').innerText = currentUser.dogName ? `Entrenamiento de ${currentUser.dogName}` : `Tu Peludo`;
+            
+            const isPeru = currentUser.phone.startsWith('51');
+            
+            const getDisplayPrice = (basePriceUsd) => {
+                if (basePriceUsd === "0" || basePriceUsd === 0) return { text: "GRATIS", val: 0, curr: "" };
+                
+                if (isPeru) {
+                    const soles = Math.round(parseFloat(basePriceUsd) * TIPO_CAMBIO);
+                    return { text: `S/ ${soles}`, val: soles, curr: "PEN" };
+                } else {
+                    return { text: `$${basePriceUsd} USD`, val: basePriceUsd, curr: "USD" };
+                }
+            };
+
+            const appsContainer = document.getElementById('tools-container');
+            appsContainer.innerHTML = '';
+            
+            let appsOwnedCount = 0;
+            appsList.forEach(app => {
+                if (currentUser.apps.includes(app.id)) appsOwnedCount++;
+            });
+
+            document.getElementById('apps-count').innerText = `${appsOwnedCount}/${appsList.length}`;
+            document.getElementById('progress-bar').style.width = `${(appsOwnedCount / appsList.length) * 100}%`;
+
+            appsList.forEach(app => {
+                const isOwned = currentUser.apps.includes(app.id);
+                const priceInfo = getDisplayPrice(app.price);
+                const card = document.createElement('div');
+                
+                if (isOwned) {
+                    card.className = 'bg-white p-5 rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden transition-all';
+                    card.innerHTML = `
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="w-14 h-14 ${app.bg} ${app.color} rounded-[1.25rem] flex items-center justify-center text-2xl shrink-0">
+                                <i class="fa-solid ${app.icon}"></i>
+                            </div>
+                            <div class="flex-1 pt-1">
+                                <div class="flex justify-between items-center mb-0.5">
+                                    <h4 class="font-extrabold text-slate-900 leading-none">${app.name}</h4>
+                                    <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i>
+                                </div>
+                                <p class="text-[11px] font-semibold text-slate-500 leading-snug pr-2">${app.desc}</p>
+                            </div>
+                        </div>
+                        <button onclick="openMiniApp('${app.id}')" 
+                            class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl text-sm transition-all hover:bg-slate-800 active:scale-95 flex justify-center items-center gap-2 shadow-md shadow-slate-900/20">
+                            Abrir Aplicación <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    `;
+                } else {
+                    card.className = 'bg-white p-5 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden transition-all';
+                    card.innerHTML = `
+                        <div class="absolute top-4 right-4 bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm border border-slate-200/50">
+                            <i class="fa-solid fa-lock text-[8px]"></i> PRO
+                        </div>
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="w-14 h-14 ${app.bg} ${app.color} rounded-[1.25rem] flex items-center justify-center text-2xl shrink-0">
+                                <i class="fa-solid ${app.icon}"></i>
+                            </div>
+                            <div class="flex-1 pt-1 pr-14">
+                                <h4 class="font-extrabold text-slate-900 leading-none mb-1">${app.name}</h4>
+                                <p class="text-[11px] font-semibold text-slate-500 leading-snug">${app.desc}</p>
+                            </div>
+                        </div>
+                        <button onclick="openUpsell('${app.name}', '${priceInfo.val}', '${priceInfo.curr}', 'herramienta')" 
+                            class="w-full bg-violet-50 text-violet-700 border border-violet-200 font-bold py-3.5 rounded-xl text-sm transition-all hover:bg-violet-600 hover:text-white hover:shadow-lg hover:shadow-violet-600/30 active:scale-95 flex justify-center items-center gap-2 relative z-20">
+                            Desbloquear por ${priceInfo.text}
+                        </button>
+                    `;
+                }
+                appsContainer.appendChild(card);
+            });
+
+            const ebooksContainer = document.getElementById('ebooks-container');
+            ebooksContainer.innerHTML = '';
+            
+            ebooksList.forEach(ebook => {
+                const isOwned = currentUser.ebooks && currentUser.ebooks.includes(ebook.id);
+                const priceInfo = getDisplayPrice(ebook.price);
+                const card = document.createElement('div');
+                
+                if (isOwned) {
+                    card.className = 'bg-white p-4 rounded-3xl border border-rose-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)] relative overflow-hidden flex flex-col gap-3';
+                    // Reemplazamos el toast por el redireccionamiento interactivo a NutriChef
+                    card.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 ${ebook.bg} ${ebook.color} rounded-xl flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid ${ebook.icon}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-extrabold text-slate-900 leading-tight">${ebook.name}</h4>
+                                <p class="text-[10px] font-bold text-rose-500 uppercase tracking-wide mt-0.5"><i class="fa-solid fa-check"></i> Adquirido</p>
+                            </div>
+                        </div>
+                        <button onclick="openMiniApp('${ebook.id}')" class="w-full bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-slate-800 transition-all flex justify-center items-center gap-1">
+                            Abrir Interactivos
+                        </button>
+                    `;
+                } else {
+                    card.className = 'bg-white p-4 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden flex flex-col gap-3';
+                    card.innerHTML = `
+                        <div class="absolute top-3 right-3 text-slate-300">
+                            <i class="fa-solid fa-lock text-sm"></i>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid ${ebook.icon}"></i>
+                            </div>
+                            <div class="flex-1 pr-6">
+                                <h4 class="font-extrabold text-slate-700 leading-tight">${ebook.name}</h4>
+                                <p class="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">${ebook.desc}</p>
+                            </div>
+                        </div>
+                        <button onclick="openUpsell('${ebook.name}', '${priceInfo.val}', '${priceInfo.curr}', 'eBook')" class="w-full bg-rose-50 text-rose-600 border border-rose-200 font-bold py-2.5 rounded-xl text-xs hover:bg-rose-500 hover:text-white transition-all">
+                            Desbloquear por ${priceInfo.text}
+                        </button>
+                    `;
+                }
+                ebooksContainer.appendChild(card);
+            });
+        }
+
+        // ==========================================
+        // 6. LÓGICA NAVEGACIÓN Y UPSELL
+        // ==========================================
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // --- FUNCIÓN ACTUALIZADA (SOPORTA NUTRICAN Y NUTRICHEF) ---
+        function openMiniApp(appId) {
+            // Guarda el nombre en la memoria del navegador para que las apps secundarias lo encuentren
+            localStorage.setItem('currentDogName', currentUser.dogName);
+            
+            if (appId === 'nutrican') {
+                setTimeout(() => {
+                    window.location.href = 'nutrican.html';
+                }, 100);
+            } else if (appId === 'nutrichef') {
+                setTimeout(() => {
+                    window.location.href = 'nutrichef.html';
+                }, 100);
+            }
+        }
+
+        function openUpsell(itemName, itemPrice, currency, type) {
+            const numeroEmpresa = "51932335202"; 
+            const itemTypeLabel = type === 'eBook' ? 'el eBook' : 'la herramienta';
+            
+            const priceText = currency === 'PEN' ? `S/ ${itemPrice}` : `$${itemPrice} USD`;
+            
+            const msg = `Hola Soporte 👋\n\nQuiero desbloquear ${itemTypeLabel} *${itemName}* por ${priceText}.\n\n👤 Mi cuenta es: +${currentUser.phone}\n💳 ¿Me dan los pasos para pagar?`;
+            window.open(`https://wa.me/${numeroEmpresa}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('eduDogSession'); 
+            localStorage.removeItem('currentDogName'); 
+            
+            document.getElementById('login-phone').value = '';
+            document.getElementById('login-pin').value = '';
+            document.getElementById('welcome-dog-name').value = '';
+            showScreen('screen-login');
+            showToast('Sesión cerrada correctamente', 'info');
+        }
+    </script>
+</body>
+</html>

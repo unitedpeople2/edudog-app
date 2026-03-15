@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriCan Vital - Calculadora Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; }
+        .app-container { max-width: 420px; margin: 0 auto; height: 100vh; position: relative; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; }
+        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; background-color: #f8fafc; }
+        .screen.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { display: none; }
+        .premium-input:focus-within { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15); border-color: #f59e0b; }
+        .magic-loader { border: 4px solid #f3f3f3; border-top: 4px solid #f59e0b; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* Premium UI Elements */
+        .day-locked .content-blur { filter: blur(4px); opacity: 0.6; user-select: none; pointer-events: none; transition: all 0.3s ease; }
+        .day-ready { cursor: pointer; border-color: #f59e0b !important; background-color: #fffbeb !important; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.1), 0 2px 4px -1px rgba(245, 158, 11, 0.06); }
+        .day-completed { background-color: #ffffff; border-color: #10b981; cursor: pointer; }
+        .day-completed:hover { background-color: #f0fdf4; }
+    </style>
+</head>
+<body class="antialiased text-slate-900 md:py-8">
+
+    <div class="app-container md:rounded-[2.5rem] md:border-[6px] md:border-slate-900 relative">
+
+        <div class="sticky top-0 bg-amber-500 text-white border-b border-amber-600 px-4 py-4 flex items-center justify-between z-30 shadow-md">
+            <div class="flex items-center">
+                <button onclick="smartBack()" id="btn-back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-amber-400 transition-colors mr-2" style="display: none;">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div>
+                    <h2 class="font-extrabold text-white text-sm leading-tight flex items-center gap-2">
+                        <i class="fa-solid fa-bowl-food"></i> NutriCan Vital
+                    </h2>
+                    <p class="text-[10px] font-semibold text-amber-100 uppercase tracking-wider" id="header-subtitle">Inicializando...</p>
+                </div>
+            </div>
+            <a href="index.html" class="w-10 h-10 flex items-center justify-center rounded-full bg-amber-600 hover:bg-amber-700 transition-colors shadow-inner text-sm">
+                <i class="fa-solid fa-house"></i>
+            </a>
+        </div>
+
+        <section id="screen-welcome" class="screen p-6 relative flex-col justify-center text-center">
+            <div class="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 text-5xl mx-auto mb-6 shadow-inner">
+                <i class="fa-solid fa-dog"></i>
+            </div>
+            <h2 class="text-slate-800 font-black text-2xl mb-3">¡Hola de nuevo!</h2>
+            <p class="text-slate-500 text-sm mb-8 font-medium leading-relaxed">Vemos que <span class="dog-name-display font-bold text-amber-600">tu peludo</span> ya tiene un plan de transición en marcha.</p>
+            
+            <div class="space-y-4 mt-auto mb-8">
+                <button onclick="loadSavedPlan()" class="w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all text-lg flex items-center justify-center gap-2">
+                    Continuar mi Racha <i class="fa-solid fa-fire"></i>
+                </button>
+                <button onclick="forceNewPlan()" class="w-full bg-white text-slate-500 border-2 border-slate-200 font-bold py-3.5 rounded-2xl hover:bg-slate-50 transition-all text-sm">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Crear un plan nuevo
+                </button>
+            </div>
+        </section>
+
+        <section id="screen-goal" class="screen p-6 relative">
+            <h2 class="text-slate-800 font-black text-xl mb-2">Objetivo Principal 🎯</h2>
+            <p class="text-slate-500 text-sm mb-6 font-medium">¿Qué queremos lograr principalmente con la salud de <span class="dog-name-display font-bold text-amber-600">tu peludo</span>?</p>
+            <div class="space-y-3 mb-8">
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="digestion" checked class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4"><span class="block font-extrabold text-slate-800">Mejorar su Digestión</span><span class="block text-xs text-slate-500 font-medium">Adiós gases, diarreas o heces muy blandas.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="alergias" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4"><span class="block font-extrabold text-slate-800">Pelo brillante y Cero Alergias</span><span class="block text-xs text-slate-500 font-medium">Dejar de rascarse y detener la caída del pelo.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="peso" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4"><span class="block font-extrabold text-slate-800">Llegar a su Peso Ideal</span><span class="block text-xs text-slate-500 font-medium">Bajar o subir de peso de forma sana.</span></div>
+                </label>
+            </div>
+            <button onclick="nextToDiet()" class="mt-auto w-full bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-slate-800 active:scale-95 transition-all">Continuar <i class="fa-solid fa-arrow-right ml-2 text-xs"></i></button>
+        </section>
+
+        <section id="screen-diet" class="screen p-6 relative">
+            <h2 class="text-slate-800 font-black text-xl mb-2">Diagnóstico Digestivo 🔬</h2>
+            <p class="text-slate-500 text-sm mb-6 font-medium">¿Qué come <span class="dog-name-display font-bold text-amber-600">tu peludo</span> actualmente?</p>
+            <div class="space-y-3 mb-8">
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="croquetas" checked class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">100% Croquetas</span><span class="text-[9px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded uppercase font-black">Plan 14 Días</span></div><span class="block text-xs text-slate-500">Necesita una transición lenta por su pH estomacal.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="mixto" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">Mixto (Croquetas+Casero)</span><span class="text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded uppercase font-black">Plan 10 Días</span></div><span class="block text-xs text-slate-500">Ya digiere algo de comida real. Transición media.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="cocido" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">100% Casero Cocido</span><span class="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded uppercase font-black">Plan 5 Días</span></div><span class="block text-xs text-slate-500">Flora fuerte. Solo adaptaremos al modelo BARF crudo.</span></div>
+                </label>
+            </div>
+            <button onclick="nextToParams()" class="mt-auto w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-slate-800 transition-all">Continuar <i class="fa-solid fa-arrow-right ml-2 text-xs"></i></button>
+        </section>
+
+        <section id="screen-params" class="screen p-6 relative">
+            <h2 class="text-slate-800 font-black text-xl mb-6">Perfil Físico ⚖️</h2>
+            <div class="space-y-5">
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Peso Actual (KG)</label>
+                    <div class="relative premium-input transition-all rounded-2xl border border-slate-200">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400"><i class="fa-solid fa-weight-scale"></i></span>
+                        <input type="number" id="dogWeight" placeholder="Ej. 15" class="w-full bg-white text-slate-900 rounded-2xl py-4 pl-12 pr-4 outline-none font-bold text-lg">
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Condición Corporal</label>
+                    <select id="dogCondition" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
+                        <option value="ideal" selected>Peso Ideal (Cintura visible)</option>
+                        <option value="flaco">Delgado (Se le ven las costillas)</option>
+                        <option value="gordo">Gordito (Sobrepeso / Sin cintura)</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Etapa de Vida</label>
+                    <select id="dogAge" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
+                        <option value="adulto" selected>Adulto (1 a 7 años)</option>
+                        <option value="cachorro">Cachorro (Menos de 1 año)</option>
+                        <option value="senior">Senior (+7 años)</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Nivel de Actividad</label>
+                    <select id="dogActivity" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
+                        <option value="normal" selected>Normal (1 paseo diario)</option>
+                        <option value="baja">Baja (Perezoso / Sedentario)</option>
+                        <option value="alta">Alta (Muy activo / Deportivo)</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="calculateDiet()" class="mt-auto w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 transition-all text-lg">Crear Plan Definitivo</button>
+        </section>
+
+        <section id="screen-loading" class="screen flex-col justify-center items-center p-6 text-center">
+            <div class="magic-loader mb-6"></div>
+            <h3 class="text-xl font-black text-slate-800 mb-2">Generando Fórmula...</h3>
+            <p id="loading-text" class="text-sm text-amber-600 font-bold tracking-wide">Analizando metabolismo...</p>
+        </section>
+
+        <section id="screen-dashboard" class="screen bg-slate-50">
+            <div class="p-6 pb-20 space-y-6">
+                <div>
+                    <div class="flex justify-between items-end mb-1">
+                        <p class="text-[11px] font-black text-amber-500 uppercase tracking-widest">Ración Diaria Total</p>
+                        <button onclick="openTipsModal()" class="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-amber-200 transition-colors">
+                            <i class="fa-solid fa-lightbulb"></i> Tips de Oro
+                        </button>
+                    </div>
+                    <div class="flex items-baseline gap-2 mb-4">
+                        <h2 class="text-4xl font-black text-slate-900 tracking-tight" id="total-grams">0</h2>
+                        <span class="text-slate-500 font-bold">gramos/día</span>
+                    </div>
+                    
+                    <div id="ingredients-list" class="space-y-3">
+                        </div>
+
+                    <div id="meal-division" class="mt-4">
+                        </div>
+                </div>
+
+                <div>
+                    <h3 class="font-extrabold text-slate-900 text-lg mb-4 px-1 flex justify-between items-center" id="tracker-title">
+                        Mi Racha <i class="fa-solid fa-fire text-amber-500"></i>
+                    </h3>
+                    
+                    <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm mb-4">
+                        <div class="flex justify-between text-xs font-bold mb-2">
+                            <span class="text-amber-600" id="progress-text">0% Completado</span>
+                            <span class="text-slate-400"><i class="fa-solid fa-shield-dog"></i> Flora fortaleciéndose</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-3 shadow-inner overflow-hidden">
+                            <div id="progress-bar" class="bg-amber-500 h-3 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col divide-y divide-slate-100" id="tracker-container">
+                        </div>
+                </div>
+
+                <div class="space-y-3 mt-8">
+                    <a href="index.html" class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-md hover:bg-slate-800 transition-all text-center">
+                        <i class="fa-solid fa-arrow-left"></i> Volver al Hub Principal
+                    </a>
+                    <button onclick="resetApp()" class="w-full bg-white text-rose-500 font-bold py-3.5 rounded-xl text-xs hover:bg-rose-50 border border-rose-200 transition-all">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Recalcular datos de <span class="dog-name-display">tu peludo</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <div id="modal-tracker" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-end">
+            <div id="modal-tracker-content" class="bg-white rounded-t-[2.5rem] p-8 text-center shadow-2xl transform translate-y-full transition-transform duration-300 w-full">
+                
+                <div id="tracker-step-appetite" class="block">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-bowl-food"></i></div>
+                    <h3 class="text-xl font-black text-slate-900 mb-2">¿Cómo comió hoy?</h3>
+                    <p class="text-sm text-slate-500 font-medium mb-6">Apetito de <span class="dog-name-display font-bold text-slate-700"></span></p>
+                    <div class="space-y-3">
+                        <button onclick="nextTrackerStep()" class="w-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold p-4 rounded-2xl text-left hover:bg-emerald-100 transition-colors">🤤 ¡Devoró todo!</button>
+                        <button onclick="nextTrackerStep()" class="w-full bg-slate-50 text-slate-700 border border-slate-200 font-bold p-4 rounded-2xl text-left hover:bg-slate-100 transition-colors">🙂 Comió normal</button>
+                        <button onclick="nextTrackerStep()" class="w-full bg-rose-50 text-rose-700 border border-rose-200 font-bold p-4 rounded-2xl text-left hover:bg-rose-100 transition-colors">🤨 Dejó un poco</button>
+                    </div>
+                </div>
+
+                <div id="tracker-step-poop" class="hidden">
+                    <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-poop"></i></div>
+                    <h3 class="text-xl font-black text-slate-900 mb-2">¿Cómo estuvieron sus heces?</h3>
+                    <p class="text-sm text-slate-500 font-medium mb-6">Esto nos ayuda a vigilar su digestión.</p>
+                    <div class="space-y-3">
+                        <button onclick="finishTracker('good')" class="w-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold p-4 rounded-2xl text-left flex justify-between items-center"><span>🟢 Perfectas (Pequeñas y firmes)</span></button>
+                        <button onclick="finishTracker('bad')" class="w-full bg-amber-50 text-amber-700 border border-amber-200 font-bold p-4 rounded-2xl text-left flex justify-between items-center"><span>🟡 Blandas (Como puré)</span></button>
+                        <button onclick="finishTracker('bad')" class="w-full bg-rose-50 text-rose-700 border border-rose-200 font-bold p-4 rounded-2xl text-left flex justify-between items-center"><span>🔴 Diarrea (Líquidas)</span></button>
+                    </div>
+                </div>
+
+                <div id="tracker-step-message" class="hidden">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-stethoscope"></i></div>
+                    <h3 class="text-xl font-black text-slate-900 mb-2">¡Tranquilo, es normal!</h3>
+                    <p class="text-sm text-slate-600 font-medium mb-6 leading-relaxed">El estómago de <span class="dog-name-display font-bold"></span> se está desintoxicando. Las heces blandas son parte natural del proceso mientras su flora intestinal se fortalece. ¡Sigue el plan sin miedo!</p>
+                    <button onclick="closeTrackerAndSave()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl">¡Entendido, sigo la racha!</button>
+                </div>
+                
+                <button onclick="closeTrackerModal()" id="btn-close-tracker" class="mt-6 text-slate-400 font-bold text-sm">Cancelar</button>
+            </div>
+        </div>
+
+        <div id="modal-undo" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6">
+            <div id="modal-undo-content" class="bg-white rounded-[2rem] p-8 text-center shadow-2xl transform scale-95 transition-transform duration-300">
+                <div class="w-16 h-16 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-rotate-left"></i></div>
+                <h3 class="text-xl font-black text-slate-900 mb-2">¿Marcaste por error?</h3>
+                <p class="text-sm text-slate-500 font-medium mb-6">Día completado con éxito. ¿Deseas deshacer este registro?</p>
+                <div class="flex gap-3">
+                    <button onclick="closeUndoModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl">Mantener</button>
+                    <button onclick="confirmUndo()" class="w-full bg-rose-50 text-rose-600 font-bold py-3.5 rounded-xl border border-rose-200">Sí, deshacer</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-tips" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6">
+            <div id="modal-tips-content" class="bg-white rounded-[2.5rem] p-8 shadow-2xl transform scale-95 transition-transform duration-300">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-black text-slate-900">Secretos Vitales 💡</h3>
+                    <button onclick="closeTipsModal()" class="text-slate-400 text-2xl"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="space-y-5 text-left">
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-fire-burner"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">¡Nunca cocines huesos!</b> Los huesos cocidos se astillan y son peligrosos. Deben ser siempre crudos.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-droplet"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Menos agua, más salud</b> Es normal que beba menos agua. La comida natural ya lo hidrata un 70% más.</p>
+                    </div>
+                </div>
+                <button onclick="closeTipsModal()" class="w-full bg-amber-500 text-white font-bold py-4 rounded-2xl mt-8 hover:bg-amber-600 transition-colors">¡Entendido!</button>
+            </div>
+        </div>
+
+        <div id="modal-reset" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6">
+            <div id="modal-reset-content" class="bg-white rounded-[2rem] p-8 text-center shadow-2xl transform scale-95 transition-transform duration-300">
+                <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h3 class="text-xl font-black text-slate-900 mb-2">¿Empezar de nuevo?</h3>
+                <p class="text-sm text-slate-500 font-medium mb-6">Esto borrará el plan y la racha actual.</p>
+                <div class="flex gap-3">
+                    <button onclick="closeResetModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl">Cancelar</button>
+                    <button onclick="confirmResetApp()" class="w-full bg-rose-500 text-white font-bold py-3.5 rounded-xl">Sí, borrar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ESTADO GLOBAL
+        let dogName = "tu peludo";
+        let currentScreen = 'screen-welcome';
+        let planData = { 
+            healthGoal: "digestion", 
+            dietPlanType: "croquetas",
+            totalGrams: 0, gramosHuesos: 0, gramosCarne: 0, gramosVisceras: 0, gramosVerduras: 0,
+            etapa: "adulto"
+        };
+        let trackerData = { completedDays: [] };
+        let pendingDayToMark = -1;
+        let dayToUndo = -1;
+
+        // TEXTOS REALES DE TRANSICIÓN (Gamificación)
+        const transitionTexts = {
+            14: [ 
+                "100% Dieta blanda cocida (Pollo y zapallo). Cero crudo.",
+                "Mantén dieta blanda. Estómago desintoxicándose.",
+                "Último día de dieta blanda exclusiva.",
+                "Agrega 30% de la carne magra cruda a lo cocido.",
+                "Sube a 50% de carne magra cruda. Heces pueden variar.",
+                "75% carne cruda. El estómago se hace ácido.",
+                "100% Carne cruda + vegetales. Adiós a lo cocido.",
+                "Introduce el Hígado crudo en mínima cantidad.",
+                "Sube la porción de hígado al 5%.",
+                "Introduce otras vísceras (riñón, bazo).",
+                "Transición total de vísceras lograda.",
+                "¡El gran paso! Introduce Huesos Carnosos (Cuellos triturados).",
+                "Aumenta ración de huesos. Mastica bajo supervisión.",
+                "¡Transición 100% completada! Felicidades."
+            ],
+            10: [ 
+                "Dieta blanda cocida para estabilizar flora.",
+                "Agrega 50% de carne magra cruda.",
+                "100% Carne magra cruda + Vegetales.",
+                "Introduce una pizca de hígado.",
+                "Porción completa de hígado (5%).",
+                "Introduce segunda víscera (riñón).",
+                "Todas las vísceras al 100%.",
+                "Introduce Huesos Carnosos (Cuellos blandos).",
+                "Aumenta Huesos Carnosos a ración normal.",
+                "¡Transición 100% completada! Felicidades."
+            ],
+            5: [ 
+                "50% carne cocida, 50% carne cruda.",
+                "100% Carne cruda + Vegetales. Introduce vísceras.",
+                "Vísceras al 100%. Vigila las heces.",
+                "Introduce Huesos Carnosos blandos.",
+                "¡Transición 100% completada al crudo!"
+            ]
+        };
+
+        // INICIALIZACIÓN
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedName = localStorage.getItem('currentDogName'); 
+            if(savedName && savedName !== "undefined" && savedName.trim() !== "") dogName = savedName;
+            updateAllDogNames();
+
+            // Atajo Inteligente: Revisar si hay plan guardado
+            const savedPlan = localStorage.getItem(`nutriCanPlan_${dogName}`);
+            const savedTracker = localStorage.getItem(`nutriCanTracker_${dogName}`);
+            
+            if(savedPlan) {
+                planData = JSON.parse(savedPlan);
+                if(savedTracker) trackerData = JSON.parse(savedTracker);
+                showScreen('screen-welcome', '¡Bienvenido de nuevo!');
+            } else {
+                showScreen('screen-goal', 'Paso 1 de 3');
+            }
+        });
+
+        function updateAllDogNames() {
+            document.querySelectorAll('.dog-name-display').forEach(span => { span.innerText = dogName; });
+        }
+
+        // NAVEGACIÓN
+        function smartBack() {
+            if (currentScreen === 'screen-diet') {
+                showScreen('screen-goal', 'Paso 1 de 3');
+            } else if (currentScreen === 'screen-params') {
+                showScreen('screen-diet', 'Paso 2 de 3');
+            }
+        }
+
+        function showScreen(screenId, subtitleText = "") {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            currentScreen = screenId;
+            if(subtitleText) document.getElementById('header-subtitle').innerText = subtitleText;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Mostrar u ocultar flecha de retroceso según pantalla
+            const btnBack = document.getElementById('btn-back');
+            if(screenId === 'screen-welcome' || screenId === 'screen-dashboard' || screenId === 'screen-goal') {
+                btnBack.style.display = 'none';
+            } else {
+                btnBack.style.display = 'flex';
+            }
+        }
+
+        function nextToDiet() {
+            planData.healthGoal = document.querySelector('input[name="healthGoal"]:checked').value;
+            showScreen('screen-diet', 'Paso 2 de 3');
+        }
+
+        function nextToParams() {
+            planData.dietPlanType = document.querySelector('input[name="currentDiet"]:checked').value;
+            showScreen('screen-params', 'Paso 3 de 3');
+        }
+
+        // BIENVENIDA INTELIGENTE ACTIONS
+        function loadSavedPlan() {
+            renderDashboard();
+            showScreen('screen-dashboard', 'TU PLAN ACTIVO');
+        }
+
+        function forceNewPlan() {
+            trackerData = { completedDays: [] };
+            showScreen('screen-goal', 'Paso 1 de 3');
+        }
+
+        // CÁLCULO
+        function calculateDiet() {
+            const weight = parseFloat(document.getElementById('dogWeight').value);
+            const age = document.getElementById('dogAge').value;
+            const activity = document.getElementById('dogActivity').value;
+            const condition = document.getElementById('dogCondition').value;
+
+            if (!weight || !age || !activity) { alert("Completa los campos para continuar."); return; }
+
+            showScreen('screen-loading', 'Calculando...');
+            const loadingText = document.getElementById('loading-text');
+            setTimeout(() => { loadingText.innerText = "Optimizando nutrientes..."; }, 1200);
+
+            setTimeout(() => {
+                let percentage = (age === 'cachorro') ? 0.08 : (activity === 'baja' || age === 'senior') ? 0.02 : (activity === 'normal') ? 0.025 : 0.03;
+                if (condition === 'flaco') percentage += 0.005;
+                if (condition === 'gordo') percentage -= 0.005;
+
+                planData.totalGrams = Math.round(weight * percentage * 1000);
+                planData.gramosHuesos = Math.round(planData.totalGrams * 0.40);
+                planData.gramosCarne = Math.round(planData.totalGrams * 0.35);
+                planData.gramosVisceras = Math.round(planData.totalGrams * 0.15);
+                planData.gramosVerduras = Math.round(planData.totalGrams * 0.10);
+                planData.etapa = age;
+
+                // GUARDAR EN MEMORIA (Persistencia)
+                localStorage.setItem(`nutriCanPlan_${dogName}`, JSON.stringify(planData));
+                localStorage.setItem(`nutriCanTracker_${dogName}`, JSON.stringify(trackerData));
+
+                renderDashboard();
+                showScreen('screen-dashboard', 'TU PLAN DE ACCIÓN');
+            }, 2500);
+        }
+
+        // UI DEL DASHBOARD PREMIUM
+        function renderDashboard() {
+            document.getElementById('total-grams').innerText = planData.totalGrams;
+            
+            // 1. Tarjetas Premium de Ingredientes
+            document.getElementById('ingredients-list').innerHTML = `
+                <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-amber-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3.5 h-3.5 rounded-full bg-amber-500 shadow-sm"></div>
+                        <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Huesos Carnosos</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Cuello de pollo, rabadilla blanda</p></div>
+                    </div>
+                    <span class="font-black text-slate-900 text-lg">${planData.gramosHuesos}g</span>
+                </div>
+                <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-rose-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3.5 h-3.5 rounded-full bg-rose-500 shadow-sm"></div>
+                        <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Carne Magra</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Pechuga, corazón, pavita</p></div>
+                    </div>
+                    <span class="font-black text-slate-900 text-lg">${planData.gramosCarne}g</span>
+                </div>
+                <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-purple-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3.5 h-3.5 rounded-full bg-purple-500 shadow-sm"></div>
+                        <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Vísceras Mix</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Hígado (5%), sangrecita, riñón</p></div>
+                    </div>
+                    <span class="font-black text-slate-900 text-lg">${planData.gramosVisceras}g</span>
+                </div>
+                <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-emerald-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-sm"></div>
+                        <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Vegetales (Puré)</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Zapallo, zanahoria hervida</p></div>
+                    </div>
+                    <span class="font-black text-slate-900 text-lg">${planData.gramosVerduras}g</span>
+                </div>
+            `;
+
+            // 2. División de Comidas
+            let tomas = planData.etapa === 'cachorro' ? 3 : 2;
+            let gramosPorToma = Math.round(planData.totalGrams / tomas);
+            let textoTomas = planData.etapa === 'cachorro' ? "Desayuno, Almuerzo y Cena" : "Desayuno y Cena";
+            
+            document.getElementById('meal-division').innerHTML = `
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-[1.25rem] flex justify-between items-center shadow-inner">
+                    <div><span class="block text-[10px] font-black text-amber-600 mb-0.5">¿CÓMO DIVIDIRLO?</span><span class="block font-bold text-slate-800 text-sm">${textoTomas}</span></div>
+                    <div class="text-right bg-white px-3 py-1.5 rounded-xl border border-amber-100 shadow-sm"><span class="block font-black text-slate-900 text-xl leading-none">${gramosPorToma}g</span><span class="text-[9px] font-bold text-slate-400 uppercase">por comida</span></div>
+                </div>`;
+
+            renderTrackerUI();
+        }
+
+        // RENDER TRACKER & PROGRESS
+        function renderTrackerUI() {
+            const container = document.getElementById('tracker-container');
+            const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
+            const textsArray = transitionTexts[totalDays];
+            
+            // Calcular progreso
+            const completedCount = trackerData.completedDays.length;
+            const percent = Math.round((completedCount / totalDays) * 100);
+            
+            setTimeout(() => { document.getElementById('progress-bar').style.width = `${percent}%`; }, 100);
+            document.getElementById('progress-text').innerText = `${percent}% Completado`;
+
+            container.innerHTML = '';
+            
+            for(let i = 0; i < totalDays; i++) {
+                const isCompleted = trackerData.completedDays.includes(i);
+                const isReady = i === completedCount;
+                const isLocked = i > completedCount;
+                const isLastCompleted = isCompleted && i === (completedCount - 1);
+                
+                const realText = textsArray[i];
+                
+                let stateClass = '';
+                let iconHtml = '';
+                let contentHtml = '';
+                let clickAction = '';
+
+                if (isCompleted) {
+                    stateClass = 'day-completed';
+                    iconHtml = `<div class="w-8 h-8 rounded-full bg-emerald-100 border-2 border-emerald-400 text-emerald-500 flex items-center justify-center shrink-0 shadow-sm"><i class="fa-solid fa-check text-sm"></i></div>`;
+                    contentHtml = `<p class="text-xs text-slate-600 font-medium leading-relaxed mt-1 pr-2">${realText}</p>`;
+                    clickAction = isLastCompleted ? `onclick="openUndo(${i})"` : '';
+                } else if (isReady) {
+                    stateClass = 'day-ready';
+                    iconHtml = `<div class="w-8 h-8 rounded-full bg-white border-2 border-amber-400 text-amber-500 font-black flex items-center justify-center shrink-0 shadow-sm">${i+1}</div>`;
+                    contentHtml = `<p class="text-xs text-slate-800 font-bold leading-relaxed mt-1 pr-2">${realText}</p><p class="text-[10px] text-amber-600 font-black mt-2 uppercase tracking-wide"><i class="fa-solid fa-hand-pointer"></i> Toca para marcar completado</p>`;
+                    clickAction = `onclick="openTracker(${i})"`;
+                } else {
+                    stateClass = 'day-locked bg-slate-50 opacity-80';
+                    iconHtml = `<div class="w-8 h-8 rounded-full bg-slate-200 border-2 border-slate-300 text-slate-400 font-black flex items-center justify-center shrink-0">${i+1}</div>`;
+                    // Gamificación: Tips bloqueados (Blur effect)
+                    contentHtml = `
+                        <div class="content-blur text-xs text-slate-500 font-medium leading-relaxed mt-1 pr-2">${realText}</div>
+                        <p class="text-[10px] text-slate-400 font-bold mt-2"><i class="fa-solid fa-lock text-slate-300 mr-1"></i> Desbloquea el día anterior</p>`;
+                }
+                
+                container.innerHTML += `
+                    <div class="p-4 flex gap-4 transition-all relative ${stateClass}" ${clickAction}>
+                        ${iconHtml}
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center"><h4 class="font-black text-sm ${isCompleted ? 'text-emerald-700' : isReady ? 'text-slate-900' : 'text-slate-500'}">Día ${i+1}</h4> ${isLastCompleted ? '<span class="text-[10px] text-slate-400 bg-slate-100 px-2 rounded-md"><i class="fa-solid fa-pen"></i> Editar</span>' : ''}</div>
+                            ${contentHtml}
+                        </div>
+                    </div>`;
+            }
+        }
+
+        // LÓGICA DEL TRACKER MODAL (Apetito + Heces)
+        function openTracker(dayIndex) {
+            pendingDayToMark = dayIndex;
+            document.getElementById('tracker-step-appetite').classList.remove('hidden');
+            document.getElementById('tracker-step-poop').classList.add('hidden');
+            document.getElementById('tracker-step-message').classList.add('hidden');
+            document.getElementById('btn-close-tracker').classList.remove('hidden');
+            
+            const modal = document.getElementById('modal-tracker');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { document.getElementById('modal-tracker-content').classList.remove('translate-y-full'); }, 10);
+        }
+
+        function nextTrackerStep() {
+            document.getElementById('tracker-step-appetite').classList.add('hidden');
+            document.getElementById('tracker-step-poop').classList.remove('hidden');
+        }
+
+        function finishTracker(poopStatus) {
+            if(poopStatus === 'bad') {
+                document.getElementById('tracker-step-poop').classList.add('hidden');
+                document.getElementById('tracker-step-message').classList.remove('hidden');
+                document.getElementById('btn-close-tracker').classList.add('hidden');
+            } else {
+                closeTrackerAndSave();
+            }
+        }
+
+        function closeTrackerAndSave() {
+            if(!trackerData.completedDays.includes(pendingDayToMark)) {
+                trackerData.completedDays.push(pendingDayToMark);
+                localStorage.setItem(`nutriCanTracker_${dogName}`, JSON.stringify(trackerData));
+            }
+            closeTrackerModal();
+        }
+
+        function closeTrackerModal() {
+            document.getElementById('modal-tracker-content').classList.add('translate-y-full');
+            setTimeout(() => { 
+                document.getElementById('modal-tracker').classList.add('hidden'); 
+                document.getElementById('modal-tracker').classList.remove('flex'); 
+                renderTrackerUI(); 
+            }, 300);
+        }
+
+        // LÓGICA DE DESHACER (UX)
+        function openUndo(dayIndex) {
+            dayToUndo = dayIndex;
+            const modal = document.getElementById('modal-undo');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { document.getElementById('modal-undo-content').classList.remove('scale-95'); document.getElementById('modal-undo-content').classList.add('scale-100'); }, 10);
+        }
+
+        function closeUndoModal() {
+            document.getElementById('modal-undo-content').classList.add('scale-95');
+            setTimeout(() => { document.getElementById('modal-undo').classList.add('hidden'); document.getElementById('modal-undo').classList.remove('flex'); }, 300);
+        }
+
+        function confirmUndo() {
+            trackerData.completedDays = trackerData.completedDays.filter(day => day !== dayToUndo);
+            localStorage.setItem(`nutriCanTracker_${dogName}`, JSON.stringify(trackerData));
+            closeUndoModal();
+            setTimeout(() => { renderTrackerUI(); }, 300);
+        }
+
+        // RESET GLOBAL
+        function resetApp() {
+            const modal = document.getElementById('modal-reset');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { document.getElementById('modal-reset-content').classList.remove('scale-95'); document.getElementById('modal-reset-content').classList.add('scale-100'); }, 10);
+        }
+
+        function closeResetModal() {
+            document.getElementById('modal-reset-content').classList.add('scale-95');
+            setTimeout(() => { document.getElementById('modal-reset').classList.add('hidden'); document.getElementById('modal-reset').classList.remove('flex'); }, 300);
+        }
+
+        function confirmResetApp() {
+            closeResetModal(); 
+            localStorage.removeItem(`nutriCanPlan_${dogName}`);
+            localStorage.removeItem(`nutriCanTracker_${dogName}`);
+            trackerData = { completedDays: [] };
+            setTimeout(() => { showScreen('screen-goal', 'Paso 1 de 3'); }, 300);
+        }
+
+        // TIPS MODAL
+        function openTipsModal() {
+            const modal = document.getElementById('modal-tips');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { document.getElementById('modal-tips-content').classList.remove('scale-95'); document.getElementById('modal-tips-content').classList.add('scale-100'); }, 10);
+        }
+
+        function closeTipsModal() {
+            document.getElementById('modal-tips-content').classList.add('scale-95');
+            setTimeout(() => { document.getElementById('modal-tips').classList.add('hidden'); document.getElementById('modal-tips').classList.remove('flex'); }, 300);
+        }
+    </script>
+</body>
+</html>

@@ -42,7 +42,7 @@
         .btn-primary:hover { background-color: var(--accent-hover); }
         input[type="file"] { display: none; }
 
-        /* Estilos de los botones de Modo */
+        /* Botones de Modo */
         .mode-buttons { display: flex; gap: 10px; }
         .btn-mode { flex: 1; border: 2px solid var(--border); color: #888; background: transparent; }
         .btn-mode.active { border-color: var(--success); color: var(--success); background-color: rgba(40, 167, 69, 0.1); }
@@ -65,10 +65,10 @@
         /* Responsive para móviles */
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; max-height: 40vh; padding: 15px; flex-direction: row; flex-wrap: wrap; overflow-y: auto; }
+            .sidebar { width: 100%; height: auto; max-height: 45vh; padding: 15px; flex-direction: row; flex-wrap: wrap; overflow-y: auto; }
             .sidebar > * { flex: 1 1 100%; }
-            .mode-buttons { order: -1; } /* Sube los botones de modo arriba en celular */
-            .main-workspace { max-height: 60vh; }
+            .mode-buttons { order: -1; }
+            .main-workspace { max-height: 55vh; }
         }
     </style>
 </head>
@@ -100,9 +100,14 @@
             <input type="range" id="brushSize" min="5" max="150" value="40">
         </div>
 
+        <div class="control-group">
+            <label>Calidad (Menos peso): <span id="qualityVal">80</span>%</label>
+            <input type="range" id="imgQuality" min="10" max="100" value="80">
+        </div>
+
         <div class="control-group" style="margin-top: auto;">
             <button id="undoBtn">Deshacer Último Trazo</button>
-            <button id="downloadBtn" class="btn-primary" style="margin-top: 10px;">Descargar Imagen</button>
+            <button id="downloadBtn" class="btn-primary" style="margin-top: 10px;">Descargar JPEG</button>
         </div>
     </div>
 
@@ -118,10 +123,10 @@
         const cursorHelper = document.getElementById('cursor-helper');
         
         const sizeSlider = document.getElementById('brushSize');
+        const qualitySlider = document.getElementById('imgQuality');
         const undoBtn = document.getElementById('undoBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         
-        // Botones de Modo
         const btnSource = document.getElementById('btnSource');
         const btnPaint = document.getElementById('btnPaint');
         const instructionText = document.getElementById('instructionText');
@@ -131,8 +136,6 @@
         let sourceX = null, sourceY = null;
         let isDrawing = false;
         let offsetX = 0, offsetY = 0;
-        
-        // Modos: 'source' o 'paint'
         let currentMode = 'source'; 
 
         const sourceCanvas = document.createElement('canvas');
@@ -160,9 +163,14 @@
             else setMode('paint');
         });
 
+        // Actualizar UI de Sliders
         sizeSlider.addEventListener('input', (e) => {
             document.getElementById('sizeVal').innerText = e.target.value;
             updateCursorSize();
+        });
+        
+        qualitySlider.addEventListener('input', (e) => {
+            document.getElementById('qualityVal').innerText = e.target.value;
         });
 
         function updateCursorSize() {
@@ -177,17 +185,24 @@
                 img.onload = function() {
                     canvas.width = img.width; canvas.height = img.height;
                     sourceCanvas.width = img.width; sourceCanvas.height = img.height;
+                    
+                    // Truco profesional: Rellenar con fondo blanco por si suben un PNG transparente
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    sourceCtx.fillStyle = '#FFFFFF';
+                    sourceCtx.fillRect(0, 0, sourceCanvas.width, sourceCanvas.height);
+
                     ctx.drawImage(img, 0, 0); sourceCtx.drawImage(img, 0, 0);
+                    
                     history = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
                     sourceX = null; sourceY = null;
-                    setMode('source'); // Reiniciar al modo origen
+                    setMode('source'); 
                 }
                 img.src = event.target.result;
             }
             reader.readAsDataURL(e.target.files[0]);
         });
 
-        // Función para obtener coordenadas exactas (Mouse o Táctil)
         function getCoordinates(e) {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -215,7 +230,7 @@
             if (currentMode === 'source') {
                 sourceX = pos.x;
                 sourceY = pos.y;
-                setMode('paint'); // Cambia automáticamente a pintar!
+                setMode('paint'); 
             } else if (currentMode === 'paint' && sourceX !== null) {
                 isDrawing = true;
                 offsetX = sourceX - pos.x;
@@ -226,16 +241,13 @@
 
         function moveAction(e) {
             const pos = getCoordinates(e);
-            
-            // Actualizar cursor visual (solo PC)
             if(e.type === 'mousemove') {
                 cursorHelper.style.display = 'block';
                 cursorHelper.style.left = `${pos.screenX - sizeSlider.value/2}px`;
                 cursorHelper.style.top = `${pos.screenY - sizeSlider.value/2}px`;
             }
-
             if (!isDrawing) return;
-            e.preventDefault(); // Evitar que la pantalla haga scroll al pintar en el celular
+            e.preventDefault(); 
             drawClone(pos.x, pos.y);
         }
 
@@ -248,13 +260,11 @@
             }
         }
 
-        // Eventos Mouse
+        // Eventos
         canvas.addEventListener('mousedown', startAction);
         canvas.addEventListener('mousemove', moveAction);
         window.addEventListener('mouseup', endAction);
         canvas.addEventListener('mouseout', () => cursorHelper.style.display = 'none');
-
-        // Eventos Táctiles (Mobile)
         canvas.addEventListener('touchstart', startAction, { passive: false });
         canvas.addEventListener('touchmove', moveAction, { passive: false });
         window.addEventListener('touchend', endAction);
@@ -265,15 +275,11 @@
             const copyY = y + offsetY;
 
             ctx.save();
-            // Eliminé el slider de opacidad para simplificar la UI en móvil, pero la dejé fija en 0.9 (90%) 
-            // para que los bordes se mezclen naturalmente mejor.
             ctx.globalAlpha = 0.9; 
-            
             ctx.beginPath();
             ctx.arc(x, y, size / 2, 0, Math.PI * 2, true);
             ctx.closePath();
             ctx.clip();
-
             ctx.drawImage(sourceCanvas, copyX - size/2, copyY - size/2, size, size, x - size/2, y - size/2, size, size);
             ctx.restore();
         }
@@ -287,12 +293,19 @@
             }
         });
 
+        // NUEVO: Descarga optimizada en formato JPEG
         downloadBtn.addEventListener('click', () => {
             if(!img.src) return;
-            const link = document.createElement('a');
-            link.download = 'sin_marca_de_agua.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            
+            const qualityDecimal = parseInt(qualitySlider.value) / 100;
+            
+            canvas.toBlob((blob) => {
+                const link = document.createElement('a');
+                link.download = 'imagen_editada.jpg'; // Guardando como .jpg
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                URL.revokeObjectURL(link.href);
+            }, 'image/jpeg', qualityDecimal); // Compresión aplicada
         });
 
         updateCursorSize();

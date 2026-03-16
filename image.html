@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clonador Pro - Borrador de Marcas de Agua</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --sidebar-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --accent: #0070f3;
+            --accent-hover: #005bb5;
+            --border: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar UI */
+        .sidebar {
+            width: 300px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        button, .file-upload-btn {
+            background-color: var(--sidebar-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        button:hover, .file-upload-btn:hover {
+            background-color: #2a2a2a;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .instructions {
+            background-color: #2a2a2a;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #bbb;
+            line-height: 1.4;
+        }
+
+        .instructions strong {
+            color: var(--accent);
+        }
+
+        /* Canvas Area */
+        .main-workspace {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0a0a0a;
+            background-image: radial-gradient(#222 1px, transparent 0);
+            background-size: 20px 20px;
+            position: relative;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        canvas {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            cursor: crosshair;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* Cursor helper */
+        #cursor-helper {
+            position: fixed;
+            border: 1px solid white;
+            border-radius: 50%;
+            pointer-events: none;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 0 0 1px black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h1>Clonador Pro</h1>
+        
+        <div class="control-group">
+            <label class="file-upload-btn btn-primary">
+                Subir Imagen
+                <input type="file" id="imageLoader" accept="image/png, image/jpeg, image/webp">
+            </label>
+        </div>
+
+        <div class="instructions">
+            <strong>1.</strong> Mantén presionado <strong>ALT + Clic</strong> para seleccionar el área que deseas copiar.<br><br>
+            <strong>2.</strong> Haz <strong>Clic y arrastra</strong> sobre la marca de agua para pintar usando el área copiada.
+        </div>
+
+        <div class="control-group">
+            <label>Tamaño del Pincel: <span id="sizeVal">30</span>px</label>
+            <input type="range" id="brushSize" min="5" max="150" value="30">
+        </div>
+
+        <div class="control-group">
+            <label>Opacidad: <span id="opacityVal">100</span>%</label>
+            <input type="range" id="brushOpacity" min="1" max="100" value="100">
+        </div>
+
+        <div class="control-group" style="margin-top: auto;">
+            <button id="undoBtn">Deshacer Último Trazo</button>
+            <button id="downloadBtn" class="btn-primary" style="margin-top: 10px;">Descargar Imagen</button>
+        </div>
+    </div>
+
+    <div class="main-workspace">
+        <canvas id="editorCanvas"></canvas>
+        <div id="cursor-helper"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('editorCanvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const imageLoader = document.getElementById('imageLoader');
+        const cursorHelper = document.getElementById('cursor-helper');
+        
+        // Controles
+        const sizeSlider = document.getElementById('brushSize');
+        const opacitySlider = document.getElementById('brushOpacity');
+        const undoBtn = document.getElementById('undoBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        
+        // Estado de la aplicación
+        let img = new Image();
+        let history = [];
+        let sourceX = null, sourceY = null;
+        let isDrawing = false;
+        let isPickingSource = false;
+        let offsetX = 0, offsetY = 0;
+        
+        // Canvas oculto para leer los píxeles originales sin que se superpongan infinitamente
+        const sourceCanvas = document.createElement('canvas');
+        const sourceCtx = sourceCanvas.getContext('2d', { willReadFrequently: true });
+
+        // Actualizar UI
+        sizeSlider.addEventListener('input', (e) => {
+            document.getElementById('sizeVal').innerText = e.target.value;
+            updateCursorSize();
+        });
+        opacitySlider.addEventListener('input', (e) => document.getElementById('opacityVal').innerText = e.target.value);
+
+        function updateCursorSize() {
+            const size = sizeSlider.value;
+            cursorHelper.style.width = `${size}px`;
+            cursorHelper.style.height = `${size}px`;
+        }
+
+        // Cargar Imagen
+        imageLoader.addEventListener('change', function(e) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    sourceCanvas.width = img.width;
+                    sourceCanvas.height = img.height;
+                    
+                    ctx.drawImage(img, 0, 0);
+                    sourceCtx.drawImage(img, 0, 0);
+                    
+                    history = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
+                    sourceX = null; sourceY = null;
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        });
+
+        // Lógica del Cursor
+        canvas.addEventListener('mousemove', (e) => {
+            cursorHelper.style.display = 'block';
+            cursorHelper.style.left = `${e.clientX - sizeSlider.value/2}px`;
+            cursorHelper.style.top = `${e.clientY - sizeSlider.value/2}px`;
+
+            if(e.altKey) {
+                cursorHelper.style.borderColor = 'red';
+            } else {
+                cursorHelper.style.borderColor = 'white';
+            }
+        });
+        canvas.addEventListener('mouseout', () => cursorHelper.style.display = 'none');
+
+        // Lógica del Tampón de Clonar
+        canvas.addEventListener('mousedown', (e) => {
+            if (!img.src) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const mouseX = (e.clientX - rect.left) * scaleX;
+            const mouseY = (e.clientY - rect.top) * scaleY;
+
+            if (e.altKey) {
+                // Definir punto de origen
+                sourceX = mouseX;
+                sourceY = mouseY;
+            } else if (sourceX !== null) {
+                // Empezar a dibujar
+                isDrawing = true;
+                offsetX = sourceX - mouseX;
+                offsetY = sourceY - mouseY;
+                drawClone(mouseX, mouseY);
+            } else {
+                alert("Primero debes hacer ALT + Clic para seleccionar un área de origen.");
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+            drawClone(mouseX, mouseY);
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDrawing) {
+                isDrawing = false;
+                // Guardar en el historial para deshacer
+                history.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+                if(history.length > 10) history.shift(); // Limitar historial para no saturar RAM
+                
+                // Actualizar el canvas fuente para futuros trazos
+                sourceCtx.drawImage(canvas, 0, 0);
+            }
+        });
+
+        function drawClone(x, y) {
+            const size = parseInt(sizeSlider.value);
+            const opacity = parseInt(opacitySlider.value) / 100;
+            
+            // Punto desde donde copiamos
+            const copyX = x + offsetX;
+            const copyY = y + offsetY;
+
+            ctx.save();
+            ctx.globalAlpha = opacity;
+            
+            // Crear máscara circular para borde suave
+            ctx.beginPath();
+            ctx.arc(x, y, size / 2, 0, Math.PI * 2, true);
+            ctx.closePath();
+            ctx.clip();
+
+            // Dibujar desde el canvas oculto al canvas visible
+            ctx.drawImage(sourceCanvas, copyX - size/2, copyY - size/2, size, size, x - size/2, y - size/2, size, size);
+            ctx.restore();
+        }
+
+        // Deshacer
+        undoBtn.addEventListener('click', () => {
+            if (history.length > 1) {
+                history.pop(); // Quitar estado actual
+                const previousState = history[history.length - 1];
+                ctx.putImageData(previousState, 0, 0);
+                sourceCtx.putImageData(previousState, 0, 0);
+            }
+        });
+
+        // Descargar
+        downloadBtn.addEventListener('click', () => {
+            if(!img.src) return;
+            const link = document.createElement('a');
+            link.download = 'imagen_editada.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+        // Prevenir comportamiento por defecto de ALT para no perder el foco
+        window.addEventListener('keydown', (e) => {
+            if(e.altKey) e.preventDefault();
+        });
+        updateCursorSize();
+    </script>
+</body>
+</html>

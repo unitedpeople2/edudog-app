@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Clonador Pro - Borrador de Marcas de Agua</title>
     <style>
         :root {
@@ -12,135 +12,63 @@
             --accent: #0070f3;
             --accent-hover: #005bb5;
             --border: #333;
+            --success: #28a745;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
         /* Sidebar UI */
         .sidebar {
-            width: 300px;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-            z-index: 10;
+            width: 320px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border);
+            padding: 20px; display: flex; flex-direction: column; gap: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.5); z-index: 10; overflow-y: auto;
         }
 
-        h1 {
-            font-size: 1.2rem;
-            text-align: center;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-        }
+        h1 { font-size: 1.2rem; text-align: center; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
 
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        label {
-            font-size: 0.9rem;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            cursor: pointer;
-        }
+        .control-group { display: flex; flex-direction: column; gap: 10px; }
+        label { font-size: 0.9rem; display: flex; justify-content: space-between; }
+        input[type="range"] { width: 100%; cursor: pointer; }
 
         button, .file-upload-btn {
-            background-color: var(--sidebar-bg);
-            color: var(--text-main);
-            border: 1px solid var(--border);
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            background-color: var(--sidebar-bg); color: var(--text-main); border: 1px solid var(--border);
+            padding: 12px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 0.95rem; font-weight: 500; transition: all 0.2s;
         }
+        button:hover, .file-upload-btn:hover { background-color: #2a2a2a; }
 
-        button:hover, .file-upload-btn:hover {
-            background-color: #2a2a2a;
-        }
+        .btn-primary { background-color: var(--accent); color: white; border: none; }
+        .btn-primary:hover { background-color: var(--accent-hover); }
+        input[type="file"] { display: none; }
 
-        .btn-primary {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            font-weight: bold;
-        }
+        /* Estilos de los botones de Modo */
+        .mode-buttons { display: flex; gap: 10px; }
+        .btn-mode { flex: 1; border: 2px solid var(--border); color: #888; background: transparent; }
+        .btn-mode.active { border-color: var(--success); color: var(--success); background-color: rgba(40, 167, 69, 0.1); }
 
-        .btn-primary:hover {
-            background-color: var(--accent-hover);
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .instructions {
-            background-color: #2a2a2a;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: #bbb;
-            line-height: 1.4;
-        }
-
-        .instructions strong {
-            color: var(--accent);
-        }
+        .instructions { background-color: #2a2a2a; padding: 12px; border-radius: 6px; font-size: 0.85rem; color: #bbb; line-height: 1.5; }
 
         /* Canvas Area */
         .main-workspace {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #0a0a0a;
-            background-image: radial-gradient(#222 1px, transparent 0);
-            background-size: 20px 20px;
-            position: relative;
-            overflow: auto;
-            padding: 20px;
+            flex: 1; display: flex; justify-content: center; align-items: center;
+            background-color: #0a0a0a; background-image: radial-gradient(#222 1px, transparent 0);
+            background-size: 20px 20px; position: relative; overflow: auto; padding: 20px; touch-action: none;
         }
 
-        canvas {
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
-            cursor: crosshair;
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
+        canvas { box-shadow: 0 4px 20px rgba(0,0,0,0.8); cursor: crosshair; max-width: 100%; max-height: 100%; object-fit: contain; }
 
-        /* Cursor helper */
         #cursor-helper {
-            position: fixed;
-            border: 1px solid white;
-            border-radius: 50%;
-            pointer-events: none;
-            display: none;
-            z-index: 100;
-            box-shadow: 0 0 0 1px black;
+            position: fixed; border: 1.5px solid white; border-radius: 50%; pointer-events: none; display: none; z-index: 100; box-shadow: 0 0 0 1px rgba(0,0,0,0.5);
+        }
+
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; max-height: 40vh; padding: 15px; flex-direction: row; flex-wrap: wrap; overflow-y: auto; }
+            .sidebar > * { flex: 1 1 100%; }
+            .mode-buttons { order: -1; } /* Sube los botones de modo arriba en celular */
+            .main-workspace { max-height: 60vh; }
         }
     </style>
 </head>
@@ -156,19 +84,20 @@
             </label>
         </div>
 
-        <div class="instructions">
-            <strong>1.</strong> Mantén presionado <strong>ALT + Clic</strong> para seleccionar el área que deseas copiar.<br><br>
-            <strong>2.</strong> Haz <strong>Clic y arrastra</strong> sobre la marca de agua para pintar usando el área copiada.
+        <div class="control-group">
+            <div class="mode-buttons">
+                <button id="btnSource" class="btn-mode active">🎯 1. Fijar Origen</button>
+                <button id="btnPaint" class="btn-mode">🖌️ 2. Pintar</button>
+            </div>
+        </div>
+
+        <div class="instructions" id="instructionText">
+            Haz clic en la imagen para <strong>copiar el fondo</strong> que usarás para borrar la marca de agua.
         </div>
 
         <div class="control-group">
-            <label>Tamaño del Pincel: <span id="sizeVal">30</span>px</label>
-            <input type="range" id="brushSize" min="5" max="150" value="30">
-        </div>
-
-        <div class="control-group">
-            <label>Opacidad: <span id="opacityVal">100</span>%</label>
-            <input type="range" id="brushOpacity" min="1" max="100" value="100">
+            <label>Tamaño del Pincel: <span id="sizeVal">40</span>px</label>
+            <input type="range" id="brushSize" min="5" max="150" value="40">
         </div>
 
         <div class="control-group" style="margin-top: auto;">
@@ -188,30 +117,53 @@
         const imageLoader = document.getElementById('imageLoader');
         const cursorHelper = document.getElementById('cursor-helper');
         
-        // Controles
         const sizeSlider = document.getElementById('brushSize');
-        const opacitySlider = document.getElementById('brushOpacity');
         const undoBtn = document.getElementById('undoBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         
-        // Estado de la aplicación
+        // Botones de Modo
+        const btnSource = document.getElementById('btnSource');
+        const btnPaint = document.getElementById('btnPaint');
+        const instructionText = document.getElementById('instructionText');
+
         let img = new Image();
         let history = [];
         let sourceX = null, sourceY = null;
         let isDrawing = false;
-        let isPickingSource = false;
         let offsetX = 0, offsetY = 0;
         
-        // Canvas oculto para leer los píxeles originales sin que se superpongan infinitamente
+        // Modos: 'source' o 'paint'
+        let currentMode = 'source'; 
+
         const sourceCanvas = document.createElement('canvas');
         const sourceCtx = sourceCanvas.getContext('2d', { willReadFrequently: true });
 
-        // Actualizar UI
+        // Cambiar de modo
+        function setMode(mode) {
+            currentMode = mode;
+            if (mode === 'source') {
+                btnSource.classList.add('active');
+                btnPaint.classList.remove('active');
+                cursorHelper.style.borderColor = 'lime';
+                instructionText.innerHTML = "Haz clic en la imagen para <strong>copiar el fondo</strong> que usarás para borrar la marca de agua.";
+            } else {
+                btnPaint.classList.add('active');
+                btnSource.classList.remove('active');
+                cursorHelper.style.borderColor = 'white';
+                instructionText.innerHTML = "Haz clic y arrastra sobre la marca de agua para <strong>pintar y borrarla</strong>.";
+            }
+        }
+
+        btnSource.addEventListener('click', () => setMode('source'));
+        btnPaint.addEventListener('click', () => {
+            if (sourceX === null) alert("¡Primero debes fijar un origen (Paso 1)!");
+            else setMode('paint');
+        });
+
         sizeSlider.addEventListener('input', (e) => {
             document.getElementById('sizeVal').innerText = e.target.value;
             updateCursorSize();
         });
-        opacitySlider.addEventListener('input', (e) => document.getElementById('opacityVal').innerText = e.target.value);
 
         function updateCursorSize() {
             const size = sizeSlider.value;
@@ -219,133 +171,132 @@
             cursorHelper.style.height = `${size}px`;
         }
 
-        // Cargar Imagen
         imageLoader.addEventListener('change', function(e) {
             const reader = new FileReader();
             reader.onload = function(event) {
                 img.onload = function() {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    sourceCanvas.width = img.width;
-                    sourceCanvas.height = img.height;
-                    
-                    ctx.drawImage(img, 0, 0);
-                    sourceCtx.drawImage(img, 0, 0);
-                    
+                    canvas.width = img.width; canvas.height = img.height;
+                    sourceCanvas.width = img.width; sourceCanvas.height = img.height;
+                    ctx.drawImage(img, 0, 0); sourceCtx.drawImage(img, 0, 0);
                     history = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
                     sourceX = null; sourceY = null;
+                    setMode('source'); // Reiniciar al modo origen
                 }
                 img.src = event.target.result;
             }
             reader.readAsDataURL(e.target.files[0]);
         });
 
-        // Lógica del Cursor
-        canvas.addEventListener('mousemove', (e) => {
-            cursorHelper.style.display = 'block';
-            cursorHelper.style.left = `${e.clientX - sizeSlider.value/2}px`;
-            cursorHelper.style.top = `${e.clientY - sizeSlider.value/2}px`;
-
-            if(e.altKey) {
-                cursorHelper.style.borderColor = 'red';
-            } else {
-                cursorHelper.style.borderColor = 'white';
-            }
-        });
-        canvas.addEventListener('mouseout', () => cursorHelper.style.display = 'none');
-
-        // Lógica del Tampón de Clonar
-        canvas.addEventListener('mousedown', (e) => {
-            if (!img.src) return;
-            
+        // Función para obtener coordenadas exactas (Mouse o Táctil)
+        function getCoordinates(e) {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
-            
-            const mouseX = (e.clientX - rect.left) * scaleX;
-            const mouseY = (e.clientY - rect.top) * scaleY;
+            let clientX = e.clientX;
+            let clientY = e.clientY;
 
-            if (e.altKey) {
-                // Definir punto de origen
-                sourceX = mouseX;
-                sourceY = mouseY;
-            } else if (sourceX !== null) {
-                // Empezar a dibujar
-                isDrawing = true;
-                offsetX = sourceX - mouseX;
-                offsetY = sourceY - mouseY;
-                drawClone(mouseX, mouseY);
-            } else {
-                alert("Primero debes hacer ALT + Clic para seleccionar un área de origen.");
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
             }
-        });
 
-        canvas.addEventListener('mousemove', (e) => {
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY,
+                screenX: clientX,
+                screenY: clientY
+            };
+        }
+
+        function startAction(e) {
+            if (!img.src) return;
+            const pos = getCoordinates(e);
+
+            if (currentMode === 'source') {
+                sourceX = pos.x;
+                sourceY = pos.y;
+                setMode('paint'); // Cambia automáticamente a pintar!
+            } else if (currentMode === 'paint' && sourceX !== null) {
+                isDrawing = true;
+                offsetX = sourceX - pos.x;
+                offsetY = sourceY - pos.y;
+                drawClone(pos.x, pos.y);
+            }
+        }
+
+        function moveAction(e) {
+            const pos = getCoordinates(e);
+            
+            // Actualizar cursor visual (solo PC)
+            if(e.type === 'mousemove') {
+                cursorHelper.style.display = 'block';
+                cursorHelper.style.left = `${pos.screenX - sizeSlider.value/2}px`;
+                cursorHelper.style.top = `${pos.screenY - sizeSlider.value/2}px`;
+            }
+
             if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
-            const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
-            drawClone(mouseX, mouseY);
-        });
+            e.preventDefault(); // Evitar que la pantalla haga scroll al pintar en el celular
+            drawClone(pos.x, pos.y);
+        }
 
-        window.addEventListener('mouseup', () => {
+        function endAction() {
             if (isDrawing) {
                 isDrawing = false;
-                // Guardar en el historial para deshacer
                 history.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-                if(history.length > 10) history.shift(); // Limitar historial para no saturar RAM
-                
-                // Actualizar el canvas fuente para futuros trazos
+                if(history.length > 10) history.shift();
                 sourceCtx.drawImage(canvas, 0, 0);
             }
-        });
+        }
+
+        // Eventos Mouse
+        canvas.addEventListener('mousedown', startAction);
+        canvas.addEventListener('mousemove', moveAction);
+        window.addEventListener('mouseup', endAction);
+        canvas.addEventListener('mouseout', () => cursorHelper.style.display = 'none');
+
+        // Eventos Táctiles (Mobile)
+        canvas.addEventListener('touchstart', startAction, { passive: false });
+        canvas.addEventListener('touchmove', moveAction, { passive: false });
+        window.addEventListener('touchend', endAction);
 
         function drawClone(x, y) {
             const size = parseInt(sizeSlider.value);
-            const opacity = parseInt(opacitySlider.value) / 100;
-            
-            // Punto desde donde copiamos
             const copyX = x + offsetX;
             const copyY = y + offsetY;
 
             ctx.save();
-            ctx.globalAlpha = opacity;
+            // Eliminé el slider de opacidad para simplificar la UI en móvil, pero la dejé fija en 0.9 (90%) 
+            // para que los bordes se mezclen naturalmente mejor.
+            ctx.globalAlpha = 0.9; 
             
-            // Crear máscara circular para borde suave
             ctx.beginPath();
             ctx.arc(x, y, size / 2, 0, Math.PI * 2, true);
             ctx.closePath();
             ctx.clip();
 
-            // Dibujar desde el canvas oculto al canvas visible
             ctx.drawImage(sourceCanvas, copyX - size/2, copyY - size/2, size, size, x - size/2, y - size/2, size, size);
             ctx.restore();
         }
 
-        // Deshacer
         undoBtn.addEventListener('click', () => {
             if (history.length > 1) {
-                history.pop(); // Quitar estado actual
+                history.pop();
                 const previousState = history[history.length - 1];
                 ctx.putImageData(previousState, 0, 0);
                 sourceCtx.putImageData(previousState, 0, 0);
             }
         });
 
-        // Descargar
         downloadBtn.addEventListener('click', () => {
             if(!img.src) return;
             const link = document.createElement('a');
-            link.download = 'imagen_editada.png';
+            link.download = 'sin_marca_de_agua.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         });
 
-        // Prevenir comportamiento por defecto de ALT para no perder el foco
-        window.addEventListener('keydown', (e) => {
-            if(e.altKey) e.preventDefault();
-        });
         updateCursorSize();
+        setMode('source');
     </script>
 </body>
 </html>

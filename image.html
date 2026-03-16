@@ -3,129 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Clonador Pro - Borrador de Marcas de Agua</title>
+    <title>ToolPro - Herramientas de Imagen</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖼️</text></svg>">
+    
     <style>
         :root {
-            --bg-color: #121212;
-            --sidebar-bg: #1e1e1e;
-            --text-main: #e0e0e0;
-            --accent: #0070f3;
-            --accent-hover: #005bb5;
-            --border: #333;
+            --primary: #4A90E2;
+            --primary-hover: #357ABD;
+            --bg-light: #F5F7FA;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-muted: #777777;
+            --border: #E1E4E8;
             --success: #28a745;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
 
-        body { background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        body { background-color: var(--bg-light); color: var(--text-dark); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        /* Sidebar UI */
-        .sidebar {
-            width: 320px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border);
-            padding: 20px; display: flex; flex-direction: column; gap: 20px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.5); z-index: 10; overflow-y: auto;
+        /* Navbar Profesional */
+        .navbar {
+            background-color: var(--white); height: 70px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100;
         }
 
-        h1 { font-size: 1.2rem; text-align: center; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+        .logo { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); display: flex; align-items: center; gap: 10px; }
+        .logo span { color: var(--primary); }
 
-        .control-group { display: flex; flex-direction: column; gap: 10px; }
-        label { font-size: 0.9rem; display: flex; justify-content: space-between; }
-        input[type="range"] { width: 100%; cursor: pointer; }
-
-        button, .file-upload-btn {
-            background-color: var(--sidebar-bg); color: var(--text-main); border: 1px solid var(--border);
-            padding: 12px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 0.95rem; font-weight: 500; transition: all 0.2s;
+        .nav-tabs { display: flex; gap: 20px; height: 100%; }
+        .nav-tab {
+            background: none; border: none; font-size: 0.95rem; font-weight: 600; color: var(--text-muted);
+            cursor: pointer; padding: 0 15px; height: 100%; border-bottom: 3px solid transparent; transition: all 0.2s;
         }
-        button:hover, .file-upload-btn:hover { background-color: #2a2a2a; }
+        .nav-tab:hover { color: var(--primary); }
+        .nav-tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
 
-        .btn-primary { background-color: var(--accent); color: white; border: none; }
-        .btn-primary:hover { background-color: var(--accent-hover); }
+        /* Contenedores de Vistas */
+        .view-container { flex: 1; display: none; overflow: auto; }
+        .view-container.active { display: flex; }
+
+        /* --- VISTA 1: COMPRESOR (Estilo iLoveIMG) --- */
+        #view-compress { flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
+        
+        .hero-title { font-size: 2.8rem; font-weight: 800; margin-bottom: 15px; color: var(--text-dark); }
+        .hero-subtitle { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 40px; max-width: 600px; }
+
+        .upload-area {
+            background-color: var(--white); border: 2px dashed var(--primary); border-radius: 12px;
+            padding: 60px 40px; width: 100%; max-width: 800px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; align-items: center; gap: 20px; transition: all 0.3s;
+        }
+        
+        .btn-huge {
+            background-color: var(--primary); color: var(--white); font-size: 1.2rem; font-weight: bold;
+            padding: 20px 40px; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s;
+            display: inline-block; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+        }
+        .btn-huge:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
         input[type="file"] { display: none; }
 
-        /* Botones de Modo */
-        .mode-buttons { display: flex; gap: 10px; }
-        .btn-mode { flex: 1; border: 2px solid var(--border); color: #888; background: transparent; }
-        .btn-mode.active { border-color: var(--success); color: var(--success); background-color: rgba(40, 167, 69, 0.1); }
+        /* Panel de ajustes del compresor (Oculto hasta subir foto) */
+        #compress-settings { display: none; width: 100%; max-width: 800px; background: var(--white); padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 20px; }
+        .stats-box { display: flex; justify-content: space-around; background: var(--bg-light); padding: 20px; border-radius: 8px; margin: 20px 0; font-size: 1.1rem; }
+        .stats-box span { font-weight: bold; color: var(--primary); }
+        
+        /* --- VISTA 2: CLONADOR (Tampón) --- */
+        #view-clone { flex-direction: row; height: 100%; width: 100%; }
+        
+        .sidebar {
+            width: 320px; background-color: #1e1e1e; color: #eee; border-right: 1px solid #333;
+            padding: 20px; display: flex; flex-direction: column; gap: 20px; z-index: 10; overflow-y: auto;
+        }
+        .sidebar h2 { font-size: 1.2rem; text-align: center; padding-bottom: 15px; border-bottom: 1px solid #333; }
+        
+        .control-group { display: flex; flex-direction: column; gap: 10px; }
+        .control-group label { font-size: 0.9rem; display: flex; justify-content: space-between; }
+        input[type="range"] { width: 100%; cursor: pointer; }
 
+        .btn-sidebar { background-color: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; text-align: center; }
+        .btn-sidebar:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: #333; color: white; }
+        .btn-secondary:hover { background-color: #444; }
+
+        .mode-buttons { display: flex; gap: 10px; }
+        .btn-mode { flex: 1; border: 2px solid #444; color: #888; background: transparent; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold;}
+        .btn-mode.active { border-color: var(--success); color: var(--success); background-color: rgba(40, 167, 69, 0.1); }
+        
         .instructions { background-color: #2a2a2a; padding: 12px; border-radius: 6px; font-size: 0.85rem; color: #bbb; line-height: 1.5; }
 
-        /* Canvas Area */
         .main-workspace {
             flex: 1; display: flex; justify-content: center; align-items: center;
             background-color: #0a0a0a; background-image: radial-gradient(#222 1px, transparent 0);
             background-size: 20px 20px; position: relative; overflow: auto; padding: 20px; touch-action: none;
         }
-
         canvas { box-shadow: 0 4px 20px rgba(0,0,0,0.8); cursor: crosshair; max-width: 100%; max-height: 100%; object-fit: contain; }
+        #cursor-helper { position: fixed; border: 1.5px solid white; border-radius: 50%; pointer-events: none; display: none; z-index: 100; box-shadow: 0 0 0 1px rgba(0,0,0,0.5); }
 
-        #cursor-helper {
-            position: fixed; border: 1.5px solid white; border-radius: 50%; pointer-events: none; display: none; z-index: 100; box-shadow: 0 0 0 1px rgba(0,0,0,0.5);
-        }
-
-        /* Responsive para móviles */
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; max-height: 45vh; padding: 15px; flex-direction: row; flex-wrap: wrap; overflow-y: auto; }
+            .navbar { padding: 0 15px; }
+            .hero-title { font-size: 2rem; }
+            #view-clone { flex-direction: column; }
+            .sidebar { width: 100%; max-height: 45vh; padding: 15px; flex-direction: row; flex-wrap: wrap; }
             .sidebar > * { flex: 1 1 100%; }
             .mode-buttons { order: -1; }
-            .main-workspace { max-height: 55vh; }
         }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h1>Clonador Pro</h1>
-        
-        <div class="control-group">
-            <label class="file-upload-btn btn-primary">
-                Subir Imagen
-                <input type="file" id="imageLoader" accept="image/png, image/jpeg, image/webp">
+    <nav class="navbar">
+        <div class="logo">🖼️ Tool<span>Pro</span></div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('compress')">Comprimir Imagen</button>
+            <button class="nav-tab" onclick="switchTab('clone')">Quitar Marca de Agua</button>
+        </div>
+    </nav>
+
+    <main id="view-compress" class="view-container active">
+        <h1 class="hero-title">Comprimir IMAGEN</h1>
+        <p class="hero-subtitle">Reduce el peso de tus imágenes en formato JPEG sin perder calidad visual. Ideal para páginas web y redes sociales.</p>
+
+        <div class="upload-area" id="compress-upload-area">
+            <label class="btn-huge">
+                Seleccionar imagen
+                <input type="file" id="compressLoader" accept="image/png, image/jpeg, image/webp">
             </label>
+            <p style="color: var(--text-muted);">o suelta la imagen aquí</p>
         </div>
 
-        <div class="control-group">
-            <div class="mode-buttons">
-                <button id="btnSource" class="btn-mode active">🎯 1. Fijar Origen</button>
-                <button id="btnPaint" class="btn-mode">🖌️ 2. Pintar</button>
+        <div id="compress-settings">
+            <h3>Ajustes de Compresión</h3>
+            
+            <div class="control-group" style="margin-top: 20px;">
+                <label>Nivel de Calidad: <span id="compQualityVal">80</span>%</label>
+                <input type="range" id="compQualitySlider" min="10" max="100" value="80">
+            </div>
+
+            <div class="stats-box">
+                <div>Peso Original: <br><span id="sizeOriginal">0 KB</span></div>
+                <div>➡️</div>
+                <div>Nuevo Peso Estimado: <br><span id="sizeNew" style="color: var(--success);">0 KB</span></div>
+            </div>
+
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                <button class="btn-huge btn-secondary" style="padding: 15px 30px;" onclick="resetCompressor()">Subir otra</button>
+                <button class="btn-huge" id="btnDownloadCompressed">Descargar Imagen</button>
+            </div>
+        </div>
+    </main>
+
+    <main id="view-clone" class="view-container">
+        <div class="sidebar">
+            <h2>Clonador Pro</h2>
+            
+            <div class="control-group">
+                <label class="btn-sidebar">
+                    Subir Imagen
+                    <input type="file" id="cloneLoader" accept="image/png, image/jpeg, image/webp">
+                </label>
+            </div>
+
+            <div class="control-group">
+                <div class="mode-buttons">
+                    <button id="btnSource" class="btn-mode active">🎯 1. Fijar Origen</button>
+                    <button id="btnPaint" class="btn-mode">🖌️ 2. Pintar</button>
+                </div>
+            </div>
+
+            <div class="instructions" id="instructionText">
+                Haz clic en la imagen para <strong>copiar el fondo</strong> que usarás para borrar la marca de agua.
+            </div>
+
+            <div class="control-group">
+                <label>Tamaño del Pincel: <span id="sizeVal">40</span>px</label>
+                <input type="range" id="brushSize" min="5" max="150" value="40">
+            </div>
+
+            <div class="control-group" style="margin-top: auto;">
+                <button id="undoBtn" class="btn-sidebar btn-secondary">Deshacer Último Trazo</button>
+                <button id="btnDownloadClone" class="btn-sidebar" style="margin-top: 10px;">Descargar en Alta Calidad</button>
             </div>
         </div>
 
-        <div class="instructions" id="instructionText">
-            Haz clic en la imagen para <strong>copiar el fondo</strong> que usarás para borrar la marca de agua.
+        <div class="main-workspace">
+            <canvas id="editorCanvas"></canvas>
+            <div id="cursor-helper"></div>
         </div>
-
-        <div class="control-group">
-            <label>Tamaño del Pincel: <span id="sizeVal">40</span>px</label>
-            <input type="range" id="brushSize" min="5" max="150" value="40">
-        </div>
-
-        <div class="control-group">
-            <label>Calidad (Menos peso): <span id="qualityVal">80</span>%</label>
-            <input type="range" id="imgQuality" min="10" max="100" value="80">
-        </div>
-
-        <div class="control-group" style="margin-top: auto;">
-            <button id="undoBtn">Deshacer Último Trazo</button>
-            <button id="downloadBtn" class="btn-primary" style="margin-top: 10px;">Descargar JPEG</button>
-        </div>
-    </div>
-
-    <div class="main-workspace">
-        <canvas id="editorCanvas"></canvas>
-        <div id="cursor-helper"></div>
-    </div>
+    </main>
 
     <script>
+        // --- LÓGICA DE PESTAÑAS (TABS) ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`view-${tabId}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Utilidad para formatear bytes
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // --- LÓGICA DEL COMPRESOR ---
+        const compLoader = document.getElementById('compressLoader');
+        const compUploadArea = document.getElementById('compress-upload-area');
+        const compSettings = document.getElementById('compress-settings');
+        const compQualitySlider = document.getElementById('compQualitySlider');
+        const sizeOriginalTxt = document.getElementById('sizeOriginal');
+        const sizeNewTxt = document.getElementById('sizeNew');
+        const btnDownloadCompressed = document.getElementById('btnDownloadCompressed');
+        
+        let originalImgData = null;
+        let originalImgFile = null;
+        let compressedBlob = null;
+        const compCanvas = document.createElement('canvas');
+        const compCtx = compCanvas.getContext('2d');
+
+        compLoader.addEventListener('change', handleCompressUpload);
+
+        function handleCompressUpload(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            
+            originalImgFile = file;
+            sizeOriginalTxt.innerText = formatBytes(file.size);
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    compCanvas.width = img.width;
+                    compCanvas.height = img.height;
+                    // Fondo blanco por si es PNG
+                    compCtx.fillStyle = '#FFFFFF';
+                    compCtx.fillRect(0, 0, compCanvas.width, compCanvas.height);
+                    compCtx.drawImage(img, 0, 0);
+                    
+                    compUploadArea.style.display = 'none';
+                    compSettings.style.display = 'block';
+                    calculateNewSize(); // Calcular peso inicial al 80%
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        compQualitySlider.addEventListener('input', (e) => {
+            document.getElementById('compQualityVal').innerText = e.target.value;
+            calculateNewSize();
+        });
+
+        function calculateNewSize() {
+            const quality = parseInt(compQualitySlider.value) / 100;
+            compCanvas.toBlob((blob) => {
+                compressedBlob = blob;
+                sizeNewTxt.innerText = formatBytes(blob.size);
+            }, 'image/jpeg', quality);
+        }
+
+        btnDownloadCompressed.addEventListener('click', () => {
+            if(!compressedBlob) return;
+            const link = document.createElement('a');
+            link.download = `comprimida_${originalImgFile.name.split('.')[0]}.jpg`;
+            link.href = URL.createObjectURL(compressedBlob);
+            link.click();
+            URL.revokeObjectURL(link.href);
+        });
+
+        function resetCompressor() {
+            compSettings.style.display = 'none';
+            compUploadArea.style.display = 'flex';
+            compLoader.value = '';
+        }
+
+        // --- LÓGICA DEL CLONADOR ---
         const canvas = document.getElementById('editorCanvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        const imageLoader = document.getElementById('imageLoader');
+        const cloneLoader = document.getElementById('cloneLoader');
         const cursorHelper = document.getElementById('cursor-helper');
-        
         const sizeSlider = document.getElementById('brushSize');
-        const qualitySlider = document.getElementById('imgQuality');
-        const undoBtn = document.getElementById('undoBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
         
         const btnSource = document.getElementById('btnSource');
         const btnPaint = document.getElementById('btnPaint');
@@ -134,26 +297,22 @@
         let img = new Image();
         let history = [];
         let sourceX = null, sourceY = null;
-        let isDrawing = false;
-        let offsetX = 0, offsetY = 0;
+        let isDrawing = false; let offsetX = 0, offsetY = 0;
         let currentMode = 'source'; 
 
         const sourceCanvas = document.createElement('canvas');
         const sourceCtx = sourceCanvas.getContext('2d', { willReadFrequently: true });
 
-        // Cambiar de modo
         function setMode(mode) {
             currentMode = mode;
             if (mode === 'source') {
-                btnSource.classList.add('active');
-                btnPaint.classList.remove('active');
+                btnSource.classList.add('active'); btnPaint.classList.remove('active');
                 cursorHelper.style.borderColor = 'lime';
-                instructionText.innerHTML = "Haz clic en la imagen para <strong>copiar el fondo</strong> que usarás para borrar la marca de agua.";
+                instructionText.innerHTML = "Haz clic en la imagen para <strong>copiar el fondo</strong>.";
             } else {
-                btnPaint.classList.add('active');
-                btnSource.classList.remove('active');
+                btnPaint.classList.add('active'); btnSource.classList.remove('active');
                 cursorHelper.style.borderColor = 'white';
-                instructionText.innerHTML = "Haz clic y arrastra sobre la marca de agua para <strong>pintar y borrarla</strong>.";
+                instructionText.innerHTML = "Haz clic y arrastra sobre la marca de agua para <strong>borrarla</strong>.";
             }
         }
 
@@ -163,40 +322,30 @@
             else setMode('paint');
         });
 
-        // Actualizar UI de Sliders
         sizeSlider.addEventListener('input', (e) => {
             document.getElementById('sizeVal').innerText = e.target.value;
             updateCursorSize();
         });
-        
-        qualitySlider.addEventListener('input', (e) => {
-            document.getElementById('qualityVal').innerText = e.target.value;
-        });
 
         function updateCursorSize() {
             const size = sizeSlider.value;
-            cursorHelper.style.width = `${size}px`;
-            cursorHelper.style.height = `${size}px`;
+            cursorHelper.style.width = `${size}px`; cursorHelper.style.height = `${size}px`;
         }
 
-        imageLoader.addEventListener('change', function(e) {
+        cloneLoader.addEventListener('change', function(e) {
             const reader = new FileReader();
             reader.onload = function(event) {
                 img.onload = function() {
                     canvas.width = img.width; canvas.height = img.height;
                     sourceCanvas.width = img.width; sourceCanvas.height = img.height;
                     
-                    // Truco profesional: Rellenar con fondo blanco por si suben un PNG transparente
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    sourceCtx.fillStyle = '#FFFFFF';
-                    sourceCtx.fillRect(0, 0, sourceCanvas.width, sourceCanvas.height);
+                    ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    sourceCtx.fillStyle = '#FFFFFF'; sourceCtx.fillRect(0, 0, sourceCanvas.width, sourceCanvas.height);
 
                     ctx.drawImage(img, 0, 0); sourceCtx.drawImage(img, 0, 0);
                     
                     history = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
-                    sourceX = null; sourceY = null;
-                    setMode('source'); 
+                    sourceX = null; sourceY = null; setMode('source'); 
                 }
                 img.src = event.target.result;
             }
@@ -205,37 +354,19 @@
 
         function getCoordinates(e) {
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            let clientX = e.clientX;
-            let clientY = e.clientY;
-
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            }
-
-            return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY,
-                screenX: clientX,
-                screenY: clientY
-            };
+            const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height;
+            let clientX = e.clientX; let clientY = e.clientY;
+            if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+            return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY, screenX: clientX, screenY: clientY };
         }
 
         function startAction(e) {
             if (!img.src) return;
             const pos = getCoordinates(e);
-
             if (currentMode === 'source') {
-                sourceX = pos.x;
-                sourceY = pos.y;
-                setMode('paint'); 
+                sourceX = pos.x; sourceY = pos.y; setMode('paint'); 
             } else if (currentMode === 'paint' && sourceX !== null) {
-                isDrawing = true;
-                offsetX = sourceX - pos.x;
-                offsetY = sourceY - pos.y;
-                drawClone(pos.x, pos.y);
+                isDrawing = true; offsetX = sourceX - pos.x; offsetY = sourceY - pos.y; drawClone(pos.x, pos.y);
             }
         }
 
@@ -243,12 +374,10 @@
             const pos = getCoordinates(e);
             if(e.type === 'mousemove') {
                 cursorHelper.style.display = 'block';
-                cursorHelper.style.left = `${pos.screenX - sizeSlider.value/2}px`;
-                cursorHelper.style.top = `${pos.screenY - sizeSlider.value/2}px`;
+                cursorHelper.style.left = `${pos.screenX - sizeSlider.value/2}px`; cursorHelper.style.top = `${pos.screenY - sizeSlider.value/2}px`;
             }
             if (!isDrawing) return;
-            e.preventDefault(); 
-            drawClone(pos.x, pos.y);
+            e.preventDefault(); drawClone(pos.x, pos.y);
         }
 
         function endAction() {
@@ -260,7 +389,6 @@
             }
         }
 
-        // Eventos
         canvas.addEventListener('mousedown', startAction);
         canvas.addEventListener('mousemove', moveAction);
         window.addEventListener('mouseup', endAction);
@@ -271,45 +399,33 @@
 
         function drawClone(x, y) {
             const size = parseInt(sizeSlider.value);
-            const copyX = x + offsetX;
-            const copyY = y + offsetY;
-
-            ctx.save();
-            ctx.globalAlpha = 0.9; 
-            ctx.beginPath();
-            ctx.arc(x, y, size / 2, 0, Math.PI * 2, true);
-            ctx.closePath();
-            ctx.clip();
+            const copyX = x + offsetX; const copyY = y + offsetY;
+            ctx.save(); ctx.globalAlpha = 0.9; 
+            ctx.beginPath(); ctx.arc(x, y, size / 2, 0, Math.PI * 2, true); ctx.closePath(); ctx.clip();
             ctx.drawImage(sourceCanvas, copyX - size/2, copyY - size/2, size, size, x - size/2, y - size/2, size, size);
             ctx.restore();
         }
 
-        undoBtn.addEventListener('click', () => {
+        document.getElementById('undoBtn').addEventListener('click', () => {
             if (history.length > 1) {
                 history.pop();
                 const previousState = history[history.length - 1];
-                ctx.putImageData(previousState, 0, 0);
-                sourceCtx.putImageData(previousState, 0, 0);
+                ctx.putImageData(previousState, 0, 0); sourceCtx.putImageData(previousState, 0, 0);
             }
         });
 
-        // NUEVO: Descarga optimizada en formato JPEG
-        downloadBtn.addEventListener('click', () => {
+        document.getElementById('btnDownloadClone').addEventListener('click', () => {
             if(!img.src) return;
-            
-            const qualityDecimal = parseInt(qualitySlider.value) / 100;
-            
             canvas.toBlob((blob) => {
                 const link = document.createElement('a');
-                link.download = 'imagen_editada.jpg'; // Guardando como .jpg
+                link.download = 'sin_marca_de_agua.jpg';
                 link.href = URL.createObjectURL(blob);
                 link.click();
                 URL.revokeObjectURL(link.href);
-            }, 'image/jpeg', qualityDecimal); // Compresión aplicada
+            }, 'image/jpeg', 1.0); // Calidad Máxima 100%
         });
 
         updateCursorSize();
-        setMode('source');
     </script>
 </body>
-</html>
+</html>g

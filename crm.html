@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Studio - Panel de Control</title>
+    <title>CRM Studio - Panel EduDog Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -46,11 +46,11 @@
     <aside id="sidebar" class="hidden md:flex w-full md:w-64 bg-slate-900 text-slate-300 flex-col h-full shrink-0 relative z-20 absolute md:static top-[72px] bottom-0 left-0 transition-all border-r border-slate-800">
         <div class="hidden md:flex p-6 border-b border-slate-800 items-center gap-3">
             <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-700">
-                <i class="fa-solid fa-layer-group text-rose-400"></i>
+                <i class="fa-solid fa-paw text-rose-400"></i>
             </div>
             <div>
                 <h1 class="font-black text-lg text-white leading-tight tracking-tight">CRM Studio</h1>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">SaaS Panel</p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">EduDog Pro</p>
             </div>
         </div>
 
@@ -97,17 +97,19 @@
                         <div class="space-y-3">
                             <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">1. Contenido Visual</label>
                             
-                            <div class="border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 p-6 flex flex-col items-center justify-center text-center hover:bg-slate-100 hover:border-slate-300 transition-colors group cursor-pointer">
-                                <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 text-slate-400 group-hover:text-rose-500 transition-colors">
-                                    <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
-                                </div>
-                                <p class="text-sm font-semibold text-slate-700">Arrastra tu imagen aquí</p>
-                                <p class="text-xs text-slate-400 mt-1 mb-4">PNG, JPG hasta 10MB</p>
+                            <div id="dropzone" onclick="document.getElementById('file-upload').click()" class="border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 p-6 flex flex-col items-center justify-center text-center hover:bg-slate-100 hover:border-slate-300 transition-colors group cursor-pointer relative overflow-hidden">
                                 
-                                <div class="w-full relative input-focus transition-all rounded-xl border border-slate-200 bg-white flex items-center overflow-hidden">
+                                <input type="file" id="file-upload" class="hidden" accept="image/png, image/jpeg, image/jpg">
+                                
+                                <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 text-slate-400 group-hover:text-rose-500 transition-colors">
+                                    <i id="upload-icon" class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                                </div>
+                                <p id="upload-text" class="text-sm font-semibold text-slate-700">Arrastra tu imagen aquí o haz clic</p>
+                                <p class="text-xs text-slate-400 mt-1 mb-4">PNG, JPG de EduDog Pro</p>
+                                
+                                <div class="w-full relative input-focus transition-all rounded-xl border border-slate-200 bg-white flex items-center overflow-hidden" onclick="event.stopPropagation()">
                                     <span class="pl-3 text-slate-400"><i class="fa-solid fa-link text-xs"></i></span>
                                     <input type="text" id="img-url-input" placeholder="O pega un enlace temporal..." 
-                                        value="https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg"
                                         class="w-full bg-transparent text-slate-700 py-2.5 pl-2 pr-3 outline-none text-sm font-medium">
                                 </div>
                             </div>
@@ -122,9 +124,9 @@
                             </div>
                             <div class="relative input-focus transition-all rounded-2xl border border-slate-200 bg-slate-50 p-1">
                                 <textarea id="caption-input" rows="7" placeholder="Escribe el texto de tu post..."
-                                    class="w-full bg-transparent text-slate-800 rounded-xl p-4 outline-none text-sm leading-relaxed resize-none custom-scroll">¡Nuevo post automático! 🚀🐶
+                                    class="w-full bg-transparent text-slate-800 rounded-xl p-4 outline-none text-sm leading-relaxed resize-none custom-scroll">¡Nutrición natural para tu peludo! 🥩🐶
 
-Hoy estamos probando nuestra integración directa con Meta. 
+Hoy compartimos otro tip sobre la dieta BARF y por qué es la mejor opción para la salud de tu mascota. 
 
 #EduDogPro #NutricionCanina #BARF</textarea>
                             </div>
@@ -157,7 +159,7 @@ Hoy estamos probando nuestra integración directa con Meta.
                             </div>
 
                             <div class="w-full aspect-square bg-slate-100 relative">
-                                <img id="preview-img" src="" alt="Preview" class="w-full h-full object-cover">
+                                <img id="preview-img" src="https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg" alt="Preview" class="w-full h-full object-cover">
                             </div>
 
                             <div class="p-4 bg-white">
@@ -258,15 +260,79 @@ Hoy estamos probando nuestra integración directa con Meta.
             previewCaption.innerHTML = text.replace(/(#[a-zA-Z0-9_]+)/g, '<span class="text-blue-900">$1</span>');
         });
 
-        // --- CONEXIÓN SEGURA CON PYTHON ---
-        // 🚨 REEMPLAZA ESTA URL POR LA DE TU CLOUD RUN 🚨
-        const BACKEND_URL = "https://TU-URL-DE-CLOUD-RUN.a.run.app/api/publicar-ig";
+        // --- CONSTANTES DE URL INTEGRADOS ---
+        const BACKEND_URL = "https://bot-cursos-digitales-500394828639.southamerica-west1.run.app/api/publicar-ig";
+        const UPLOAD_URL = "https://bot-cursos-digitales-500394828639.southamerica-west1.run.app/api/upload-media";
 
+        // --- LÓGICA DE ARRASTRAR Y SUBIR ARCHIVOS ---
+        const dropzone = document.getElementById('dropzone');
+        const fileUpload = document.getElementById('file-upload');
+        const uploadText = document.getElementById('upload-text');
+        const uploadIcon = document.getElementById('upload-icon');
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('border-rose-500', 'bg-rose-50');
+        });
+        
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('border-rose-500', 'bg-rose-50');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-rose-500', 'bg-rose-50');
+            if (e.dataTransfer.files.length > 0) {
+                handleFileUpload(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileUpload.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        async function handleFileUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                return alert('Por favor, sube solo imágenes (JPG o PNG).');
+            }
+
+            uploadText.innerText = "Subiendo a la nube...";
+            uploadIcon.className = "fa-solid fa-circle-notch fa-spin text-xl text-rose-500";
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(UPLOAD_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error || "Error al subir la imagen");
+
+                imgInput.value = data.url;
+                imgInput.dispatchEvent(new Event('input'));
+                
+                uploadText.innerText = "¡Imagen lista!";
+                uploadIcon.className = "fa-solid fa-check text-xl text-emerald-500";
+
+            } catch (error) {
+                alert("Hubo un error subiendo la imagen: " + error.message);
+                uploadText.innerText = "Arrastra tu imagen aquí o haz clic";
+                uploadIcon.className = "fa-solid fa-cloud-arrow-up text-xl text-slate-400";
+            }
+        }
+
+        // --- CONEXIÓN SEGURA PARA PUBLICAR ---
         async function publishToInstagram() {
             const imgUrl = imgInput.value.trim();
             const caption = captionInput.value.trim();
 
-            if (!imgUrl) return alert("Por favor, ingresa un enlace de imagen.");
+            if (!imgUrl) return alert("Por favor, ingresa un enlace de imagen o sube una primero.");
 
             // Mostrar Modal Cargando
             const modal = document.getElementById('modal-publish');
@@ -303,11 +369,16 @@ Hoy estamos probando nuestra integración directa con Meta.
             content.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
             
-            // Limpiar campos
+            // Limpiar campos visuales
             captionInput.value = '';
             imgInput.value = '';
             captionInput.dispatchEvent(new Event('input'));
             imgInput.dispatchEvent(new Event('input'));
+            
+            // Reiniciar Dropzone
+            uploadText.innerText = "Arrastra tu imagen aquí o haz clic";
+            uploadIcon.className = "fa-solid fa-cloud-arrow-up text-xl text-slate-400";
+            fileUpload.value = "";
         }
 
         // Init

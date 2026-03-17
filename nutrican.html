@@ -117,7 +117,8 @@
                 <div class="space-y-1.5">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Condición Corporal</label>
                     <select id="dogCondition" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
-                        <option value="ideal" selected>Peso Ideal (Cintura visible)</option>
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="ideal">Peso Ideal (Cintura visible)</option>
                         <option value="flaco">Delgado (Se le ven las costillas)</option>
                         <option value="gordo">Gordito (Sobrepeso / Sin cintura)</option>
                     </select>
@@ -125,7 +126,8 @@
                 <div class="space-y-1.5">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Etapa de Vida</label>
                     <select id="dogAge" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
-                        <option value="adulto" selected>Adulto (1 a 7 años)</option>
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="adulto">Adulto (1 a 7 años)</option>
                         <option value="cachorro">Cachorro (Menos de 1 año)</option>
                         <option value="senior">Senior (+7 años)</option>
                     </select>
@@ -133,13 +135,14 @@
                 <div class="space-y-1.5">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Nivel de Actividad</label>
                     <select id="dogActivity" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
-                        <option value="normal" selected>Normal (1 paseo diario)</option>
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="normal">Normal (1 paseo diario)</option>
                         <option value="baja">Baja (Perezoso / Sedentario)</option>
                         <option value="alta">Alta (Muy activo / Deportivo)</option>
                     </select>
                 </div>
             </div>
-            <button onclick="calculateDiet()" class="mt-auto w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 transition-all text-lg">Crear Plan Definitivo</button>
+            <button onclick="calculateDiet()" class="mt-auto w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 transition-all text-lg mt-6">Crear Plan Definitivo</button>
         </section>
 
         <section id="screen-loading" class="screen flex-col justify-center items-center p-6 text-center">
@@ -410,7 +413,11 @@
             const activity = document.getElementById('dogActivity').value;
             const condition = document.getElementById('dogCondition').value;
 
-            if (!weight || !age || !activity) { alert("Completa los campos para continuar."); return; }
+            // Validación mejorada que ahora evalúa todos los campos incluyendo la Condición Corporal
+            if (!weight || !age || !activity || !condition) { 
+                alert("Completa todos los campos para continuar."); 
+                return; 
+            }
 
             showScreen('screen-loading', 'Calculando...');
             const loadingText = document.getElementById('loading-text');

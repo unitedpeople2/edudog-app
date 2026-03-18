@@ -101,6 +101,9 @@
                 <button onclick="switchTab('campanas')" id="nav-campanas" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors">
                     <i class="fa-solid fa-bullhorn w-5"></i> Campañas Ads
                 </button>
+                <button onclick="switchTab('cerebro')" id="nav-cerebro" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors border border-violet-500/30">
+                    <i class="fa-solid fa-brain w-5 text-violet-400"></i> Cerebro IA
+                </button>
             </nav>
 
             <div class="p-4 border-t border-slate-800">
@@ -189,6 +192,14 @@
                                         <div class="space-y-1.5">
                                             <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Precio Oferta (S/ o USD)</label>
                                             <input type="number" id="prod-precio" placeholder="25" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm">
+                                        </div>
+
+                                        <div class="space-y-1.5 mt-4 pt-4 border-t border-slate-100">
+                                            <label class="text-[11px] font-bold text-violet-600 uppercase tracking-widest flex items-center gap-1">
+                                                <i class="fa-solid fa-robot"></i> Resumen para la IA (Catálogo)
+                                            </label>
+                                            <textarea id="prod-desc-ia" rows="3" placeholder="Ej: NutriCan Vital es una app que calcula dieta natural para perros. Resuelve problemas de alergias..." class="w-full bg-violet-50 border border-violet-200 rounded-xl py-3 px-4 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm"></textarea>
+                                            <p class="text-[10px] text-slate-400">Gemini leerá este texto para saber cómo vender este producto específico.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -408,6 +419,38 @@
                     </div>
                 </div>
             </div>
+
+            <div id="tab-cerebro" class="tab-content hidden w-full h-full flex flex-col fade-in relative">
+                <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Cerebro de la IA</h1>
+                        <p class="text-sm text-slate-500 font-medium">Define la personalidad y reglas globales de tu asistente Gemini.</p>
+                    </div>
+                    <button onclick="saveCerebro()" id="btn-save-cerebro" class="bg-violet-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-violet-700 shadow-md shadow-violet-600/20 transition-all flex gap-2 items-center">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Prompt
+                    </button>
+                </header>
+                <div class="flex-1 p-8 overflow-y-auto flex justify-center items-start">
+                    <div class="bg-white w-full max-w-4xl rounded-2xl border border-slate-200 shadow-sm p-8 space-y-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 bg-violet-100 text-violet-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800">Prompt Maestro (System Prompt)</h3>
+                                <p class="text-xs text-slate-500 font-medium">Instrucciones base para responder preguntas abiertas por WhatsApp. Aplica a toda tu marca.</p>
+                            </div>
+                        </div>
+                        <textarea id="cerebro-prompt" rows="18" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-violet-500 leading-relaxed" placeholder="Eres un asesor experto de ventas de cursos caninos. Responde de forma amable, corta y con emojis..."></textarea>
+                        
+                        <div class="bg-blue-50/50 border border-blue-100 rounded-xl p-4 mt-4">
+                            <h4 class="font-bold text-blue-800 text-xs mb-1 uppercase tracking-widest"><i class="fa-solid fa-circle-info"></i> Recuerda</h4>
+                            <p class="text-xs text-slate-600">Este texto es el "Manual de Empleado" de Gemini. Las características específicas de cada producto (como precios y detalles de la app) se las pasaremos desde la pestaña de "Productos", no necesitas escribirlas aquí.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -424,7 +467,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-        const storage = firebase.storage(); // Inicializar Storage
+        const storage = firebase.storage();
 
         let allProducts = [];
 
@@ -439,6 +482,7 @@
                 document.getElementById('status-db').classList.add('text-emerald-400');
                 loadProducts();
                 loadCampaigns();
+                loadCerebro(); // NUEVO: Cargar el prompt maestro al iniciar sesión
             } else {
                 document.getElementById('screen-login').classList.remove('hidden');
                 document.getElementById('screen-dashboard').classList.add('hidden');
@@ -479,31 +523,39 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             
             document.querySelectorAll('.nav-btn').forEach(el => {
-                el.classList.remove('bg-violet-600/20', 'text-violet-400');
+                el.classList.remove('bg-violet-600/20', 'text-violet-400', 'border-violet-500/30');
                 el.classList.add('text-slate-400');
+                
+                // Limpiar icono
+                const icon = el.querySelector('i');
+                icon.classList.remove('text-violet-400');
             });
             
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            
             const btn = document.getElementById(`nav-${tabId}`);
             btn.classList.remove('text-slate-400');
             btn.classList.add('bg-violet-600/20', 'text-violet-400');
+            if(tabId === 'cerebro') btn.classList.add('border', 'border-violet-500/30');
+            
+            const iconBtn = btn.querySelector('i');
+            iconBtn.classList.add('text-violet-400');
 
             if(tabId === 'productos') closeProductEditor();
             if(tabId === 'campanas') closeCampaignEditor();
         }
 
         // ==========================================
-        // 4. LÓGICA DE SUBIDA A STORAGE (NUEVO)
+        // 4. LÓGICA DE SUBIDA A STORAGE
         // ==========================================
         async function uploadFileToStorage(input, targetInputId) {
             const file = input.files[0];
             if (!file) return;
 
-            // Asegurar que el usuario ya le puso un ID al producto para organizar las carpetas
             const docId = document.getElementById('prod-id-edit').value || document.getElementById('prod-id').value.trim();
             if (!docId) {
                 showToast('Error: Primero escribe un ID para el paquete en el Paso 1', 'error');
-                input.value = ''; // Limpiar el input file
+                input.value = ''; 
                 return;
             }
 
@@ -512,7 +564,6 @@
             const progressBarContainer = document.getElementById(`progress-${targetInputId}`);
             const progressBar = progressBarContainer.querySelector('div');
 
-            // Preparar UI
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
             btn.disabled = true;
             progressBarContainer.classList.remove('hidden');
@@ -552,11 +603,11 @@
             btn.innerHTML = originalHTML;
             btn.disabled = false;
             setTimeout(() => { progressBarContainer.classList.add('hidden'); }, 2000);
-            input.value = ''; // Permite volver a subir el mismo archivo si es necesario
+            input.value = '';
         }
 
         // ==========================================
-        // 5. EDITOR DE PRODUCTOS
+        // 5. EDITOR DE PRODUCTOS (MODIFICADO IA)
         // ==========================================
         function openProductEditor(editData = null) {
             document.getElementById('prod-id').disabled = false;
@@ -566,6 +617,7 @@
             document.getElementById('prod-nombre').value = '';
             document.getElementById('prod-precio').value = '';
             document.getElementById('prod-activo').checked = false;
+            document.getElementById('prod-desc-ia').value = ''; // NUEVO
             
             document.getElementById('prod-m1').value = '';
             document.getElementById('prod-audio').value = '';
@@ -591,6 +643,7 @@
                 document.getElementById('prod-nombre').value = editData.nombre_producto || '';
                 document.getElementById('prod-precio').value = editData.precio_oferta || 0;
                 document.getElementById('prod-activo').checked = editData.activo || false;
+                document.getElementById('prod-desc-ia').value = editData.descripcion_para_ia || ''; // NUEVO
                 
                 document.getElementById('prod-m1').value = editData.mensaje_1 || '';
                 document.getElementById('prod-audio').value = editData.url_audio || '';
@@ -688,6 +741,7 @@
                 nombre_producto: document.getElementById('prod-nombre').value,
                 precio_oferta: Number(document.getElementById('prod-precio').value),
                 activo: document.getElementById('prod-activo').checked,
+                descripcion_para_ia: document.getElementById('prod-desc-ia').value.trim(), // NUEVO
                 apps_a_desbloquear: apps,
                 ebooks_a_desbloquear: ebooks,
                 
@@ -834,6 +888,45 @@
                 closeCampaignEditor();
                 loadCampaigns();
             } catch(e) { showToast("Error guardando campaña", "error"); }
+        }
+
+        // ==========================================
+        // 7. CEREBRO IA (NUEVO)
+        // ==========================================
+        async function loadCerebro() {
+            try {
+                const doc = await db.collection('config').doc('bot').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('cerebro-prompt').value = data.prompt_maestro || '';
+                }
+            } catch(e) { 
+                console.error('Error cargando Cerebro IA:', e); 
+            }
+        }
+
+        async function saveCerebro() {
+            const prompt = document.getElementById('cerebro-prompt').value.trim();
+            const btn = document.getElementById('btn-save-cerebro');
+            
+            if(!prompt) return showToast('El prompt no puede estar vacío', 'error');
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
+            btn.disabled = true;
+
+            try {
+                await db.collection('config').doc('bot').set({
+                    prompt_maestro: prompt,
+                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                showToast("Prompt guardado con éxito");
+            } catch(e) { 
+                showToast("Error guardando el Cerebro IA", "error"); 
+            } finally {
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Prompt`;
+                btn.disabled = false;
+            }
         }
     </script>
 </body>

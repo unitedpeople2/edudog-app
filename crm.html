@@ -30,7 +30,7 @@
 
         /* Estilos Kanban */
         .kanban-col { min-height: 200px; transition: background-color 0.2s; }
-        .kanban-col.drag-over { background-color: rgba(226, 232, 240, 0.5); border-color: #94a3b8; }
+        .kanban-col.drag-over { background-color: rgba(226, 232, 240, 0.5); border-color: #94a3b8; border-style: dashed; }
         .kanban-card { cursor: grab; }
         .kanban-card:active { cursor: grabbing; }
     </style>
@@ -114,7 +114,6 @@
                             </div>
                             
                             <div id="dropzone" onclick="document.getElementById('file-upload').click()" class="border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 p-6 flex flex-col items-center justify-center text-center hover:bg-slate-100 hover:border-slate-300 transition-colors group cursor-pointer relative overflow-hidden">
-                                
                                 <input type="file" id="file-upload" class="hidden" accept="image/png, image/jpeg, image/jpg, video/mp4, video/quicktime" multiple>
                                 
                                 <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 text-slate-400 group-hover:text-rose-500 transition-colors">
@@ -130,9 +129,7 @@
                                     <button onclick="addUrlFromInput(event)" class="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs h-full border-l border-slate-200 transition-colors">Añadir</button>
                                 </div>
                             </div>
-
-                            <div id="thumbnails-container" class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-2 hidden">
-                            </div>
+                            <div id="thumbnails-container" class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-2 hidden"></div>
                         </div>
 
                         <div class="space-y-3">
@@ -165,7 +162,6 @@ Aprende a nutrir a tu peludo de la forma más natural.
                             <button onclick="processPost('draft')" class="w-full bg-slate-100 text-slate-700 font-bold py-3.5 rounded-2xl hover:bg-slate-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2 border border-slate-300">
                                 <i class="fa-solid fa-box-archive text-lg"></i> Guardar Borrador
                             </button>
-                            
                             <div class="grid grid-cols-2 gap-3">
                                 <button onclick="processPost('publish')" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-slate-900/20 hover:bg-slate-800 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                                     <i class="fa-brands fa-instagram text-lg"></i> Publicar Ahora
@@ -198,10 +194,8 @@ Aprende a nutrir a tu peludo de la forma más natural.
                                 <div id="media-layer" class="w-full h-full">
                                     <img src="https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg" class="w-full h-full object-cover transition-transform duration-300">
                                 </div>
-                                
                                 <button id="prev-btn" onclick="prevImage(event)" class="hidden absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 text-slate-800 w-7 h-7 rounded-full flex items-center justify-center shadow-md text-xs hover:bg-white transition-all z-20"><i class="fa-solid fa-chevron-left"></i></button>
                                 <button id="next-btn" onclick="nextImage(event)" class="hidden absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 text-slate-800 w-7 h-7 rounded-full flex items-center justify-center shadow-md text-xs hover:bg-white transition-all z-20"><i class="fa-solid fa-chevron-right"></i></button>
-                                
                                 <div id="carousel-dots" class="absolute bottom-3 left-0 w-full flex justify-center gap-1.5 z-20"></div>
                             </div>
 
@@ -229,42 +223,32 @@ Aprende a nutrir a tu peludo de la forma más natural.
         </div>
 
         <div id="view-kanban" class="hidden flex-col h-full bg-slate-100/50">
-            <header class="h-20 border-b border-slate-200 px-4 md:px-8 flex items-center justify-between shrink-0 z-10 bg-white">
-                <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Tablero de Publicaciones</h2>
+            <header class="h-20 border-b border-slate-200 px-4 md:px-8 flex items-center justify-between shrink-0 z-10 bg-white shadow-sm">
+                <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Agenda Visual</h2>
                 <button onclick="loadKanban()" class="text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
                     <i class="fa-solid fa-rotate-right"></i> Refrescar
                 </button>
             </header>
             
-            <div class="flex-1 p-4 md:p-8 flex flex-col md:flex-row gap-6 overflow-x-auto overflow-y-auto custom-scroll items-start">
+            <div class="flex-1 p-4 md:p-8 flex flex-col lg:flex-row gap-6 overflow-hidden">
                 
-                <div class="w-full md:w-1/3 flex-shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-col kanban-col h-full max-h-[calc(100vh-140px)]" 
+                <div class="w-full lg:w-[30%] flex-shrink-0 bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col kanban-col h-full" 
                      ondrop="drop(event, 'borrador')" ondragover="allowDrop(event)">
                     <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
                         <h3 class="font-bold text-slate-700 flex items-center gap-2"><i class="fa-solid fa-box-archive text-slate-400"></i> Borradores</h3>
                         <span id="count-borrador" class="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded-md">0</span>
                     </div>
-                    <div id="col-borrador" class="flex-1 overflow-y-auto custom-scroll space-y-3 pb-2 pr-1">
+                    <div id="col-borrador" class="flex-1 overflow-y-auto custom-scroll space-y-2 pb-2 pr-2">
                         </div>
                 </div>
 
-                <div class="w-full md:w-1/3 flex-shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-indigo-200 flex flex-col kanban-col h-full max-h-[calc(100vh-140px)]" 
+                <div class="w-full lg:w-[70%] flex-shrink-0 bg-white rounded-2xl p-5 shadow-sm border border-indigo-200 flex flex-col kanban-col h-full bg-indigo-50/30" 
                      ondrop="drop(event, 'pendiente')" ondragover="allowDrop(event)">
-                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-indigo-50">
-                        <h3 class="font-bold text-indigo-900 flex items-center gap-2"><i class="fa-solid fa-clock text-indigo-400"></i> Programados</h3>
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-indigo-100">
+                        <h3 class="font-bold text-indigo-900 flex items-center gap-2"><i class="fa-solid fa-calendar-check text-indigo-500"></i> Programados para publicarse</h3>
                         <span id="count-pendiente" class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded-md">0</span>
                     </div>
-                    <div id="col-pendiente" class="flex-1 overflow-y-auto custom-scroll space-y-3 pb-2 pr-1">
-                        </div>
-                </div>
-
-                <div class="w-full md:w-1/3 flex-shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-emerald-200 flex flex-col kanban-col h-full max-h-[calc(100vh-140px)]" 
-                     ondrop="drop(event, 'publicado')" ondragover="allowDrop(event)">
-                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-emerald-50">
-                        <h3 class="font-bold text-emerald-900 flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-400"></i> Publicados / Historial</h3>
-                        <span id="count-publicado" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-md">0</span>
-                    </div>
-                    <div id="col-publicado" class="flex-1 overflow-y-auto custom-scroll space-y-3 pb-2 pr-1">
+                    <div id="col-pendiente" class="flex-1 overflow-y-auto custom-scroll grid grid-cols-1 md:grid-cols-2 auto-rows-max gap-2 pb-2 pr-2 content-start">
                         </div>
                 </div>
 
@@ -272,7 +256,7 @@ Aprende a nutrir a tu peludo de la forma más natural.
         </div>
     </main>
 
-    <div id="modal-publish" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
+    <div id="modal-publish" class="hidden fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
         <div class="bg-white rounded-3xl p-10 max-w-sm w-full mx-4 text-center shadow-2xl transform scale-95 transition-transform duration-300" id="modal-content">
             <div id="modal-loader" class="block">
                 <div class="w-16 h-16 border-4 border-slate-100 border-t-rose-500 rounded-full animate-spin mx-auto mb-6"></div>
@@ -292,10 +276,10 @@ Aprende a nutrir a tu peludo de la forma más natural.
         </div>
     </div>
 
-    <div id="modal-date-picker" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
+    <div id="modal-date-picker" class="hidden fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center">
-            <h3 class="text-lg font-bold text-slate-900 mb-2">Asignar Fecha de Programación</h3>
-            <p class="text-sm text-slate-500 mb-6">Para mover este borrador a Programados, selecciona cuándo deseas publicarlo.</p>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">Asignar Fecha</h3>
+            <p class="text-sm text-slate-500 mb-6">¿Cuándo quieres que se publique esto?</p>
             
             <div class="relative input-focus transition-all rounded-xl border border-slate-200 bg-slate-50 p-1 flex items-center mb-6">
                 <span class="pl-4 text-slate-400"><i class="fa-regular fa-calendar-days"></i></span>
@@ -309,6 +293,36 @@ Aprende a nutrir a tu peludo de la forma más natural.
         </div>
     </div>
 
+    <div id="modal-post-details" class="hidden fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden" onclick="event.stopPropagation()">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div class="flex items-center gap-3">
+                    <span id="detail-badge" class="px-3 py-1 rounded-full text-xs font-bold"></span>
+                    <span id="detail-date" class="text-sm font-medium text-slate-500"></span>
+                </div>
+                <button onclick="closePostDetails()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto custom-scroll p-6 flex flex-col md:flex-row gap-6">
+                <div class="w-full md:w-1/2 bg-slate-900 rounded-2xl overflow-hidden flex items-center justify-center relative aspect-[4/5] shrink-0">
+                    <div id="detail-media-container" class="w-full h-full"></div>
+                </div>
+                <div class="w-full md:w-1/2 flex flex-col">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Descripción (Copy)</h4>
+                    <div class="flex-1 bg-slate-50 border border-slate-100 rounded-2xl p-4 overflow-y-auto custom-scroll mb-6">
+                        <p id="detail-caption" class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed"></p>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100">
+                        <button id="btn-delete-post" class="w-full bg-red-50 text-red-600 font-bold py-3 rounded-xl hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-trash-can"></i> Eliminar Publicación
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // CONSTANTES
         const PROJECT_URL = "https://bot-cursos-digitales-500394828639.southamerica-west1.run.app";
@@ -318,6 +332,9 @@ Aprende a nutrir a tu peludo de la forma más natural.
         const KANBAN_GET_URL = `${PROJECT_URL}/api/kanban/posts`;
         const KANBAN_UPDATE_URL = `${PROJECT_URL}/api/kanban/update`;
         const KANBAN_DELETE_URL = `${PROJECT_URL}/api/kanban/delete`;
+
+        // GLOBAL POSTS DATA PARA EL MODAL
+        let globalKanbanPosts = [];
 
         // NAVEGACIÓN
         function toggleMobileMenu() {
@@ -338,7 +355,7 @@ Aprende a nutrir a tu peludo de la forma más natural.
             } else {
                 document.getElementById('view-kanban').classList.remove('hidden'); document.getElementById('view-kanban').classList.add('flex');
                 document.getElementById('nav-kanban').className = "w-full flex items-center gap-3 px-4 py-3 bg-white/10 text-white rounded-xl font-semibold transition-all";
-                loadKanban(); // Cargar tarjetas al abrir Kanban
+                loadKanban();
             }
         }
 
@@ -463,7 +480,6 @@ Aprende a nutrir a tu peludo de la forma más natural.
                 return alert("Para programar, selecciona una fecha y hora en el paso 3.");
             }
 
-            // Preparar Modal UI
             const modal = document.getElementById('modal-publish');
             const content = document.getElementById('modal-content');
             const subtext = document.getElementById('modal-subtext');
@@ -502,7 +518,6 @@ Aprende a nutrir a tu peludo de la forma más natural.
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || "Error de servidor");
 
-                // UI Éxito
                 document.getElementById('modal-loader').classList.add('hidden');
                 document.getElementById('modal-success').classList.remove('hidden');
 
@@ -514,7 +529,7 @@ Aprende a nutrir a tu peludo de la forma más natural.
                     document.getElementById('success-subtext').innerText = "Se publicará automáticamente.";
                 } else {
                     document.getElementById('success-title').innerText = "¡Borrador Guardado! 📁";
-                    document.getElementById('success-subtext').innerText = "Revisa tu Tablero Kanban.";
+                    document.getElementById('success-subtext').innerText = "Revisa tu Tablero.";
                 }
 
             } catch (error) {
@@ -534,65 +549,143 @@ Aprende a nutrir a tu peludo de la forma más natural.
         }
 
         // ==========================================
-        // LÓGICA DEL TABLERO KANBAN (DRAG & DROP)
+        // LÓGICA DEL TABLERO (LISTAS COMPACTAS)
         // ==========================================
         
+        // Helper para fechas bonitas (Ej: 15 Oct, 14:30)
+        function formatShortDate(isoString) {
+            if (!isoString) return 'Sin fecha';
+            const d = new Date(isoString);
+            const formatter = new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' });
+            return formatter.format(d).replace(',', ' -');
+        }
+
         async function loadKanban() {
             try {
                 const response = await fetch(KANBAN_GET_URL);
                 const data = await response.json();
                 if(data.status !== 'ok') throw new Error("Error cargando kanban");
                 
-                // Limpiar columnas
+                // Guardar en variable global para el Modal de Detalles
+                globalKanbanPosts = data.posts;
+                
+                // Limpiar
                 document.getElementById('col-borrador').innerHTML = '';
                 document.getElementById('col-pendiente').innerHTML = '';
-                document.getElementById('col-publicado').innerHTML = '';
                 
-                let counts = { borrador: 0, pendiente: 0, publicado: 0 };
+                let counts = { borrador: 0, pendiente: 0 };
 
-                data.posts.forEach(post => {
+                // Omitir los 'publicados' completamente
+                const activePosts = data.posts.filter(p => p.estado !== 'publicado');
+
+                // Ordenar por fecha (los pendientes primero los más próximos)
+                activePosts.sort((a, b) => {
+                    if (a.estado === 'pendiente' && b.estado === 'pendiente') {
+                        return new Date(a.scheduled_date) - new Date(b.scheduled_date);
+                    }
+                    return new Date(b.creado_el) - new Date(a.creado_el);
+                });
+
+                activePosts.forEach(post => {
                     const colId = `col-${post.estado === 'error' ? 'pendiente' : post.estado}`; 
                     const col = document.getElementById(colId);
                     if(col) {
-                        col.innerHTML += createKanbanCard(post);
+                        col.innerHTML += createCompactCard(post);
                         counts[post.estado === 'error' ? 'pendiente' : post.estado]++;
                     }
                 });
 
                 document.getElementById('count-borrador').innerText = counts.borrador;
                 document.getElementById('count-pendiente').innerText = counts.pendiente;
-                document.getElementById('count-publicado').innerText = counts.publicado;
 
             } catch(e) { console.error("Error Kanban:", e); }
         }
 
-        function createKanbanCard(post) {
+        function createCompactCard(post) {
             const isVideo = post.image_urls[0].toLowerCase().includes('.mp4') || post.image_urls[0].toLowerCase().includes('.mov');
-            const thumb = isVideo 
-                ? `<div class="w-full h-24 bg-slate-900 relative rounded-lg overflow-hidden mb-2"><video src="${post.image_urls[0]}" class="w-full h-full object-cover opacity-80"></video><i class="fa-solid fa-play absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white"></i></div>` 
-                : `<img src="${post.image_urls[0]}" class="w-full h-24 object-cover rounded-lg mb-2 bg-slate-100">`;
+            const iconHtml = isVideo ? `<i class="fa-solid fa-video text-indigo-400"></i>` : `<i class="fa-solid fa-image text-emerald-400"></i>`;
             
-            let badge = '';
+            const shortText = post.caption ? (post.caption.length > 35 ? post.caption.substring(0, 35) + '...' : post.caption) : '(Sin texto)';
+            
+            let timeInfo = '';
             if (post.estado === 'pendiente' && post.scheduled_date) {
-                badge = `<span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded font-bold mb-2 inline-block"><i class="fa-regular fa-clock mr-1"></i> ${new Date(post.scheduled_date).toLocaleString()}</span>`;
-            } else if (post.estado === 'publicado') {
-                badge = `<span class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded font-bold mb-2 inline-block"><i class="fa-solid fa-check mr-1"></i> Publicado</span>`;
+                timeInfo = `<span class="text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-full"><i class="fa-regular fa-clock"></i> ${formatShortDate(post.scheduled_date)}</span>`;
             } else if (post.estado === 'error') {
-                badge = `<span class="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded font-bold mb-2 inline-block"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Falló al publicar</span>`;
+                timeInfo = `<span class="text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded-full"><i class="fa-solid fa-triangle-exclamation"></i> Error al publicar</span>`;
+            } else {
+                timeInfo = `<span class="text-slate-400"><i class="fa-solid fa-box-archive"></i> Creado: ${formatShortDate(post.creado_el)}</span>`;
             }
 
-            const shortText = post.caption ? (post.caption.length > 50 ? post.caption.substring(0, 50) + '...' : post.caption) : '(Sin texto)';
-
             return `
-            <div id="${post.id}" class="kanban-card bg-white border border-slate-200 p-3 rounded-xl shadow-sm hover:shadow-md transition-shadow relative group" draggable="true" ondragstart="drag(event)">
-                <button onclick="deleteKanbanPost('${post.id}')" class="absolute top-2 right-2 w-6 h-6 bg-red-100 text-red-500 rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity z-10"><i class="fa-solid fa-trash-can"></i></button>
-                ${thumb}
-                ${badge}
-                <p class="text-xs text-slate-600 leading-tight">${shortText}</p>
+            <div id="${post.id}" class="kanban-card bg-white border border-slate-200 p-3 rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all flex items-center justify-between group cursor-pointer" draggable="true" ondragstart="drag(event)" onclick="openPostDetails('${post.id}')">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 shadow-inner">
+                        ${iconHtml}
+                    </div>
+                    <div class="flex flex-col overflow-hidden">
+                        <p class="text-sm font-semibold text-slate-800 truncate leading-tight">${shortText}</p>
+                        <p class="text-[10px] mt-1 flex items-center gap-1">${timeInfo}</p>
+                    </div>
+                </div>
+                <div class="shrink-0 pl-2">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-slate-300 group-hover:text-slate-500 group-hover:bg-slate-50 transition-colors">
+                        <i class="fa-solid fa-grip-vertical"></i>
+                    </div>
+                </div>
             </div>`;
         }
 
-        // Variables temporales para el drag&drop
+        // ==========================================
+        // LÓGICA DEL MODAL DE DETALLES
+        // ==========================================
+        function openPostDetails(postId) {
+            const post = globalKanbanPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            // Llenar datos
+            const badgeEl = document.getElementById('detail-badge');
+            if (post.estado === 'pendiente') {
+                badgeEl.className = "px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700";
+                badgeEl.innerText = "Programado";
+                document.getElementById('detail-date').innerHTML = `<i class="fa-regular fa-clock"></i> Para el ${formatShortDate(post.scheduled_date)}`;
+            } else if (post.estado === 'error') {
+                badgeEl.className = "px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700";
+                badgeEl.innerText = "Error";
+                document.getElementById('detail-date').innerHTML = "Revisa tu conexión o Meta.";
+            } else {
+                badgeEl.className = "px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600";
+                badgeEl.innerText = "Borrador";
+                document.getElementById('detail-date').innerHTML = "Sin fecha asignada";
+            }
+
+            document.getElementById('detail-caption').innerText = post.caption || "Sin descripción proporcionada.";
+
+            // Render visual preview
+            const isVideo = post.image_urls[0].toLowerCase().includes('.mp4') || post.image_urls[0].toLowerCase().includes('.mov');
+            const mediaContainer = document.getElementById('detail-media-container');
+            if (isVideo) {
+                mediaContainer.innerHTML = `<video src="${post.image_urls[0]}" class="w-full h-full object-cover" controls autoplay muted loop></video>`;
+            } else {
+                mediaContainer.innerHTML = `<img src="${post.image_urls[0]}" class="w-full h-full object-cover">`;
+            }
+
+            // Asignar función al botón borrar
+            const deleteBtn = document.getElementById('btn-delete-post');
+            deleteBtn.onclick = () => deleteKanbanPost(postId);
+
+            // Mostrar modal
+            document.getElementById('modal-post-details').classList.remove('hidden');
+        }
+
+        function closePostDetails() {
+            document.getElementById('modal-post-details').classList.add('hidden');
+            document.getElementById('detail-media-container').innerHTML = ''; // Parar videos
+        }
+
+
+        // ==========================================
+        // LÓGICA DE ARRASTRAR Y SOLTAR (DRAG & DROP)
+        // ==========================================
         let draggedCardId = null;
         let pendingTargetStatus = null;
 
@@ -643,16 +736,19 @@ Aprende a nutrir a tu peludo de la forma más natural.
         }
 
         async function deleteKanbanPost(postId) {
-            if(!confirm("¿Estás seguro de eliminar esta publicación del Kanban?")) return;
+            if(!confirm("¿Estás seguro de eliminar esta publicación para siempre?")) return;
             try {
                 const response = await fetch(KANBAN_DELETE_URL, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: postId })
                 });
-                if(response.ok) { loadKanban(); } else { alert("Error eliminando."); }
+                if(response.ok) { 
+                    closePostDetails(); // Cerrar modal si estaba abierto
+                    loadKanban(); 
+                } else { alert("Error eliminando."); }
             } catch(e) { console.error(e); }
         }
 
-        // Eventos para limpiar colores de las columnas al sacar el mouse arrastrando
+        // Eventos limpieza Drag
         document.querySelectorAll('.kanban-col').forEach(col => {
             col.addEventListener('dragleave', (e) => { e.currentTarget.classList.remove('drag-over'); });
         });

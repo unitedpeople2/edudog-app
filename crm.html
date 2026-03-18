@@ -315,7 +315,6 @@ Aprende a nutrir a tu peludo de la forma más natural.
             uploadText.innerText = `Subiendo ${files.length} archivo(s)...`;
             uploadIcon.className = "fa-solid fa-circle-notch fa-spin text-xl text-rose-500";
 
-            // Subimos una por una (o podrías hacer Promise.all para más velocidad)
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 if (!file.type.startsWith('image/')) continue;
@@ -441,7 +440,6 @@ Aprende a nutrir a tu peludo de la forma más natural.
             setTimeout(() => content.classList.remove('scale-95'), 10);
 
             try {
-                // Enviamos el array image_urls en vez de img_url
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -452,7 +450,15 @@ Aprende a nutrir a tu peludo de la forma más natural.
                 });
 
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error || "Error de servidor");
+                
+                // 🚨 FIX: Mejor manejo de errores para saber de qué se queja Meta
+                if (!response.ok) {
+                    let errorMessage = data.error || "Error de servidor";
+                    if (data.detalles && data.detalles.error && data.detalles.error.message) {
+                        errorMessage += "\n\nMotivo de Meta: " + data.detalles.error.message;
+                    }
+                    throw new Error(errorMessage);
+                }
 
                 // Éxito
                 document.getElementById('modal-loader').classList.add('hidden');

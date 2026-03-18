@@ -69,7 +69,7 @@
                 <div class="w-2 h-2 rounded-full bg-emerald-500 connected-dot shrink-0"></div>
                 <div class="overflow-hidden">
                     <p class="text-xs font-bold text-white truncate">Cloud Run Activo</p>
-                    <p class="text-[10px] text-slate-400 font-medium">Conectado a Meta</p>
+                    <p class="text-[10px] text-slate-400 font-medium">Soporta Carruseles</p>
                 </div>
             </div>
         </div>
@@ -81,7 +81,7 @@
             <header class="h-20 border-b border-slate-100 px-4 md:px-8 flex items-center justify-between shrink-0 z-10">
                 <div>
                     <h2 class="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">Nueva Publicación</h2>
-                    <p class="hidden md:block text-sm text-slate-500 mt-0.5">Sincronización directa con Instagram.</p>
+                    <p class="hidden md:block text-sm text-slate-500 mt-0.5">Sube una imagen o un carrusel completo.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="bg-slate-50 text-slate-700 font-semibold text-xs px-4 py-2 rounded-full border border-slate-200 flex items-center shadow-sm">
@@ -95,24 +95,31 @@
                     <div class="space-y-8 max-w-lg mx-auto">
                         
                         <div class="space-y-3">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">1. Contenido Visual</label>
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">1. Contenido Visual (Max 10)</label>
+                                <span id="img-counter" class="text-xs font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded-md">0 / 10</span>
+                            </div>
                             
                             <div id="dropzone" onclick="document.getElementById('file-upload').click()" class="border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 p-6 flex flex-col items-center justify-center text-center hover:bg-slate-100 hover:border-slate-300 transition-colors group cursor-pointer relative overflow-hidden">
                                 
-                                <input type="file" id="file-upload" class="hidden" accept="image/png, image/jpeg, image/jpg">
+                                <input type="file" id="file-upload" class="hidden" accept="image/png, image/jpeg, image/jpg" multiple>
                                 
                                 <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 text-slate-400 group-hover:text-rose-500 transition-colors">
-                                    <i id="upload-icon" class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                                    <i id="upload-icon" class="fa-solid fa-images text-xl"></i>
                                 </div>
-                                <p id="upload-text" class="text-sm font-semibold text-slate-700">Arrastra tu imagen aquí o haz clic</p>
-                                <p class="text-xs text-slate-400 mt-1 mb-4">PNG, JPG de EduDog Pro</p>
+                                <p id="upload-text" class="text-sm font-semibold text-slate-700">Arrastra tus imágenes aquí o haz clic</p>
+                                <p class="text-xs text-slate-400 mt-1 mb-4">La primera imagen será la portada.</p>
                                 
                                 <div class="w-full relative input-focus transition-all rounded-xl border border-slate-200 bg-white flex items-center overflow-hidden" onclick="event.stopPropagation()">
                                     <span class="pl-3 text-slate-400"><i class="fa-solid fa-link text-xs"></i></span>
-                                    <input type="text" id="img-url-input" placeholder="O pega un enlace temporal..." 
+                                    <input type="text" id="img-url-input" placeholder="O pega un enlace y pulsa Añadir..." 
                                         class="w-full bg-transparent text-slate-700 py-2.5 pl-2 pr-3 outline-none text-sm font-medium">
+                                    <button onclick="addUrlFromInput(event)" class="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs h-full border-l border-slate-200 transition-colors">Añadir</button>
                                 </div>
                             </div>
+
+                            <div id="thumbnails-container" class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-2 hidden">
+                                </div>
                         </div>
 
                         <div class="space-y-3">
@@ -124,9 +131,9 @@
                             </div>
                             <div class="relative input-focus transition-all rounded-2xl border border-slate-200 bg-slate-50 p-1">
                                 <textarea id="caption-input" rows="7" placeholder="Escribe el texto de tu post..."
-                                    class="w-full bg-transparent text-slate-800 rounded-xl p-4 outline-none text-sm leading-relaxed resize-none custom-scroll">¡Nutrición natural para tu peludo! 🥩🐶
+                                    class="w-full bg-transparent text-slate-800 rounded-xl p-4 outline-none text-sm leading-relaxed resize-none custom-scroll">¡Desliza para ver la receta BARF de hoy! 👉🥩🐶
 
-Hoy compartimos otro tip sobre la dieta BARF y por qué es la mejor opción para la salud de tu mascota. 
+Aprende a nutrir a tu peludo de la forma más natural. 
 
 #EduDogPro #NutricionCanina #BARF</textarea>
                             </div>
@@ -158,8 +165,13 @@ Hoy compartimos otro tip sobre la dieta BARF y por qué es la mejor opción para
                                 <i class="fa-solid fa-ellipsis text-slate-400 text-sm"></i>
                             </div>
 
-                            <div class="w-full aspect-square bg-slate-100 relative">
-                                <img id="preview-img" src="https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg" alt="Preview" class="w-full h-full object-cover">
+                            <div class="w-full aspect-square bg-slate-100 relative group overflow-hidden">
+                                <img id="preview-img" src="https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg" alt="Preview" class="w-full h-full object-cover transition-transform duration-300">
+                                
+                                <button id="prev-btn" onclick="prevImage(event)" class="hidden absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 text-slate-800 w-7 h-7 rounded-full flex items-center justify-center shadow-md text-xs hover:bg-white transition-all"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button id="next-btn" onclick="nextImage(event)" class="hidden absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 text-slate-800 w-7 h-7 rounded-full flex items-center justify-center shadow-md text-xs hover:bg-white transition-all"><i class="fa-solid fa-chevron-right"></i></button>
+                                
+                                <div id="carousel-dots" class="absolute bottom-3 left-0 w-full flex justify-center gap-1.5"></div>
                             </div>
 
                             <div class="p-4 bg-white">
@@ -169,7 +181,10 @@ Hoy compartimos otro tip sobre la dieta BARF y por qué es la mejor opción para
                                         <i class="fa-regular fa-comment"></i>
                                         <i class="fa-regular fa-paper-plane"></i>
                                     </div>
-                                    <i class="fa-regular fa-bookmark text-[22px] text-slate-800"></i>
+                                    <div class="flex gap-4">
+                                         <i id="carousel-icon-footer" class="hidden fa-solid fa-clone text-slate-400 text-lg"></i>
+                                         <i class="fa-regular fa-bookmark text-[22px] text-slate-800"></i>
+                                    </div>
                                 </div>
                                 <div class="text-sm text-slate-800 leading-normal">
                                     <span class="font-semibold mr-1">edudogpro</span>
@@ -185,9 +200,6 @@ Hoy compartimos otro tip sobre la dieta BARF y por qué es la mejor opción para
         <div id="view-kanban" class="hidden flex-col h-full">
             <header class="h-20 border-b border-slate-100 px-4 md:px-8 flex items-center justify-between shrink-0 z-10">
                 <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Tablero de Tareas</h2>
-                <button class="bg-slate-900 text-white font-semibold text-sm px-5 py-2.5 rounded-xl hover:bg-slate-800 transition-all shadow-sm">
-                    + Nueva Tarea
-                </button>
             </header>
             <div class="flex-1 p-8 text-center flex items-center justify-center">
                 <p class="text-slate-400 font-medium">El espacio de trabajo Kanban se construirá aquí.</p>
@@ -198,18 +210,18 @@ Hoy compartimos otro tip sobre la dieta BARF y por qué es la mejor opción para
     <div id="modal-publish" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
         <div class="bg-white rounded-3xl p-10 max-w-sm w-full mx-4 text-center shadow-2xl transform scale-95 transition-transform duration-300" id="modal-content">
             <div id="modal-loader" class="block">
-                <div class="w-16 h-16 border-4 border-slate-100 border-t-slate-900 rounded-full animate-spin mx-auto mb-6"></div>
+                <div class="w-16 h-16 border-4 border-slate-100 border-t-rose-500 rounded-full animate-spin mx-auto mb-6"></div>
                 <h3 class="text-lg font-bold text-slate-900 mb-1">Conectando con Meta...</h3>
-                <p class="text-sm text-slate-500">Enviando a tu Cloud Run de forma segura.</p>
+                <p id="modal-subtext" class="text-sm text-slate-500">Procesando imágenes. Esto puede tardar unos segundos.</p>
             </div>
             <div id="modal-success" class="hidden">
                 <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
                     <i class="fa-solid fa-check"></i>
                 </div>
                 <h3 class="text-xl font-bold text-slate-900 mb-2">¡Publicado! 🎉</h3>
-                <p class="text-sm text-slate-500 mb-8">El contenido ya está en Instagram.</p>
+                <p class="text-sm text-slate-500 mb-8">El contenido ya está en el feed de Instagram.</p>
                 <button onclick="closeModal()" class="w-full bg-slate-900 text-white font-semibold py-3.5 rounded-xl hover:bg-slate-800 transition-colors">
-                    Volver al editor
+                    Publicar otro
                 </button>
             </div>
         </div>
@@ -219,134 +231,224 @@ Hoy compartimos otro tip sobre la dieta BARF y por qué es la mejor opción para
         // --- NAVEGACIÓN ---
         function toggleMobileMenu() {
             const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('hidden');
-            sidebar.classList.toggle('flex');
+            sidebar.classList.toggle('hidden'); sidebar.classList.toggle('flex');
         }
 
         function switchTab(tabId) {
-            document.getElementById('view-autopost').classList.add('hidden');
-            document.getElementById('view-autopost').classList.remove('flex');
-            document.getElementById('view-kanban').classList.add('hidden');
-            document.getElementById('view-kanban').classList.remove('flex');
+            document.getElementById('view-autopost').classList.add('hidden'); document.getElementById('view-autopost').classList.remove('flex');
+            document.getElementById('view-kanban').classList.add('hidden'); document.getElementById('view-kanban').classList.remove('flex');
 
             document.getElementById('nav-autopost').className = "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl font-medium transition-all";
             document.getElementById('nav-kanban').className = "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl font-medium transition-all";
 
             if (tabId === 'autopost') {
-                document.getElementById('view-autopost').classList.remove('hidden');
-                document.getElementById('view-autopost').classList.add('flex');
+                document.getElementById('view-autopost').classList.remove('hidden'); document.getElementById('view-autopost').classList.add('flex');
                 document.getElementById('nav-autopost').className = "w-full flex items-center gap-3 px-4 py-3 bg-white/10 text-white rounded-xl font-semibold transition-all";
-            } else if (tabId === 'kanban') {
-                document.getElementById('view-kanban').classList.remove('hidden');
-                document.getElementById('view-kanban').classList.add('flex');
+            } else {
+                document.getElementById('view-kanban').classList.remove('hidden'); document.getElementById('view-kanban').classList.add('flex');
                 document.getElementById('nav-kanban').className = "w-full flex items-center gap-3 px-4 py-3 bg-white/10 text-white rounded-xl font-semibold transition-all";
             }
         }
 
-        // --- LIVE PREVIEW ---
-        const imgInput = document.getElementById('img-url-input');
-        const captionInput = document.getElementById('caption-input');
-        const previewImg = document.getElementById('preview-img');
-        const previewCaption = document.getElementById('preview-caption');
-        const charCount = document.getElementById('char-count');
-
-        imgInput.addEventListener('input', function() {
-            previewImg.src = this.value.trim() !== '' ? this.value : 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg';
-        });
-
-        captionInput.addEventListener('input', function() {
-            const text = this.value;
-            charCount.innerText = `${text.length} / 2200`;
-            previewCaption.innerHTML = text.replace(/(#[a-zA-Z0-9_]+)/g, '<span class="text-blue-900">$1</span>');
-        });
-
-        // --- CONSTANTES DE URL INTEGRADOS ---
+        // --- CONSTANTES ---
         const BACKEND_URL = "https://bot-cursos-digitales-500394828639.southamerica-west1.run.app/api/publicar-ig";
         const UPLOAD_URL = "https://bot-cursos-digitales-500394828639.southamerica-west1.run.app/api/upload-media";
 
-        // --- LÓGICA DE ARRASTRAR Y SUBIR ARCHIVOS ---
+        // --- ESTADO DEL CARRUSEL ---
+        let uploadedImages = [];
+        let currentPreviewIndex = 0;
+
+        // UI Elementos
         const dropzone = document.getElementById('dropzone');
         const fileUpload = document.getElementById('file-upload');
         const uploadText = document.getElementById('upload-text');
         const uploadIcon = document.getElementById('upload-icon');
+        const imgCounter = document.getElementById('img-counter');
+        const thumbnailsContainer = document.getElementById('thumbnails-container');
+        const previewImg = document.getElementById('preview-img');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const carouselDots = document.getElementById('carousel-dots');
+        const carouselIconFooter = document.getElementById('carousel-icon-footer');
 
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropzone.classList.add('border-rose-500', 'bg-rose-50');
+        // Copy
+        const captionInput = document.getElementById('caption-input');
+        const previewCaption = document.getElementById('preview-caption');
+        const charCount = document.getElementById('char-count');
+
+        captionInput.addEventListener('input', function() {
+            const text = this.value;
+            charCount.innerText = `${text.length} / 2200`;
+            previewCaption.innerHTML = text.replace(/(#[a-zA-Z0-9_]+)/g, '<span class="text-blue-900 font-medium">$1</span>');
         });
+
+        // --- LÓGICA DE DRAG & DROP MULTIPLE ---
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-rose-500', 'bg-rose-50'); });
+        dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('border-rose-500', 'bg-rose-50'); });
         
-        dropzone.addEventListener('dragleave', () => {
-            dropzone.classList.remove('border-rose-500', 'bg-rose-50');
-        });
-
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropzone.classList.remove('border-rose-500', 'bg-rose-50');
-            if (e.dataTransfer.files.length > 0) {
-                handleFileUpload(e.dataTransfer.files[0]);
-            }
+            if (e.dataTransfer.files.length > 0) processFiles(e.dataTransfer.files);
         });
 
         fileUpload.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFileUpload(e.target.files[0]);
-            }
+            if (e.target.files.length > 0) processFiles(e.target.files);
         });
 
-        async function handleFileUpload(file) {
-            if (!file.type.startsWith('image/')) {
-                return alert('Por favor, sube solo imágenes (JPG o PNG).');
-            }
-
-            uploadText.innerText = "Subiendo a la nube...";
-            uploadIcon.className = "fa-solid fa-circle-notch fa-spin text-xl text-rose-500";
-
-            const formData = new FormData();
-            formData.append('file', file);
-
-            try {
-                const response = await fetch(UPLOAD_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) throw new Error(data.error || "Error al subir la imagen");
-
-                imgInput.value = data.url;
-                imgInput.dispatchEvent(new Event('input'));
-                
-                uploadText.innerText = "¡Imagen lista!";
-                uploadIcon.className = "fa-solid fa-check text-xl text-emerald-500";
-
-            } catch (error) {
-                alert("Hubo un error subiendo la imagen: " + error.message);
-                uploadText.innerText = "Arrastra tu imagen aquí o haz clic";
-                uploadIcon.className = "fa-solid fa-cloud-arrow-up text-xl text-slate-400";
+        // Añadir URL manual
+        function addUrlFromInput(event) {
+            event.stopPropagation();
+            const input = document.getElementById('img-url-input');
+            const url = input.value.trim();
+            if(url) {
+                addImageToArray(url);
+                input.value = '';
             }
         }
 
-        // --- CONEXIÓN SEGURA PARA PUBLICAR ---
+        async function processFiles(files) {
+            if (uploadedImages.length + files.length > 10) {
+                return alert("Máximo 10 imágenes permitidas por Meta para un carrusel.");
+            }
+
+            uploadText.innerText = `Subiendo ${files.length} archivo(s)...`;
+            uploadIcon.className = "fa-solid fa-circle-notch fa-spin text-xl text-rose-500";
+
+            // Subimos una por una (o podrías hacer Promise.all para más velocidad)
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.startsWith('image/')) continue;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const response = await fetch(UPLOAD_URL, { method: 'POST', body: formData });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error);
+                    addImageToArray(data.url);
+                } catch (error) {
+                    console.error("Error subiendo:", error);
+                }
+            }
+
+            uploadText.innerText = "Arrastra tus imágenes aquí o haz clic";
+            uploadIcon.className = "fa-solid fa-images text-xl text-slate-400";
+        }
+
+        function addImageToArray(url) {
+            if(uploadedImages.length >= 10) return;
+            uploadedImages.push(url);
+            updateUI();
+        }
+
+        function removeImage(index) {
+            uploadedImages.splice(index, 1);
+            if(currentPreviewIndex >= uploadedImages.length) {
+                currentPreviewIndex = Math.max(0, uploadedImages.length - 1);
+            }
+            updateUI();
+        }
+
+        // --- ACTUALIZAR INTERFAZ ---
+        function updateUI() {
+            imgCounter.innerText = `${uploadedImages.length} / 10`;
+            
+            // 1. Renderizar Miniaturas
+            if (uploadedImages.length > 0) {
+                thumbnailsContainer.classList.remove('hidden');
+                thumbnailsContainer.innerHTML = uploadedImages.map((url, index) => `
+                    <div class="relative w-16 h-16 shrink-0 rounded-lg overflow-hidden border-2 ${index === currentPreviewIndex ? 'border-rose-500' : 'border-transparent'} cursor-pointer" onclick="setPreview(${index}, event)">
+                        <img src="${url}" class="w-full h-full object-cover opacity-90 hover:opacity-100">
+                        <button onclick="removeImage(${index}); event.stopPropagation();" class="absolute top-0.5 right-0.5 bg-black/50 hover:bg-rose-500 text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px]">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                thumbnailsContainer.classList.add('hidden');
+            }
+
+            // 2. Renderizar Visor Principal
+            if (uploadedImages.length === 0) {
+                previewImg.src = "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg";
+                prevBtn.classList.add('hidden'); nextBtn.classList.add('hidden');
+                carouselDots.innerHTML = '';
+                carouselIconFooter.classList.add('hidden');
+                return;
+            }
+
+            previewImg.src = uploadedImages[currentPreviewIndex];
+
+            // 3. Controles Carrusel
+            if (uploadedImages.length > 1) {
+                carouselIconFooter.classList.remove('hidden');
+                prevBtn.classList.toggle('hidden', currentPreviewIndex === 0);
+                nextBtn.classList.toggle('hidden', currentPreviewIndex === uploadedImages.length - 1);
+                
+                carouselDots.innerHTML = uploadedImages.map((_, i) => `
+                    <div class="w-1.5 h-1.5 rounded-full ${i === currentPreviewIndex ? 'bg-rose-500' : 'bg-white/60 shadow-sm'}"></div>
+                `).join('');
+            } else {
+                carouselIconFooter.classList.add('hidden');
+                prevBtn.classList.add('hidden'); nextBtn.classList.add('hidden');
+                carouselDots.innerHTML = '';
+            }
+        }
+
+        function setPreview(index, event) {
+            if(event) event.stopPropagation();
+            currentPreviewIndex = index;
+            updateUI();
+        }
+
+        function prevImage(e) {
+            if(e) e.stopPropagation();
+            if (currentPreviewIndex > 0) {
+                currentPreviewIndex--;
+                updateUI();
+            }
+        }
+
+        function nextImage(e) {
+            if(e) e.stopPropagation();
+            if (currentPreviewIndex < uploadedImages.length - 1) {
+                currentPreviewIndex++;
+                updateUI();
+            }
+        }
+
+        // --- PUBLICAR EN META ---
         async function publishToInstagram() {
-            const imgUrl = imgInput.value.trim();
+            if (uploadedImages.length === 0) return alert("Por favor, sube al menos una imagen.");
             const caption = captionInput.value.trim();
 
-            if (!imgUrl) return alert("Por favor, ingresa un enlace de imagen o sube una primero.");
-
-            // Mostrar Modal Cargando
             const modal = document.getElementById('modal-publish');
             const content = document.getElementById('modal-content');
+            const subtext = document.getElementById('modal-subtext');
+            
             document.getElementById('modal-loader').classList.remove('hidden');
             document.getElementById('modal-success').classList.add('hidden');
+            
+            if (uploadedImages.length > 1) {
+                subtext.innerText = `Armando carrusel de ${uploadedImages.length} imágenes. Esto toma unos segundos...`;
+            } else {
+                subtext.innerText = "Enviando imagen a tu Cloud Run de forma segura.";
+            }
+
             modal.classList.remove('hidden');
             setTimeout(() => content.classList.remove('scale-95'), 10);
 
             try {
+                // Enviamos el array image_urls en vez de img_url
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ img_url: imgUrl, caption: caption })
+                    body: JSON.stringify({ 
+                        image_urls: uploadedImages, 
+                        caption: caption 
+                    })
                 });
 
                 const data = await response.json();
@@ -369,21 +471,16 @@ Hoy compartimos otro tip sobre la dieta BARF y por qué es la mejor opción para
             content.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
             
-            // Limpiar campos visuales
+            // Limpiar todo para un nuevo post
             captionInput.value = '';
-            imgInput.value = '';
+            uploadedImages = [];
+            currentPreviewIndex = 0;
+            updateUI();
             captionInput.dispatchEvent(new Event('input'));
-            imgInput.dispatchEvent(new Event('input'));
-            
-            // Reiniciar Dropzone
-            uploadText.innerText = "Arrastra tu imagen aquí o haz clic";
-            uploadIcon.className = "fa-solid fa-cloud-arrow-up text-xl text-slate-400";
-            fileUpload.value = "";
         }
 
-        // Init
+        // Init UI
         captionInput.dispatchEvent(new Event('input'));
-        imgInput.dispatchEvent(new Event('input'));
     </script>
 </body>
 </html>

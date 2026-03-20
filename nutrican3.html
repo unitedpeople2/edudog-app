@@ -13,7 +13,7 @@
         .app-container { max-width: 420px; margin: 0 auto; height: 100vh; position: relative; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; }
         .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden; background-color: #f8fafc; }
         .screen-scroll { flex: 1; overflow-y: auto; }
-        .screen-cta { flex-shrink: 0; padding: 12px 24px 16px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-top: 1px solid #f1f5f9; }
+        .screen-cta { flex-shrink: 0; padding: 10px 24px 14px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-top: 1px solid #f1f5f9; }
         .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         /* Scrollbar estilizada */
@@ -209,7 +209,7 @@
 
     <!-- SCREEN: DASHBOARD -->
     <section id="screen-dashboard" class="screen bg-slate-50">
-        <div class="p-6 pb-20 space-y-6">
+        <div class="screen-scroll p-6 pb-10 space-y-6">
 
             <!-- SEMÁFORO DIGESTIVO -->
             <div id="semaforo-card" class="rounded-[1.5rem] border-2 p-4 transition-all duration-500">
@@ -289,9 +289,9 @@
     </section>
 
     <!-- SCREEN: VICTORIA 🏆 -->
-    <section id="screen-victory" class="screen bg-slate-50 relative overflow-hidden">
-        <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden z-10"></div>
-        <div class="relative z-20 p-6 pb-20 flex flex-col items-center">
+    <section id="screen-victory" class="screen bg-slate-50 relative">
+        <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden z-10 pointer-events-none"></div>
+        <div class="screen-scroll relative z-20 p-6 pb-10 flex flex-col items-center">
             
             <!-- Trophy -->
             <div class="bounce-in mt-8 mb-6">

@@ -9,13 +9,28 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; }
-        .app-container { max-width: 420px; margin: 0 auto; height: 100vh; position: relative; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; margin: 0; padding: 0; }
+        
+        /* Uso de 100dvh para evitar el micro-scroll en móviles */
+        .app-container { 
+            max-width: 420px; 
+            margin: 0 auto; 
+            height: 100vh; /* Fallback */
+            height: 100dvh; /* Mobile fix */
+            position: relative; 
+            background: #ffffff; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
         .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden; background-color: #f8fafc; }
         .screen-scroll { flex: 1; overflow-y: auto; }
         .screen-cta { flex-shrink: 0; padding: 10px 24px 14px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-top: 1px solid #f1f5f9; }
         .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
         /* Scrollbar estilizada */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -31,10 +46,9 @@
         .day-completed { background-color: #ffffff; border-color: #10b981; cursor: pointer; }
         .day-completed:hover { background-color: #f0fdf4; }
 
-        /* Semáforo */
-        .semaforo-green { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-color: #10b981; }
-        .semaforo-yellow { background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #f59e0b; }
-        .semaforo-red { background: linear-gradient(135deg, #fee2e2, #fecaca); border-color: #ef4444; }
+        /* Hide scrollbar for badges */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* Pantalla victoria */
         @keyframes confettiFall {
@@ -54,21 +68,13 @@
             100% { transform: scale(1); opacity: 1; }
         }
         .bounce-in { animation: bounce-in 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
-
-        /* Pulse suave para badge semáforo */
-        @keyframes pulse-soft {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
     </style>
 </head>
 <body class="antialiased text-slate-900 md:py-8">
 
 <div class="app-container md:rounded-[2.5rem] md:border-[6px] md:border-slate-900 relative">
 
-    <!-- HEADER -->
-    <div class="sticky top-0 bg-amber-500 text-white border-b border-amber-600 px-4 py-4 flex items-center justify-between z-30 shadow-md">
+    <div class="sticky top-0 bg-amber-500 text-white border-b border-amber-600 px-4 py-4 flex items-center justify-between z-30 shadow-md shrink-0">
         <div class="flex items-center">
             <button onclick="smartBack()" id="btn-back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-amber-400 transition-colors mr-2" style="display: none;">
                 <i class="fa-solid fa-arrow-left"></i>
@@ -85,7 +91,6 @@
         </a>
     </div>
 
-    <!-- SCREEN: WELCOME -->
     <section id="screen-welcome" class="screen relative">
         <div class="screen-scroll flex flex-col justify-center items-center text-center p-6">
             <div class="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 text-5xl mx-auto mb-6 shadow-inner">
@@ -104,7 +109,6 @@
         </div>
     </section>
 
-    <!-- SCREEN: OBJETIVO -->
     <section id="screen-goal" class="screen relative">
         <div class="screen-scroll p-6">
             <h2 class="text-slate-800 font-black text-xl mb-2">Objetivo Principal 🎯</h2>
@@ -129,7 +133,6 @@
         </div>
     </section>
 
-    <!-- SCREEN: DIETA -->
     <section id="screen-diet" class="screen relative">
         <div class="screen-scroll p-6">
             <h2 class="text-slate-800 font-black text-xl mb-2">Diagnóstico Digestivo 🔬</h2>
@@ -154,7 +157,6 @@
         </div>
     </section>
 
-    <!-- SCREEN: PARÁMETROS -->
     <section id="screen-params" class="screen relative">
         <div class="screen-scroll p-6">
             <h2 class="text-slate-800 font-black text-xl mb-6">Perfil Físico ⚖️</h2>
@@ -196,41 +198,45 @@
             </div>
         </div>
         <div class="screen-cta">
-            <button onclick="calculateDiet()" class="w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all text-lg">Crear Plan Definitivo</button>
+            <button onclick="calculateDiet()" class="w-full bg-amber-50 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all text-lg" style="background-color: #f59e0b;">Crear Plan Definitivo</button>
         </div>
     </section>
 
-    <!-- SCREEN: LOADING -->
     <section id="screen-loading" class="screen flex-col justify-center items-center p-6 text-center">
         <div class="magic-loader mb-6"></div>
         <h3 class="text-xl font-black text-slate-800 mb-2">Generando Fórmula...</h3>
         <p id="loading-text" class="text-sm text-amber-600 font-bold tracking-wide">Analizando metabolismo...</p>
     </section>
 
-    <!-- SCREEN: DASHBOARD -->
     <section id="screen-dashboard" class="screen bg-slate-50">
         <div class="screen-scroll p-6 pb-10 space-y-6">
 
-            <!-- SEMÁFORO DIGESTIVO -->
-            <div id="semaforo-card" class="rounded-[1.5rem] border-2 p-4 transition-all duration-500">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div id="semaforo-icon" class="w-10 h-10 rounded-full flex items-center justify-center text-lg font-black shrink-0"></div>
-                        <div>
-                            <p class="text-[10px] font-black uppercase tracking-widest" id="semaforo-label">Estado digestivo</p>
-                            <p class="font-extrabold text-slate-900 text-sm" id="semaforo-title">Sin registros aún</p>
-                        </div>
-                    </div>
-                    <span id="semaforo-badge" class="text-[10px] font-black uppercase tracking-wide px-2.5 py-1 rounded-full pulse-soft"></span>
+            <div id="health-status-panel" class="bg-white rounded-[1.5rem] border border-slate-200 shadow-sm overflow-hidden transition-all duration-300">
+                <div class="bg-slate-900 px-4 py-3 flex justify-between items-center">
+                    <h3 class="text-white font-extrabold text-sm flex items-center gap-2"><i class="fa-solid fa-heart-pulse text-rose-500"></i> Estado Actual</h3>
+                    <span id="risk-badge" class="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md transition-all">...</span>
                 </div>
-                <p class="text-xs text-slate-600 font-medium mt-3 leading-relaxed" id="semaforo-advice">Completa el primer día para activar el monitor digestivo.</p>
+                <div class="p-4 grid grid-cols-2 gap-4 divide-x divide-slate-100">
+                    <div class="text-center">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Digestión</p>
+                        <div id="status-digestion-icon" class="text-2xl mb-1">...</div>
+                        <p id="status-digestion-text" class="text-xs font-black text-slate-800">Cargando</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Apetito</p>
+                        <div id="status-appetite-icon" class="text-2xl mb-1">...</div>
+                        <p id="status-appetite-text" class="text-xs font-black text-slate-800">Cargando</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 px-4 py-3 border-t border-slate-100">
+                    <p id="status-advice-text" class="text-xs text-slate-600 font-medium leading-relaxed">...</p>
+                </div>
             </div>
 
-            <!-- RACIÓN DIARIA -->
             <div>
                 <div class="flex justify-between items-end mb-1">
                     <p class="text-[11px] font-black text-amber-500 uppercase tracking-widest">Ración Diaria Total</p>
-                    <button onclick="openTipsModal()" class="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-amber-200 transition-colors">
+                    <button onclick="openTipsModal()" class="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-amber-200 transition-colors cursor-pointer">
                         <i class="fa-solid fa-lightbulb"></i> Tips de Oro
                     </button>
                 </div>
@@ -243,7 +249,6 @@
                 <div id="meal-division" class="mt-4"></div>
             </div>
 
-            <!-- TARJETA PERFIL DEL PERRO -->
             <div id="dog-profile-card" class="bg-white rounded-2xl border border-amber-100 shadow-sm px-4 py-3 flex items-center gap-3">
                 <div class="w-10 h-10 bg-amber-100 text-amber-500 rounded-xl flex items-center justify-center text-lg shrink-0">
                     <i class="fa-solid fa-dog"></i>
@@ -258,7 +263,12 @@
                 </div>
             </div>
 
-            <!-- TRACKER -->
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-sm mb-3 uppercase tracking-widest flex items-center gap-2">Tus Insignias 🏅</h3>
+                <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar" id="badges-container">
+                    </div>
+            </div>
+
             <div>
                 <h3 class="font-extrabold text-slate-900 text-lg mb-4 px-1 flex justify-between items-center">
                     Mi Racha <i class="fa-solid fa-fire text-amber-500"></i>
@@ -288,12 +298,10 @@
         </div>
     </section>
 
-    <!-- SCREEN: VICTORIA 🏆 -->
     <section id="screen-victory" class="screen bg-slate-50 relative">
-        <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden z-10 pointer-events-none"></div>
+        <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden z-10"></div>
         <div class="screen-scroll relative z-20 p-6 pb-10 flex flex-col items-center">
             
-            <!-- Trophy -->
             <div class="bounce-in mt-8 mb-6">
                 <div class="w-32 h-32 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-6xl shadow-2xl shadow-amber-500/40 mx-auto">
                     🏆
@@ -305,7 +313,6 @@
                 <span class="dog-name-display font-bold text-amber-600">Tu peludo</span> completó con éxito su adaptación a la alimentación natural. 🎉
             </p>
 
-            <!-- Stats de la racha -->
             <div class="w-full bg-white rounded-[1.5rem] border border-slate-200 shadow-sm p-5 mb-5 space-y-3">
                 <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-widest">Resumen del Plan</h3>
                 <div class="grid grid-cols-3 gap-3">
@@ -325,7 +332,6 @@
                 <p class="text-xs text-slate-500 font-medium leading-relaxed pt-1" id="victory-summary-text"></p>
             </div>
 
-            <!-- CTA NutriChef — arriba del fold, justo tras los stats -->
             <div class="w-full bg-slate-900 rounded-[1.5rem] p-5 mb-5 text-white">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-lg shrink-0">🍳</div>
@@ -339,7 +345,6 @@
                 </button>
             </div>
 
-            <!-- Próximos pasos -->
             <div class="w-full bg-amber-50 border border-amber-200 rounded-[1.5rem] p-5 mb-5">
                 <h3 class="font-extrabold text-slate-900 text-sm mb-3 flex items-center gap-2"><i class="fa-solid fa-forward-step text-amber-500"></i> ¿Qué sigue ahora?</h3>
                 <div class="space-y-2.5">
@@ -364,12 +369,10 @@
         </div>
     </section>
 
-    <!-- MODAL: TRACKER (REGISTRO DEL DÍA) -->
     <div id="modal-tracker" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-end">
-        <div id="modal-tracker-content" class="bg-white rounded-t-[2.5rem] shadow-2xl transform translate-y-full transition-transform duration-300 w-full flex flex-col" style="max-height:88vh;">
+        <div id="modal-tracker-content" class="bg-white rounded-t-[2.5rem] shadow-2xl transform translate-y-full transition-transform duration-300 w-full flex flex-col" style="max-height:88dvh;">
             
-            <!-- Step 1: Apetito -->
-            <div id="tracker-step-appetite" class="block overflow-y-auto p-8 pb-4">
+            <div id="tracker-step-appetite" class="flex-1 overflow-y-auto p-8 pb-4">
                 <div class="w-16 h-16 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-bowl-food"></i></div>
                 <h3 class="text-xl font-black text-slate-900 mb-2">¿Cómo comió hoy?</h3>
                 <p class="text-sm text-slate-500 font-medium mb-6">Apetito de <span class="dog-name-display font-bold text-slate-700"></span></p>
@@ -380,8 +383,7 @@
                 </div>
             </div>
 
-            <!-- Step 2: Heces -->
-            <div id="tracker-step-poop" class="hidden overflow-y-auto p-8 pb-4">
+            <div id="tracker-step-poop" class="hidden flex-1 overflow-y-auto p-8 pb-4">
                 <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-poop"></i></div>
                 <h3 class="text-xl font-black text-slate-900 mb-2">¿Cómo estuvieron sus heces?</h3>
                 <p class="text-sm text-slate-500 font-medium mb-6">Esto nos ayuda a vigilar su digestión.</p>
@@ -392,8 +394,7 @@
                 </div>
             </div>
 
-            <!-- Step 3: Consejo inteligente -->
-            <div id="tracker-step-message" class="hidden flex-col" style="min-height:0;">
+            <div id="tracker-step-message" class="hidden flex-col flex-1 overflow-hidden">
                 <div class="overflow-y-auto p-8 pb-4 flex-1">
                     <div id="advice-icon" class="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"></div>
                     <h3 class="text-xl font-black text-slate-900 mb-2" id="advice-title">Diagnóstico del día</h3>
@@ -404,86 +405,88 @@
                 </div>
             </div>
             
-            <div class="px-8 pb-5 shrink-0" id="btn-cancel-wrapper">
-                <button onclick="closeTrackerModal()" id="btn-close-tracker" class="w-full text-slate-400 font-bold text-sm py-2">Cancelar</button>
+            <div class="px-8 pb-5 shrink-0 bg-white" id="btn-cancel-wrapper">
+                <button onclick="closeTrackerModal()" id="btn-close-tracker" class="w-full text-slate-400 font-bold text-sm py-2 hover:text-slate-600">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: DESHACER -->
     <div id="modal-undo" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6">
         <div id="modal-undo-content" class="bg-white rounded-[2rem] p-8 text-center shadow-2xl transform scale-95 transition-transform duration-300">
             <div class="w-16 h-16 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-rotate-left"></i></div>
             <h3 class="text-xl font-black text-slate-900 mb-2">¿Marcaste por error?</h3>
             <p class="text-sm text-slate-500 font-medium mb-6">Día completado con éxito. ¿Deseas deshacer este registro?</p>
             <div class="flex gap-3">
-                <button onclick="closeUndoModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl">Mantener</button>
-                <button onclick="confirmUndo()" class="w-full bg-rose-50 text-rose-600 font-bold py-3.5 rounded-xl border border-rose-200">Sí, deshacer</button>
+                <button onclick="closeUndoModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl hover:bg-slate-200">Mantener</button>
+                <button onclick="confirmUndo()" class="w-full bg-rose-50 text-rose-600 font-bold py-3.5 rounded-xl border border-rose-200 hover:bg-rose-100">Sí, deshacer</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: TIPS -->
-    <div id="modal-tips" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6">
-        <div id="modal-tips-content" class="bg-white rounded-[2.5rem] p-8 shadow-2xl transform scale-95 transition-transform duration-300 max-h-[85vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
+    <div id="modal-tips" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6 py-6">
+        <div id="modal-tips-content" class="bg-white rounded-[2.5rem] shadow-2xl transform scale-95 transition-transform duration-300 w-full flex flex-col overflow-hidden" style="max-height: 85dvh;">
+            
+            <div class="flex justify-between items-center p-6 shrink-0 border-b border-slate-50">
                 <h3 class="text-xl font-black text-slate-900">Secretos Vitales 💡</h3>
-                <button onclick="closeTipsModal()" class="text-slate-400 text-2xl"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeTipsModal()" class="text-slate-400 hover:text-slate-600 text-2xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="space-y-5 text-left">
-                <div class="flex gap-4">
-                    <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-fire-burner"></i></div>
-                    <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">¡Nunca cocines huesos!</b> Los huesos cocidos se astillan y son peligrosos. Deben ser siempre crudos.</p>
-                </div>
-                <div class="flex gap-4">
-                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-droplet"></i></div>
-                    <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Menos agua, más salud</b> Es normal que beba menos agua. La comida natural ya lo hidrata un 70% más.</p>
-                </div>
-                <div class="flex gap-4">
-                    <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-temperature-low"></i></div>
-                    <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Sirve a temperatura ambiente</b> Nunca frío directo del refrigerador. Sácalo 20 minutos antes para mejorar la aceptación.</p>
-                </div>
-                <div class="flex gap-4">
-                    <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-heart"></i></div>
-                    <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">El hígado es potente</b> No superes el 5% del total en hígado. El exceso causa diarrea por sobrecarga de vitamina A.</p>
-                </div>
-                <div class="flex gap-4">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-leaf"></i></div>
-                    <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Vegetales siempre procesados</b> Los perros no digieren celulosa cruda. Hierve y tritura bien zapallo, zanahoria y espinaca.</p>
-                </div>
-                <div class="flex gap-4">
-                    <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-ban"></i></div>
-                    <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Prohibido: uvas, cebolla, ajo, chocolate</b> Son tóxicos para los perros incluso en pequeñas cantidades. Sin excepciones.</p>
-                </div>
-                <div class="flex gap-4">
-                    <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-clock"></i></div>
-                    <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Horario fijo</b> Alimenta siempre a la misma hora. El sistema digestivo del perro funciona mejor con rutina.</p>
-                </div>
-                <div class="flex gap-4">
-                    <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-eye"></i></div>
-                    <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Observa las heces, no el apetito</b> Un perro puede rechazar comida nueva por olfato, pero si sus heces son firmes, la digestión va bien.</p>
+            
+            <div class="px-6 py-4 overflow-y-auto flex-1">
+                <div class="space-y-5 text-left pb-2">
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-fire-burner"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">¡Nunca cocines huesos!</b> Los huesos cocidos se astillan y son peligrosos. Deben ser siempre crudos.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-droplet"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Menos agua, más salud</b> Es normal que beba menos agua. La comida natural ya lo hidrata un 70% más.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-temperature-low"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Sirve a temperatura ambiente</b> Nunca frío directo del refrigerador. Sácalo 20 minutos antes para mejorar la aceptación.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-heart"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">El hígado es potente</b> No superes el 5% del total en hígado. El exceso causa diarrea por sobrecarga de vitamina A.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-leaf"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Vegetales siempre procesados</b> Los perros no digieren celulosa cruda. Hierve y tritura bien zapallo, zanahoria y espinaca.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-ban"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Prohibido: uvas, cebolla, ajo, chocolate</b> Son tóxicos para los perros incluso en pequeñas cantidades. Sin excepciones.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-clock"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Horario fijo</b> Alimenta siempre a la misma hora. El sistema digestivo del perro funciona mejor con rutina.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-eye"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Observa las heces, no el apetito</b> Un perro puede rechazar comida nueva por olfato, pero si sus heces son firmes, la digestión va bien.</p>
+                    </div>
                 </div>
             </div>
-            <button onclick="closeTipsModal()" class="w-full bg-amber-500 text-white font-bold py-4 rounded-2xl mt-8 hover:bg-amber-600 transition-colors">¡Entendido!</button>
+
+            <div class="p-6 shrink-0 bg-white border-t border-slate-50 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+                <button onclick="closeTipsModal()" class="w-full bg-amber-500 text-white font-bold py-4 rounded-2xl hover:bg-amber-600 transition-colors">¡Entendido!</button>
+            </div>
         </div>
     </div>
 
-    <!-- MODAL: RESET -->
     <div id="modal-reset" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6">
         <div id="modal-reset-content" class="bg-white rounded-[2rem] p-8 text-center shadow-2xl transform scale-95 transition-transform duration-300">
             <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
             <h3 class="text-xl font-black text-slate-900 mb-2">¿Empezar de nuevo?</h3>
             <p class="text-sm text-slate-500 font-medium mb-6">Esto borrará el plan y la racha actual.</p>
             <div class="flex gap-3">
-                <button onclick="closeResetModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl">Cancelar</button>
-                <button onclick="confirmResetApp()" class="w-full bg-rose-500 text-white font-bold py-3.5 rounded-xl">Sí, borrar</button>
+                <button onclick="closeResetModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl hover:bg-slate-200">Cancelar</button>
+                <button onclick="confirmResetApp()" class="w-full bg-rose-500 text-white font-bold py-3.5 rounded-xl hover:bg-rose-600">Sí, borrar</button>
             </div>
         </div>
     </div>
 
-</div><!-- end app-container -->
-
-<script>
+</div><script>
 // =========================================================
 // ESTADO GLOBAL
 // =========================================================
@@ -494,17 +497,17 @@ let planData = {
     dietPlanType: "croquetas",
     totalGrams: 0, gramosHuesos: 0, gramosCarne: 0, gramosVisceras: 0, gramosVerduras: 0,
     etapa: "adulto",
-    startDate: null   // #17: fecha de inicio del plan
+    startDate: null
 };
 
-// #2: Estructura de trackerData mejorada con historial real por día
+// Estructura de trackerData mejorada con historial real por día
 let trackerData = {
-    days: {}   // { 0: { appetite: 'great', poop: 'good', date: '2026-03-20' }, ... }
+    days: {}
 };
 
 let pendingDayToMark = -1;
-let pendingAppetite = null;   // #2: guardamos apetito para el registro completo
-let pendingPoop = null;        // #2: guardamos heces para el registro completo
+let pendingAppetite = null;
+let pendingPoop = null;
 let dayToUndo = -1;
 
 // =========================================================
@@ -549,10 +552,9 @@ const transitionTexts = {
 };
 
 // =========================================================
-// #1: RESPUESTAS INTELIGENTES SEGÚN SÍNTOMAS
+// RESPUESTAS INTELIGENTES SEGÚN SÍNTOMAS
 // =========================================================
 function getSmartAdvice(appetite, poop, dayIndex) {
-    // Heces perfectas
     if (poop === 'good') {
         if (appetite === 'great') {
             return {
@@ -577,7 +579,6 @@ function getSmartAdvice(appetite, poop, dayIndex) {
         }
     }
 
-    // Heces blandas
     if (poop === 'soft') {
         return {
             icon: '<div class="bg-amber-100 text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i></div>',
@@ -593,7 +594,6 @@ function getSmartAdvice(appetite, poop, dayIndex) {
         };
     }
 
-    // Diarrea
     if (poop === 'diarrhea') {
         return {
             icon: '<div class="bg-rose-100 text-rose-600"><i class="fa-solid fa-circle-exclamation"></i></div>',
@@ -618,102 +618,15 @@ function getSmartAdvice(appetite, poop, dayIndex) {
 }
 
 // =========================================================
-// #5: SEMÁFORO DIGESTIVO
-// =========================================================
-function calcularSemaforo() {
-    const completedCount = Object.keys(trackerData.days).length;
-    if (completedCount === 0) return null;
-
-    // Últimos 3 registros
-    const dayKeys = Object.keys(trackerData.days).map(Number).sort((a,b) => b - a).slice(0, 3);
-    let badCount = 0;
-    let goodCount = 0;
-
-    dayKeys.forEach(k => {
-        const d = trackerData.days[k];
-        if (d.poop === 'good') goodCount++;
-        else badCount++;
-    });
-
-    if (badCount === 0) return 'green';
-    if (badCount >= 2) return 'red';
-    return 'yellow';
-}
-
-function renderSemaforo() {
-    const card = document.getElementById('semaforo-card');
-    const icon = document.getElementById('semaforo-icon');
-    const label = document.getElementById('semaforo-label');
-    const title = document.getElementById('semaforo-title');
-    const badge = document.getElementById('semaforo-badge');
-    const advice = document.getElementById('semaforo-advice');
-    const completedCount = Object.keys(trackerData.days).length;
-
-    card.className = 'rounded-[1.5rem] border-2 p-4 transition-all duration-500';
-
-    if (completedCount === 0) {
-        card.classList.add('bg-slate-50', 'border-slate-200');
-        icon.className = 'w-10 h-10 rounded-full flex items-center justify-center text-lg font-black shrink-0 bg-slate-200 text-slate-400';
-        icon.innerHTML = '?';
-        label.className = 'text-[10px] font-black uppercase tracking-widest text-slate-400';
-        label.innerText = 'Monitor digestivo';
-        title.innerText = 'Sin registros aún';
-        badge.className = 'hidden';
-        advice.innerText = 'Completa el primer día para activar el monitor digestivo.';
-        return;
-    }
-
-    const status = calcularSemaforo();
-
-    if (status === 'green') {
-        card.classList.add('semaforo-green');
-        icon.className = 'w-10 h-10 rounded-full flex items-center justify-center text-lg font-black shrink-0 bg-emerald-200 text-emerald-700';
-        icon.innerHTML = '🟢';
-        label.className = 'text-[10px] font-black uppercase tracking-widest text-emerald-700';
-        label.innerText = 'Estado digestivo';
-        title.innerText = 'Digestión estable';
-        badge.className = 'text-[10px] font-black uppercase tracking-wide px-2.5 py-1 rounded-full pulse-soft bg-emerald-200 text-emerald-800';
-        badge.innerText = '¡Todo va bien!';
-        advice.innerText = `Los últimos días de ${dogName} muestran heces perfectas. ¡Sigue así, la adaptación va excelente!`;
-    } else if (status === 'yellow') {
-        card.classList.add('semaforo-yellow');
-        icon.className = 'w-10 h-10 rounded-full flex items-center justify-center text-lg font-black shrink-0 bg-amber-200 text-amber-700';
-        icon.innerHTML = '🟡';
-        label.className = 'text-[10px] font-black uppercase tracking-widest text-amber-700';
-        label.innerText = 'Estado digestivo';
-        title.innerText = 'Digestión en adaptación';
-        badge.className = 'text-[10px] font-black uppercase tracking-wide px-2.5 py-1 rounded-full pulse-soft bg-amber-200 text-amber-800';
-        badge.innerText = 'Ajustemos ritmo';
-        advice.innerText = 'Hubo algún día con heces blandas. No es urgente, pero considera repetir el paso anterior un día más antes de avanzar.';
-    } else {
-        card.classList.add('semaforo-red');
-        icon.className = 'w-10 h-10 rounded-full flex items-center justify-center text-lg font-black shrink-0 bg-rose-200 text-rose-700';
-        icon.innerHTML = '🔴';
-        label.className = 'text-[10px] font-black uppercase tracking-widest text-rose-700';
-        label.innerText = 'Estado digestivo';
-        title.innerText = 'Digestión sensible';
-        badge.className = 'text-[10px] font-black uppercase tracking-wide px-2.5 py-1 rounded-full pulse-soft bg-rose-200 text-rose-800';
-        badge.innerText = 'Pausa recomendada';
-        advice.innerText = `${dogName} tuvo 2+ días difíciles. Vuelve a carne magra cocida con zapallo por 48h antes de avanzar. Si hay sangre en heces, consulta veterinario.`;
-    }
-}
-
-// =========================================================
-// #17: HELPER DE FECHAS
+// HELPER DE FECHAS (Solo para estampar finalización)
 // =========================================================
 function formatDate(dateStr) {
     if (!dateStr) return '';
-    const d = new Date(dateStr + 'T12:00:00');
+    const parts = dateStr.split('-');
+    if(parts.length !== 3) return dateStr;
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
     const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     return `${d.getDate()} ${months[d.getMonth()]}`;
-}
-
-function getDayDate(dayIndex) {
-    if (!planData.startDate) return '';
-    const start = new Date(planData.startDate + 'T12:00:00');
-    start.setDate(start.getDate() + dayIndex);
-    const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    return `${start.getDate()} ${months[start.getMonth()]}`;
 }
 
 function getTodayStr() {
@@ -739,7 +652,6 @@ document.addEventListener('DOMContentLoaded', () => {
         planData = JSON.parse(savedPlan);
         if (savedTracker) {
             const parsed = JSON.parse(savedTracker);
-            // Migración: si viene del formato viejo completedDays[], lo convertimos
             if (parsed.completedDays && !parsed.days) {
                 trackerData = { days: {} };
                 parsed.completedDays.forEach(i => {
@@ -831,7 +743,7 @@ function calculateDiet() {
         planData.gramosVisceras = Math.round(planData.totalGrams * 0.15);
         planData.gramosVerduras = Math.round(planData.totalGrams * 0.10);
         planData.etapa = age;
-        planData.startDate = getTodayStr(); // #17: guardar fecha de inicio
+        planData.startDate = getTodayStr();
 
         localStorage.setItem(`nutriCanPlan_${dogName}`, JSON.stringify(planData));
         localStorage.setItem(`nutriCanTracker_${dogName}`, JSON.stringify(trackerData));
@@ -842,13 +754,102 @@ function calculateDiet() {
 }
 
 // =========================================================
-// DASHBOARD
+// MÓDULO 1: ESTADO ACTUAL PREMIUM
+// =========================================================
+function renderHealthStatus() {
+    const completedCount = Object.keys(trackerData.days).length;
+    const panel = document.getElementById('health-status-panel');
+    const riskBadge = document.getElementById('risk-badge');
+    const digIcon = document.getElementById('status-digestion-icon');
+    const digText = document.getElementById('status-digestion-text');
+    const appIcon = document.getElementById('status-appetite-icon');
+    const appText = document.getElementById('status-appetite-text');
+    const advice = document.getElementById('status-advice-text');
+
+    if (completedCount === 0) {
+        riskBadge.className = 'text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-slate-500 text-white';
+        riskBadge.innerText = 'SIN DATOS';
+        digIcon.innerText = '❓'; digText.innerText = 'Pendiente'; digText.className = 'text-xs font-bold text-slate-400';
+        appIcon.innerText = '❓'; appText.innerText = 'Pendiente'; appText.className = 'text-xs font-bold text-slate-400';
+        advice.innerText = `Completa el primer día para activar el monitor de salud de ${dogName}.`;
+        return;
+    }
+
+    const dayKeys = Object.keys(trackerData.days).map(Number).sort((a,b) => b - a).slice(0, 3);
+    let badPoopCount = 0;
+    let lowAppetiteCount = 0;
+
+    dayKeys.forEach(k => {
+        const d = trackerData.days[k];
+        if (d.poop === 'soft' || d.poop === 'diarrhea') badPoopCount++;
+        if (d.appetite === 'low') lowAppetiteCount++;
+    });
+
+    const lastDay = trackerData.days[dayKeys[0]];
+
+    if (lastDay.poop === 'good') { digIcon.innerText = '🟢'; digText.innerText = 'Perfecta'; digText.className = 'text-xs font-black text-emerald-600'; }
+    else if (lastDay.poop === 'soft') { digIcon.innerText = '🟡'; digText.innerText = 'Blanda'; digText.className = 'text-xs font-black text-amber-600'; }
+    else { digIcon.innerText = '🔴'; digText.innerText = 'Diarrea'; digText.className = 'text-xs font-black text-rose-600'; }
+
+    if (lastDay.appetite === 'great') { appIcon.innerText = '🤤'; appText.innerText = 'Excelente'; appText.className = 'text-xs font-black text-emerald-600'; }
+    else if (lastDay.appetite === 'good') { appIcon.innerText = '🙂'; appText.innerText = 'Normal'; appText.className = 'text-xs font-black text-blue-600'; }
+    else { appIcon.innerText = '🤨'; appText.innerText = 'Bajo'; appText.className = 'text-xs font-black text-rose-600'; }
+
+    if (badPoopCount >= 2 || (badPoopCount >= 1 && lowAppetiteCount >= 2) || lastDay.poop === 'diarrhea') {
+        riskBadge.className = 'text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-rose-500 text-white animate-pulse';
+        riskBadge.innerText = 'RIESGO ALTO';
+        panel.classList.replace('border-slate-200', 'border-rose-300');
+        advice.innerText = `⚠️ Atención: El sistema de ${dogName} está resentido. Pausa el avance, repite la ración anterior y evalúa consultar al veterinario si hay decaimiento.`;
+    } else if (badPoopCount === 1 || lowAppetiteCount >= 1) {
+        riskBadge.className = 'text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-amber-500 text-white';
+        riskBadge.innerText = 'RIESGO MEDIO';
+        panel.classList.replace('border-slate-200', 'border-amber-300');
+        advice.innerText = '🟡 En observación: Hay un leve desajuste. No avances al siguiente paso hoy. Mantén la dieta para estabilizar la flora.';
+    } else {
+        riskBadge.className = 'text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-emerald-500 text-white';
+        riskBadge.innerText = 'RIESGO BAJO';
+        panel.classList.replace('border-slate-200', 'border-emerald-300');
+        advice.innerText = `✅ Todo marcha excelente. El metabolismo de ${dogName} se adapta a la perfección. Sigue el plan con confianza.`;
+    }
+}
+
+// =========================================================
+// MÓDULO 2: LOGROS E INSIGNIAS
+// =========================================================
+function renderBadges() {
+    const completedDays = Object.keys(trackerData.days).length;
+    const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
+    
+    const badges = [
+        { id: 'b1', title: '1er Bocado', desc: 'Gran inicio', req: 1, icon: '🌟' },
+        { id: 'b2', title: 'Racha x3', desc: '3 días seguidos', req: 3, icon: '🔥' },
+        { id: 'b3', title: 'A la Mitad', desc: '50% logrado', req: Math.ceil(totalDays/2), icon: '⚡' },
+        { id: 'b4', title: 'Flora Fuerte', desc: 'Plan completo', req: totalDays, icon: '🏆' }
+    ];
+
+    let html = '';
+    badges.forEach(b => {
+        const unlocked = completedDays >= b.req;
+        const opacity = unlocked ? 'opacity-100 shadow-sm' : 'opacity-40 grayscale';
+        const bg = unlocked ? 'bg-amber-50 border-amber-300' : 'bg-slate-50 border-slate-200';
+        
+        html += `
+        <div class="min-w-[80px] rounded-2xl border ${bg} p-3 flex flex-col items-center justify-center text-center transition-all ${opacity}">
+            <div class="text-2xl mb-1">${b.icon}</div>
+            <p class="text-[10px] font-black text-slate-800 leading-tight mb-0.5">${b.title}</p>
+            <p class="text-[8px] font-bold text-slate-500 uppercase">${b.desc}</p>
+        </div>`;
+    });
+    document.getElementById('badges-container').innerHTML = html;
+}
+
+// =========================================================
+// DASHBOARD GENERAL
 // =========================================================
 function renderDashboard() {
     const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
     const completedCount = Object.keys(trackerData.days).length;
 
-    // Si plan completado → pantalla de victoria
     if (completedCount >= totalDays) {
         renderVictoryScreen(totalDays);
         showScreen('screen-victory', '¡PLAN COMPLETADO!');
@@ -857,7 +858,6 @@ function renderDashboard() {
 
     document.getElementById('total-grams').innerText = planData.totalGrams;
     
-    // Ingredientes
     document.getElementById('ingredients-list').innerHTML = `
         <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-amber-200">
             <div class="flex items-center gap-3">
@@ -889,7 +889,6 @@ function renderDashboard() {
         </div>
     `;
 
-    // División comidas
     let tomas = planData.etapa === 'cachorro' ? 3 : 2;
     let gramosPorToma = Math.round(planData.totalGrams / tomas);
     let textoTomas = planData.etapa === 'cachorro' ? "Desayuno, Almuerzo y Cena" : "Desayuno y Cena";
@@ -900,39 +899,22 @@ function renderDashboard() {
             <div class="text-right bg-white px-3 py-1.5 rounded-xl border border-amber-100 shadow-sm"><span class="block font-black text-slate-900 text-xl leading-none">${gramosPorToma}g</span><span class="text-[9px] font-bold text-slate-400 uppercase">por comida</span></div>
         </div>`;
 
-    renderSemaforo();
+    renderHealthStatus();
+    renderBadges();
     renderTrackerUI();
     renderProfileCard();
 }
 
 function renderProfileCard() {
     if (!planData) return;
-
-    const etapaLabel = {
-        'cachorro': 'Cachorro',
-        'adulto': 'Adulto',
-        'senior': 'Senior'
-    }[planData.etapa] || planData.etapa;
-
-    const actividadLabel = {
-        'bajo': 'Actividad baja',
-        'normal': 'Actividad normal',
-        'alto': 'Actividad alta'
-    }[planData.actividad] || planData.actividad;
-
-    const objetivoLabel = {
-        'perderpeso': 'Bajar peso',
-        'ganarpeso': 'Ganar peso',
-        'mantener': 'Mantener peso',
-        'digestion': 'Digestión'
-    }[planData.objetivo] || planData.objetivo || 'Salud general';
-
+    const etapaLabel = { 'cachorro': 'Cachorro', 'adulto': 'Adulto', 'senior': 'Senior' }[planData.etapa] || planData.etapa;
+    const objetivoLabel = { 'perderpeso': 'Bajar peso', 'ganarpeso': 'Ganar peso', 'mantener': 'Mantener peso', 'digestion': 'Digestión' }[planData.objetivo] || planData.objetivo || 'Salud general';
     const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
 
     const detailsEl = document.getElementById('profile-details');
     const planDaysEl = document.getElementById('profile-plan-days');
 
-    if (detailsEl) detailsEl.textContent = `${planData.peso}kg · ${etapaLabel} · ${actividadLabel} · ${objetivoLabel}`;
+    if (detailsEl) detailsEl.textContent = `${planData.totalGrams}g/día · ${etapaLabel} · ${objetivoLabel}`;
     if (planDaysEl) planDaysEl.textContent = `${totalDays} días`;
 }
 
@@ -946,7 +928,7 @@ function openNutriChefUpsell() {
 }
 
 // =========================================================
-// TRACKER UI
+// TRACKER UI (FECHAS CORREGIDAS)
 // =========================================================
 function renderTrackerUI() {
     const container = document.getElementById('tracker-container');
@@ -967,16 +949,18 @@ function renderTrackerUI() {
         const isLastCompleted = isCompleted && i === (completedCount - 1);
         const realText = textsArray[i];
         
-        // #17: fecha del día
-        const dayDateStr = getDayDate(i);
-        const dateLabel = dayDateStr ? `<span class="text-[10px] text-slate-400 font-medium">${dayDateStr}</span>` : '';
-
-        // #2: indicador de síntomas del día completado
         let poopBadge = '';
-        if (isCompleted && dayRecord.poop) {
+        let dateLabel = '';
+
+        if (isCompleted && dayRecord) {
             if (dayRecord.poop === 'good') poopBadge = '<span class="text-[10px] ml-1">🟢</span>';
             else if (dayRecord.poop === 'soft') poopBadge = '<span class="text-[10px] ml-1">🟡</span>';
             else if (dayRecord.poop === 'diarrhea') poopBadge = '<span class="text-[10px] ml-1">🔴</span>';
+
+            // SELLO DE FECHA SÓLO EN DÍAS COMPLETADOS
+            if(dayRecord.date) {
+                dateLabel = `<span class="text-[10px] text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded-md border border-slate-200 shadow-sm"><i class="fa-solid fa-calendar-check mr-1 text-emerald-500"></i>${formatDate(dayRecord.date)}</span>`;
+            }
         }
 
         let stateClass = '';
@@ -1022,7 +1006,7 @@ function renderTrackerUI() {
 }
 
 // =========================================================
-// MODAL TRACKER — FLUJO CON HISTORIAL RICO
+// MODAL TRACKER
 // =========================================================
 function openTracker(dayIndex) {
     pendingDayToMark = dayIndex;
@@ -1043,19 +1027,16 @@ function openTracker(dayIndex) {
     setTimeout(() => { document.getElementById('modal-tracker-content').classList.remove('translate-y-full'); }, 10);
 }
 
-// #2: guarda apetito y pasa al siguiente paso
 function selectAppetite(appetiteValue) {
     pendingAppetite = appetiteValue;
     document.getElementById('tracker-step-appetite').classList.add('hidden');
     document.getElementById('tracker-step-poop').classList.remove('hidden');
 }
 
-// #1 + #2: guarda heces, genera consejo inteligente
 function selectPoop(poopValue) {
     pendingPoop = poopValue;
     document.getElementById('tracker-step-poop').classList.add('hidden');
 
-    // Si todo perfecto → guardar directo sin pantalla de consejo
     if (poopValue === 'good' && (pendingAppetite === 'great' || pendingAppetite === 'good')) {
         const advice = getSmartAdvice(pendingAppetite, poopValue, pendingDayToMark);
         showAdviceStep(advice);
@@ -1069,7 +1050,6 @@ function showAdviceStep(advice) {
     const iconEl = document.getElementById('advice-icon');
     iconEl.innerHTML = '';
     iconEl.className = 'w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4';
-    // Inyectar el div interno con color y el ícono
     iconEl.innerHTML = advice.icon.replace('<div ', '<div class="w-full h-full rounded-full flex items-center justify-center text-3xl" ');
 
     document.getElementById('advice-title').innerText = advice.title;
@@ -1082,7 +1062,6 @@ function showAdviceStep(advice) {
 }
 
 function closeTrackerAndSave() {
-    // #2: guardar registro completo
     if (trackerData.days[pendingDayToMark] === undefined) {
         trackerData.days[pendingDayToMark] = {
             appetite: pendingAppetite || 'good',
@@ -1099,15 +1078,14 @@ function closeTrackerModal() {
     setTimeout(() => { 
         document.getElementById('modal-tracker').classList.add('hidden'); 
         document.getElementById('modal-tracker').classList.remove('flex'); 
-        renderDashboard();  // re-renderiza todo incluyendo semáforo
+        renderDashboard();
     }, 300);
 }
 
 // =========================================================
-// #13: PANTALLA DE VICTORIA
+// PANTALLA DE VICTORIA
 // =========================================================
 function renderVictoryScreen(totalDays) {
-    // Stats
     const days = trackerData.days;
     let goodDays = 0, adaptDays = 0;
     Object.values(days).forEach(d => {
@@ -1129,7 +1107,6 @@ function renderVictoryScreen(totalDays) {
     }
     document.getElementById('victory-summary-text').innerText = summaryText;
 
-    // Confetti
     launchConfetti();
 }
 
@@ -1175,7 +1152,6 @@ function closeUndoModal() {
 }
 
 function confirmUndo() {
-    // #2: eliminar del nuevo formato de historial
     delete trackerData.days[dayToUndo];
     localStorage.setItem(`nutriCanTracker_${dogName}`, JSON.stringify(trackerData));
     closeUndoModal();

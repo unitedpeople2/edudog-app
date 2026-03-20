@@ -214,7 +214,7 @@
 
                 <div class="mb-8 bg-amber-50/50 border border-amber-100 rounded-[1.5rem] p-4">
                     <h3 class="font-black text-slate-800 text-sm mb-2 flex items-center gap-2"><i class="fa-regular fa-note-sticky text-amber-500"></i> Mis Apuntes</h3>
-                    <textarea id="recipe-notes" onchange="saveNotes()" placeholder="Ej. A Firulais le gusta más si le agrego un chorrito de agua tibia..." class="w-full bg-transparent text-sm text-slate-700 outline-none resize-none placeholder-slate-400 font-medium" rows="3"></textarea>
+                    <textarea id="recipe-notes" onchange="saveNotes()" placeholder="Ej. A mi peludo le gusta más si le agrego un chorrito de agua tibia..." class="w-full bg-transparent text-sm text-slate-700 outline-none resize-none placeholder-slate-400 font-medium" rows="3"></textarea>
                 </div>
 
                 <button onclick="startChefMode()" class="w-full bg-slate-900 text-white font-black py-5 rounded-[1.5rem] shadow-xl shadow-slate-900/20 hover:bg-slate-800 active:scale-95 transition-all text-lg flex items-center justify-center gap-3 mt-auto mb-6">
@@ -477,9 +477,15 @@
             subtitle.innerText = (screenId === 'screen-chef') ? "Modo Preparación" : "Planificador Diario";
         }
 
-        // ======================= LOBBY & BUSCADOR =======================
+        // ======================= LOBBY & BUSCADOR MEJORADO =======================
+        const normalizeText = (text) => {
+            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        };
+
         function handleSearch() {
-            const query = document.getElementById('search-input').value.toLowerCase();
+            const rawQuery = document.getElementById('search-input').value;
+            const query = normalizeText(rawQuery);
+            
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector('[data-filter="todos"]').classList.add('active');
             
@@ -489,13 +495,13 @@
             list.innerHTML = '';
             
             const filtered = recipes.filter(r => {
-                const textMatch = translateText(r.title).toLowerCase().includes(query);
-                const ingMatch = r.ingredients.some(i => translateText(i.name).toLowerCase().includes(query));
+                const textMatch = normalizeText(translateText(r.title)).includes(query);
+                const ingMatch = r.ingredients.some(i => normalizeText(translateText(i.name)).includes(query));
                 return textMatch || ingMatch;
             });
 
             if(filtered.length === 0) {
-                list.innerHTML = `<div class="text-center py-10"><p class="text-slate-400 font-bold text-sm">No se encontraron recetas con "${query}"</p></div>`;
+                list.innerHTML = `<div class="text-center py-10"><p class="text-slate-400 font-bold text-sm">No se encontraron recetas con "${rawQuery}"</p></div>`;
                 return;
             }
             renderRecipeCards(filtered, list);

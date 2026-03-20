@@ -11,7 +11,9 @@
         
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; }
         .app-container { max-width: 420px; margin: 0 auto; height: 100vh; position: relative; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; }
-        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; background-color: #f8fafc; }
+        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden; background-color: #f8fafc; }
+        .screen-scroll { flex: 1; overflow-y: auto; }
+        .screen-cta { flex-shrink: 0; padding: 12px 24px 16px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-top: 1px solid #f1f5f9; }
         .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         /* Scrollbar estilizada */
@@ -84,14 +86,15 @@
     </div>
 
     <!-- SCREEN: WELCOME -->
-    <section id="screen-welcome" class="screen p-6 relative flex-col justify-center text-center">
-        <div class="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 text-5xl mx-auto mb-6 shadow-inner">
-            <i class="fa-solid fa-dog"></i>
+    <section id="screen-welcome" class="screen relative">
+        <div class="screen-scroll flex flex-col justify-center items-center text-center p-6">
+            <div class="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 text-5xl mx-auto mb-6 shadow-inner">
+                <i class="fa-solid fa-dog"></i>
+            </div>
+            <h2 class="text-slate-800 font-black text-2xl mb-3">¡Hola de nuevo!</h2>
+            <p class="text-slate-500 text-sm font-medium leading-relaxed">Vemos que <span class="dog-name-display font-bold text-amber-600">tu peludo</span> ya tiene un plan de transición en marcha.</p>
         </div>
-        <h2 class="text-slate-800 font-black text-2xl mb-3">¡Hola de nuevo!</h2>
-        <p class="text-slate-500 text-sm mb-8 font-medium leading-relaxed">Vemos que <span class="dog-name-display font-bold text-amber-600">tu peludo</span> ya tiene un plan de transición en marcha.</p>
-        
-        <div class="sticky bottom-0 pb-6 pt-3 bg-white/90 backdrop-blur-sm -mx-6 px-6 mt-auto space-y-3">
+        <div class="screen-cta space-y-3">
             <button onclick="loadSavedPlan()" class="w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all text-lg flex items-center justify-center gap-2">
                 Continuar mi Racha <i class="fa-solid fa-fire"></i>
             </button>
@@ -102,91 +105,97 @@
     </section>
 
     <!-- SCREEN: OBJETIVO -->
-    <section id="screen-goal" class="screen p-6 relative flex-col">
-        <h2 class="text-slate-800 font-black text-xl mb-2">Objetivo Principal 🎯</h2>
-        <p class="text-slate-500 text-sm mb-6 font-medium">¿Qué queremos lograr principalmente con la salud de <span class="dog-name-display font-bold text-amber-600">tu peludo</span>?</p>
-        <div class="space-y-3 mb-8">
-            <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
-                <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="digestion" checked class="w-5 h-5 accent-amber-500"></div>
-                <div class="ml-4"><span class="block font-extrabold text-slate-800">Mejorar su Digestión</span><span class="block text-xs text-slate-500 font-medium">Adiós gases, diarreas o heces muy blandas.</span></div>
-            </label>
-            <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
-                <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="alergias" class="w-5 h-5 accent-amber-500"></div>
-                <div class="ml-4"><span class="block font-extrabold text-slate-800">Pelo brillante y Cero Alergias</span><span class="block text-xs text-slate-500 font-medium">Dejar de rascarse y detener la caída del pelo.</span></div>
-            </label>
-            <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
-                <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="peso" class="w-5 h-5 accent-amber-500"></div>
-                <div class="ml-4"><span class="block font-extrabold text-slate-800">Llegar a su Peso Ideal</span><span class="block text-xs text-slate-500 font-medium">Bajar o subir de peso de forma sana.</span></div>
-            </label>
+    <section id="screen-goal" class="screen relative">
+        <div class="screen-scroll p-6">
+            <h2 class="text-slate-800 font-black text-xl mb-2">Objetivo Principal 🎯</h2>
+            <p class="text-slate-500 text-sm mb-6 font-medium">¿Qué queremos lograr principalmente con la salud de <span class="dog-name-display font-bold text-amber-600">tu peludo</span>?</p>
+            <div class="space-y-3">
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="digestion" checked class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4"><span class="block font-extrabold text-slate-800">Mejorar su Digestión</span><span class="block text-xs text-slate-500 font-medium">Adiós gases, diarreas o heces muy blandas.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="alergias" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4"><span class="block font-extrabold text-slate-800">Pelo brillante y Cero Alergias</span><span class="block text-xs text-slate-500 font-medium">Dejar de rascarse y detener la caída del pelo.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="peso" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4"><span class="block font-extrabold text-slate-800">Llegar a su Peso Ideal</span><span class="block text-xs text-slate-500 font-medium">Bajar o subir de peso de forma sana.</span></div>
+                </label>
+            </div>
         </div>
-        <div class="sticky bottom-0 pt-3 pb-2 bg-white/90 backdrop-blur-sm -mx-6 px-6 mt-auto">
+        <div class="screen-cta">
             <button onclick="nextToDiet()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-slate-800 active:scale-95 transition-all">Continuar <i class="fa-solid fa-arrow-right ml-2 text-xs"></i></button>
         </div>
     </section>
 
     <!-- SCREEN: DIETA -->
-    <section id="screen-diet" class="screen p-6 relative flex-col">
-        <h2 class="text-slate-800 font-black text-xl mb-2">Diagnóstico Digestivo 🔬</h2>
-        <p class="text-slate-500 text-sm mb-6 font-medium">¿Qué come <span class="dog-name-display font-bold text-amber-600">tu peludo</span> actualmente?</p>
-        <div class="space-y-3 mb-8">
-            <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
-                <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="croquetas" checked class="w-5 h-5 accent-amber-500"></div>
-                <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">100% Croquetas</span><span class="text-[9px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded uppercase font-black">Plan 14 Días</span></div><span class="block text-xs text-slate-500">Necesita una transición lenta por su pH estomacal.</span></div>
-            </label>
-            <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
-                <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="mixto" class="w-5 h-5 accent-amber-500"></div>
-                <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">Mixto (Croquetas+Casero)</span><span class="text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded uppercase font-black">Plan 10 Días</span></div><span class="block text-xs text-slate-500">Ya digiere algo de comida real. Transición media.</span></div>
-            </label>
-            <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
-                <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="cocido" class="w-5 h-5 accent-amber-500"></div>
-                <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">100% Casero Cocido</span><span class="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded uppercase font-black">Plan 5 Días</span></div><span class="block text-xs text-slate-500">Flora fuerte. Solo adaptaremos al modelo BARF crudo.</span></div>
-            </label>
+    <section id="screen-diet" class="screen relative">
+        <div class="screen-scroll p-6">
+            <h2 class="text-slate-800 font-black text-xl mb-2">Diagnóstico Digestivo 🔬</h2>
+            <p class="text-slate-500 text-sm mb-6 font-medium">¿Qué come <span class="dog-name-display font-bold text-amber-600">tu peludo</span> actualmente?</p>
+            <div class="space-y-3">
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="croquetas" checked class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">100% Croquetas</span><span class="text-[9px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded uppercase font-black">Plan 14 Días</span></div><span class="block text-xs text-slate-500">Necesita una transición lenta por su pH estomacal.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="mixto" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">Mixto (Croquetas+Casero)</span><span class="text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded uppercase font-black">Plan 10 Días</span></div><span class="block text-xs text-slate-500">Ya digiere algo de comida real. Transición media.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="cocido" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">100% Casero Cocido</span><span class="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded uppercase font-black">Plan 5 Días</span></div><span class="block text-xs text-slate-500">Flora fuerte. Solo adaptaremos al modelo BARF crudo.</span></div>
+                </label>
+            </div>
         </div>
-        <div class="sticky bottom-0 pt-3 pb-2 bg-white/90 backdrop-blur-sm -mx-6 px-6 mt-auto">
+        <div class="screen-cta">
             <button onclick="nextToParams()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-slate-800 active:scale-95 transition-all">Continuar <i class="fa-solid fa-arrow-right ml-2 text-xs"></i></button>
         </div>
     </section>
 
     <!-- SCREEN: PARÁMETROS -->
-    <section id="screen-params" class="screen p-6 pb-24 relative flex-col">
-        <h2 class="text-slate-800 font-black text-xl mb-6">Perfil Físico ⚖️</h2>
-        <div class="space-y-5">
-            <div class="space-y-1.5">
-                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Peso Actual (KG)</label>
-                <div class="relative premium-input transition-all rounded-2xl border border-slate-200">
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400"><i class="fa-solid fa-weight-scale"></i></span>
-                    <input type="number" id="dogWeight" placeholder="Ej. 15" class="w-full bg-white text-slate-900 rounded-2xl py-4 pl-12 pr-4 outline-none font-bold text-lg">
+    <section id="screen-params" class="screen relative">
+        <div class="screen-scroll p-6">
+            <h2 class="text-slate-800 font-black text-xl mb-6">Perfil Físico ⚖️</h2>
+            <div class="space-y-5">
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Peso Actual (KG)</label>
+                    <div class="relative premium-input transition-all rounded-2xl border border-slate-200">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400"><i class="fa-solid fa-weight-scale"></i></span>
+                        <input type="number" id="dogWeight" placeholder="Ej. 15" class="w-full bg-white text-slate-900 rounded-2xl py-4 pl-12 pr-4 outline-none font-bold text-lg">
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Condición Corporal</label>
+                    <select id="dogCondition" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="ideal">Peso Ideal (Cintura visible)</option>
+                        <option value="flaco">Delgado (Se le ven las costillas)</option>
+                        <option value="gordo">Gordito (Sobrepeso / Sin cintura)</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Etapa de Vida</label>
+                    <select id="dogAge" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="adulto">Adulto (1 a 7 años)</option>
+                        <option value="cachorro">Cachorro (Menos de 1 año)</option>
+                        <option value="senior">Senior (+7 años)</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Nivel de Actividad</label>
+                    <select id="dogActivity" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="normal">Normal (1 paseo diario)</option>
+                        <option value="baja">Baja (Perezoso / Sedentario)</option>
+                        <option value="alta">Alta (Muy activo / Deportivo)</option>
+                    </select>
                 </div>
             </div>
-            <div class="space-y-1.5">
-                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Condición Corporal</label>
-                <select id="dogCondition" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
-                    <option value="" disabled selected>Selecciona una opción</option>
-                    <option value="ideal">Peso Ideal (Cintura visible)</option>
-                    <option value="flaco">Delgado (Se le ven las costillas)</option>
-                    <option value="gordo">Gordito (Sobrepeso / Sin cintura)</option>
-                </select>
-            </div>
-            <div class="space-y-1.5">
-                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Etapa de Vida</label>
-                <select id="dogAge" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
-                    <option value="" disabled selected>Selecciona una opción</option>
-                    <option value="adulto">Adulto (1 a 7 años)</option>
-                    <option value="cachorro">Cachorro (Menos de 1 año)</option>
-                    <option value="senior">Senior (+7 años)</option>
-                </select>
-            </div>
-            <div class="space-y-1.5">
-                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Nivel de Actividad</label>
-                <select id="dogActivity" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
-                    <option value="" disabled selected>Selecciona una opción</option>
-                    <option value="normal">Normal (1 paseo diario)</option>
-                    <option value="baja">Baja (Perezoso / Sedentario)</option>
-                    <option value="alta">Alta (Muy activo / Deportivo)</option>
-                </select>
-            </div>
         </div>
-        <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] pt-3 pb-4 px-6 bg-white/90 backdrop-blur-sm border-t border-slate-100 z-20" id="params-cta-bar">
+        <div class="screen-cta">
             <button onclick="calculateDiet()" class="w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all text-lg">Crear Plan Definitivo</button>
         </div>
     </section>
@@ -357,7 +366,7 @@
 
     <!-- MODAL: TRACKER (REGISTRO DEL DÍA) -->
     <div id="modal-tracker" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-end">
-        <div id="modal-tracker-content" class="bg-white rounded-t-[2.5rem] p-8 text-center shadow-2xl transform translate-y-full transition-transform duration-300 w-full">
+        <div id="modal-tracker-content" class="bg-white rounded-t-[2.5rem] p-8 text-center shadow-2xl transform translate-y-full transition-transform duration-300 w-full max-h-[85vh] overflow-y-auto">
             
             <!-- Step 1: Apetito -->
             <div id="tracker-step-appetite" class="block">

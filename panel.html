@@ -104,6 +104,9 @@
                 <button onclick="switchTab('cerebro')" id="nav-cerebro" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors border border-violet-500/30">
                     <i class="fa-solid fa-brain w-5 text-violet-400"></i> Cerebro IA
                 </button>
+                <button onclick="switchTab('copyia')" id="nav-copyia" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors border border-amber-500/30">
+                    <i class="fa-solid fa-robot w-5 text-amber-400"></i> Copy IA
+                </button>
             </nav>
 
             <div class="p-4 border-t border-slate-800">
@@ -247,7 +250,12 @@
                                             <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-6 rounded-full bg-sky-400"></div>
                                             
                                             <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1"><i class="fa-solid fa-microphone text-sky-500 mr-1"></i> URL de Audio</label>
+                                                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1 flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-microphone text-sky-500"></i> URL de Audio
+                                                    <button type="button" onclick="openGuionModal()" class="ml-auto w-6 h-6 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center hover:bg-amber-200 transition-colors" title="Ver/editar guión del audio">
+                                                        <i class="fa-solid fa-robot text-xs"></i>
+                                                    </button>
+                                                </label>
                                                 <div class="flex gap-2 items-center">
                                                     <input type="text" id="prod-audio" placeholder="https://firebasestorage..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-sky-500 text-xs">
                                                     <input type="file" id="file-audio" accept="audio/*" class="hidden" onchange="uploadFileToStorage(this, 'prod-audio')">
@@ -448,7 +456,74 @@
                 </div>
             </div>
 
+            <div id="tab-copyia" class="tab-content hidden w-full h-full flex flex-col fade-in relative">
+                <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Copy IA</h1>
+                        <p class="text-sm text-slate-500 font-medium">Tu prompt para generar mensajes del funnel con Claude.</p>
+                    </div>
+                    <button onclick="saveCopyIA()" id="btn-save-copyia" class="bg-amber-500 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all flex gap-2 items-center">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Prompt
+                    </button>
+                </header>
+                <div class="flex-1 p-8 overflow-y-auto flex justify-center items-start">
+                    <div class="bg-white w-full max-w-4xl rounded-2xl border border-slate-200 shadow-sm p-8 space-y-5">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800">Prompt Generador de Copy</h3>
+                                <p class="text-xs text-slate-500 font-medium">Copia este prompt, pégalo en Claude junto con el HTML de tu app y obtén los 4 mensajes listos.</p>
+                            </div>
+                        </div>
+
+                        <textarea id="copyia-prompt" rows="20" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-amber-400 leading-relaxed" placeholder="Pega aquí tu prompt de instrucción para generar mensajes del funnel..."></textarea>
+
+                        <div class="flex gap-3">
+                            <button onclick="copiarPromptCopyIA()" class="flex items-center gap-2 bg-amber-50 text-amber-700 border border-amber-200 font-bold px-5 py-2.5 rounded-xl hover:bg-amber-100 transition-colors text-sm">
+                                <i class="fa-solid fa-copy"></i> Copiar Prompt
+                            </button>
+                        </div>
+
+                        <div class="bg-amber-50/50 border border-amber-100 rounded-xl p-4">
+                            <h4 class="font-bold text-amber-800 text-xs mb-1 uppercase tracking-widest"><i class="fa-solid fa-circle-info"></i> Cómo usarlo</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">1. Presiona <strong>Copiar Prompt</strong> · 2. Abre un chat nuevo con Claude · 3. Pega el prompt · 4. Al final agrega el HTML de tu app · 5. Claude te genera Mensaje 1, Guión Audio, Mensaje 3 y Mensaje 4 listos para copiar a Firestore.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
+    </div>
+
+    <!-- MODAL GUIÓN DE AUDIO -->
+    <div id="modal-guion" class="hidden fixed inset-0 z-[200] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden" style="max-height: 85vh;">
+            <div class="flex items-center justify-between px-7 py-5 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-slate-900 text-base">Guión del Audio</h3>
+                        <p class="text-[11px] text-slate-400 font-medium">Solo para tu referencia. El bot no lo usa.</p>
+                    </div>
+                </div>
+                <button onclick="closeGuionModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-7">
+                <textarea id="modal-guion-text" rows="14" placeholder="Hola, soy Valeria de NutriCan Vital...&#10;&#10;Pega aquí el guión completo del audio para este producto." class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-amber-400 leading-relaxed resize-none"></textarea>
+            </div>
+            <div class="px-7 py-5 border-t border-slate-100 flex gap-3">
+                <button onclick="closeGuionModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors text-sm">Cancelar</button>
+                <button onclick="saveGuion()" id="btn-save-guion" class="flex-1 bg-amber-500 text-white font-bold py-3 rounded-xl hover:bg-amber-600 transition-colors text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar Guión
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -480,6 +555,7 @@
                 loadProducts();
                 loadCampaigns();
                 loadCerebro();
+                loadCopyIA();
             } else {
                 document.getElementById('screen-login').classList.remove('hidden');
                 document.getElementById('screen-dashboard').classList.add('hidden');
@@ -520,26 +596,30 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             
             document.querySelectorAll('.nav-btn').forEach(el => {
-                el.classList.remove('bg-violet-600/20', 'text-violet-400', 'border-violet-500/30');
+                el.classList.remove('bg-violet-600/20', 'text-violet-400', 'border-violet-500/30', 'bg-amber-500/20', 'text-amber-400', 'border-amber-500/30');
                 el.classList.add('text-slate-400');
                 
-                // Limpiar icono
                 const icon = el.querySelector('i');
-                icon.classList.remove('text-violet-400');
+                icon.classList.remove('text-violet-400', 'text-amber-400');
             });
             
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             
             const btn = document.getElementById(`nav-${tabId}`);
             btn.classList.remove('text-slate-400');
-            btn.classList.add('bg-violet-600/20', 'text-violet-400');
-            if(tabId === 'cerebro') btn.classList.add('border', 'border-violet-500/30');
-            
-            const iconBtn = btn.querySelector('i');
-            iconBtn.classList.add('text-violet-400');
+
+            if(tabId === 'copyia') {
+                btn.classList.add('bg-amber-500/20', 'text-amber-400', 'border', 'border-amber-500/30');
+                btn.querySelector('i').classList.add('text-amber-400');
+            } else {
+                btn.classList.add('bg-violet-600/20', 'text-violet-400');
+                if(tabId === 'cerebro') btn.classList.add('border', 'border-violet-500/30');
+                btn.querySelector('i').classList.add('text-violet-400');
+            }
 
             if(tabId === 'productos') closeProductEditor();
             if(tabId === 'campanas') closeCampaignEditor();
+            if(tabId === 'copyia') loadCopyIA();
         }
 
         // ==========================================
@@ -628,6 +708,7 @@
             document.getElementById('prod-bump-precio').value = '';
             document.getElementById('prod-bump-desc-ia').value = '';
             
+            window._guionAudioActual = '';
             document.querySelectorAll('.app-chk, .ebook-chk').forEach(c => c.checked = false);
             document.getElementById('editor-prod-title').innerText = "Crear Nuevo Paquete";
 
@@ -648,6 +729,9 @@
                 document.getElementById('prod-video').value = editData.url_video || '';
                 document.getElementById('prod-m3').value = editData.mensaje_3 || '';
                 document.getElementById('prod-m4').value = editData.mensaje_4 || '';
+                
+                // Guardar guion_audio en variable temporal para el modal
+                window._guionAudioActual = editData.guion_audio || '';
                 
                 document.getElementById('prod-mbump').value = editData.mensaje_oferta_bump || '';
                 document.getElementById('prod-bump-img').value = editData.url_imagen_bump || '';
@@ -749,6 +833,7 @@
                 url_video: document.getElementById('prod-video').value,
                 mensaje_3: document.getElementById('prod-m3').value,
                 mensaje_4: document.getElementById('prod-m4').value,
+                guion_audio: window._guionAudioActual || '',
                 
                 mensaje_oferta_bump: document.getElementById('prod-mbump').value,
                 url_imagen_bump: document.getElementById('prod-bump-img').value,
@@ -925,6 +1010,98 @@
                 showToast("Error guardando el Cerebro IA", "error"); 
             } finally {
                 btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Prompt`;
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // 8. COPY IA
+        // ==========================================
+        async function loadCopyIA() {
+            try {
+                const doc = await db.collection('config').doc('copy_ia').get();
+                if (doc.exists) {
+                    document.getElementById('copyia-prompt').value = doc.data().prompt || '';
+                }
+            } catch(e) {
+                console.error('Error cargando Copy IA:', e);
+            }
+        }
+
+        async function saveCopyIA() {
+            const prompt = document.getElementById('copyia-prompt').value.trim();
+            const btn = document.getElementById('btn-save-copyia');
+            if(!prompt) return showToast('El prompt no puede estar vacío', 'error');
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
+            btn.disabled = true;
+
+            try {
+                await db.collection('config').doc('copy_ia').set({
+                    prompt: prompt,
+                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                showToast("Prompt Copy IA guardado");
+            } catch(e) {
+                showToast("Error guardando", "error");
+            } finally {
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Prompt`;
+                btn.disabled = false;
+            }
+        }
+
+        function copiarPromptCopyIA() {
+            const texto = document.getElementById('copyia-prompt').value.trim();
+            if(!texto) return showToast('El prompt está vacío', 'error');
+            navigator.clipboard.writeText(texto).then(() => {
+                showToast("Prompt copiado al portapapeles ✅");
+            }).catch(() => {
+                showToast("Error al copiar", "error");
+            });
+        }
+
+        // ==========================================
+        // 9. MODAL GUIÓN DE AUDIO
+        // ==========================================
+        window._guionAudioActual = '';
+
+        function openGuionModal() {
+            document.getElementById('modal-guion-text').value = window._guionAudioActual || '';
+            document.getElementById('modal-guion').classList.remove('hidden');
+            document.getElementById('modal-guion').classList.add('flex');
+        }
+
+        function closeGuionModal() {
+            document.getElementById('modal-guion').classList.add('hidden');
+            document.getElementById('modal-guion').classList.remove('flex');
+        }
+
+        async function saveGuion() {
+            const texto = document.getElementById('modal-guion-text').value.trim();
+            const docId = document.getElementById('prod-id-edit').value || document.getElementById('prod-id').value.trim();
+            const btn = document.getElementById('btn-save-guion');
+
+            if(!docId) {
+                showToast('Primero guarda el producto con un ID', 'error');
+                return;
+            }
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
+            btn.disabled = true;
+
+            try {
+                await db.collection('productos').doc(docId).set({
+                    guion_audio: texto,
+                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                window._guionAudioActual = texto;
+                showToast("Guión guardado en el producto ✅");
+                closeGuionModal();
+            } catch(e) {
+                showToast("Error guardando guión", "error");
+            } finally {
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Guión`;
                 btn.disabled = false;
             }
         }

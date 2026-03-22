@@ -281,14 +281,9 @@
 
                                         <div class="space-y-1.5 relative">
                                             <div class="absolute -left-3 top-2 w-1.5 h-1.5 rounded-full bg-violet-400"></div>
-                                            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1">3. Mensaje Stack de Valor (Lo que incluye)</label>
-                                            <textarea id="prod-m3" rows="3" placeholder="Con esta herramienta vas a lograr..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-violet-500"></textarea>
-                                        </div>
-
-                                        <div class="space-y-1.5 relative">
-                                            <div class="absolute -left-3 top-2 w-1.5 h-1.5 rounded-full bg-violet-400"></div>
-                                            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1">4. Mensaje Oferta (Cierre)</label>
-                                            <textarea id="prod-m4" rows="3" placeholder="Hoy lo tienes por solo S/25. ¿Qué método de pago prefieres?" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-violet-500"></textarea>
+                                            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1">Mensaje de Cierre (Beneficios)</label>
+                                            <textarea id="prod-cierre-ventas" rows="4" placeholder="✅ La ración exacta según su peso.&#10;✅ Transición segura sin diarreas.&#10;✅ Acceso de por vida desde tu celular." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-violet-500"></textarea>
+                                            <p class="text-[10px] text-slate-400 mt-1 pl-1">Este texto se enviará junto al precio y los botones de pago cuando el cliente diga "sí". Cada línea debe empezar con un emoji (ej. ✅).</p>
                                         </div>
                                     </div>
                                 </div>
@@ -443,7 +438,7 @@
                             </div>
                             <div>
                                 <h3 class="font-black text-lg text-slate-800">Prompt Maestro (System Prompt)</h3>
-                                <p class="text-xs text-slate-500 font-medium">Instrucciones base para responder preguntas abiertas por WhatsApp. Aplica a toda tu marca.</p>
+                                <p class="text-xs text-slate-500 font-medium">Instrucciones base para responder preguntas abierta por WhatsApp. Aplica a toda tu marca.</p>
                             </div>
                         </div>
                         <textarea id="cerebro-prompt" rows="18" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-violet-500 leading-relaxed" placeholder="Eres un asesor experto de ventas de cursos caninos. Responde de forma amable, corta y con emojis..."></textarea>
@@ -497,7 +492,6 @@
         </main>
     </div>
 
-    <!-- MODAL GUIÓN DE AUDIO -->
     <div id="modal-guion" class="hidden fixed inset-0 z-[200] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-6">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden" style="max-height: 85vh;">
             <div class="flex items-center justify-between px-7 py-5 border-b border-slate-100">
@@ -699,8 +693,7 @@
             document.getElementById('prod-m1').value = '';
             document.getElementById('prod-audio').value = '';
             document.getElementById('prod-video').value = '';
-            document.getElementById('prod-m3').value = '';
-            document.getElementById('prod-m4').value = '';
+            document.getElementById('prod-cierre-ventas').value = '';
             
             document.getElementById('prod-mbump').value = '';
             document.getElementById('prod-bump-img').value = '';
@@ -727,8 +720,7 @@
                 document.getElementById('prod-m1').value = editData.mensaje_1 || '';
                 document.getElementById('prod-audio').value = editData.url_audio || '';
                 document.getElementById('prod-video').value = editData.url_video || '';
-                document.getElementById('prod-m3').value = editData.mensaje_3 || '';
-                document.getElementById('prod-m4').value = editData.mensaje_4 || '';
+                document.getElementById('prod-cierre-ventas').value = editData.texto_cierre_ventas || '';
                 
                 // Guardar guion_audio en variable temporal para el modal
                 window._guionAudioActual = editData.guion_audio || '';
@@ -831,8 +823,7 @@
                 mensaje_1: document.getElementById('prod-m1').value,
                 url_audio: document.getElementById('prod-audio').value,
                 url_video: document.getElementById('prod-video').value,
-                mensaje_3: document.getElementById('prod-m3').value,
-                mensaje_4: document.getElementById('prod-m4').value,
+                texto_cierre_ventas: document.getElementById('prod-cierre-ventas').value, // NUEVO CAMPO
                 guion_audio: window._guionAudioActual || '',
                 
                 mensaje_oferta_bump: document.getElementById('prod-mbump').value,
@@ -843,6 +834,11 @@
                 
                 fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
             };
+
+            // Eliminamos la referencias a mensaje_3 y mensaje_4 del payload para evitar guardarlos
+            payload.mensaje_3 = firebase.firestore.FieldValue.delete();
+            payload.mensaje_4 = firebase.firestore.FieldValue.delete();
+
 
             if(!idEdit) payload.fecha_creacion = firebase.firestore.FieldValue.serverTimestamp();
 

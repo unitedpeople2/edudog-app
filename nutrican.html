@@ -8,136 +8,1203 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; }
-        .app-container { max-width: 420px; margin: 0 auto; height: 100dvh; position: relative; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; }
+        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; margin: 0; padding: 0; }
+        
+        /* Uso de 100dvh para evitar el micro-scroll en móviles */
+        .app-container { 
+            max-width: 420px; 
+            margin: 0 auto; 
+            height: 100vh; /* Fallback */
+            height: 100dvh; /* Mobile fix */
+            position: relative; 
+            background: #ffffff; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
         .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden; background-color: #f8fafc; }
         .screen-scroll { flex: 1; overflow-y: auto; }
+        .screen-cta { flex-shrink: 0; padding: 10px 24px 14px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-top: 1px solid #f1f5f9; }
         .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .day-ready { border-color: #f59e0b !important; background-color: #fffbeb !important; }
-        .day-completed { background-color: #ffffff; border-color: #10b981; }
-        @keyframes bounce-in { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+        
+        /* Scrollbar estilizada */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d97706; }
+        .premium-input:focus-within { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15); border-color: #f59e0b; }
+        .magic-loader { border: 4px solid #f3f3f3; border-top: 4px solid #f59e0b; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* Premium UI Elements */
+        .day-locked .content-blur { filter: blur(4px); opacity: 0.6; user-select: none; pointer-events: none; transition: all 0.3s ease; }
+        .day-ready { cursor: pointer; border-color: #f59e0b !important; background-color: #fffbeb !important; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.1), 0 2px 4px -1px rgba(245, 158, 11, 0.06); }
+        .day-completed { background-color: #ffffff; border-color: #10b981; cursor: pointer; }
+        .day-completed:hover { background-color: #f0fdf4; }
+
+        /* Hide scrollbar for badges */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Pantalla victoria */
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes bounce-in {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
         .bounce-in { animation: bounce-in 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
     </style>
 </head>
 <body class="antialiased text-slate-900 md:py-8">
+
 <div class="app-container md:rounded-[2.5rem] md:border-[6px] md:border-slate-900 relative">
-    <div class="sticky top-0 bg-amber-500 text-white border-b border-amber-600 px-4 py-4 flex items-center justify-between z-30 shadow-md">
-        <h2 class="font-extrabold text-sm flex items-center gap-2"><i class="fa-solid fa-bowl-food"></i> NutriCan Vital</h2>
-        <a href="index.html" class="w-10 h-10 flex items-center justify-center rounded-full bg-amber-600"><i class="fa-solid fa-house"></i></a>
-    </div>
 
-    <section id="screen-dashboard" class="screen bg-slate-50 active">
-        <div class="screen-scroll p-6 pb-10 space-y-6">
-            <div id="health-status-panel" class="bg-white rounded-[1.5rem] border border-slate-200 p-4">
-                <h3 class="font-extrabold text-sm mb-2">Estado de Salud de <span class="dog-name-display">...</span></h3>
-                <p id="status-advice-text" class="text-xs text-slate-500">Cargando datos...</p>
-            </div>
+    <div class="sticky top-0 bg-amber-500 text-white border-b border-amber-600 px-4 py-4 flex items-center justify-between z-30 shadow-md shrink-0">
+        <div class="flex items-center">
+            <button onclick="smartBack()" id="btn-back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-amber-400 transition-colors mr-2" style="display: none;">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
             <div>
-                <h2 class="text-4xl font-black text-slate-900 tracking-tight" id="total-grams">0</h2>
-                <span class="text-slate-500 font-bold">gramos/día</span>
-                <div id="ingredients-list" class="space-y-3 mt-4"></div>
-            </div>
-            <div id="tracker-container" class="divide-y divide-slate-100 bg-white rounded-3xl border border-slate-200 overflow-hidden"></div>
-            <button onclick="resetApp()" class="w-full text-rose-500 font-bold py-3 text-xs">Recalcular Plan</button>
-        </div>
-    </section>
-
-    <section id="screen-victory" class="screen bg-slate-50">
-        <div class="screen-scroll p-6 flex flex-col items-center">
-            <div class="bounce-in mt-8 mb-6 text-6xl">🏆</div>
-            <h2 class="text-3xl font-black text-slate-900">¡Transición Completa!</h2>
-            <p class="text-slate-500 text-center text-sm mb-8">Has logrado adaptar a <span class="dog-name-display">...</span> a una vida sana.</p>
-            <div id="victory-upsell-container" class="w-full"></div>
-            <button onclick="location.reload()" class="w-full bg-white text-slate-400 font-bold py-3 rounded-xl text-xs border border-slate-200 mt-4">Cerrar</button>
-        </div>
-    </section>
-
-    <div id="modal-tracker" class="hidden absolute inset-0 z-50 bg-slate-900/80 flex flex-col justify-end">
-        <div class="bg-white rounded-t-[2.5rem] p-8">
-            <h3 class="text-xl font-black mb-4">¿Cómo estuvo la digestión?</h3>
-            <div class="space-y-3">
-                <button onclick="saveDay('good')" class="w-full bg-emerald-50 text-emerald-700 p-4 rounded-2xl font-bold">🟢 Heces Perfectas</button>
-                <button onclick="saveDay('soft')" class="w-full bg-amber-50 text-amber-700 p-4 rounded-2xl font-bold">🟡 Heces Blandas</button>
-                <button onclick="closeModal()" class="w-full text-slate-400 py-4 font-bold">Cancelar</button>
+                <h2 class="font-extrabold text-white text-sm leading-tight flex items-center gap-2">
+                    <i class="fa-solid fa-bowl-food"></i> NutriCan Vital
+                </h2>
+                <p class="text-[10px] font-semibold text-amber-100 uppercase tracking-wider" id="header-subtitle">Inicializando...</p>
             </div>
         </div>
+        <a href="index.html" class="w-10 h-10 flex items-center justify-center rounded-full bg-amber-600 hover:bg-amber-700 transition-colors shadow-inner text-sm">
+            <i class="fa-solid fa-house"></i>
+        </a>
     </div>
-</div>
 
-<script>
-    let dogName = localStorage.getItem('currentDogName') || "tu peludo";
-    let planData = JSON.parse(localStorage.getItem(`nutriCanPlan_${dogName}`));
-    let trackerData = JSON.parse(localStorage.getItem(`nutriCanTracker_${dogName}`)) || { days: {} };
-    let currentUserSession = JSON.parse(localStorage.getItem('eduDogSession'));
-    let pendingDay = -1;
+    <section id="screen-welcome" class="screen relative">
+        <div class="screen-scroll flex flex-col justify-center items-center text-center p-6">
+            <div class="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 text-5xl mx-auto mb-6 shadow-inner">
+                <i class="fa-solid fa-dog"></i>
+            </div>
+            <h2 class="text-slate-800 font-black text-2xl mb-3">¡Hola de nuevo!</h2>
+            <p class="text-slate-500 text-sm font-medium leading-relaxed">Vemos que <span class="dog-name-display font-bold text-amber-600">tu peludo</span> ya tiene un plan de transición en marcha.</p>
+        </div>
+        <div class="screen-cta space-y-3">
+            <button onclick="loadSavedPlan()" class="w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all text-lg flex items-center justify-center gap-2">
+                Continuar mi Racha <i class="fa-solid fa-fire"></i>
+            </button>
+            <button onclick="forceNewPlan()" class="w-full bg-white text-slate-500 border-2 border-slate-200 font-bold py-3.5 rounded-2xl hover:bg-slate-50 transition-all text-sm">
+                <i class="fa-solid fa-rotate-right mr-1"></i> Crear un plan nuevo
+            </button>
+        </div>
+    </section>
 
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.dog-name-display').forEach(el => el.innerText = dogName);
-        if(planData) renderDashboard();
-    });
+    <section id="screen-goal" class="screen relative">
+        <div class="screen-scroll p-6">
+            <h2 class="text-slate-800 font-black text-xl mb-2">Objetivo Principal 🎯</h2>
+            <p class="text-slate-500 text-sm mb-6 font-medium">¿Qué queremos lograr principalmente con la salud de <span class="dog-name-display font-bold text-amber-600">tu peludo</span>?</p>
+            <div class="space-y-3">
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="digestion" checked class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4"><span class="block font-extrabold text-slate-800">Mejorar su Digestión</span><span class="block text-xs text-slate-500 font-medium">Adiós gases, diarreas o heces muy blandas.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="alergias" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4"><span class="block font-extrabold text-slate-800">Pelo brillante y Cero Alergias</span><span class="block text-xs text-slate-500 font-medium">Dejar de rascarse y detener la caída del pelo.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="peso" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4"><span class="block font-extrabold text-slate-800">Llegar a su Peso Ideal</span><span class="block text-xs text-slate-500 font-medium">Bajar o subir de peso de forma sana.</span></div>
+                </label>
+            </div>
+        </div>
+        <div class="screen-cta">
+            <button onclick="nextToDiet()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-slate-800 active:scale-95 transition-all">Continuar <i class="fa-solid fa-arrow-right ml-2 text-xs"></i></button>
+        </div>
+    </section>
 
-    function renderDashboard() {
-        const totalDays = planData.dietPlanType === 'croquetas' ? 14 : planData.dietPlanType === 'mixto' ? 10 : 5;
-        const completedCount = Object.keys(trackerData.days).length;
+    <section id="screen-diet" class="screen relative">
+        <div class="screen-scroll p-6">
+            <h2 class="text-slate-800 font-black text-xl mb-2">Diagnóstico Digestivo 🔬</h2>
+            <p class="text-slate-500 text-sm mb-6 font-medium">¿Qué come <span class="dog-name-display font-bold text-amber-600">tu peludo</span> actualmente?</p>
+            <div class="space-y-3">
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="croquetas" checked class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">100% Croquetas</span><span class="text-[9px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded uppercase font-black">Plan 14 Días</span></div><span class="block text-xs text-slate-500">Necesita una transición lenta por su pH estomacal.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="mixto" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">Mixto (Croquetas+Casero)</span><span class="text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded uppercase font-black">Plan 10 Días</span></div><span class="block text-xs text-slate-500">Ya digiere algo de comida real. Transición media.</span></div>
+                </label>
+                <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="cocido" class="w-5 h-5 accent-amber-500"></div>
+                    <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">100% Casero Cocido</span><span class="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded uppercase font-black">Plan 5 Días</span></div><span class="block text-xs text-slate-500">Flora fuerte. Solo adaptaremos al modelo BARF crudo.</span></div>
+                </label>
+            </div>
+        </div>
+        <div class="screen-cta">
+            <button onclick="nextToParams()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-slate-800 active:scale-95 transition-all">Continuar <i class="fa-solid fa-arrow-right ml-2 text-xs"></i></button>
+        </div>
+    </section>
 
-        if (completedCount >= totalDays) { renderVictoryScreen(totalDays); showScreen('screen-victory'); return; }
+    <section id="screen-params" class="screen relative">
+        <div class="screen-scroll p-6">
+            <h2 class="text-slate-800 font-black text-xl mb-6">Perfil Físico ⚖️</h2>
+            <div class="space-y-5">
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Peso Actual (KG)</label>
+                    <div class="relative premium-input transition-all rounded-2xl border border-slate-200">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400"><i class="fa-solid fa-weight-scale"></i></span>
+                        <input type="number" id="dogWeight" placeholder="Ej. 15" class="w-full bg-white text-slate-900 rounded-2xl py-4 pl-12 pr-4 outline-none font-bold text-lg">
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Condición Corporal</label>
+                    <select id="dogCondition" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="ideal">Peso Ideal (Cintura visible)</option>
+                        <option value="flaco">Delgado (Se le ven las costillas)</option>
+                        <option value="gordo">Gordito (Sobrepeso / Sin cintura)</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Etapa de Vida</label>
+                    <select id="dogAge" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="adulto">Adulto (1 a 7 años)</option>
+                        <option value="cachorro">Cachorro (Menos de 1 año)</option>
+                        <option value="senior">Senior (+7 años)</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Nivel de Actividad</label>
+                    <select id="dogActivity" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input">
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="normal">Normal (1 paseo diario)</option>
+                        <option value="baja">Baja (Perezoso / Sedentario)</option>
+                        <option value="alta">Alta (Muy activo / Deportivo)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="screen-cta">
+            <button onclick="calculateDiet()" class="w-full bg-amber-50 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all text-lg" style="background-color: #f59e0b;">Crear Plan Definitivo</button>
+        </div>
+    </section>
 
-        document.getElementById('total-grams').innerText = planData.totalGrams;
-        document.getElementById('status-advice-text').innerText = completedCount === 0 ? "Inicia hoy tu racha para ver el progreso." : "Digestión bajo control.";
-        
-        const container = document.getElementById('tracker-container');
-        container.innerHTML = '';
-        for(let i=0; i<totalDays; i++) {
-            const completed = !!trackerData.days[i];
-            const ready = i === completedCount;
-            container.innerHTML += `<div onclick="${ready ? `openModal(${i})` : ''}" class="p-4 flex gap-4 ${completed ? 'day-completed' : ready ? 'day-ready' : 'opacity-40'}">
-                <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center font-black">${completed ? '✓' : i+1}</div>
-                <div><h4 class="font-black text-sm">Día ${i+1}</h4><p class="text-[10px]">${completed ? 'Completado' : ready ? 'Toca para marcar' : 'Bloqueado'}</p></div>
-            </div>`;
-        }
-    }
+    <section id="screen-loading" class="screen flex-col justify-center items-center p-6 text-center">
+        <div class="magic-loader mb-6"></div>
+        <h3 class="text-xl font-black text-slate-800 mb-2">Generando Fórmula...</h3>
+        <p id="loading-text" class="text-sm text-amber-600 font-bold tracking-wide">Analizando metabolismo...</p>
+    </section>
 
-    function renderVictoryScreen(totalDays) {
-        // CORRECCIÓN: Comprobar si ya es dueño para cambiar el botón
-        const hasNutriChef = currentUserSession && currentUserSession.ebooks && currentUserSession.ebooks.includes('nutrichef');
-        
-        const btnHtml = hasNutriChef 
-            ? `<button onclick="window.location.href='nutrichef.html'" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-95 shadow-lg shadow-emerald-500/20">
-                    Acceder a mis recetas de mantenimiento 🍳
-               </button>`
-            : `<button onclick="openNutriChefUpsell()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-95 shadow-lg shadow-rose-500/20">
-                    Desbloquear Recetario de Mantenimiento 🍳
-               </button>`;
+    <section id="screen-dashboard" class="screen bg-slate-50">
+        <div class="screen-scroll p-6 pb-10 space-y-6">
 
-        document.getElementById('victory-upsell-container').innerHTML = `
+            <div id="health-status-panel" class="bg-white rounded-[1.5rem] border border-slate-200 shadow-sm overflow-hidden transition-all duration-300">
+                <div class="bg-slate-900 px-4 py-3 flex justify-between items-center">
+                    <h3 class="text-white font-extrabold text-sm flex items-center gap-2"><i class="fa-solid fa-heart-pulse text-rose-500"></i> Estado Actual</h3>
+                    <span id="risk-badge" class="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md transition-all">...</span>
+                </div>
+                <div class="p-4 grid grid-cols-2 gap-4 divide-x divide-slate-100">
+                    <div class="text-center">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Digestión</p>
+                        <div id="status-digestion-icon" class="text-2xl mb-1">...</div>
+                        <p id="status-digestion-text" class="text-xs font-black text-slate-800">Cargando</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Apetito</p>
+                        <div id="status-appetite-icon" class="text-2xl mb-1">...</div>
+                        <p id="status-appetite-text" class="text-xs font-black text-slate-800">Cargando</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 px-4 py-3 border-t border-slate-100">
+                    <p id="status-advice-text" class="text-xs text-slate-600 font-medium leading-relaxed">...</p>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-end mb-1">
+                    <p class="text-[11px] font-black text-amber-500 uppercase tracking-widest">Ración Diaria Total</p>
+                    <button onclick="openTipsModal()" class="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-amber-200 transition-colors cursor-pointer">
+                        <i class="fa-solid fa-lightbulb"></i> Tips de Oro
+                    </button>
+                </div>
+                <div class="flex items-baseline gap-2 mb-4">
+                    <h2 class="text-4xl font-black text-slate-900 tracking-tight" id="total-grams">0</h2>
+                    <span class="text-slate-500 font-bold">gramos/día</span>
+                </div>
+                
+                <div id="ingredients-list" class="space-y-3"></div>
+                <div id="meal-division" class="mt-4"></div>
+            </div>
+
+            <div id="dog-profile-card" class="bg-white rounded-2xl border border-amber-100 shadow-sm px-4 py-3 flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-100 text-amber-500 rounded-xl flex items-center justify-center text-lg shrink-0">
+                    <i class="fa-solid fa-dog"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-extrabold text-slate-900 text-sm leading-none mb-0.5 truncate"><span class="dog-name-display">Tu peludo</span></p>
+                    <p class="text-[11px] text-slate-500 font-semibold truncate" id="profile-details">Cargando perfil...</p>
+                </div>
+                <div class="text-right shrink-0">
+                    <p class="text-[10px] font-black text-amber-600 uppercase tracking-wide">Plan</p>
+                    <p class="text-[11px] font-extrabold text-slate-700" id="profile-plan-days">14 días</p>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-sm mb-3 uppercase tracking-widest flex items-center gap-2">Tus Insignias 🏅</h3>
+                <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar" id="badges-container">
+                    </div>
+            </div>
+
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-lg mb-4 px-1 flex justify-between items-center">
+                    Mi Racha <i class="fa-solid fa-fire text-amber-500"></i>
+                </h3>
+                
+                <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm mb-4">
+                    <div class="flex justify-between text-xs font-bold mb-2">
+                        <span class="text-amber-600" id="progress-text">0% Completado</span>
+                        <span class="text-slate-400"><i class="fa-solid fa-shield-dog"></i> Flora fortaleciéndose</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 shadow-inner overflow-hidden">
+                        <div id="progress-bar" class="bg-amber-500 h-3 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col divide-y divide-slate-100" id="tracker-container"></div>
+            </div>
+
+            <div class="space-y-3 mt-8">
+                <a href="index.html" class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-md hover:bg-slate-800 transition-all text-center">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Hub Principal
+                </a>
+                <button onclick="resetApp()" class="w-full bg-white text-rose-500 font-bold py-3.5 rounded-xl text-xs hover:bg-rose-50 border border-rose-200 transition-all">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Recalcular datos de <span class="dog-name-display">tu peludo</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="screen-victory" class="screen bg-slate-50 relative">
+        <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden z-10"></div>
+        <div class="screen-scroll relative z-20 p-6 pb-10 flex flex-col items-center">
+            
+            <div class="bounce-in mt-8 mb-6">
+                <div class="w-32 h-32 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-6xl shadow-2xl shadow-amber-500/40 mx-auto">
+                    🏆
+                </div>
+            </div>
+
+            <h2 class="text-3xl font-black text-slate-900 text-center mb-2">¡Transición Completa!</h2>
+            <p class="text-slate-500 font-medium text-center text-sm mb-8 leading-relaxed">
+                <span class="dog-name-display font-bold text-amber-600">Tu peludo</span> completó con éxito su adaptación a la alimentación natural. 🎉
+            </p>
+
+            <div class="w-full bg-white rounded-[1.5rem] border border-slate-200 shadow-sm p-5 mb-5 space-y-3">
+                <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-widest">Resumen del Plan</h3>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
+                        <p class="text-2xl font-black text-emerald-600" id="victory-total-days">0</p>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase mt-0.5">Días</p>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-center">
+                        <p class="text-2xl font-black text-blue-600" id="victory-good-days">0</p>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase mt-0.5">Buenos</p>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 text-center">
+                        <p class="text-2xl font-black text-amber-600" id="victory-adapt-days">0</p>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase mt-0.5">Adapta.</p>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 font-medium leading-relaxed pt-1" id="victory-summary-text"></p>
+            </div>
+
             <div class="w-full bg-slate-900 rounded-[1.5rem] p-5 mb-5 text-white">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-lg shrink-0">🍳</div>
-                    <div><p class="font-extrabold text-sm">NutriChef Vital</p><p class="text-[11px] text-slate-300">Recetario dinámico post-transición</p></div>
+                    <div>
+                        <p class="font-extrabold text-sm">NutriChef Vital</p>
+                        <p class="text-[11px] text-slate-300">Recetario adaptado para mantener la dieta</p>
+                    </div>
                 </div>
-                ${btnHtml}
+                <button onclick="openNutriChefUpsell()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl text-sm text-center transition-all active:scale-95">
+                    Desbloquear Recetario de Mantenimiento 🍳
+                </button>
+            </div>
+
+            <div class="w-full bg-amber-50 border border-amber-200 rounded-[1.5rem] p-5 mb-5">
+                <h3 class="font-extrabold text-slate-900 text-sm mb-3 flex items-center gap-2"><i class="fa-solid fa-forward-step text-amber-500"></i> ¿Qué sigue ahora?</h3>
+                <div class="space-y-2.5">
+                    <div class="flex gap-3 items-start">
+                        <div class="w-5 h-5 rounded-full bg-amber-200 text-amber-700 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">1</div>
+                        <p class="text-xs text-slate-600 font-medium">Mantén la <b class="text-slate-800">misma ración diaria</b>. Tu perro ya está adaptado.</p>
+                    </div>
+                    <div class="flex gap-3 items-start">
+                        <div class="w-5 h-5 rounded-full bg-amber-200 text-amber-700 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">2</div>
+                        <p class="text-xs text-slate-600 font-medium">Rota proteínas semanalmente: pollo → pavo → res. Variedad = salud.</p>
+                    </div>
+                    <div class="flex gap-3 items-start">
+                        <div class="w-5 h-5 rounded-full bg-amber-200 text-amber-700 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">3</div>
+                        <p class="text-xs text-slate-600 font-medium">Vísceras máx 15% del total. Nunca más hígado en exceso.</p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="resetApp()" class="w-full bg-white text-slate-400 font-bold py-3 rounded-xl text-xs border border-slate-200 hover:bg-slate-50 transition-all">
+                <i class="fa-solid fa-rotate-right mr-1"></i> Iniciar nuevo plan
+            </button>
+        </div>
+    </section>
+
+    <div id="modal-tracker" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-end">
+        <div id="modal-tracker-content" class="bg-white rounded-t-[2.5rem] shadow-2xl transform translate-y-full transition-transform duration-300 w-full flex flex-col" style="max-height:88dvh;">
+            
+            <div id="tracker-step-appetite" class="flex-1 overflow-y-auto p-8 pb-4">
+                <div class="w-16 h-16 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-bowl-food"></i></div>
+                <h3 class="text-xl font-black text-slate-900 mb-2">¿Cómo comió hoy?</h3>
+                <p class="text-sm text-slate-500 font-medium mb-6">Apetito de <span class="dog-name-display font-bold text-slate-700"></span></p>
+                <div class="space-y-3 pb-4">
+                    <button onclick="selectAppetite('great')" class="w-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold p-4 rounded-2xl text-left hover:bg-emerald-100 transition-colors">🤤 ¡Devoró todo!</button>
+                    <button onclick="selectAppetite('good')" class="w-full bg-slate-50 text-slate-700 border border-slate-200 font-bold p-4 rounded-2xl text-left hover:bg-slate-100 transition-colors">🙂 Comió normal</button>
+                    <button onclick="selectAppetite('low')" class="w-full bg-rose-50 text-rose-700 border border-rose-200 font-bold p-4 rounded-2xl text-left hover:bg-rose-100 transition-colors">🤨 Dejó un poco</button>
+                </div>
+            </div>
+
+            <div id="tracker-step-poop" class="hidden flex-1 overflow-y-auto p-8 pb-4">
+                <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-poop"></i></div>
+                <h3 class="text-xl font-black text-slate-900 mb-2">¿Cómo estuvieron sus heces?</h3>
+                <p class="text-sm text-slate-500 font-medium mb-6">Esto nos ayuda a vigilar su digestión.</p>
+                <div class="space-y-3 pb-4">
+                    <button onclick="selectPoop('good')" class="w-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold p-4 rounded-2xl text-left">🟢 Perfectas (Pequeñas y firmes)</button>
+                    <button onclick="selectPoop('soft')" class="w-full bg-amber-50 text-amber-700 border border-amber-200 font-bold p-4 rounded-2xl text-left">🟡 Blandas (Como puré)</button>
+                    <button onclick="selectPoop('diarrhea')" class="w-full bg-rose-50 text-rose-700 border border-rose-200 font-bold p-4 rounded-2xl text-left">🔴 Diarrea (Líquidas)</button>
+                </div>
+            </div>
+
+            <div id="tracker-step-message" class="hidden flex-col flex-1 overflow-hidden">
+                <div class="overflow-y-auto p-8 pb-4 flex-1">
+                    <div id="advice-icon" class="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"></div>
+                    <h3 class="text-xl font-black text-slate-900 mb-2" id="advice-title">Diagnóstico del día</h3>
+                    <div id="advice-body" class="text-sm text-slate-600 font-medium leading-relaxed text-left space-y-2"></div>
+                </div>
+                <div class="px-8 pt-3 pb-5 border-t border-slate-100 bg-white shrink-0">
+                    <button onclick="closeTrackerAndSave()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl">¡Entendido, sigo la racha!</button>
+                </div>
+            </div>
+            
+            <div class="px-8 pb-5 shrink-0 bg-white" id="btn-cancel-wrapper">
+                <button onclick="closeTrackerModal()" id="btn-close-tracker" class="w-full text-slate-400 font-bold text-sm py-2 hover:text-slate-600">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-undo" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6">
+        <div id="modal-undo-content" class="bg-white rounded-[2rem] p-8 text-center shadow-2xl transform scale-95 transition-transform duration-300">
+            <div class="w-16 h-16 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-rotate-left"></i></div>
+            <h3 class="text-xl font-black text-slate-900 mb-2">¿Marcaste por error?</h3>
+            <p class="text-sm text-slate-500 font-medium mb-6">Día completado con éxito. ¿Deseas deshacer este registro?</p>
+            <div class="flex gap-3">
+                <button onclick="closeUndoModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl hover:bg-slate-200">Mantener</button>
+                <button onclick="confirmUndo()" class="w-full bg-rose-50 text-rose-600 font-bold py-3.5 rounded-xl border border-rose-200 hover:bg-rose-100">Sí, deshacer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-tips" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6 py-6">
+        <div id="modal-tips-content" class="bg-white rounded-[2.5rem] shadow-2xl transform scale-95 transition-transform duration-300 w-full flex flex-col overflow-hidden" style="max-height: 85dvh;">
+            
+            <div class="flex justify-between items-center p-6 shrink-0 border-b border-slate-50">
+                <h3 class="text-xl font-black text-slate-900">Secretos Vitales 💡</h3>
+                <button onclick="closeTipsModal()" class="text-slate-400 hover:text-slate-600 text-2xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="px-6 py-4 overflow-y-auto flex-1">
+                <div class="space-y-5 text-left pb-2">
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-fire-burner"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">¡Nunca cocines huesos!</b> Los huesos cocidos se astillan y son peligrosos. Deben ser siempre crudos.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-droplet"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Menos agua, más salud</b> Es normal que beba menos agua. La comida natural ya lo hidrata un 70% más.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-temperature-low"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Sirve a temperatura ambiente</b> Nunca frío directo del refrigerador. Sácalo 20 minutos antes para mejorar la aceptación.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-heart"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">El hígado es potente</b> No superes el 5% del total en hígado. El exceso causa diarrea por sobrecarga de vitamina A.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-leaf"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Vegetales siempre procesados</b> Los perros no digieren celulosa cruda. Hierve y tritura bien zapallo, zanahoria y espinaca.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-ban"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Prohibido: uvas, cebolla, ajo, chocolate</b> Son tóxicos para los perros incluso en pequeñas cantidades. Sin excepciones.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-clock"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Horario fijo</b> Alimenta siempre a la misma hora. El sistema digestivo del perro funciona mejor con rutina.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-eye"></i></div>
+                        <p class="text-xs text-slate-600"><b class="text-slate-900 block mb-1">Observa las heces, no el apetito</b> Un perro puede rechazar comida nueva por olfato, pero si sus heces son firmes, la digestión va bien.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 shrink-0 bg-white border-t border-slate-50 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+                <button onclick="closeTipsModal()" class="w-full bg-amber-500 text-white font-bold py-4 rounded-2xl hover:bg-amber-600 transition-colors">¡Entendido!</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-reset" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6">
+        <div id="modal-reset-content" class="bg-white rounded-[2rem] p-8 text-center shadow-2xl transform scale-95 transition-transform duration-300">
+            <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h3 class="text-xl font-black text-slate-900 mb-2">¿Empezar de nuevo?</h3>
+            <p class="text-sm text-slate-500 font-medium mb-6">Esto borrará el plan y la racha actual.</p>
+            <div class="flex gap-3">
+                <button onclick="closeResetModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl hover:bg-slate-200">Cancelar</button>
+                <button onclick="confirmResetApp()" class="w-full bg-rose-500 text-white font-bold py-3.5 rounded-xl hover:bg-rose-600">Sí, borrar</button>
+            </div>
+        </div>
+    </div>
+
+</div><script>
+// =========================================================
+// ESTADO GLOBAL
+// =========================================================
+let dogName = "tu peludo";
+let currentScreen = 'screen-welcome';
+let planData = { 
+    healthGoal: "digestion", 
+    dietPlanType: "croquetas",
+    totalGrams: 0, gramosHuesos: 0, gramosCarne: 0, gramosVisceras: 0, gramosVerduras: 0,
+    etapa: "adulto",
+    startDate: null
+};
+
+// Estructura de trackerData mejorada con historial real por día
+let trackerData = {
+    days: {}
+};
+
+let pendingDayToMark = -1;
+let pendingAppetite = null;
+let pendingPoop = null;
+let dayToUndo = -1;
+
+// =========================================================
+// TEXTOS DE TRANSICIÓN
+// =========================================================
+const transitionTexts = {
+    14: [ 
+        "100% Dieta blanda cocida (Pollo y zapallo). Cero crudo.",
+        "Mantén dieta blanda. Estómago desintoxicándose.",
+        "Último día de dieta blanda exclusiva.",
+        "Agrega 30% de la carne magra cruda a lo cocido.",
+        "Sube a 50% de carne magra cruda. Heces pueden variar.",
+        "75% carne cruda. El estómago se hace ácido.",
+        "100% Carne cruda + vegetales. Adiós a lo cocido.",
+        "Introduce el Hígado crudo en mínima cantidad.",
+        "Sube la porción de hígado al 5%.",
+        "Introduce otras vísceras (riñón, bazo).",
+        "Transición total de vísceras lograda.",
+        "¡El gran paso! Introduce Huesos Carnosos (Cuellos triturados).",
+        "Aumenta ración de huesos. Mastica bajo supervisión.",
+        "¡Transición 100% completada! Felicidades."
+    ],
+    10: [ 
+        "Dieta blanda cocida para estabilizar flora.",
+        "Agrega 50% de carne magra cruda.",
+        "100% Carne magra cruda + Vegetales.",
+        "Introduce una pizca de hígado.",
+        "Porción completa de hígado (5%).",
+        "Introduce segunda víscera (riñón).",
+        "Todas las vísceras al 100%.",
+        "Introduce Huesos Carnosos (Cuellos blandos).",
+        "Aumenta Huesos Carnosos a ración normal.",
+        "¡Transición 100% completada! Felicidades."
+    ],
+    5: [ 
+        "50% carne cocida, 50% carne cruda.",
+        "100% Carne cruda + Vegetales. Introduce vísceras.",
+        "Vísceras al 100%. Vigila las heces.",
+        "Introduce Huesos Carnosos blandos.",
+        "¡Transición 100% completada al crudo!"
+    ]
+};
+
+// =========================================================
+// RESPUESTAS INTELIGENTES SEGÚN SÍNTOMAS
+// =========================================================
+function getSmartAdvice(appetite, poop, dayIndex) {
+    if (poop === 'good') {
+        if (appetite === 'great') {
+            return {
+                icon: '<div class="bg-emerald-100 text-emerald-600"><i class="fa-solid fa-circle-check"></i></div>',
+                title: '¡Día perfecto! 🎉',
+                html: `
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+                        <p class="font-bold text-emerald-800 text-xs mb-1">✅ Todo va excelente</p>
+                        <p class="text-xs text-slate-600">Su digestión responde muy bien. Puedes avanzar con confianza al siguiente paso mañana.</p>
+                    </div>`
+            };
+        } else {
+            return {
+                icon: '<div class="bg-emerald-100 text-emerald-600"><i class="fa-solid fa-circle-check"></i></div>',
+                title: 'Digestión estable 👍',
+                html: `
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+                        <p class="font-bold text-emerald-800 text-xs mb-1">✅ Heces perfectas</p>
+                        <p class="text-xs text-slate-600">Sus heces están bien aunque comió poco. Prueba servir la comida a temperatura ambiente, no fría del refri. Es normal algo de rechazo al inicio.</p>
+                    </div>`
+            };
+        }
+    }
+
+    if (poop === 'soft') {
+        return {
+            icon: '<div class="bg-amber-100 text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i></div>',
+            title: 'Ajustemos el ritmo 🟡',
+            html: `
+                <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 space-y-2">
+                    <p class="font-bold text-amber-800 text-xs">🟡 Heces blandas — Recomendaciones:</p>
+                    <p class="text-xs text-slate-600">• <b>No avances al siguiente paso mañana.</b> Repite este mismo día 24 horas más.</p>
+                    <p class="text-xs text-slate-600">• Si introdujiste vísceras hoy, reduce la cantidad a la mitad.</p>
+                    <p class="text-xs text-slate-600">• Agrega una cucharada de puré de zapallo a la ración — regula la digestión.</p>
+                    <p class="text-xs text-slate-500 mt-1 italic">Si en 48h siguen blandas, consulta veterinario.</p>
+                </div>`
+        };
+    }
+
+    if (poop === 'diarrhea') {
+        return {
+            icon: '<div class="bg-rose-100 text-rose-600"><i class="fa-solid fa-circle-exclamation"></i></div>',
+            title: 'Pausemos y observamos 🔴',
+            html: `
+                <div class="bg-rose-50 border border-rose-100 rounded-xl p-3 space-y-2">
+                    <p class="font-bold text-rose-800 text-xs">🔴 Diarrea — Acciones inmediatas:</p>
+                    <p class="text-xs text-slate-600">• <b>Vuelve a carne magra cocida + zapallo</b> por 24–48h para estabilizar.</p>
+                    <p class="text-xs text-slate-600">• <b>Pausa los huesos</b> si los introdujiste hoy — demasiada carga para el sistema.</p>
+                    <p class="text-xs text-slate-600">• Asegúrate que tenga agua fresca disponible todo el tiempo.</p>
+                    <p class="text-xs text-slate-600">• Observa si hay vómitos o decaimiento.</p>
+                    <p class="text-xs text-rose-700 font-bold mt-2">⚠️ Si continúa más de 48h o aparece sangre, consulta veterinario urgente.</p>
+                </div>`
+        };
+    }
+
+    return {
+        icon: '<div class="bg-blue-100 text-blue-600"><i class="fa-solid fa-stethoscope"></i></div>',
+        title: 'Registro guardado',
+        html: '<p class="text-xs text-slate-600">Día registrado correctamente. Sigue el plan con confianza.</p>'
+    };
+}
+
+// =========================================================
+// HELPER DE FECHAS (Solo para estampar finalización)
+// =========================================================
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if(parts.length !== 3) return dateStr;
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+    const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    return `${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+function getTodayStr() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+// =========================================================
+// INICIALIZACIÓN
+// =========================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const savedName = localStorage.getItem('currentDogName'); 
+    if (savedName && savedName !== "undefined" && savedName.trim() !== "") dogName = savedName;
+    updateAllDogNames();
+
+    const savedPlan = localStorage.getItem(`nutriCanPlan_${dogName}`);
+    const savedTracker = localStorage.getItem(`nutriCanTracker_${dogName}`);
+    
+    if (savedPlan) {
+        planData = JSON.parse(savedPlan);
+        if (savedTracker) {
+            const parsed = JSON.parse(savedTracker);
+            if (parsed.completedDays && !parsed.days) {
+                trackerData = { days: {} };
+                parsed.completedDays.forEach(i => {
+                    trackerData.days[i] = { appetite: 'good', poop: 'good', date: getTodayStr() };
+                });
+            } else {
+                trackerData = parsed;
+            }
+        }
+        showScreen('screen-welcome', '¡Bienvenido de nuevo!');
+    } else {
+        showScreen('screen-goal', 'Paso 1 de 3');
+    }
+});
+
+function updateAllDogNames() {
+    document.querySelectorAll('.dog-name-display').forEach(span => { span.innerText = dogName; });
+}
+
+// =========================================================
+// NAVEGACIÓN
+// =========================================================
+function smartBack() {
+    if (currentScreen === 'screen-diet') showScreen('screen-goal', 'Paso 1 de 3');
+    else if (currentScreen === 'screen-params') showScreen('screen-diet', 'Paso 2 de 3');
+}
+
+function showScreen(screenId, subtitleText = "") {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    currentScreen = screenId;
+    if (subtitleText) document.getElementById('header-subtitle').innerText = subtitleText;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const btnBack = document.getElementById('btn-back');
+    if (['screen-welcome','screen-dashboard','screen-goal','screen-victory'].includes(screenId)) {
+        btnBack.style.display = 'none';
+    } else {
+        btnBack.style.display = 'flex';
+    }
+}
+
+function nextToDiet() {
+    planData.healthGoal = document.querySelector('input[name="healthGoal"]:checked').value;
+    showScreen('screen-diet', 'Paso 2 de 3');
+}
+
+function nextToParams() {
+    planData.dietPlanType = document.querySelector('input[name="currentDiet"]:checked').value;
+    showScreen('screen-params', 'Paso 3 de 3');
+}
+
+function loadSavedPlan() {
+    renderDashboard();
+    showScreen('screen-dashboard', 'TU PLAN ACTIVO');
+}
+
+function forceNewPlan() {
+    trackerData = { days: {} };
+    showScreen('screen-goal', 'Paso 1 de 3');
+}
+
+// =========================================================
+// CÁLCULO
+// =========================================================
+function calculateDiet() {
+    const weight = parseFloat(document.getElementById('dogWeight').value);
+    const age = document.getElementById('dogAge').value;
+    const activity = document.getElementById('dogActivity').value;
+    const condition = document.getElementById('dogCondition').value;
+
+    if (!weight || !age || !activity || !condition) { 
+        alert("Completa todos los campos para continuar."); 
+        return; 
+    }
+
+    showScreen('screen-loading', 'Calculando...');
+    const loadingText = document.getElementById('loading-text');
+    setTimeout(() => { loadingText.innerText = "Optimizando nutrientes..."; }, 1200);
+
+    setTimeout(() => {
+        let percentage = (age === 'cachorro') ? 0.08 : (activity === 'baja' || age === 'senior') ? 0.02 : (activity === 'normal') ? 0.025 : 0.03;
+        if (condition === 'flaco') percentage += 0.005;
+        if (condition === 'gordo') percentage -= 0.005;
+
+        planData.totalGrams = Math.round(weight * percentage * 1000);
+        planData.gramosHuesos = Math.round(planData.totalGrams * 0.40);
+        planData.gramosCarne = Math.round(planData.totalGrams * 0.35);
+        planData.gramosVisceras = Math.round(planData.totalGrams * 0.15);
+        planData.gramosVerduras = Math.round(planData.totalGrams * 0.10);
+        planData.etapa = age;
+        planData.startDate = getTodayStr();
+
+        localStorage.setItem(`nutriCanPlan_${dogName}`, JSON.stringify(planData));
+        localStorage.setItem(`nutriCanTracker_${dogName}`, JSON.stringify(trackerData));
+
+        renderDashboard();
+        showScreen('screen-dashboard', 'TU PLAN DE ACCIÓN');
+    }, 2500);
+}
+
+// =========================================================
+// MÓDULO 1: ESTADO ACTUAL PREMIUM
+// =========================================================
+function renderHealthStatus() {
+    const completedCount = Object.keys(trackerData.days).length;
+    const panel = document.getElementById('health-status-panel');
+    const riskBadge = document.getElementById('risk-badge');
+    const digIcon = document.getElementById('status-digestion-icon');
+    const digText = document.getElementById('status-digestion-text');
+    const appIcon = document.getElementById('status-appetite-icon');
+    const appText = document.getElementById('status-appetite-text');
+    const advice = document.getElementById('status-advice-text');
+
+    if (completedCount === 0) {
+        riskBadge.className = 'text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-slate-500 text-white';
+        riskBadge.innerText = 'SIN DATOS';
+        digIcon.innerText = '❓'; digText.innerText = 'Pendiente'; digText.className = 'text-xs font-bold text-slate-400';
+        appIcon.innerText = '❓'; appText.innerText = 'Pendiente'; appText.className = 'text-xs font-bold text-slate-400';
+        advice.innerText = `Completa el primer día para activar el monitor de salud de ${dogName}.`;
+        return;
+    }
+
+    const dayKeys = Object.keys(trackerData.days).map(Number).sort((a,b) => b - a).slice(0, 3);
+    let badPoopCount = 0;
+    let lowAppetiteCount = 0;
+
+    dayKeys.forEach(k => {
+        const d = trackerData.days[k];
+        if (d.poop === 'soft' || d.poop === 'diarrhea') badPoopCount++;
+        if (d.appetite === 'low') lowAppetiteCount++;
+    });
+
+    const lastDay = trackerData.days[dayKeys[0]];
+
+    if (lastDay.poop === 'good') { digIcon.innerText = '🟢'; digText.innerText = 'Perfecta'; digText.className = 'text-xs font-black text-emerald-600'; }
+    else if (lastDay.poop === 'soft') { digIcon.innerText = '🟡'; digText.innerText = 'Blanda'; digText.className = 'text-xs font-black text-amber-600'; }
+    else { digIcon.innerText = '🔴'; digText.innerText = 'Diarrea'; digText.className = 'text-xs font-black text-rose-600'; }
+
+    if (lastDay.appetite === 'great') { appIcon.innerText = '🤤'; appText.innerText = 'Excelente'; appText.className = 'text-xs font-black text-emerald-600'; }
+    else if (lastDay.appetite === 'good') { appIcon.innerText = '🙂'; appText.innerText = 'Normal'; appText.className = 'text-xs font-black text-blue-600'; }
+    else { appIcon.innerText = '🤨'; appText.innerText = 'Bajo'; appText.className = 'text-xs font-black text-rose-600'; }
+
+    if (badPoopCount >= 2 || (badPoopCount >= 1 && lowAppetiteCount >= 2) || lastDay.poop === 'diarrhea') {
+        riskBadge.className = 'text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-rose-500 text-white animate-pulse';
+        riskBadge.innerText = 'RIESGO ALTO';
+        panel.classList.replace('border-slate-200', 'border-rose-300');
+        advice.innerText = `⚠️ Atención: El sistema de ${dogName} está resentido. Pausa el avance, repite la ración anterior y evalúa consultar al veterinario si hay decaimiento.`;
+    } else if (badPoopCount === 1 || lowAppetiteCount >= 1) {
+        riskBadge.className = 'text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-amber-500 text-white';
+        riskBadge.innerText = 'RIESGO MEDIO';
+        panel.classList.replace('border-slate-200', 'border-amber-300');
+        advice.innerText = '🟡 En observación: Hay un leve desajuste. No avances al siguiente paso hoy. Mantén la dieta para estabilizar la flora.';
+    } else {
+        riskBadge.className = 'text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-emerald-500 text-white';
+        riskBadge.innerText = 'RIESGO BAJO';
+        panel.classList.replace('border-slate-200', 'border-emerald-300');
+        advice.innerText = `✅ Todo marcha excelente. El metabolismo de ${dogName} se adapta a la perfección. Sigue el plan con confianza.`;
+    }
+}
+
+// =========================================================
+// MÓDULO 2: LOGROS E INSIGNIAS
+// =========================================================
+function renderBadges() {
+    const completedDays = Object.keys(trackerData.days).length;
+    const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
+    
+    const badges = [
+        { id: 'b1', title: '1er Bocado', desc: 'Gran inicio', req: 1, icon: '🌟' },
+        { id: 'b2', title: 'Racha x3', desc: '3 días seguidos', req: 3, icon: '🔥' },
+        { id: 'b3', title: 'A la Mitad', desc: '50% logrado', req: Math.ceil(totalDays/2), icon: '⚡' },
+        { id: 'b4', title: 'Flora Fuerte', desc: 'Plan completo', req: totalDays, icon: '🏆' }
+    ];
+
+    let html = '';
+    badges.forEach(b => {
+        const unlocked = completedDays >= b.req;
+        const opacity = unlocked ? 'opacity-100 shadow-sm' : 'opacity-40 grayscale';
+        const bg = unlocked ? 'bg-amber-50 border-amber-300' : 'bg-slate-50 border-slate-200';
+        
+        html += `
+        <div class="min-w-[80px] rounded-2xl border ${bg} p-3 flex flex-col items-center justify-center text-center transition-all ${opacity}">
+            <div class="text-2xl mb-1">${b.icon}</div>
+            <p class="text-[10px] font-black text-slate-800 leading-tight mb-0.5">${b.title}</p>
+            <p class="text-[8px] font-bold text-slate-500 uppercase">${b.desc}</p>
+        </div>`;
+    });
+    document.getElementById('badges-container').innerHTML = html;
+}
+
+// =========================================================
+// DASHBOARD GENERAL
+// =========================================================
+function renderDashboard() {
+    const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
+    const completedCount = Object.keys(trackerData.days).length;
+
+    if (completedCount >= totalDays) {
+        renderVictoryScreen(totalDays);
+        showScreen('screen-victory', '¡PLAN COMPLETADO!');
+        return;
+    }
+
+    document.getElementById('total-grams').innerText = planData.totalGrams;
+    
+    document.getElementById('ingredients-list').innerHTML = `
+        <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-amber-200">
+            <div class="flex items-center gap-3">
+                <div class="w-3.5 h-3.5 rounded-full bg-amber-500 shadow-sm"></div>
+                <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Huesos Carnosos</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Cuello de pollo, rabadilla blanda</p></div>
+            </div>
+            <span class="font-black text-slate-900 text-lg">${planData.gramosHuesos}g</span>
+        </div>
+        <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-rose-200">
+            <div class="flex items-center gap-3">
+                <div class="w-3.5 h-3.5 rounded-full bg-rose-500 shadow-sm"></div>
+                <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Carne Magra</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Pechuga, corazón, pavita</p></div>
+            </div>
+            <span class="font-black text-slate-900 text-lg">${planData.gramosCarne}g</span>
+        </div>
+        <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-purple-200">
+            <div class="flex items-center gap-3">
+                <div class="w-3.5 h-3.5 rounded-full bg-purple-500 shadow-sm"></div>
+                <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Vísceras Mix</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Hígado (5%), sangrecita, riñón</p></div>
+            </div>
+            <span class="font-black text-slate-900 text-lg">${planData.gramosVisceras}g</span>
+        </div>
+        <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-emerald-200">
+            <div class="flex items-center gap-3">
+                <div class="w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-sm"></div>
+                <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Vegetales (Puré)</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Zapallo, zanahoria hervida</p></div>
+            </div>
+            <span class="font-black text-slate-900 text-lg">${planData.gramosVerduras}g</span>
+        </div>
+    `;
+
+    let tomas = planData.etapa === 'cachorro' ? 3 : 2;
+    let gramosPorToma = Math.round(planData.totalGrams / tomas);
+    let textoTomas = planData.etapa === 'cachorro' ? "Desayuno, Almuerzo y Cena" : "Desayuno y Cena";
+    
+    document.getElementById('meal-division').innerHTML = `
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-[1.25rem] flex justify-between items-center shadow-inner">
+            <div><span class="block text-[10px] font-black text-amber-600 mb-0.5">¿CÓMO DIVIDIRLO?</span><span class="block font-bold text-slate-800 text-sm">${textoTomas}</span></div>
+            <div class="text-right bg-white px-3 py-1.5 rounded-xl border border-amber-100 shadow-sm"><span class="block font-black text-slate-900 text-xl leading-none">${gramosPorToma}g</span><span class="text-[9px] font-bold text-slate-400 uppercase">por comida</span></div>
+        </div>`;
+
+    renderHealthStatus();
+    renderBadges();
+    renderTrackerUI();
+    renderProfileCard();
+}
+
+function renderProfileCard() {
+    if (!planData) return;
+    const etapaLabel = { 'cachorro': 'Cachorro', 'adulto': 'Adulto', 'senior': 'Senior' }[planData.etapa] || planData.etapa;
+    const objetivoLabel = { 'perderpeso': 'Bajar peso', 'ganarpeso': 'Ganar peso', 'mantener': 'Mantener peso', 'digestion': 'Digestión' }[planData.objetivo] || planData.objetivo || 'Salud general';
+    const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
+
+    const detailsEl = document.getElementById('profile-details');
+    const planDaysEl = document.getElementById('profile-plan-days');
+
+    if (detailsEl) detailsEl.textContent = `${planData.totalGrams}g/día · ${etapaLabel} · ${objetivoLabel}`;
+    if (planDaysEl) planDaysEl.textContent = `${totalDays} días`;
+}
+
+function openNutriChefUpsell() {
+    const session = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
+    const phone = session.phone || '';
+    const numeroEmpresa = "51932335202";
+    const phoneText = phone ? `\n\n👤 Mi cuenta es: +${phone}` : '';
+    const msg = `Hola Soporte 👋\n\nQuiero desbloquear la herramienta *NutriChef Vital* por $4.99 USD.${phoneText}\n💳 ¿Me dan los pasos para pagar?`;
+    window.open(`https://wa.me/${numeroEmpresa}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// =========================================================
+// TRACKER UI (FECHAS CORREGIDAS)
+// =========================================================
+function renderTrackerUI() {
+    const container = document.getElementById('tracker-container');
+    const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
+    const textsArray = transitionTexts[totalDays];
+    const completedCount = Object.keys(trackerData.days).length;
+    const percent = Math.round((completedCount / totalDays) * 100);
+    
+    setTimeout(() => { document.getElementById('progress-bar').style.width = `${percent}%`; }, 100);
+    document.getElementById('progress-text').innerText = `${percent}% Completado`;
+
+    container.innerHTML = '';
+    
+    for (let i = 0; i < totalDays; i++) {
+        const dayRecord = trackerData.days[i];
+        const isCompleted = !!dayRecord;
+        const isReady = i === completedCount;
+        const isLastCompleted = isCompleted && i === (completedCount - 1);
+        const realText = textsArray[i];
+        
+        let poopBadge = '';
+        let dateLabel = '';
+
+        if (isCompleted && dayRecord) {
+            if (dayRecord.poop === 'good') poopBadge = '<span class="text-[10px] ml-1">🟢</span>';
+            else if (dayRecord.poop === 'soft') poopBadge = '<span class="text-[10px] ml-1">🟡</span>';
+            else if (dayRecord.poop === 'diarrhea') poopBadge = '<span class="text-[10px] ml-1">🔴</span>';
+
+            // SELLO DE FECHA SÓLO EN DÍAS COMPLETADOS
+            if(dayRecord.date) {
+                dateLabel = `<span class="text-[10px] text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded-md border border-slate-200 shadow-sm"><i class="fa-solid fa-calendar-check mr-1 text-emerald-500"></i>${formatDate(dayRecord.date)}</span>`;
+            }
+        }
+
+        let stateClass = '';
+        let iconHtml = '';
+        let contentHtml = '';
+        let clickAction = '';
+
+        if (isCompleted) {
+            stateClass = 'day-completed';
+            iconHtml = `<div class="w-8 h-8 rounded-full bg-emerald-100 border-2 border-emerald-400 text-emerald-500 flex items-center justify-center shrink-0 shadow-sm"><i class="fa-solid fa-check text-sm"></i></div>`;
+            contentHtml = `<p class="text-xs text-slate-600 font-medium leading-relaxed mt-1 pr-2">${realText}</p>`;
+            clickAction = isLastCompleted ? `onclick="openUndo(${i})"` : '';
+        } else if (isReady) {
+            stateClass = 'day-ready';
+            iconHtml = `<div class="w-8 h-8 rounded-full bg-white border-2 border-amber-400 text-amber-500 font-black flex items-center justify-center shrink-0 shadow-sm">${i+1}</div>`;
+            contentHtml = `<p class="text-xs text-slate-800 font-bold leading-relaxed mt-1 pr-2">${realText}</p><p class="text-[10px] text-amber-600 font-black mt-2 uppercase tracking-wide"><i class="fa-solid fa-hand-pointer"></i> Toca para marcar completado</p>`;
+            clickAction = `onclick="openTracker(${i})"`;
+        } else {
+            stateClass = 'day-locked bg-slate-50 opacity-80';
+            iconHtml = `<div class="w-8 h-8 rounded-full bg-slate-200 border-2 border-slate-300 text-slate-400 font-black flex items-center justify-center shrink-0">${i+1}</div>`;
+            contentHtml = `
+                <div class="content-blur text-xs text-slate-500 font-medium leading-relaxed mt-1 pr-2">${realText}</div>
+                <p class="text-[10px] text-slate-400 font-bold mt-2"><i class="fa-solid fa-lock text-slate-300 mr-1"></i> Desbloquea el día anterior</p>`;
+        }
+        
+        container.innerHTML += `
+            <div class="p-4 flex gap-4 transition-all relative ${stateClass}" ${clickAction}>
+                ${iconHtml}
+                <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-black text-sm ${isCompleted ? 'text-emerald-700' : isReady ? 'text-slate-900' : 'text-slate-500'} flex items-center gap-1">
+                            Día ${i+1} ${poopBadge}
+                        </h4>
+                        <div class="flex items-center gap-2">
+                            ${dateLabel}
+                            ${isLastCompleted ? '<span class="text-[10px] text-slate-400 bg-slate-100 px-2 rounded-md"><i class="fa-solid fa-pen"></i> Editar</span>' : ''}
+                        </div>
+                    </div>
+                    ${contentHtml}
+                </div>
             </div>`;
     }
+}
 
-    // CORRECCIÓN: Mensaje unificado para el bot de WhatsApp
-    function openNutriChefUpsell() {
-        const phone = currentUserSession ? currentUserSession.phone : '';
-        const isPeru = phone.startsWith('51');
-        const priceText = isPeru ? "S/ 17" : "$4.99 USD";
-        const msg = `Hola Soporte 👋\n\nQuiero desbloquear el eBook *NutriChef Vital* por ${priceText}.\n\n👤 Mi cuenta es: +${phone}\n💳 ¿Me dan los pasos para pagar?`;
-        window.open(`https://wa.me/51932335202?text=${encodeURIComponent(msg)}`, '_blank');
+// =========================================================
+// MODAL TRACKER
+// =========================================================
+function openTracker(dayIndex) {
+    pendingDayToMark = dayIndex;
+    pendingAppetite = null;
+    pendingPoop = null;
+
+    document.getElementById('tracker-step-appetite').classList.remove('hidden');
+    document.getElementById('tracker-step-poop').classList.add('hidden');
+    const msgEl = document.getElementById('tracker-step-message');
+    msgEl.classList.add('hidden');
+    msgEl.classList.remove('flex');
+    document.getElementById('btn-cancel-wrapper').classList.remove('hidden');
+    document.getElementById('btn-close-tracker').classList.remove('hidden');
+    
+    const modal = document.getElementById('modal-tracker');
+    modal.classList.remove('hidden'); 
+    modal.classList.add('flex');
+    setTimeout(() => { document.getElementById('modal-tracker-content').classList.remove('translate-y-full'); }, 10);
+}
+
+function selectAppetite(appetiteValue) {
+    pendingAppetite = appetiteValue;
+    document.getElementById('tracker-step-appetite').classList.add('hidden');
+    document.getElementById('tracker-step-poop').classList.remove('hidden');
+}
+
+function selectPoop(poopValue) {
+    pendingPoop = poopValue;
+    document.getElementById('tracker-step-poop').classList.add('hidden');
+
+    if (poopValue === 'good' && (pendingAppetite === 'great' || pendingAppetite === 'good')) {
+        const advice = getSmartAdvice(pendingAppetite, poopValue, pendingDayToMark);
+        showAdviceStep(advice);
+    } else {
+        const advice = getSmartAdvice(pendingAppetite, poopValue, pendingDayToMark);
+        showAdviceStep(advice);
     }
+}
 
-    function openModal(day) { pendingDay = day; document.getElementById('modal-tracker').classList.remove('hidden'); }
-    function closeModal() { document.getElementById('modal-tracker').classList.add('hidden'); }
-    function saveDay(poop) { 
-        trackerData.days[pendingDay] = { poop, date: new Date().toISOString().split('T')[0] };
+function showAdviceStep(advice) {
+    const iconEl = document.getElementById('advice-icon');
+    iconEl.innerHTML = '';
+    iconEl.className = 'w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4';
+    iconEl.innerHTML = advice.icon.replace('<div ', '<div class="w-full h-full rounded-full flex items-center justify-center text-3xl" ');
+
+    document.getElementById('advice-title').innerText = advice.title;
+    document.getElementById('advice-body').innerHTML = advice.html;
+    const msgStep = document.getElementById('tracker-step-message');
+    msgStep.classList.remove('hidden');
+    msgStep.classList.add('flex');
+    document.getElementById('btn-cancel-wrapper').classList.add('hidden');
+    document.getElementById('btn-close-tracker').classList.add('hidden');
+}
+
+function closeTrackerAndSave() {
+    if (trackerData.days[pendingDayToMark] === undefined) {
+        trackerData.days[pendingDayToMark] = {
+            appetite: pendingAppetite || 'good',
+            poop: pendingPoop || 'good',
+            date: getTodayStr()
+        };
         localStorage.setItem(`nutriCanTracker_${dogName}`, JSON.stringify(trackerData));
-        closeModal(); renderDashboard(); 
     }
-    function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
-    function resetApp() { if(confirm("¿Seguro? Se borrará el progreso.")) { localStorage.clear(); location.href='index.html'; } }
+    closeTrackerModal();
+}
+
+function closeTrackerModal() {
+    document.getElementById('modal-tracker-content').classList.add('translate-y-full');
+    setTimeout(() => { 
+        document.getElementById('modal-tracker').classList.add('hidden'); 
+        document.getElementById('modal-tracker').classList.remove('flex'); 
+        renderDashboard();
+    }, 300);
+}
+
+// =========================================================
+// PANTALLA DE VICTORIA
+// =========================================================
+function renderVictoryScreen(totalDays) {
+    const days = trackerData.days;
+    let goodDays = 0, adaptDays = 0;
+    Object.values(days).forEach(d => {
+        if (d.poop === 'good') goodDays++;
+        else adaptDays++;
+    });
+
+    document.getElementById('victory-total-days').innerText = totalDays;
+    document.getElementById('victory-good-days').innerText = goodDays;
+    document.getElementById('victory-adapt-days').innerText = adaptDays;
+
+    let summaryText = '';
+    if (adaptDays === 0) {
+        summaryText = `¡Transición perfecta! ${dogName} no tuvo ningún día difícil. Su sistema digestivo respondió de maravilla.`;
+    } else if (adaptDays <= 2) {
+        summaryText = `Muy buena transición con ${adaptDays} día(s) de adaptación. Esto es completamente normal en el proceso BARF.`;
+    } else {
+        summaryText = `${dogName} tuvo algunos días de adaptación. Su flora intestinal ya está fortalecida. ¡Lo logró!`;
+    }
+    document.getElementById('victory-summary-text').innerText = summaryText;
+
+    launchConfetti();
+}
+
+function launchConfetti() {
+    const container = document.getElementById('confetti-container');
+    container.innerHTML = '';
+    const colors = ['#f59e0b','#10b981','#8b5cf6','#ef4444','#3b82f6','#f97316'];
+    
+    for (let i = 0; i < 60; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.top = '-10px';
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        piece.style.width = (Math.random() * 8 + 6) + 'px';
+        piece.style.height = (Math.random() * 8 + 6) + 'px';
+        piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        piece.style.animationDelay = (Math.random() * 1.5) + 's';
+        container.appendChild(piece);
+    }
+}
+
+// =========================================================
+// DESHACER
+// =========================================================
+function openUndo(dayIndex) {
+    dayToUndo = dayIndex;
+    const modal = document.getElementById('modal-undo');
+    modal.classList.remove('hidden'); modal.classList.add('flex');
+    setTimeout(() => { 
+        document.getElementById('modal-undo-content').classList.remove('scale-95'); 
+        document.getElementById('modal-undo-content').classList.add('scale-100'); 
+    }, 10);
+}
+
+function closeUndoModal() {
+    document.getElementById('modal-undo-content').classList.add('scale-95');
+    setTimeout(() => { 
+        document.getElementById('modal-undo').classList.add('hidden'); 
+        document.getElementById('modal-undo').classList.remove('flex'); 
+    }, 300);
+}
+
+function confirmUndo() {
+    delete trackerData.days[dayToUndo];
+    localStorage.setItem(`nutriCanTracker_${dogName}`, JSON.stringify(trackerData));
+    closeUndoModal();
+    setTimeout(() => { renderDashboard(); }, 300);
+}
+
+// =========================================================
+// RESET
+// =========================================================
+function resetApp() {
+    const modal = document.getElementById('modal-reset');
+    modal.classList.remove('hidden'); modal.classList.add('flex');
+    setTimeout(() => { 
+        document.getElementById('modal-reset-content').classList.remove('scale-95'); 
+        document.getElementById('modal-reset-content').classList.add('scale-100'); 
+    }, 10);
+}
+
+function closeResetModal() {
+    document.getElementById('modal-reset-content').classList.add('scale-95');
+    setTimeout(() => { 
+        document.getElementById('modal-reset').classList.add('hidden'); 
+        document.getElementById('modal-reset').classList.remove('flex'); 
+    }, 300);
+}
+
+function confirmResetApp() {
+    closeResetModal(); 
+    localStorage.removeItem(`nutriCanPlan_${dogName}`);
+    localStorage.removeItem(`nutriCanTracker_${dogName}`);
+    trackerData = { days: {} };
+    setTimeout(() => { showScreen('screen-goal', 'Paso 1 de 3'); }, 300);
+}
+
+// =========================================================
+// TIPS MODAL
+// =========================================================
+function openTipsModal() {
+    const modal = document.getElementById('modal-tips');
+    modal.classList.remove('hidden'); modal.classList.add('flex');
+    setTimeout(() => { 
+        document.getElementById('modal-tips-content').classList.remove('scale-95'); 
+        document.getElementById('modal-tips-content').classList.add('scale-100'); 
+    }, 10);
+}
+
+function closeTipsModal() {
+    document.getElementById('modal-tips-content').classList.add('scale-95');
+    setTimeout(() => { 
+        document.getElementById('modal-tips').classList.add('hidden'); 
+        document.getElementById('modal-tips').classList.remove('flex'); 
+    }, 300);
+}
 </script>
 </body>
 </html>

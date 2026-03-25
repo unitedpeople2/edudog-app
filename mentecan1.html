@@ -25,52 +25,52 @@
             background-color: #f8fafc;
         }
         .screen.active { display: flex; }
-        ::-webkit-scrollbar { display: none; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Estética Brand */
+        /* Brand Styles */
         .brand-bg { background: linear-gradient(135deg, #059669 0%, #064e3b 100%); }
         .brand-text { color: #059669; font-weight: 800; }
 
-        /* Tabs Modernas */
+        /* Modern Tabs */
         .tab-btn { padding-bottom: 0.75rem; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: 800; font-size: 0.75rem; color: #94a3b8; letter-spacing: 0.05em; }
         .tab-btn.active { border-color: #10b981; color: #059669; }
 
-        /* Waveform de Audio */
-        .waveform { display: flex; align-items: center; gap: 3px; height: 40px; }
-        .wave-bar { width: 3px; background: #10b981; border-radius: 50px; transition: height 0.3s ease; }
-        .wave-bar:nth-child(odd) { height: 12px; }
-        .wave-bar:nth-child(even) { height: 25px; }
-        .wave-bar:nth-child(3n) { height: 35px; }
-        .wave-bar:nth-child(4n) { height: 18px; }
-        .playing .wave-bar { animation: wave-pulse 1s ease-in-out infinite; }
-        @keyframes wave-pulse { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.4); } }
-
-        /* TEMPORIZADOR ORGÁNICO (BLOB) */
-        .blob-timer-container {
-            position: relative; width: 220px; height: 220px;
-            margin: 20px auto; display: flex; align-items: center; justify-content: center;
+        /* REPRODUCTOR DE AUDIO ORGÁNICO (BLOB) */
+        .blob-audio-container {
+            position: relative; width: 240px; height: 240px;
+            margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .blob-shape {
             position: absolute; inset: 0;
-            background: rgba(16, 185, 129, 0.15);
-            border: 2px solid rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.12);
+            border: 2px solid rgba(16, 185, 129, 0.2);
             border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
             transition: all 1s ease-in-out;
             z-index: 1;
         }
-        .timer-active .blob-shape {
+        /* Animación de Respiración cuando se activa */
+        .audio-playing .blob-shape {
             animation: breathe 4s ease-in-out infinite;
-            background: rgba(16, 185, 129, 0.25);
+            background: rgba(16, 185, 129, 0.2);
             border-color: #10b981;
-            box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 50px rgba(16, 185, 129, 0.15);
         }
         @keyframes breathe {
             0%, 100% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: scale(1); }
-            50% { border-radius: 58% 42% 38% 62% / 55% 55% 45% 45%; transform: scale(1.08); }
+            50% { border-radius: 58% 42% 38% 62% / 55% 55% 45% 45%; transform: scale(1.1); }
         }
-        #lesson-timer { position: relative; z-index: 10; font-size: 3.5rem; font-weight: 900; color: #064e3b; letter-spacing: -2px; }
+        
+        .audio-content { position: relative; z-index: 10; text-align: center; }
+        #audio-time { font-size: 3.5rem; font-weight: 900; color: #064e3b; letter-spacing: -2px; line-height: 1; }
+        .play-trigger { 
+            margin-top: 10px; width: 50px; height: 50px; 
+            background: #059669; color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3);
+            cursor: pointer; transition: all 0.3s;
+        }
+        .play-trigger:active { transform: scale(0.9); }
 
         .step-badge {
             width: 24px; height: 24px; border-radius: 50%;
@@ -115,7 +115,7 @@
                 </div>
             </div>
             <div>
-                <h3 class="font-extrabold text-slate-900 text-base mb-3 text-center">Desafíos Activos</h3>
+                <h3 class="font-extrabold text-slate-900 text-base mb-3 text-center">Desafíos de Entrenamiento</h3>
                 <div id="challenges-container" class="grid grid-cols-1 gap-3"></div>
             </div>
         </div>
@@ -144,7 +144,7 @@
             </button>
             <div class="text-center">
                 <h2 class="font-extrabold text-white text-sm" id="lesson-header-title">Día 1</h2>
-                <p class="text-[10px] font-bold text-emerald-200 uppercase tracking-widest" id="lesson-header-sub">Fase de Inicio</p>
+                <p class="text-[10px] font-bold text-emerald-200 uppercase tracking-widest" id="lesson-header-sub">Fase 1</p>
             </div>
             <div class="w-9 h-9"></div>
         </div>
@@ -157,16 +157,11 @@
         <div class="bg-white rounded-t-[2.5rem] p-8">
             <div class="text-center mb-6">
                 <div class="text-5xl mb-3">🎉</div>
-                <h3 class="text-xl font-black text-slate-900">¿Cómo fue hoy?</h3>
-                <p class="text-slate-500 text-sm mt-1">Tu esfuerzo con tu peludo cuenta mucho.</p>
+                <h3 class="text-xl font-black text-slate-900">¿Cómo fue la sesión?</h3>
             </div>
             <div class="space-y-3">
-                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-4 rounded-2xl font-bold text-sm border border-emerald-100 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-star"></i> ¡Excelente progreso!
-                </button>
-                <button onclick="saveDay('bien')" class="w-full bg-amber-50 text-amber-700 p-4 rounded-2xl font-bold text-sm border border-amber-100 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-thumbs-up"></i> Estuvo bien
-                </button>
+                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-4 rounded-2xl font-bold text-sm border border-emerald-100 flex items-center justify-center gap-2">Excelente</button>
+                <button onclick="saveDay('bien')" class="w-full bg-amber-50 text-amber-700 p-4 rounded-2xl font-bold text-sm border border-amber-100 flex items-center justify-center gap-2">Bien</button>
                 <button onclick="closeModal()" class="w-full text-slate-400 py-3 font-bold text-sm mt-2">Cancelar</button>
             </div>
         </div>
@@ -176,7 +171,7 @@
 
 <script>
 // =============================================
-// DATOS DINÁMICOS
+// DATOS
 // =============================================
 const CHALLENGES = [
     {
@@ -188,25 +183,26 @@ const CHALLENGES = [
         lessons: [
             { 
                 day: 1, title: 'Entiende por qué muerde', 
-                semanaLabel: 'Día 1 / Fase 1',
+                semanaLabel: 'Fase de Observación',
                 teoria: {
+                    audioSeconds: 45,
                     intro: "¿Por qué <DOG> muerde todo? 🦷",
-                    cuerpo: "Morder no es un acto de rebeldía o maldad; para un perro, es su forma de interactuar con el mundo. Al no tener manos, <DOG> usa su boca para descubrir texturas. En cachorros alivia la dentición y en adultos libera estrés.",
+                    cuerpo: "Morder es la forma en que tu perro interactúa con su entorno. Al no tener manos, usa su boca para explorar texturas y aliviar el estrés o aburrimiento.",
                     puntosClave: [
-                        "Exploración: Descubre nuevas texturas.",
-                        "Instinto: Alivio de estrés o aburrimiento.",
-                        "Misión: Solo observar, no corregir aún."
+                        "Exploración: Descubre el mundo con la boca.",
+                        "Alivio: Reduce la ansiedad y el aburrimiento.",
+                        "Detective: Hoy solo observamos el patrón."
                     ]
                 },
                 practica: {
                     timerSeconds: 600,
                     pasos: [
-                        { titulo: 'Observación Silenciosa', desc: 'Durante 5 min, nota si muerde por aburrimiento o estrés.', emoji: '👁️' },
-                        { titulo: 'Identifica texturas', desc: '¿Prefiere madera, plástico o tela?', emoji: '📝' },
-                        { titulo: 'Gestión del entorno', desc: 'Retira objetos prohibidos de su alcance por hoy.', emoji: '🏠' }
+                        { titulo: 'Observación Silenciosa', desc: 'Nota qué objetos prefiere morder durante 5 min.', emoji: '👁️' },
+                        { titulo: 'Identifica texturas', desc: '¿Es madera, plástico o tela?', emoji: '📝' },
+                        { titulo: 'Gestión básica', desc: 'Retira objetos peligrosos de su alcance.', emoji: '🏠' }
                     ]
                 },
-                resumen: "No busques obediencia todavía, busca información. Un perro aburrido se entrena distinto a uno ansioso."
+                resumen: "El primer paso no es la obediencia, es entender qué necesita tu perro."
             }
         ]
     }
@@ -216,17 +212,15 @@ let dogName = localStorage.getItem('currentDogName') || 'tu peludo';
 let currentChallenge = null;
 let currentLessonDay = null;
 let currentTab = 'teoria';
+let audioInterval = null;
 let timerInterval = null;
 let trackerData = JSON.parse(localStorage.getItem(`eduDog_tracker_${dogName}`)) || {};
 
 // =============================================
-// LÓGICA DE INTERFAZ
+// LOGICA UI
 // =============================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderHub();
-    showScreen('screen-hub');
-});
+document.addEventListener('DOMContentLoaded', () => { renderHub(); showScreen('screen-hub'); });
 
 function renderHub() {
     document.getElementById('hub-dog-name').innerText = `${dogName} 🐾`;
@@ -241,7 +235,7 @@ function renderHub() {
                     <div class="w-12 h-12 brand-bg rounded-2xl flex items-center justify-center text-xl text-white">${ch.icon}</div>
                     <div class="flex-1">
                         <h4 class="font-extrabold text-slate-900 text-sm">${ch.name}</h4>
-                        <p class="text-[10px] text-slate-400 font-medium">${passedCount}/${ch.totalDays} Días completados</p>
+                        <p class="text-[10px] text-slate-400 font-medium">${passedCount}/${ch.totalDays} Completado</p>
                     </div>
                 </div>
             </div>`;
@@ -297,43 +291,44 @@ function renderLessonContent(lesson) {
 
     if (currentTab === 'teoria') {
         html += `
-            <div id="audio-container" class="bg-emerald-50 rounded-[2.5rem] p-6 border border-emerald-100 mb-6 shadow-sm">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Escuchar lección (45s)</span>
-                    <i class="fa-solid fa-waveform text-emerald-400"></i>
-                </div>
-                <div class="flex items-center gap-5">
-                    <button onclick="this.parentElement.parentElement.classList.toggle('playing')" class="w-14 h-14 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg active:scale-90 transition-all"><i class="fa-solid fa-play text-lg ml-1"></i></button>
-                    <div class="flex-1 waveform">
-                        ${Array(22).fill('<div class="wave-bar"></div>').join('')}
+            <div class="text-center mb-2"><span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Escuchar lección</span></div>
+            
+            <div class="blob-audio-container" id="audio-container">
+                <div class="blob-shape"></div>
+                <div class="audio-content">
+                    <div id="audio-time">0:45</div>
+                    <div onclick="toggleAudio(${lesson.teoria.audioSeconds})" class="play-trigger" id="audio-play-btn">
+                        <i class="fa-solid fa-play"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="space-y-4 px-1">
-                <h3 class="font-black text-slate-900 text-lg leading-tight">${replace(lesson.teoria.intro)}</h3>
-                <p class="text-slate-600 text-sm leading-relaxed">${replace(lesson.teoria.cuerpo)}</p>
-                <div class="space-y-3 mt-4">
-                    ${lesson.teoria.puntosClave.map(p => `<p class="text-xs font-bold text-slate-500 flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><i class="fa-solid fa-circle-check text-emerald-500"></i> ${replace(p)}</p>`).join('')}
+            <div class="space-y-4 mt-6">
+                <h3 class="font-black text-slate-900 text-lg leading-tight text-center">${replace(lesson.teoria.intro)}</h3>
+                <p class="text-slate-600 text-sm leading-relaxed text-center px-4">${replace(lesson.teoria.cuerpo)}</p>
+                <div class="space-y-2 mt-4 px-2">
+                    ${lesson.teoria.puntosClave.map(p => `<p class="text-[11px] font-bold text-slate-500 flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-100"><i class="fa-solid fa-circle-check text-emerald-500"></i> ${replace(p)}</p>`).join('')}
                 </div>
                 
-                <button onclick="switchTab('practica')" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl mt-6 shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 active:scale-95 transition-all">
+                <button onclick="switchTab('practica')" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl mt-8 shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 active:scale-95 transition-all">
                     ¡Entendido! Ver práctica <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
             </div>`;
     } else {
         html += `
-            <div class="blob-timer-container" id="timer-container">
+            <div class="text-center mb-2"><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Temporizador de Sesión</span></div>
+            <div class="blob-audio-container" id="timer-container">
                 <div class="blob-shape"></div>
-                <div id="lesson-timer">10:00</div>
+                <div class="audio-content">
+                    <div id="lesson-timer" style="font-size: 3.5rem; font-weight: 900; color: #064e3b; letter-spacing: -2px;">10:00</div>
+                    <div onclick="toggleTimer(${lesson.practica.timerSeconds})" class="play-trigger" id="timer-play-btn">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
+                </div>
             </div>
 
-            <div class="text-center mb-8">
-                <button onclick="toggleTimer(${lesson.practica.timerSeconds})" id="timer-btn" class="bg-emerald-600 text-white px-10 py-3 rounded-full font-extrabold text-sm shadow-md active:scale-95 transition-all">Iniciar Sesión</button>
-            </div>
-
-            <div class="space-y-3">
-                <h3 class="font-black text-slate-900 text-sm mb-2 ml-1">Instrucciones:</h3>
+            <div class="space-y-3 mt-6">
+                <h3 class="font-black text-slate-900 text-sm mb-2 ml-1">Pasos a seguir:</h3>
                 ${lesson.practica.pasos.map((p, i) => `
                     <div class="bg-white rounded-2xl border border-slate-100 p-4 flex gap-4 shadow-sm">
                         <div class="step-badge">${i+1}</div>
@@ -358,35 +353,55 @@ function renderLessonContent(lesson) {
 
 function switchTab(tab) {
     currentTab = tab;
-    clearInterval(timerInterval);
-    timerInterval = null;
+    clearInterval(audioInterval); clearInterval(timerInterval);
+    audioInterval = null; timerInterval = null;
     const lesson = currentChallenge.lessons.find(l => l.day === currentLessonDay);
     renderLessonContent(lesson);
-    document.getElementById('screen-lesson').scrollTop = 0;
 }
 
-function toggleTimer(totalSeconds) {
-    const btn = document.getElementById('timer-btn');
-    const container = document.getElementById('timer-container');
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        btn.innerText = "Reanudar Sesión";
-        container.classList.remove('timer-active');
+// LOGICA AUDIO BLOB
+function toggleAudio(totalSeconds) {
+    const btn = document.getElementById('audio-play-btn');
+    const container = document.getElementById('audio-container');
+    const timeDisplay = document.getElementById('audio-time');
+    
+    if (audioInterval) {
+        clearInterval(audioInterval); audioInterval = null;
+        btn.innerHTML = '<i class="fa-solid fa-play"></i>';
+        container.classList.remove('audio-playing');
     } else {
         let time = totalSeconds;
-        container.classList.add('timer-active');
-        btn.innerText = "Pausar Sesión";
+        container.classList.add('audio-playing');
+        btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        audioInterval = setInterval(() => {
+            time--;
+            let mins = Math.floor(time / 60);
+            let secs = time % 60;
+            timeDisplay.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+            if (time <= 0) { clearInterval(audioInterval); container.classList.remove('audio-playing'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; }
+        }, 1000);
+    }
+}
+
+// LOGICA TIMER BLOB
+function toggleTimer(totalSeconds) {
+    const btn = document.getElementById('timer-play-btn');
+    const container = document.getElementById('timer-container');
+    const display = document.getElementById('lesson-timer');
+    if (timerInterval) {
+        clearInterval(timerInterval); timerInterval = null;
+        btn.innerHTML = '<i class="fa-solid fa-play"></i>';
+        container.classList.remove('audio-playing');
+    } else {
+        let time = totalSeconds;
+        container.classList.add('audio-playing');
+        btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
         timerInterval = setInterval(() => {
             time--;
             let mins = Math.floor(time / 60);
             let secs = time % 60;
-            document.getElementById('lesson-timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-            if (time <= 0) { 
-                clearInterval(timerInterval); 
-                showToast("¡Buen trabajo hoy! 🏆"); 
-                container.classList.remove('timer-active');
-            }
+            display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+            if (time <= 0) { clearInterval(timerInterval); container.classList.remove('audio-playing'); }
         }, 1000);
     }
 }
@@ -399,10 +414,9 @@ function saveDay(result) {
     trackerData[currentChallenge.id][currentLessonDay] = { result, passed: true };
     localStorage.setItem(`eduDog_tracker_${dogName}`, JSON.stringify(trackerData));
     closeModal();
-    showToast(`Día ${currentLessonDay} guardado correctamente`);
+    showToast(`Día superado. ¡Buen trabajo!`);
     showScreen('screen-challenge');
-    renderDays();
-    renderHub();
+    renderDays(); renderHub();
 }
 
 function showScreen(id) {
@@ -415,10 +429,7 @@ function showToast(msg) {
     document.getElementById('toast-msg').innerText = msg;
     t.classList.remove('-translate-y-24', 'opacity-0');
     t.classList.add('translate-y-0', 'opacity-100');
-    setTimeout(() => {
-        t.classList.add('-translate-y-24', 'opacity-0');
-        t.classList.remove('translate-y-0', 'opacity-100');
-    }, 3000);
+    setTimeout(() => { t.classList.add('-translate-y-24', 'opacity-0'); t.classList.remove('translate-y-0', 'opacity-100'); }, 3000);
 }
 </script>
 </body>

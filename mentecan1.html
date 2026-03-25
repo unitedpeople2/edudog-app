@@ -17,10 +17,6 @@
             overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* HEADER FIJO que nunca se solapa */
-        #app-header { flex-shrink: 0; z-index: 50; }
-
-        /* PANTALLAS CON SCROLL INDEPENDIENTE */
         .screen {
             display: none; flex: 1; flex-direction: column;
             animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -92,14 +88,14 @@
 
 <div class="app-container md:rounded-[2.5rem] md:border-[8px] md:border-slate-900 shadow-2xl">
 
-    <div id="app-header" class="brand-gradient text-white px-5 py-4 flex items-center justify-between shadow-md">
-        <button id="btn-header-back" onclick="goBack()" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all">
+    <div id="app-header" class="brand-gradient text-white px-5 py-4 flex items-center justify-between shadow-md sticky top-0 z-50">
+        <button id="btn-header-back" onclick="goBack()" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer">
             <i class="fa-solid fa-chevron-left"></i>
         </button>
         <div class="text-center flex-1">
             <h2 class="font-black text-base tracking-tight">Mentecan Vital</h2>
         </div>
-        <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all">
+        <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer">
             <i class="fa-solid fa-house"></i>
         </button>
     </div>
@@ -322,7 +318,6 @@ function renderLessonContent(lesson) {
     const chTracker = trackerData[currentChallenge.id] || {};
     const isPassed = chTracker[currentLessonDay] && chTracker[currentLessonDay].passed;
 
-    // PESTAÑAS (Las originales perfectas)
     let html = `
         <div class="flex border-b border-slate-100 mb-6 sticky-tabs pt-2 pb-2 shadow-sm rounded-t-3xl px-1">
             <button onclick="switchTab('teoria')" class="flex-1 tab-btn ${currentTab === 'teoria' ? 'active' : ''}">TEORÍA</button>
@@ -396,7 +391,7 @@ function renderLessonContent(lesson) {
             </div>
         `;
         if (isPassed) {
-            html += `<button onclick="goBack()" class="w-full brand-gradient text-white font-black py-5 rounded-3xl mt-10 shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform"><i class="fa-solid fa-rotate-left text-xs"></i> Volver al listado</button>`;
+            html += `<button onclick="showScreen('screen-challenge')" class="w-full brand-gradient text-white font-black py-5 rounded-3xl mt-10 shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform"><i class="fa-solid fa-rotate-left text-xs"></i> Volver al listado</button>`;
         } else {
             html += `<button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black py-5 rounded-3xl mt-10 shadow-2xl active:scale-95 transition-all tracking-tight">COMPLETAR DÍA</button>`;
         }
@@ -454,17 +449,23 @@ function showScreen(id) {
     }
 }
 
+// ========= AQUÍ ESTÁ EL FIX DEL BOTÓN DE RETROCESO =========
 function goBack() {
+    // 1. Buscamos qué pantalla está visible actualmente
     const activeScreens = document.querySelectorAll('.screen.active');
-    if(activeScreens.length === 0) return;
+    if (activeScreens.length === 0) return; // Por si hay un error raro y ninguna está activa
+    
+    // 2. Obtenemos el ID de la pantalla visible
     const activeId = activeScreens[0].id;
 
+    // 3. Decidimos a dónde ir dependiendo de dónde estemos
     if (activeId === 'screen-lesson') {
-        showScreen('screen-challenge');
+        showScreen('screen-challenge'); // De la lección volvemos a la lista de días
     } else if (activeId === 'screen-challenge') {
-        showScreen('screen-hub');
+        showScreen('screen-hub'); // De la lista de días volvemos al hub principal
     }
 }
+// ============================================================
 
 function openCompleteModal() { document.getElementById('modal-complete').classList.remove('hidden'); }
 function closeModal() { document.getElementById('modal-complete').classList.add('hidden'); }

@@ -3,220 +3,855 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MenteCan Vital - Psicología Canina</title>
+    <title>MenteCan Vital - Entrenamiento Canino</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .app-container { max-width: 420px; margin: 0 auto; height: 100dvh; position: relative; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; }
-        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; background-color: #f8fafc; }
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; }
+
+        .app-container {
+            max-width: 420px; margin: 0 auto; height: 100dvh;
+            position: relative; background: #ffffff;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            overflow: hidden; display: flex; flex-direction: column;
+        }
+
+        .screen {
+            display: none; flex: 1; flex-direction: column;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto; overflow-x: hidden;
+            background-color: #f8fafc;
+        }
         .screen.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { display: none; }
-        .day-card.locked { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
-        .timer-active { animation: pulse-green 2s infinite; }
-        @keyframes pulse-green { 0%, 100% { background-color: #166534; } 50% { background-color: #15803d; } }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Emerald brand */
+        .brand-bg { background: linear-gradient(135deg, #059669 0%, #064e3b 100%); }
+        .brand-text { color: #059669; }
+        .brand-border { border-color: #059669; }
+        .brand-light { background-color: #ecfdf5; }
+        .brand-btn { background-color: #059669; }
+        .brand-btn:active { transform: scale(0.97); }
+
+        /* Day states */
+        .day-locked { opacity: 0.35; pointer-events: none; }
+        .day-ready { border-color: #059669 !important; background: #ecfdf5 !important; cursor: pointer; }
+        .day-done { background: #ffffff; border-color: #10b981; }
+
+        /* Progress ring */
+        .ring-bg { stroke: #d1fae5; }
+        .ring-fill { stroke: #059669; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+
+        /* Pulse dot */
+        .pulse-dot { animation: pulseDot 2s infinite; }
+        @keyframes pulseDot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(5,150,105,0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(5,150,105,0); }
+        }
+
+        /* Bounce in for trophy */
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .bounce-in { animation: bounceIn 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+        /* Shimmer for locked days */
+        .day-item { transition: all 0.2s ease; }
+
+        /* Step number badge */
+        .step-badge {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #059669; color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 800; flex-shrink: 0;
+        }
+
+        /* Modal backdrop */
+        .modal-bg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); }
+
+        /* Photo placeholder */
+        .photo-hero {
+            width: 100%; height: 200px;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%);
+            border-radius: 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+        .photo-step {
+            width: 100%; height: 130px;
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-radius: 1rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Tip card */
+        .tip-card { border-left: 3px solid #059669; }
+
+        /* Error card */
+        .error-card { border-left: 3px solid #ef4444; }
+
+        /* Streak fire */
+        @keyframes flicker {
+            0%, 100% { transform: scale(1) rotate(-2deg); }
+            50% { transform: scale(1.1) rotate(2deg); }
+        }
+        .flicker { animation: flicker 1.5s ease-in-out infinite; }
+
+        /* Checkmark animation */
+        @keyframes checkPop {
+            0% { transform: scale(0); }
+            60% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        .check-pop { animation: checkPop 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
     </style>
 </head>
-<body class="antialiased text-slate-900">
+<body class="antialiased text-slate-900 md:py-8">
 
-    <div class="app-container md:rounded-[2.5rem] md:border-[8px] md:border-slate-900 relative">
-        
-        <div class="sticky top-0 bg-[#166534] text-white px-5 py-4 flex items-center justify-between z-30 shadow-lg">
-            <div class="flex items-center gap-3">
-                <button onclick="smartBack()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-all">
-                    <i class="fa-solid fa-arrow-left text-sm"></i>
-                </button>
-                <div>
-                    <h2 class="font-extrabold text-sm leading-tight">MenteCan Vital</h2>
-                    <p class="text-[10px] font-bold text-green-200 uppercase tracking-widest">Desafío 14 Días</p>
+<!-- TOAST -->
+<div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-full shadow-2xl z-[100] transform -translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 font-semibold text-sm pointer-events-none w-max max-w-[90%]">
+    <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+    <span id="toast-msg">Mensaje</span>
+</div>
+
+<div class="app-container md:rounded-[2.5rem] md:border-[8px] md:border-slate-900">
+
+    <!-- ===================== SCREEN: ONBOARDING ===================== -->
+    <section id="screen-onboarding" class="screen active relative">
+        <div class="absolute top-0 left-0 w-full h-80 brand-bg rounded-b-[4rem] z-0"></div>
+        <div class="relative z-10 flex flex-col justify-center px-8 pt-20 pb-10 min-h-full">
+            <div class="text-center mb-10">
+                <div class="w-24 h-24 bg-white/10 backdrop-blur-md rounded-[2.5rem] border border-white/20 flex items-center justify-center mx-auto mb-6 shadow-2xl">
+                    <i class="fa-solid fa-brain text-[2.75rem] text-white drop-shadow-lg"></i>
                 </div>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight">MenteCan Vital</h1>
+                <p class="text-emerald-200 font-medium mt-2 text-sm">Entrena la mente de tu peludo 🐾</p>
             </div>
-            <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-lg">
-                <i class="fa-solid fa-brain"></i>
+            <div class="bg-white p-6 rounded-[2rem] shadow-xl space-y-5">
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">¿Cómo se llama tu peludo?</label>
+                    <div class="relative rounded-2xl border border-slate-200 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-100 transition-all">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-paw"></i></span>
+                        <input type="text" id="onboard-name" placeholder="Ej. Max, Luna, Rocky..." class="w-full bg-slate-50/50 text-slate-900 rounded-2xl py-4 pl-12 pr-4 outline-none font-bold text-lg">
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Edad de tu peludo</label>
+                    <select id="onboard-age" class="w-full bg-slate-50/50 border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer focus:border-emerald-500 transition-all">
+                        <option value="cachorro">🐶 Cachorro (menos de 1 año)</option>
+                        <option value="joven" selected>🐕 Joven (1 a 3 años)</option>
+                        <option value="adulto">🦮 Adulto (3 a 7 años)</option>
+                        <option value="senior">🐾 Senior (+7 años)</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">¿Cuál es el problema principal?</label>
+                    <div class="grid grid-cols-2 gap-2" id="problem-grid">
+                        <button onclick="selectProblem(this, 'muerda')" class="problem-btn text-left p-3 rounded-2xl border-2 border-slate-200 bg-slate-50 text-xs font-bold text-slate-600 transition-all active:scale-95">
+                            🦷 Muerde cosas
+                        </button>
+                        <button onclick="selectProblem(this, 'orina')" class="problem-btn text-left p-3 rounded-2xl border-2 border-slate-200 bg-slate-50 text-xs font-bold text-slate-600 transition-all active:scale-95">
+                            💧 Orina en todo lado
+                        </button>
+                        <button onclick="selectProblem(this, 'ladra')" class="problem-btn text-left p-3 rounded-2xl border-2 border-slate-200 bg-slate-50 text-xs font-bold text-slate-600 transition-all active:scale-95">
+                            🔊 Ladra demasiado
+                        </button>
+                        <button onclick="selectProblem(this, 'jala')" class="problem-btn text-left p-3 rounded-2xl border-2 border-slate-200 bg-slate-50 text-xs font-bold text-slate-600 transition-all active:scale-95">
+                            🦮 Jala la correa
+                        </button>
+                    </div>
+                </div>
+                <button onclick="saveOnboarding()" class="w-full brand-btn text-white font-bold py-4 rounded-2xl transition-all text-[15px] shadow-lg shadow-emerald-500/30">
+                    Ver mi plan personalizado 🐾
+                </button>
             </div>
         </div>
+    </section>
 
-        <section id="screen-lobby" class="screen active p-6 space-y-6">
-            <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-24 h-24 bg-green-50 rounded-full -mr-10 -mt-10 opacity-50"></div>
-                <h3 class="text-xl font-black text-slate-900 mb-1 relative z-10">Control Mental</h3>
-                <p class="text-xs font-medium text-slate-500 mb-5 relative z-10">Entrenando el foco de <span class="dog-name-display font-bold text-[#166534]">tu peludo</span></p>
-                
-                <div class="w-full bg-slate-100 rounded-full h-2.5 mb-2 overflow-hidden">
-                    <div id="progress-bar" class="bg-[#166534] h-full rounded-full transition-all duration-700" style="width: 7%"></div>
+    <!-- ===================== SCREEN: HUB / DASHBOARD ===================== -->
+    <section id="screen-hub" class="screen bg-[#f8fafc]">
+        <!-- Header -->
+        <div class="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-5 py-4 flex justify-between items-center z-30">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 brand-bg rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-brain text-white text-xs"></i>
                 </div>
-                <div class="flex justify-between items-center">
-                    <p class="text-[10px] font-black text-[#166534] uppercase tracking-wider" id="progress-text">Día 1 de 14</p>
-                    <span class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">PROCESO ACTIVO</span>
-                </div>
+                <h2 class="font-extrabold text-slate-900 text-sm">MenteCan Vital</h2>
             </div>
+            <a href="index.html" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all">
+                <i class="fa-solid fa-house text-sm"></i>
+            </a>
+        </div>
 
-            <div class="grid grid-cols-4 gap-4" id="days-grid">
-                </div>
+        <div class="flex-1 px-5 py-5 space-y-5 pb-10">
 
-            <div class="bg-slate-900 rounded-[2rem] p-5 text-white shadow-xl">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center text-xl">🏆</div>
-                    <div>
-                        <p class="font-black text-sm">Rango: Recluta</p>
-                        <p class="text-[10px] text-slate-400">Próxima insignia: Líder de Manada</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="screen-training" class="screen bg-white">
-            <div class="p-8 bg-slate-50 border-b border-slate-100">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="bg-green-100 text-green-700 text-[9px] font-black px-2 py-0.5 rounded uppercase">Semana 1</span>
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Conexión</span>
-                </div>
-                <h3 id="training-title" class="text-3xl font-black text-slate-900 leading-tight">Día 1: El Interruptor de Atención</h3>
-            </div>
-            
-            <div class="p-6 space-y-6">
-                <div class="space-y-4">
-                    <div class="flex items-start gap-4 p-5 bg-[#166534] text-white rounded-[2rem] shadow-lg shadow-green-900/20">
-                        <div class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center shrink-0 text-xl">💡</div>
-                        <div>
-                            <h4 class="font-black text-sm mb-1 uppercase tracking-wide">La Técnica del "Señuelo"</h4>
-                            <p class="text-[11px] font-medium leading-relaxed opacity-90">
-                                No le pidas atención, **cápturala**. Este ejercicio enseña a tu perro que mirarte es la única forma de obtener lo que desea. Es la base para ignorar otros perros en la calle.
-                            </p>
+            <!-- Hero card -->
+            <div class="brand-bg rounded-[2rem] p-5 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-8 translate-x-8"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-6 -translate-x-6"></div>
+                <div class="relative z-10">
+                    <p class="text-emerald-300 text-[10px] font-black uppercase tracking-widest mb-1">Tu compañero</p>
+                    <h3 class="text-2xl font-black tracking-tight" id="hub-dog-name">Cargando...</h3>
+                    <p class="text-emerald-200 text-xs font-medium mt-1" id="hub-subtitle">está listo para aprender 🐾</p>
+                    <div class="mt-4 bg-white/10 p-3 rounded-2xl border border-white/10">
+                        <div class="flex justify-between items-center text-xs font-bold mb-2">
+                            <span class="text-slate-200">Progreso total</span>
+                            <span class="text-white" id="hub-progress-text">0 días completados</span>
+                        </div>
+                        <div class="w-full bg-white/20 rounded-full h-2 overflow-hidden">
+                            <div id="hub-progress-bar" class="bg-white h-full rounded-full transition-all duration-1000" style="width:0%"></div>
                         </div>
                     </div>
-
-                    <div class="space-y-3" id="steps-checklist">
-                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Guía de Sesión</h4>
-                        
-                        <label class="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 transition-all active:scale-95 cursor-pointer">
-                            <input type="checkbox" class="w-6 h-6 accent-[#166534] rounded-xl shrink-0">
-                            <div class="ml-4">
-                                <p class="text-xs font-black text-slate-800">1. Carga el estímulo</p>
-                                <p class="text-[10px] text-slate-500 font-medium">Sujeta un premio entre tus dedos y llévalo a tu nariz.</p>
-                            </div>
-                        </label>
-
-                        <label class="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 transition-all active:scale-95 cursor-pointer">
-                            <input type="checkbox" class="w-6 h-6 accent-[#166534] rounded-xl shrink-0">
-                            <div class="ml-4">
-                                <p class="text-xs font-black text-slate-800">2. Marca el contacto</p>
-                                <p class="text-[10px] text-slate-500 font-medium">En cuanto sus ojos toquen los tuyos, di un "¡SÍ!" seco y dale el premio.</p>
-                            </div>
-                        </label>
-
-                        <label class="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 transition-all active:scale-95 cursor-pointer">
-                            <input type="checkbox" class="w-6 h-6 accent-[#166534] rounded-xl shrink-0">
-                            <div class="ml-4">
-                                <p class="text-xs font-black text-slate-800">3. El reto de la mano</p>
-                                <p class="text-[10px] text-slate-500 font-medium">Abre tu mano a un lado. Si te mira a TI y no a la mano, dale 2 premios.</p>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="py-8 flex flex-col items-center border-t border-slate-100">
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-4">Tiempo de Práctica Sugerido</p>
-                    <div id="timer-display" class="text-6xl font-black text-slate-900 mb-8 tracking-tighter">02:00</div>
-                    <button id="btn-timer" onclick="toggleTimer()" class="w-full bg-slate-900 text-white font-black py-5 rounded-[1.5rem] shadow-xl active:scale-95 transition-all flex items-center justify-center gap-4 text-lg">
-                        <i class="fa-solid fa-play"></i> INICIAR ENTRENAMIENTO
-                    </button>
-                </div>
-
-                <div class="bg-amber-50 border border-amber-100 p-5 rounded-[1.5rem]">
-                    <h5 class="text-[10px] font-black text-amber-600 uppercase mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-crown"></i> Secreto de Entrenador
-                    </h5>
-                    <p class="text-xs text-amber-900 font-medium italic leading-relaxed">
-                        "El perro no aprende por repetición, aprende por consecuencia. Si te mira y recibe algo bueno, lo hará siempre."
-                    </p>
                 </div>
             </div>
-        </section>
+
+            <!-- Desafíos activos -->
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-base mb-3">Desafíos de Entrenamiento</h3>
+                <div id="challenges-container" class="space-y-3"></div>
+            </div>
+
+            <!-- Info card -->
+            <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fa-solid fa-lightbulb text-emerald-600 text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-emerald-800 text-xs mb-1">Consejo del día</p>
+                        <p class="text-emerald-700 text-xs" id="daily-tip-text">La consistencia es clave. 5 minutos al día son suficientes para ver resultados en 3 semanas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== SCREEN: CHALLENGE DETAIL ===================== -->
+    <section id="screen-challenge" class="screen bg-[#f8fafc]">
+        <!-- Header -->
+        <div class="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-5 py-4 flex items-center justify-between z-30">
+            <button onclick="showScreen('screen-hub')" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-600">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+            </button>
+            <div class="text-center">
+                <h2 class="font-extrabold text-slate-900 text-sm" id="challenge-title">Desafío</h2>
+                <p class="text-[10px] text-slate-400 font-bold" id="challenge-subtitle">21 días</p>
+            </div>
+            <a href="index.html" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500">
+                <i class="fa-solid fa-house text-sm"></i>
+            </a>
+        </div>
+
+        <div class="flex-1 px-5 py-5 space-y-4 pb-10">
+            <!-- Challenge hero -->
+            <div class="bg-white rounded-[1.75rem] border border-slate-200 p-5 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 brand-bg rounded-2xl flex items-center justify-center text-2xl shrink-0" id="challenge-icon-big">🦷</div>
+                    <div class="flex-1">
+                        <h3 class="font-extrabold text-slate-900 text-base" id="challenge-name-big">...</h3>
+                        <p class="text-xs text-slate-500 font-medium mt-0.5" id="challenge-desc-big">...</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <div class="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                <div id="challenge-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-700" style="width:0%"></div>
+                            </div>
+                            <span class="text-[10px] font-black text-slate-500" id="challenge-progress-text">0/21</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Semana labels + días -->
+            <div id="days-container" class="space-y-2"></div>
+        </div>
+    </section>
+
+    <!-- ===================== SCREEN: LESSON ===================== -->
+    <section id="screen-lesson" class="screen bg-[#f8fafc]">
+        <!-- Header -->
+        <div class="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-5 py-4 flex items-center justify-between z-30">
+            <button id="btn-back-lesson" onclick="showScreen('screen-challenge')" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-600">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+            </button>
+            <div class="text-center">
+                <h2 class="font-extrabold text-slate-900 text-sm" id="lesson-header-title">Día 1</h2>
+                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest" id="lesson-header-sub">Semana 1 · Fundamentos</p>
+            </div>
+            <a href="index.html" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500">
+                <i class="fa-solid fa-house text-sm"></i>
+            </a>
+        </div>
+
+        <div class="flex-1 px-5 py-5 space-y-5 pb-10" id="lesson-content">
+            <!-- Renderizado dinámicamente -->
+        </div>
+    </section>
+
+    <!-- ===================== SCREEN: VICTORIA ===================== -->
+    <section id="screen-victory" class="screen bg-slate-50">
+        <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <div class="bounce-in text-7xl mb-6">🏆</div>
+            <h2 class="text-3xl font-black text-slate-900 mb-2">¡Desafío Completado!</h2>
+            <p class="text-slate-500 text-sm mb-8 font-medium" id="victory-text">Has completado el desafío con tu peludo.</p>
+            <div class="w-full bg-slate-900 rounded-[1.5rem] p-5 text-white mb-4">
+                <p class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">¿Listo para más?</p>
+                <p class="font-extrabold text-base mb-4">Desbloquea el siguiente desafío y sigue el progreso 🚀</p>
+                <button onclick="openUpsellVictory()" class="w-full bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm active:scale-95 transition-all">
+                    Ver más desafíos →
+                </button>
+            </div>
+            <button onclick="showScreen('screen-hub')" class="w-full text-slate-400 font-bold py-3 text-sm">Volver al inicio</button>
+        </div>
+    </section>
+
+    <!-- ===================== MODAL: COMPLETAR DÍA ===================== -->
+    <div id="modal-complete" class="hidden absolute inset-0 z-50 modal-bg flex flex-col justify-end">
+        <div class="bg-white rounded-t-[2.5rem] p-8">
+            <div class="text-center mb-6">
+                <div class="text-5xl mb-3" id="modal-emoji">🎉</div>
+                <h3 class="text-xl font-black text-slate-900" id="modal-title">¡Día completado!</h3>
+                <p class="text-slate-500 text-sm mt-1" id="modal-subtitle">¿Cómo respondió tu peludo hoy?</p>
+            </div>
+            <div class="space-y-3">
+                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-4 rounded-2xl font-bold text-sm border border-emerald-100 active:scale-95 transition-all">
+                    🟢 Excelente — Obedeció rápido
+                </button>
+                <button onclick="saveDay('bien')" class="w-full bg-amber-50 text-amber-700 p-4 rounded-2xl font-bold text-sm border border-amber-100 active:scale-95 transition-all">
+                    🟡 Bien — Necesitó varios intentos
+                </button>
+                <button onclick="saveDay('dificil')" class="w-full bg-rose-50 text-rose-600 p-4 rounded-2xl font-bold text-sm border border-rose-100 active:scale-95 transition-all">
+                    🔴 Difícil — Mañana intentamos de nuevo
+                </button>
+                <button onclick="closeModal()" class="w-full text-slate-400 py-3 font-bold text-sm">Cancelar</button>
+            </div>
+        </div>
     </div>
 
-    <script>
-        let dogName = localStorage.getItem('currentDogName') || "tu peludo";
-        let trackerData = JSON.parse(localStorage.getItem(`menteCanTracker_${dogName}`)) || { completed: [] };
-        let currentScreen = 'screen-lobby';
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.dog-name-display').forEach(el => el.innerText = dogName);
-            renderGrid();
-        });
+</div><!-- end app-container -->
 
-        function renderGrid() {
-            const grid = document.getElementById('days-grid');
-            grid.innerHTML = '';
-            for(let i=0; i<14; i++) {
-                const isCompleted = trackerData.completed.includes(i);
-                const isNext = i === trackerData.completed.length;
-                const isLocked = i > trackerData.completed.length;
+<script>
+// =============================================
+// DATA — DESAFÍOS Y LECCIONES
+// =============================================
+const CHALLENGES = [
+    {
+        id: 'no-muerda',
+        name: 'No muerda las cosas',
+        icon: '🦷',
+        totalDays: 21,
+        color: 'emerald',
+        desc: 'Elimina el hábito de morder en 3 semanas',
+        semanas: ['Fundamentos', 'Corrección', 'Consolidar'],
+        lessons: [
+            // SEMANA 1 — FUNDAMENTOS
+            {
+                day: 1, title: 'Entiende por qué muerde',
+                semana: 1, semanaLabel: 'Fundamentos',
+                duracion: '10 min', nivel: 'Fácil',
+                heroEmoji: '🧠',
+                heroCaption: 'Foto: perro mordiendo juguete — entendiendo el comportamiento',
+                intro: 'Antes de corregir, debes entender. Los perros muerden por instinto, exploración o aburrimiento. Hoy no corregimos nada — solo observamos a <DOG>.',
+                pasos: [
+                    { titulo: 'Observa sin reaccionar', desc: 'Durante 5 minutos, observa qué muerde <DOG> y en qué momento. ¿Está aburrido? ¿Quiere atención?', emoji: '👁️' },
+                    { titulo: 'Anota el patrón', desc: 'Escribe o recuerda: ¿a qué hora muerde más? ¿Qué muerde primero? Esta información guiará todo el desafío.', emoji: '📝' },
+                    { titulo: 'Prepara el espacio', desc: 'Retira objetos que no quieras que muerda de su zona de acceso. No es castigo — es gestión del ambiente.', emoji: '🏠' },
+                ],
+                fotoStep: '📸 Foto: dueño observando al perro sin intervenir',
+                tips: [
+                    'No grites "NO" todavía — hoy es solo diagnóstico.',
+                    'Los cachorros muerden más durante la dentición (2-6 meses).',
+                    'El aburrimiento es la causa #1 en perros jóvenes.',
+                ],
+                errorTitulo: 'Error típico del Día 1',
+                errorDesc: 'Intentar corregir antes de entender el patrón. Sin diagnóstico, la corrección no es efectiva.',
+            },
+            {
+                day: 2, title: 'El comando "QUIETO"',
+                semana: 1, semanaLabel: 'Fundamentos',
+                duracion: '10 min', nivel: 'Fácil',
+                heroEmoji: '✋',
+                heroCaption: 'Foto: mano en señal de STOP frente al perro',
+                intro: 'Hoy le enseñas a <DOG> la señal de parar. Es el comando base de todo el desafío. Necesitas: 5-10 premios pequeños (puede ser su croqueta).',
+                pasos: [
+                    { titulo: 'Posición correcta', desc: 'Párate frente a <DOG>. Cuando empiece a morder o acercarse a algo prohibido, pon la mano abierta frente a su cara (señal STOP).', emoji: '✋' },
+                    { titulo: 'Di "QUIETO" una sola vez', desc: 'Voz firme, calm — no grites. Di "QUIETO" una sola vez. Si repites el comando 10 veces, <DOG> aprende a ignorarlo.', emoji: '🗣️' },
+                    { titulo: 'Premio inmediato', desc: 'Si <DOG> para aunque sea 2 segundos, premio INMEDIATO. La ventana de aprendizaje es de menos de 3 segundos.', emoji: '🍖' },
+                ],
+                fotoStep: '📸 Foto: dueño con mano en STOP, perro mirando atento',
+                tips: [
+                    'El premio debe darse en menos de 3 segundos o <DOG> no conecta la acción con la recompensa.',
+                    'Practica 5-10 repeticiones por sesión, no más.',
+                    'Si falla, termina la sesión y retoma en 30 minutos.',
+                ],
+                errorTitulo: 'El error más común',
+                errorDesc: 'Repetir "QUIETO, QUIETO, QUIETO" varias veces. Esto enseña al perro que puede ignorar el primer comando.',
+            },
+            {
+                day: 3, title: 'Redirección al juguete',
+                semana: 1, semanaLabel: 'Fundamentos',
+                duracion: '15 min', nivel: 'Fácil',
+                heroEmoji: '🎾',
+                heroCaption: 'Foto: perro mordiendo su juguete autorizado felizmente',
+                intro: 'No basta con decir NO — debes darle a <DOG> un SÍ. Hoy aprende a redirigir el mordido hacia su juguete. Necesitas: 1 juguete de mordida.',
+                pasos: [
+                    { titulo: 'Juguete siempre a mano', desc: 'Ten el juguete de <DOG> siempre cerca. Cuando empiece a morder algo prohibido, di "QUIETO" y ofrece el juguete inmediatamente.', emoji: '🎾' },
+                    { titulo: 'Celebra cuando muerda el juguete', desc: 'Cuando <DOG> acepte el juguete, ¡celebra! Voz positiva, caricias, incluso un premio. Que asocie juguete = fiesta.', emoji: '🎉' },
+                    { titulo: 'Ignorar lo prohibido, premiar lo correcto', desc: 'Si <DOG> vuelve a lo prohibido, retira el juguete. Si vuelve al juguete, vuelve la celebración. Controla tú el juego.', emoji: '🔄' },
+                ],
+                fotoStep: '📸 Foto: mano ofreciendo juguete cuando el perro se acerca a algo prohibido',
+                tips: [
+                    'El juguete debe ser más interesante que lo que quiere morder. Prueba con juguetes que crujen o que puedas llenar con snacks.',
+                    'Rota los juguetes cada 2 días para mantener el interés de <DOG>.',
+                    'Nunca uses tu mano como juguete de mordida, ni siquiera jugando.',
+                ],
+                errorTitulo: 'Error frecuente',
+                errorDesc: 'Castigar físicamente o ignorar el comportamiento sin dar alternativa. El perro necesita saber QUÉ SÍ puede hacer.',
+            },
+            // SEMANA 2 — CORRECCIÓN
+            {
+                day: 8, title: 'Refuerzo sin premios de comida',
+                semana: 2, semanaLabel: 'Corrección',
+                duracion: '10 min', nivel: 'Medio',
+                heroEmoji: '👏',
+                heroCaption: 'Foto: dueño aplaudiendo y celebrando al perro sin comida',
+                intro: 'Esta semana reducimos los premios de comida. <DOG> debe empezar a obedecer por el vínculo contigo, no solo por la croqueta.',
+                pasos: [
+                    { titulo: 'Alterna premios de comida con caricias', desc: 'Una vez que obedece, premia con caricia y voz positiva en lugar de comida. Observa si <DOG> responde igual.', emoji: '🤗' },
+                    { titulo: 'Premio sorpresa', desc: 'Da comida solo 1 de cada 3 veces. Los premios impredecibles son más motivadores que los predecibles (principio del casino).', emoji: '🎲' },
+                    { titulo: 'El elogio como recompensa', desc: 'Practica que una sola frase tuya ("¡bien, <DOG>!") sea suficiente recompensa. Esto es la meta final.', emoji: '⭐' },
+                ],
+                fotoStep: '📸 Foto: dueño sonriendo y acariciando al perro después de obedecer',
+                tips: [
+                    'Los perros responden más a tu emoción que a tus palabras.',
+                    'Voces agudas y celebraciones exageradas funcionan mejor que voces neutras.',
+                ],
+                errorTitulo: 'Error de la semana 2',
+                errorDesc: 'Eliminar todos los premios de golpe. Reduce gradualmente — de 100% comida a 66%, luego a 33%.',
+            },
+            // SEMANA 3 — CONSOLIDAR
+            {
+                day: 15, title: 'Sin supervisión constante',
+                semana: 3, semanaLabel: 'Consolidar',
+                duracion: '15 min', nivel: 'Avanzado',
+                heroEmoji: '🕊️',
+                heroCaption: 'Foto: perro solo en habitación con objetos a su alrededor, sin morderlos',
+                intro: 'Esta semana probamos si <DOG> mantiene el comportamiento sin que estés encima mirándolo. Es la prueba real del entrenamiento.',
+                pasos: [
+                    { titulo: 'Zona de prueba controlada', desc: 'Deja a <DOG> 5 minutos solo en una habitación con objetos que antes mordía. Observa desde lejos o por cámara.', emoji: '📷' },
+                    { titulo: 'Refuerzo tardío', desc: 'Al volver, si todo está intacto, premia a <DOG> con mucha celebración. Aunque no sepa exactamente por qué, refuerza el estado general.', emoji: '🏆' },
+                    { titulo: 'Ampliar el tiempo', desc: 'De 5 min → 15 min → 30 min. Aumenta solo si el día anterior fue exitoso.', emoji: '⏱️' },
+                ],
+                fotoStep: '📸 Foto: perro tranquilo rodeado de objetos sin mordidos',
+                tips: [
+                    'El ejercicio físico previo reduce el 70% del comportamiento destructivo.',
+                    'Un perro cansado es un perro que no muerde.',
+                ],
+                errorTitulo: 'Error final',
+                errorDesc: 'Castigar después de encontrar algo mordido. <DOG> no conecta el castigo tardío con la acción pasada.',
+            },
+        ]
+    }
+];
 
-                grid.innerHTML += `
-                    <div onclick="${!isLocked ? 'openDay('+i+')' : ''}" class="flex flex-col items-center gap-2 ${isLocked ? 'day-card locked' : 'cursor-pointer'}">
-                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-black border-2 transition-all 
-                            ${isCompleted ? 'bg-green-50 border-green-200 text-green-600' : 
-                              isNext ? 'bg-white border-[#166534] text-[#166534] shadow-lg shadow-green-100' : 
-                              'bg-white border-slate-100 text-slate-200'}">
-                            ${isCompleted ? '<i class="fa-solid fa-check"></i>' : i+1}
+// Tips del día aleatorios
+const DAILY_TIPS = [
+    "La consistencia es clave. 5 minutos al día son suficientes para ver resultados en 3 semanas.",
+    "Siempre entrena antes de comer — tu peludo estará más motivado por los premios.",
+    "Los perros aprenden mejor en sesiones cortas de 5-10 minutos que en una larga de 1 hora.",
+    "El tono de voz importa más que las palabras. Firme pero calmado siempre.",
+    "Celebra los pequeños logros — cada día completado es un paso enorme.",
+];
+
+// =============================================
+// ESTADO DE LA APP
+// =============================================
+let dogName = '';
+let dogAge = '';
+let dogProblem = '';
+let selectedProblem = null;
+let currentChallenge = null;
+let currentLessonDay = null;
+let trackerData = {};
+
+// =============================================
+// INIT
+// =============================================
+document.addEventListener('DOMContentLoaded', () => {
+    // ¿Viene del hub con nombre ya guardado?
+    const savedName = localStorage.getItem('currentDogName');
+    if (savedName && savedName.trim() !== '') {
+        dogName = savedName;
+        loadTrackerData();
+        renderHub();
+        showScreen('screen-hub');
+    } else {
+        showScreen('screen-onboarding');
+    }
+});
+
+// =============================================
+// ONBOARDING
+// =============================================
+function selectProblem(btn, problem) {
+    document.querySelectorAll('.problem-btn').forEach(b => {
+        b.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+        b.classList.add('border-slate-200', 'bg-slate-50', 'text-slate-600');
+    });
+    btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+    btn.classList.remove('border-slate-200', 'bg-slate-50', 'text-slate-600');
+    selectedProblem = problem;
+}
+
+function saveOnboarding() {
+    const nameInput = document.getElementById('onboard-name').value.trim();
+    if (!nameInput) { showToast('Escribe el nombre de tu peludo 🐾', 'error'); return; }
+
+    dogName = nameInput.charAt(0).toUpperCase() + nameInput.slice(1);
+    dogAge = document.getElementById('onboard-age').value;
+    dogProblem = selectedProblem || 'muerda';
+
+    localStorage.setItem('currentDogName', dogName);
+    localStorage.setItem('menteCan_dogAge', dogAge);
+    localStorage.setItem('menteCan_dogProblem', dogProblem);
+
+    loadTrackerData();
+    renderHub();
+    showScreen('screen-hub');
+    showToast(`¡Hola ${dogName}! 🐾 Plan listo`);
+}
+
+// =============================================
+// HUB
+// =============================================
+function loadTrackerData() {
+    const saved = localStorage.getItem(`menteCan_tracker_${dogName}`);
+    trackerData = saved ? JSON.parse(saved) : {};
+}
+
+function saveTrackerData() {
+    localStorage.setItem(`menteCan_tracker_${dogName}`, JSON.stringify(trackerData));
+}
+
+function renderHub() {
+    // Nombre
+    document.getElementById('hub-dog-name').innerText = `${dogName} 🐾`;
+    document.getElementById('hub-subtitle').innerText = `está listo para aprender hoy`;
+
+    // Tip aleatorio
+    document.getElementById('daily-tip-text').innerText = DAILY_TIPS[Math.floor(Math.random() * DAILY_TIPS.length)];
+
+    // Progreso total
+    let totalCompleted = 0;
+    let totalDays = 0;
+    CHALLENGES.forEach(ch => {
+        totalDays += ch.totalDays;
+        const chTracker = trackerData[ch.id] || {};
+        totalCompleted += Object.keys(chTracker).length;
+    });
+    const pct = totalDays > 0 ? Math.round((totalCompleted / totalDays) * 100) : 0;
+    document.getElementById('hub-progress-text').innerText = `${totalCompleted} días completados`;
+    document.getElementById('hub-progress-bar').style.width = pct + '%';
+
+    // Challenges
+    const container = document.getElementById('challenges-container');
+    container.innerHTML = '';
+    CHALLENGES.forEach(ch => {
+        const chTracker = trackerData[ch.id] || {};
+        const completed = Object.keys(chTracker).length;
+        const pctCh = Math.round((completed / ch.totalDays) * 100);
+        container.innerHTML += `
+            <div onclick="openChallenge('${ch.id}')" class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm active:scale-[0.98] transition-all cursor-pointer">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 brand-bg rounded-2xl flex items-center justify-center text-xl shrink-0">${ch.icon}</div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-extrabold text-slate-900 text-sm leading-tight">${ch.name}</h4>
+                        <p class="text-[10px] text-slate-400 font-medium mt-0.5">${ch.totalDays} días · ${ch.desc}</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <div class="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-emerald-500 h-full rounded-full transition-all" style="width:${pctCh}%"></div>
+                            </div>
+                            <span class="text-[10px] font-black text-slate-400">${completed}/${ch.totalDays}</span>
                         </div>
-                    </div>`;
-            }
-            
-            const percent = Math.round((trackerData.completed.length / 14) * 100);
-            document.getElementById('progress-bar').style.width = `${percent === 0 ? 7 : percent}%`;
-            document.getElementById('progress-text').innerText = `Día ${trackerData.completed.length + 1} de 14`;
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+                </div>
+            </div>`;
+    });
+}
+
+// =============================================
+// CHALLENGE DETAIL
+// =============================================
+function openChallenge(id) {
+    currentChallenge = CHALLENGES.find(c => c.id === id);
+    if (!currentChallenge) return;
+
+    document.getElementById('challenge-title').innerText = currentChallenge.name;
+    document.getElementById('challenge-subtitle').innerText = `${currentChallenge.totalDays} días de entrenamiento`;
+    document.getElementById('challenge-icon-big').innerText = currentChallenge.icon;
+    document.getElementById('challenge-name-big').innerText = currentChallenge.name;
+    document.getElementById('challenge-desc-big').innerText = currentChallenge.desc;
+
+    const chTracker = trackerData[currentChallenge.id] || {};
+    const completed = Object.keys(chTracker).length;
+    const pct = Math.round((completed / currentChallenge.totalDays) * 100);
+    document.getElementById('challenge-progress-bar').style.width = pct + '%';
+    document.getElementById('challenge-progress-text').innerText = `${completed}/${currentChallenge.totalDays}`;
+
+    renderDays();
+    showScreen('screen-challenge');
+}
+
+function renderDays() {
+    const chTracker = trackerData[currentChallenge.id] || {};
+    const completedCount = Object.keys(chTracker).length;
+    const container = document.getElementById('days-container');
+    container.innerHTML = '';
+
+    // Obtener los días disponibles en el challenge
+    const availableDays = currentChallenge.lessons.map(l => l.day);
+    // Para el prototipo, mostramos los días que tenemos + días placeholder
+    
+    let lastSemana = 0;
+    for (let i = 1; i <= currentChallenge.totalDays; i++) {
+        const lesson = currentChallenge.lessons.find(l => l.day === i);
+        const semana = Math.ceil(i / 7);
+        const semanaLabel = currentChallenge.semanas[semana - 1];
+
+        // Header de semana
+        if (semana !== lastSemana) {
+            lastSemana = semana;
+            container.innerHTML += `
+                <div class="pt-2 pb-1">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Semana ${semana} — ${semanaLabel}
+                    </span>
+                </div>`;
         }
 
-        function openDay(index) {
-            showScreen('screen-training');
-        }
+        const isDone = !!chTracker[i];
+        const isReady = i === completedCount + 1;
+        const isLocked = !isDone && !isReady;
+        const hasContent = !!lesson;
 
-        function smartBack() {
-            if(currentScreen === 'screen-training') showScreen('screen-lobby');
-            else window.location.href = 'index.html';
-        }
+        let stateClass = isLocked ? 'day-locked' : isReady ? 'day-ready' : 'day-done';
+        let clickFn = (isReady && hasContent) ? `openLesson(${i})` : (isDone && hasContent ? `openLesson(${i})` : '');
 
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            currentScreen = id;
-            window.scrollTo(0,0);
-        }
+        const resultEmoji = isDone ? (chTracker[i].result === 'excelente' ? '🟢' : chTracker[i].result === 'bien' ? '🟡' : '🔴') : '';
 
-        // Lógica del Timer
-        let timerSeconds = 120;
-        let timerInterval = null;
-        function toggleTimer() {
-            const btn = document.getElementById('btn-timer');
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                btn.innerHTML = '<i class="fa-solid fa-play"></i> REANUDAR';
-                btn.classList.remove('timer-active');
-            } else {
-                btn.classList.add('timer-active');
-                timerInterval = setInterval(() => {
-                    timerSeconds--;
-                    updateTimerDisplay();
-                    if(timerSeconds <= 0) { 
-                        clearInterval(timerInterval); 
-                        if(navigator.vibrate) navigator.vibrate(200);
-                        alert("¡Sesión completada! Marca tus pasos arriba."); 
-                    }
-                }, 1000);
-                btn.innerHTML = '<i class="fa-solid fa-pause"></i> PAUSAR';
-            }
-        }
+        container.innerHTML += `
+            <div onclick="${clickFn}" class="day-item bg-white rounded-2xl border-2 border-slate-100 p-4 flex items-center gap-3 ${stateClass} ${(isReady || (isDone && hasContent)) ? 'cursor-pointer' : ''}">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shrink-0 ${isDone ? 'bg-emerald-500 text-white' : isReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'}">
+                    ${isDone ? '✓' : i}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-extrabold text-slate-900 text-sm leading-tight">${lesson ? lesson.title : `Día ${i}`}</h4>
+                    <p class="text-[10px] text-slate-400 font-medium mt-0.5">
+                        ${isDone ? `Completado ${resultEmoji}` : isReady ? `⏱ ${lesson ? lesson.duracion : '10 min'} · Toca para comenzar` : 'Bloqueado'}
+                        ${!hasContent && !isDone ? ' · Próximamente' : ''}
+                    </p>
+                </div>
+                ${isReady ? '<i class="fa-solid fa-play text-emerald-500 text-xs shrink-0"></i>' : ''}
+                ${isDone ? '<i class="fa-solid fa-check-circle text-emerald-400 text-xs shrink-0"></i>' : ''}
+            </div>`;
+    }
+}
 
-        function updateTimerDisplay() {
-            const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
-            const s = (timerSeconds % 60).toString().padStart(2, '0');
-            document.getElementById('timer-display').innerText = `${m}:${s}`;
-        }
-    </script>
+// =============================================
+// LESSON
+// =============================================
+function openLesson(dayNum) {
+    const lesson = currentChallenge.lessons.find(l => l.day === dayNum);
+    if (!lesson) return;
+    currentLessonDay = dayNum;
+
+    document.getElementById('lesson-header-title').innerText = `Día ${dayNum} · ${lesson.title}`;
+    document.getElementById('lesson-header-sub').innerText = `Semana ${lesson.semana} · ${lesson.semanaLabel}`;
+
+    const chTracker = trackerData[currentChallenge.id] || {};
+    const isDone = !!chTracker[dayNum];
+
+    // Reemplaza <DOG> con el nombre real
+    const replace = (str) => str.replace(/<DOG>/g, `<strong class="brand-text">${dogName}</strong>`);
+
+    let html = '';
+
+    // FOTO HERO
+    html += `
+        <div class="photo-hero">
+            <div class="text-center">
+                <div class="text-5xl mb-2">${lesson.heroEmoji}</div>
+                <p class="text-emerald-700 font-bold text-xs px-4">${lesson.heroCaption}</p>
+                <p class="text-emerald-500 text-[10px] mt-1">📸 Imagen desde Cloudinary</p>
+            </div>
+        </div>`;
+
+    // META INFO
+    html += `
+        <div class="flex items-center gap-2 flex-wrap">
+            <span class="bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full border border-emerald-100">
+                ⏱ ${lesson.duracion}
+            </span>
+            <span class="bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full">
+                🎯 ${lesson.nivel}
+            </span>
+            <span class="bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full">
+                📅 Semana ${lesson.semana}
+            </span>
+        </div>`;
+
+    // INTRO
+    html += `
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <p class="text-slate-600 text-sm leading-relaxed font-medium">${replace(lesson.intro)}</p>
+        </div>`;
+
+    // PASOS
+    html += `<div>
+        <h3 class="font-extrabold text-slate-900 text-base mb-3">📋 Pasos de hoy</h3>
+        <div class="space-y-3">`;
+    lesson.pasos.forEach((paso, idx) => {
+        html += `
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <div class="step-badge shrink-0 mt-0.5">${idx + 1}</div>
+                    <div class="flex-1">
+                        <h4 class="font-extrabold text-slate-900 text-sm mb-1">${paso.emoji} ${paso.titulo}</h4>
+                        <p class="text-slate-500 text-xs leading-relaxed">${replace(paso.desc)}</p>
+                    </div>
+                </div>
+            </div>`;
+    });
+    html += '</div></div>';
+
+    // FOTO PASO A PASO
+    html += `
+        <div class="photo-step">
+            <div class="text-center">
+                <div class="text-3xl mb-1">📸</div>
+                <p class="text-emerald-600 font-bold text-xs">${lesson.fotoStep}</p>
+            </div>
+        </div>`;
+
+    // TIPS PRO
+    html += `
+        <div>
+            <h3 class="font-extrabold text-slate-900 text-base mb-3">💡 Tips Pro</h3>
+            <div class="space-y-2">`;
+    lesson.tips.forEach(tip => {
+        html += `
+            <div class="tip-card bg-emerald-50 rounded-2xl p-4">
+                <p class="text-emerald-800 text-xs font-medium leading-relaxed">${replace(tip)}</p>
+            </div>`;
+    });
+    html += '</div></div>';
+
+    // ERROR FRECUENTE
+    html += `
+        <div class="error-card bg-rose-50 rounded-2xl p-4">
+            <div class="flex items-start gap-2">
+                <span class="text-lg shrink-0">⚠️</span>
+                <div>
+                    <h4 class="font-extrabold text-rose-700 text-sm mb-1">${lesson.errorTitulo}</h4>
+                    <p class="text-rose-600 text-xs leading-relaxed">${replace(lesson.errorDesc)}</p>
+                </div>
+            </div>
+        </div>`;
+
+    // BOTÓN COMPLETAR o COMPLETADO
+    if (isDone) {
+        const result = chTracker[dayNum].result;
+        const resultLabel = result === 'excelente' ? '🟢 Excelente' : result === 'bien' ? '🟡 Bien' : '🔴 Difícil';
+        html += `
+            <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-100 text-center">
+                <p class="text-emerald-700 font-extrabold text-sm">✅ Día completado — ${resultLabel}</p>
+                <p class="text-emerald-600 text-xs mt-1 font-medium">¡${dogName} está avanzando! 🐾</p>
+            </div>`;
+    } else {
+        html += `
+            <button onclick="openCompleteModal()" class="w-full brand-btn text-white font-extrabold py-5 rounded-2xl transition-all text-base shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-check-circle"></i>
+                ¡Día ${dayNum} completado con ${dogName}! 🎉
+            </button>`;
+    }
+
+    // Espacio final
+    html += '<div class="h-4"></div>';
+
+    document.getElementById('lesson-content').innerHTML = html;
+    document.getElementById('lesson-content').scrollTop = 0;
+    showScreen('screen-lesson');
+}
+
+// =============================================
+// MODAL COMPLETAR
+// =============================================
+function openCompleteModal() {
+    document.getElementById('modal-title').innerText = `¡${dogName} completó el Día ${currentLessonDay}!`;
+    document.getElementById('modal-subtitle').innerText = '¿Cómo respondió hoy?';
+    document.getElementById('modal-complete').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('modal-complete').classList.add('hidden');
+}
+
+function saveDay(result) {
+    if (!trackerData[currentChallenge.id]) trackerData[currentChallenge.id] = {};
+    trackerData[currentChallenge.id][currentLessonDay] = { result, date: new Date().toISOString().split('T')[0] };
+    saveTrackerData();
+    closeModal();
+
+    const completedCount = Object.keys(trackerData[currentChallenge.id]).length;
+    if (completedCount >= currentChallenge.totalDays) {
+        document.getElementById('victory-text').innerText = `¡${dogName} completó "${currentChallenge.name}" en ${currentChallenge.totalDays} días! 🏆`;
+        showScreen('screen-victory');
+    } else {
+        showToast(`¡Día ${currentLessonDay} guardado! ${result === 'excelente' ? '🟢 Excelente' : result === 'bien' ? '🟡 Bien hecho' : '🔴 Mañana mejor'}`);
+        openLesson(currentLessonDay); // Re-renderiza con estado completado
+        renderDays();
+        renderHub();
+    }
+}
+
+// =============================================
+// UPSELL VICTORIA
+// =============================================
+function openUpsellVictory() {
+    const session = JSON.parse(localStorage.getItem('eduDogSession'));
+    const phone = session ? session.phone : '';
+    const isPeru = phone.startsWith('51');
+    const priceText = isPeru ? 'S/ 15' : '$4.99 USD';
+    const msg = `Hola 👋\n\n¡${dogName} completó el desafío!\n\nQuiero desbloquear más desafíos de *MenteCan Vital* por ${priceText}.\n\n👤 Mi cuenta: +${phone}`;
+    window.open(`https://wa.me/51932335202?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// =============================================
+// UTILS
+// =============================================
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+}
+
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    const icon = document.getElementById('toast-icon');
+    icon.className = type === 'error'
+        ? 'fa-solid fa-circle-xmark text-rose-400 text-lg'
+        : 'fa-solid fa-circle-check text-emerald-400 text-lg';
+    document.getElementById('toast-msg').innerText = message;
+    toast.classList.remove('-translate-y-24', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+    setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-24', 'opacity-0');
+    }, 3000);
+}
+</script>
 </body>
 </html>

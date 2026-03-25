@@ -12,7 +12,9 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; color: #1e293b; -webkit-user-select: none; user-select: none; }
 
         .app-container {
-            max-width: 420px; margin: 0 auto; height: 100dvh;
+            max-width: 420px; margin: 0 auto; 
+            height: 100vh; /* FIX: Respaldo para navegadores antiguos */
+            height: 100dvh;
             position: relative; background: #ffffff;
             overflow: hidden; display: flex; flex-direction: column;
         }
@@ -78,24 +80,10 @@
         .day-item.failed .status-icon { color: #ef4444; }
         .modal-bg { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); }
 
-        /* =====================================================
-           FIX #2 y #3: Botón de retroceso visible y funcional
-           - Se usa opacity-0 + pointer-events-none en lugar de
-             visibility:hidden, para que no interfiera con el layout.
-           - Se añade sombra y borde para que se vea bien sobre
-             el gradiente oscuro.
-        ===================================================== */
-        #btn-header-back {
-            transition: opacity 0.2s, transform 0.1s;
-        }
-        #btn-header-back.hidden-back {
-            opacity: 0;
-            pointer-events: none;
-        }
-        #btn-header-back:not(.hidden-back) {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        /* FIX: Botón de retroceso visible */
+        #btn-header-back { transition: opacity 0.2s, transform 0.1s; }
+        #btn-header-back.hidden-back { opacity: 0; pointer-events: none; }
+        #btn-header-back:not(.hidden-back) { opacity: 1; pointer-events: auto; }
     </style>
 </head>
 <body class="md:py-8">
@@ -131,7 +119,7 @@
                     <h3 class="text-3xl font-black tracking-tighter" id="hub-dog-name">Cargando...</h3>
 
                     <div class="mt-8 bg-black/15 p-4 rounded-3xl border border-white/5">
-                        <div class="flex justify-between text-[9px] font-black uppercase mb-1.5 tracking-wider"><span class="opacity-70">Progreso global</span><span id="hub-progress-text" class="text-emerald-100">0/7 días</span></div>
+                        <div class="flex justify-between text-[9px] font-black uppercase mb-1.5 tracking-wider"><span class="opacity-70">Progreso global</span><span id="hub-progress-text" class="text-emerald-100">0 días</span></div>
                         <div class="w-full bg-white/15 rounded-full h-2 overflow-hidden"><div id="hub-progress-bar" class="bg-white h-full transition-all duration-1000 shadow-inner" style="width:0%"></div></div>
                     </div>
                 </div>
@@ -176,7 +164,35 @@
 
 <script>
 // =============================================
-// CONTENIDO PREMIUM ALTAMENTE PERSUASIVO
+// VARIABLES GLOBALES Y SEGURIDAD
+// =============================================
+let audioPlayer = null; // FIX: Variable para controlar el audio real
+
+// FIX: Limpiador de XSS para el nombre
+const sanitizeHTML = (str) => {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+};
+let rawDogName = localStorage.getItem('currentDogName') || 'Tu Peludo';
+let dogName = sanitizeHTML(rawDogName); 
+
+let currentChallenge = null, currentLessonDay = null, currentTab = 'teoria';
+let audioInterval = null, timerInterval = null;
+let currentAudioTime = 0, currentTimerTime = 0;
+
+// FIX: Evitar pantalla blanca si el LocalStorage se corrompe
+let trackerData = {};
+try {
+    const savedData = localStorage.getItem(`eduDog_tracker_${dogName}`);
+    if (savedData) trackerData = JSON.parse(savedData);
+} catch (e) {
+    console.error("Error leyendo datos, se reiniciará el progreso.", e);
+    trackerData = {};
+}
+
+// =============================================
+// CONTENIDO PREMIUM ACTUALIZADO (Textos cortos + Audios)
 // =============================================
 const CHALLENGES = [
     {
@@ -185,7 +201,13 @@ const CHALLENGES = [
         lessons: [
             { 
                 day: 1, title: 'El código de su mente', semanaLabel: 'Fase 1: Diagnóstico', duracion: '10 min', nivel: 'Fácil', categoria: 'Psicología', icon: 'fa-magnifying-glass', 
-                teoria: { audioSeconds: 60, intro: "La Psicología del Mordisco 🧠", cuerpo: "Tu perro no destruye por rebeldía o para castigarte. Usa su mandíbula como tú usas tus manos: para explorar, liberar ansiedad y descargar energía estancada. Si solo le dices 'NO', le quitas su herramienta sin darle soluciones, generando más frustración. Hoy cambiamos las reglas: dejamos de reaccionar para empezar a observar estratégicamente.", puntosClave: ["La información es poder: Identificar qué muerde revela qué necesita.", "No hay maldad, hay instinto: Morder es su válvula de escape biológica.", "Regla de Oro hoy: Cero correcciones. Solo observa y analiza."] }, 
+                teoria: { 
+                    audioSeconds: 28, 
+                    audioUrl: "https://TU_URL_AQUI_DIA_1.mp3", 
+                    intro: "La Psicología del Mordisco 🧠", 
+                    cuerpo: "Morder no es rebeldía, es instinto. Si solo dices 'NO', generas más ansiedad y frustración. Hoy dejamos de regañar y empezamos a leer su mente para darle verdaderas soluciones.", 
+                    puntosClave: ["La información es poder: Identificar qué muerde revela qué necesita.", "No hay maldad, hay instinto: Morder es su válvula de escape biológica.", "Regla de Oro hoy: Cero correcciones. Solo observa y analiza."] 
+                }, 
                 practica: { timerSeconds: 600, pasos: [
                     { titulo: 'Observación pasiva', desc: 'Actúa como un espectador invisible. Deja que explore y anota exactamente hacia qué materiales se dirige.', emoji: '🔍', icon: 'fa-magnifying-glass' }, 
                     { titulo: 'Mapeo de detonantes', desc: 'Identifica el momento exacto. ¿Lo hace cuando llegas del trabajo? ¿Cuando está aburrido? Este es su patrón.', emoji: '📝', icon: 'fa-pen-to-square' }, 
@@ -194,7 +216,13 @@ const CHALLENGES = [
             },
             { 
                 day: 2, title: 'El poder del "QUIETO"', semanaLabel: 'Fase 2: Control', duracion: '15 min', nivel: 'Fácil', categoria: 'Obediencia', icon: 'fa-hand', 
-                teoria: { audioSeconds: 90, intro: "Límites sin miedo ✋", cuerpo: "El comando 'QUIETO' es la frontera invisible entre el caos y el control. No necesitamos alzar la voz ni intimidar; los perros respetan el lenguaje corporal seguro y directo. Hoy estableceremos tu mano como una barrera psicológica absoluta que él decidirá respetar a cambio de una recompensa de alto valor.", puntosClave: ["Firmeza visual: Tu mano extendida es una pared emocional.", "Voz de ancla: Un solo comando firme, sin titubeos ni repeticiones.", "Micro-segundos de oro: El premio debe llegar en el instante exacto en que se detiene."] }, 
+                teoria: { 
+                    audioSeconds: 28, 
+                    audioUrl: "https://TU_URL_AQUI_DIA_2.mp3", 
+                    intro: "Límites sin miedo ✋", 
+                    cuerpo: "El comando 'QUIETO' es la frontera entre el caos y el control. Sin gritar, convertiremos tu mano extendida en una barrera psicológica absoluta que tu perro respetará voluntariamente.", 
+                    puntosClave: ["Firmeza visual: Tu mano extendida es una pared emocional.", "Voz de ancla: Un solo comando firme, sin titubeos ni repeticiones.", "Micro-segundos de oro: El premio debe llegar en el instante exacto en que se detiene."] 
+                }, 
                 practica: { timerSeconds: 900, pasos: [
                     { titulo: 'La frontera visual', desc: 'Cuando intente acercarse a un objeto, interpon tu mano firme y abierta frente a su campo de visión, sin tocarlo.', emoji: '✋', icon: 'fa-hand' }, 
                     { titulo: 'El comando único', desc: 'Di "QUIETO" desde el diafragma, con voz grave y segura. Jamás lo repitas dos veces.', emoji: '🗣️', icon: 'fa-comment' }, 
@@ -203,7 +231,13 @@ const CHALLENGES = [
             },
             { 
                 day: 3, title: 'Cambio por diversión', semanaLabel: 'Fase 2: Control', duracion: '12 min', nivel: 'Medio', categoria: 'Sustitución', icon: 'fa-baseball', 
-                teoria: { audioSeconds: 60, intro: "El arte de la redirección 🎾", cuerpo: "Prohibir crea deseo. Si solo le quitas lo que tiene, crearás un perro frustrado y obsesionado. La técnica maestra de los entrenadores top es la 'Sustitución de Alto Valor'. Le diremos: 'No puedes morder este zapato, pero SÍ puedes destrozar este juguete increíble'. Transformamos la prohibición en una invitación a jugar.", puntosClave: ["El intercambio justo: Nunca le quites algo sin ofrecerle algo mejor.", "El SÍ es más fuerte que el NO: Refuerza lo permitido, ignora lo prohibido.", "Conviértete en el premio: Tu entusiasmo al darle el juguete es la verdadera recompensa."] }, 
+                teoria: { 
+                    audioSeconds: 28, 
+                    audioUrl: "https://TU_URL_AQUI_DIA_3.mp3", 
+                    intro: "El arte de la redirección 🎾", 
+                    cuerpo: "Lo prohibido genera obsesión. Hoy dominaremos la 'Sustitución de Alto Valor': en vez de quitarle a la fuerza lo que muerde, le ofreceremos un trato que no podrá rechazar.", 
+                    puntosClave: ["El intercambio justo: Nunca le quites algo sin ofrecerle algo mejor.", "El SÍ es más fuerte que el NO: Refuerza lo permitido, ignora lo prohibido.", "Conviértete en el premio: Tu entusiasmo al darle el juguete es la verdadera recompensa."] 
+                }, 
                 practica: { timerSeconds: 720, pasos: [
                     { titulo: 'La carnada controlada', desc: 'Coloca un zapato viejo o cartón en el suelo. Mantente cerca con su juguete favorito escondido.', emoji: '👟', icon: 'fa-shoe-prints' }, 
                     { titulo: 'El intercambio maestro', desc: 'Cuando vaya por la carnada, di QUIETO. Al detenerse, haz aparecer su juguete de forma emocionante.', emoji: '🎾', icon: 'fa-baseball' }, 
@@ -212,7 +246,13 @@ const CHALLENGES = [
             },
             { 
                 day: 4, title: 'Confianza ciega (SUELTA)', semanaLabel: 'Fase 3: Avanzado', duracion: '15 min', nivel: 'Medio', categoria: 'Seguridad', icon: 'fa-arrows-rotate', 
-                teoria: { audioSeconds: 90, intro: "Entregar el tesoro 🔄", cuerpo: "El comando 'SUELTA' no es obediencia, es confianza pura. Un perro no entrega un recurso valioso (un hueso o algo robado) a alguien en quien no confía. Hoy le demostraremos que soltar lo que tiene en la boca no significa perderlo, sino activar una máquina expendedora de premios aún mejores. Esto puede salvarle la vida si algún día atrapa algo tóxico en la calle.", puntosClave: ["Cero confrontación: La fuerza bruta genera resistencia y mordidas defensivas.", "La economía del perro: Te doy esto a cambio de tu premio de mayor valor.", "Paciencia táctica: Quien se mueve primero, pierde. Mantén la calma hasta que suelte."] }, 
+                teoria: { 
+                    audioSeconds: 28, 
+                    audioUrl: "https://TU_URL_AQUI_DIA_4.mp3", 
+                    intro: "Entregar el tesoro 🔄", 
+                    cuerpo: "'SUELTA' no es una orden, es confianza absoluta. Hoy le demostraremos que soltar sus tesoros no significa perderlos, sino activar un premio aún más delicioso de tus manos.", 
+                    puntosClave: ["Cero confrontación: La fuerza bruta genera resistencia y mordidas defensivas.", "La economía del perro: Te doy esto a cambio de tu premio de mayor valor.", "Paciencia táctica: Quien se mueve primero, pierde. Mantén la calma hasta que suelte."] 
+                }, 
                 practica: { timerSeconds: 900, pasos: [
                     { titulo: 'Enganche suave', desc: 'Juega a tirar de un juguete trenzado o cuerda. Mantén una tensión suave pero firme.', emoji: '🦴', icon: 'fa-dog' }, 
                     { titulo: 'Congelación y comando', desc: 'Deja de moverte por completo. Pon un snack irresistible frente a su nariz y di SUELTA.', emoji: '🗣️', icon: 'fa-bullhorn' }, 
@@ -221,7 +261,13 @@ const CHALLENGES = [
             },
             { 
                 day: 5, title: 'La correa invisible', semanaLabel: 'Fase 3: Avanzado', duracion: '10 min', nivel: 'Avanzado', categoria: 'Resistencia', icon: 'fa-ruler-horizontal', 
-                teoria: { audioSeconds: 60, intro: "Obediencia a distancia 📏", cuerpo: "Cualquier perro obedece si tienes un premio a tres centímetros de su nariz. El verdadero adiestramiento premium se demuestra cuando tu voz es suficiente para detenerlo desde la distancia. Hoy expandimos el radio de control. Construiremos un 'campo de fuerza' emocional donde tu orden se respeta sin importar a cuántos pasos estés.", puntosClave: ["Proyección de voz: Tu energía debe cruzar la habitación.", "Contacto visual: Es el cable inalámbrico que los conecta.", "Progreso milimétrico: La confianza se construye paso a paso, no saltando al vacío."] }, 
+                teoria: { 
+                    audioSeconds: 28, 
+                    audioUrl: "https://TU_URL_AQUI_DIA_5.mp3", 
+                    intro: "Obediencia a distancia 📏", 
+                    cuerpo: "La verdadera obediencia no necesita premios pegados a la nariz. Hoy expandiremos tu control creando un escudo emocional donde tu voz detenga sus impulsos desde la distancia.", 
+                    puntosClave: ["Proyección de voz: Tu energía debe cruzar la habitación.", "Contacto visual: Es el cable inalámbrico que los conecta.", "Progreso milimétrico: La confianza se construye paso a paso, no saltando al vacío."] 
+                }, 
                 practica: { timerSeconds: 600, pasos: [
                     { titulo: 'Posicionamiento', desc: 'Pídele que se quede quieto. Da dos pasos firmes hacia atrás, manteniendo contacto visual absoluto.', emoji: '🚶', icon: 'fa-person-walking-arrow-right' }, 
                     { titulo: 'Prueba de tentación', desc: 'Coloca o lanza suavemente un objeto que le guste a un lado suyo, fuera de su alcance inmediato.', emoji: '👟', icon: 'fa-binoculars' }, 
@@ -230,7 +276,13 @@ const CHALLENGES = [
             },
             { 
                 day: 6, title: 'Comportamiento blindado', semanaLabel: 'Fase 4: Consolidación', duracion: '15 min', nivel: 'Avanzado', categoria: 'Entorno', icon: 'fa-house-signal', 
-                teoria: { audioSeconds: 60, intro: "Consistencia absoluta 🏠", cuerpo: "Los perros son contextuales. Que no muerda la silla de la sala no significa que sepa que la cama de tu cuarto también se respeta. Para blindar el buen comportamiento, necesitamos llevar la regla a cada rincón de la casa y con cada textura posible. Hoy le demostraremos que el estándar de excelencia no cambia según la habitación.", puntosClave: ["Variabilidad calculada: Exponerlo a texturas que antes le obsesionaban.", "Cero excepciones: La regla aplica hoy, mañana y siempre.", "Decisiones autónomas: Permitir que él elija lo correcto sin que se lo pidas."] }, 
+                teoria: { 
+                    audioSeconds: 28, 
+                    audioUrl: "https://TU_URL_AQUI_DIA_6.mp3", 
+                    intro: "Consistencia absoluta 🏠", 
+                    cuerpo: "Los perros no generalizan reglas fácilmente. Hoy blindaremos su mente exponiéndolo a sus mayores tentaciones, enseñándole que el respeto aplica en cada rincón de la casa y con cualquier objeto.", 
+                    puntosClave: ["Variabilidad calculada: Exponerlo a texturas que antes le obsesionaban.", "Cero excepciones: La regla aplica hoy, mañana y siempre.", "Decisiones autónomas: Permitir que él elija lo correcto sin que se lo pidas."] 
+                }, 
                 practica: { timerSeconds: 900, pasos: [
                     { titulo: 'El circuito de tentaciones', desc: 'Crea un pasillo colocando 3 objetos tentadores en el suelo, separados por 1 metro.', emoji: '📦', icon: 'fa-boxes-stacked' }, 
                     { titulo: 'Paseo de revisión', desc: 'Camina junto a él a través del pasillo. Tu postura debe ser erguida y segura.', emoji: '🐕', icon: 'fa-route' }, 
@@ -239,7 +291,13 @@ const CHALLENGES = [
             },
             { 
                 day: 7, title: 'La Prueba Maestra', semanaLabel: 'Fase 4: Consolidación', duracion: '20 min', nivel: 'Avanzado', categoria: 'Éxito', icon: 'fa-trophy', 
-                teoria: { audioSeconds: 60, intro: "Independencia Real 🏆", cuerpo: "Has transformado su mente. El último nivel del adiestramiento no requiere correas, premios constantes ni órdenes; requiere autonomía. La 'Prueba Maestra' evalúa el autocontrol de tu peludo cuando está en total soledad. Si superan esto, habrán graduado de la gestión de crisis a un estilo de vida de confianza absoluta mutua.", puntosClave: ["El test de fuego: Su comportamiento en privado revela su verdadero aprendizaje.", "Desapego positivo: Confía en el trabajo que has hecho estos 6 días.", "El fin del hábito: Un perro con autocontrol es un compañero para toda la vida."] }, 
+                teoria: { 
+                    audioSeconds: 28, 
+                    audioUrl: "https://TU_URL_AQUI_DIA_7.mp3", 
+                    intro: "Independencia Real 🏆", 
+                    cuerpo: "El verdadero éxito es lo que hace cuando nadie lo ve. Hoy evaluaremos su autocontrol en absoluta soledad para graduarlo hacia un estilo de vida de libertad en el hogar.", 
+                    puntosClave: ["El test de fuego: Su comportamiento en privado revela su verdadero aprendizaje.", "Desapego positivo: Confía en el trabajo que has hecho estos 6 días.", "El fin del hábito: Un perro con autocontrol es un compañero para toda la vida."] 
+                }, 
                 practica: { timerSeconds: 1200, pasos: [
                     { titulo: 'Simulacro real', desc: 'Deja la habitación tal cual está. Objetos a la vista. Despídete con naturalidad y sal del cuarto cerrando la puerta.', emoji: '🚪', icon: 'fa-door-closed' }, 
                     { titulo: 'El silencio táctico', desc: 'Espera afuera exactamente 5 minutos. No entres si lo escuchas caminar, confía en él.', emoji: '🍗', icon: 'fa-star' }, 
@@ -253,12 +311,6 @@ const CHALLENGES = [
 // =============================================
 // LÓGICA CORE
 // =============================================
-let dogName = localStorage.getItem('currentDogName') || 'Kira'; 
-let currentChallenge = null, currentLessonDay = null, currentTab = 'teoria';
-let audioInterval = null, timerInterval = null;
-let currentAudioTime = 0, currentTimerTime = 0;
-let trackerData = JSON.parse(localStorage.getItem(`eduDog_tracker_${dogName}`)) || {};
-
 document.addEventListener('DOMContentLoaded', () => { renderHub(); showScreen('screen-hub'); });
 
 function renderHub() {
@@ -266,15 +318,17 @@ function renderHub() {
     const container = document.getElementById('challenges-container');
     container.innerHTML = '';
     
+    // FIX: Cálculo de progreso global dinámico
+    let totalGlobalDays = 0;
+    let totalPassedDays = 0;
+    
     CHALLENGES.forEach(ch => {
         const chTracker = trackerData[ch.id] || {};
         const passedCount = Object.values(chTracker).filter(t => t.passed).length;
         const pct = Math.round((passedCount / ch.totalDays) * 100);
         
-        if(ch === CHALLENGES[0]) {
-            document.getElementById('hub-progress-text').innerText = `${passedCount}/${ch.totalDays} días`;
-            document.getElementById('hub-progress-bar').style.width = `${pct}%`;
-        }
+        totalGlobalDays += ch.totalDays;
+        totalPassedDays += passedCount;
 
         container.innerHTML += `
             <div onclick="openChallenge('${ch.id}')" class="bg-white rounded-[2rem] p-5 shadow-sm active:scale-[0.98] transition-all cursor-pointer flex items-center gap-4 border border-slate-100">
@@ -287,6 +341,10 @@ function renderHub() {
                 <i class="fa-solid fa-chevron-right text-slate-200"></i>
             </div>`;
     });
+
+    const globalPct = totalGlobalDays > 0 ? Math.round((totalPassedDays / totalGlobalDays) * 100) : 0;
+    document.getElementById('hub-progress-text').innerText = `${totalPassedDays}/${totalGlobalDays} días`;
+    document.getElementById('hub-progress-bar').style.width = `${globalPct}%`;
 }
 
 function openChallenge(id) {
@@ -313,15 +371,6 @@ function renderDays() {
         const isReady = i === highestPassed + 1 || isFailed;
         const isLocked = !isPassed && !isReady;
 
-        // =============================================
-        // FIX #1: Ícono correcto según estado del día
-        // Antes: siempre usaba lesson.icon aunque el día
-        // estuviera bloqueado. Ahora:
-        //   - Bloqueado sin intentar → fa-lock
-        //   - Fallado               → fa-rotate-left
-        //   - Superado              → ícono de la lección
-        //   - Disponible            → ícono de la lección
-        // =============================================
         const statusIcon = isLocked ? 'fa-lock' : (isFailed ? 'fa-rotate-left' : (lesson ? lesson.icon : 'fa-circle'));
 
         container.innerHTML += `
@@ -435,22 +484,50 @@ function renderLessonContent(lesson) {
 
 function switchTab(tab) {
     currentTab = tab; 
+    
+    // FIX: Pausar audio al cambiar de pestaña
+    if(audioPlayer) { audioPlayer.pause(); audioPlayer.currentTime = 0; }
+
     if(audioInterval) clearInterval(audioInterval); if(timerInterval) clearInterval(timerInterval);
     audioInterval = null; timerInterval = null; currentAudioTime = 0; currentTimerTime = 0;
     renderLessonContent(currentChallenge.lessons.find(l => l.day === currentLessonDay));
     document.getElementById('screen-lesson').scrollTo(0, 0);
 }
 
+// FIX: Función de audio conectada al reproductor real
 function toggleAudio(total) {
-    const btn = document.getElementById('audio-play-btn'), container = document.getElementById('audio-container'), display = document.getElementById('audio-time');
+    const btn = document.getElementById('audio-play-btn');
+    const container = document.getElementById('audio-container');
+    const display = document.getElementById('audio-time');
+    const lesson = currentChallenge.lessons.find(l => l.day === currentLessonDay);
+
     if (audioInterval) { 
-        clearInterval(audioInterval); audioInterval = null; btn.innerHTML = '<i class="fa-solid fa-play"></i>'; container.classList.remove('active-session'); 
+        clearInterval(audioInterval); audioInterval = null; 
+        btn.innerHTML = '<i class="fa-solid fa-play"></i>'; 
+        container.classList.remove('active-session'); 
+        if(audioPlayer) audioPlayer.pause();
     } else { 
-        if (currentAudioTime === 0) currentAudioTime = total;
-        container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; 
+        if (currentAudioTime === 0) {
+            currentAudioTime = total;
+            if(audioPlayer) { audioPlayer.pause(); audioPlayer.currentTime = 0; }
+            audioPlayer = new Audio(lesson.teoria.audioUrl);
+        }
+        
+        container.classList.add('active-session'); 
+        btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; 
+        audioPlayer.play().catch(e => console.warn("Esperando interacción del usuario para audio"));
+        
         audioInterval = setInterval(() => { 
-            currentAudioTime--; let mins = Math.floor(currentAudioTime / 60); let secs = currentAudioTime % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`; 
-            if (currentAudioTime <= 0) { clearInterval(audioInterval); audioInterval = null; currentAudioTime = 0; container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; } 
+            currentAudioTime--; 
+            let mins = Math.floor(currentAudioTime / 60); 
+            let secs = currentAudioTime % 60; 
+            display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`; 
+            
+            if (currentAudioTime <= 0) { 
+                clearInterval(audioInterval); audioInterval = null; currentAudioTime = 0; 
+                container.classList.remove('active-session'); 
+                btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; 
+            } 
         }, 1000); 
     }
 }
@@ -469,14 +546,10 @@ function toggleTimer(total) {
     }
 }
 
-// =============================================
-// FIX #2 + #3: showScreen actualiza correctamente
-// la visibilidad del botón de retroceso usando
-// la clase CSS hidden-back (opacity:0 + pointer-events:none)
-// en lugar de visibility:hidden, que causaba que el botón
-// permaneciera invisible aunque se cambiara de pantalla.
-// =============================================
 function showScreen(id) {
+    // FIX: Pausar audio al salir de la pantalla de lección
+    if(audioPlayer) { audioPlayer.pause(); audioPlayer.currentTime = 0; }
+
     if(audioInterval) clearInterval(audioInterval); if(timerInterval) clearInterval(timerInterval);
     audioInterval = null; timerInterval = null;
 
@@ -486,25 +559,18 @@ function showScreen(id) {
 
     const backBtn = document.getElementById('btn-header-back');
     if(backBtn) {
-        if (id === 'screen-hub') {
-            backBtn.classList.add('hidden-back');
-        } else {
-            backBtn.classList.remove('hidden-back');
-        }
+        if (id === 'screen-hub') { backBtn.classList.add('hidden-back'); } 
+        else { backBtn.classList.remove('hidden-back'); }
     }
 }
 
 function goBack() {
     const activeScreens = document.querySelectorAll('.screen.active');
     if (activeScreens.length === 0) return;
-    
     const activeId = activeScreens[0].id;
 
-    if (activeId === 'screen-lesson') {
-        showScreen('screen-challenge');
-    } else if (activeId === 'screen-challenge') {
-        showScreen('screen-hub');
-    }
+    if (activeId === 'screen-lesson') { showScreen('screen-challenge'); } 
+    else if (activeId === 'screen-challenge') { showScreen('screen-hub'); }
 }
 
 function openCompleteModal() { document.getElementById('modal-complete').classList.remove('hidden'); }

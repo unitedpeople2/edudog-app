@@ -33,7 +33,6 @@
         .brand-bg { background: linear-gradient(135deg, #059669 0%, #064e3b 100%); }
         .brand-text { color: #059669; }
         .brand-border { border-color: #059669; }
-        .brand-light { background-color: #ecfdf5; }
         .brand-btn { background-color: #059669; }
         .brand-btn:active { transform: scale(0.97); }
 
@@ -44,11 +43,7 @@
         .day-failed { background: #fff1f2; border-color: #f43f5e; cursor: pointer; }
 
         /* Bounce in for trophy */
-        @keyframes bounceIn {
-            0% { transform: scale(0.3); opacity: 0; }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
         .bounce-in { animation: bounceIn 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
 
         /* Step number badge */
@@ -59,18 +54,7 @@
             font-size: 12px; font-weight: 800; flex-shrink: 0;
         }
 
-        /* Modal backdrop */
         .modal-bg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); }
-
-        /* Photo placeholder */
-        .photo-hero {
-            width: 100%; height: 200px;
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%);
-            border-radius: 1.5rem;
-            display: flex; align-items: center; justify-content: center;
-            position: relative; overflow: hidden;
-        }
-        
         .tip-card { border-left: 3px solid #059669; }
         .error-card { border-left: 3px solid #ef4444; }
 
@@ -104,7 +88,6 @@
                 <i class="fa-solid fa-user"></i>
             </div>
         </div>
-
         <div class="flex-1 px-5 py-5 space-y-5 pb-10">
             <div class="brand-bg rounded-[2rem] p-5 text-white shadow-xl relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-8 translate-x-8"></div>
@@ -124,7 +107,6 @@
                     </div>
                 </div>
             </div>
-
             <div>
                 <h3 class="font-extrabold text-slate-900 text-base mb-3">Retos de 7 Días</h3>
                 <div id="challenges-container" class="space-y-3"></div>
@@ -139,11 +121,10 @@
             </button>
             <div class="text-center">
                 <h2 class="font-extrabold text-white text-sm" id="challenge-title">Desafío</h2>
-                <p class="text-[10px] text-emerald-200 font-bold" id="challenge-subtitle">7 días de entrenamiento</p>
+                <p class="text-[10px] text-emerald-200 font-bold uppercase tracking-widest">7 DÍAS DE ENTRENAMIENTO</p>
             </div>
             <div class="w-9 h-9"></div>
         </div>
-
         <div class="flex-1 px-5 py-5 space-y-4 pb-10">
             <div class="bg-white rounded-[1.75rem] border border-slate-200 p-5 shadow-sm">
                 <div class="flex items-center gap-4">
@@ -171,7 +152,7 @@
             </button>
             <div class="text-center">
                 <h2 class="font-extrabold text-white text-sm" id="lesson-header-title">Día 1</h2>
-                <p class="text-[10px] font-bold text-emerald-200 uppercase tracking-widest" id="lesson-header-sub">Día de entrenamiento</p>
+                <p class="text-[10px] font-bold text-emerald-200 uppercase tracking-widest" id="lesson-header-sub">Semana 1</p>
             </div>
             <div class="w-9 h-9"></div>
         </div>
@@ -183,7 +164,7 @@
         <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
             <div class="bounce-in text-7xl mb-6">🏆</div>
             <h2 class="text-3xl font-black text-slate-900 mb-2">¡Reto Superado!</h2>
-            <p class="text-slate-500 text-sm mb-8 font-medium" id="victory-text">Has completado los 7 días con tu peludo.</p>
+            <p class="text-slate-500 text-sm mb-8 font-medium">Has completado los 7 días con tu peludo.</p>
             <button onclick="showScreen('screen-hub')" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-2xl text-base active:scale-95 transition-all shadow-lg shadow-emerald-500/30">
                 Volver al inicio
             </button>
@@ -193,9 +174,9 @@
     <div id="modal-complete" class="hidden absolute inset-0 z-50 modal-bg flex flex-col justify-end">
         <div class="bg-white rounded-t-[2.5rem] p-8">
             <div class="text-center mb-6">
-                <div class="text-5xl mb-3" id="modal-emoji">🎉</div>
-                <h3 class="text-xl font-black text-slate-900" id="modal-title">¡Día completado!</h3>
-                <p class="text-slate-500 text-sm mt-1" id="modal-subtitle">¿Cómo respondió tu peludo hoy?</p>
+                <div class="text-5xl mb-3">🎉</div>
+                <h3 class="text-xl font-black text-slate-900">¡Día finalizado!</h3>
+                <p class="text-slate-500 text-sm mt-1">¿Cómo respondió tu peludo hoy?</p>
             </div>
             <div class="space-y-3">
                 <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-4 rounded-2xl font-bold text-sm border border-emerald-100 active:scale-95 transition-all flex items-center justify-center gap-2">
@@ -205,7 +186,7 @@
                     <i class="fa-solid fa-thumbs-up text-amber-500"></i> Bien — Necesitó intentos
                 </button>
                 <button onclick="saveDay('dificil')" class="w-full bg-rose-50 text-rose-600 p-4 rounded-2xl font-bold text-sm border border-rose-100 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Difícil — Necesita reintento
+                    <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Difícil — Necesitamos reintento
                 </button>
                 <button onclick="closeModal()" class="w-full text-slate-400 py-3 font-bold text-sm mt-2">Cancelar</button>
             </div>
@@ -216,7 +197,7 @@
 
 <script>
 // =============================================
-// DATA — LOS 6 RETOS DE 7 DÍAS CON ANIMACIONES
+// DATA — LOS 5 RETOS (Contenido Rico Restaurado)
 // =============================================
 const CHALLENGES = [
     {
@@ -227,159 +208,201 @@ const CHALLENGES = [
         desc: 'Elimina el hábito de morder',
         unlocked: true,
         lessons: [
-            { day: 1, title: 'Entiende por qué muerde', duracion: '10 min', nivel: 'Fácil',
-                heroAnimation: `<i class="fa-solid fa-brain text-emerald-500 text-6xl anim-float drop-shadow-md"></i>`,
-                heroTitle: 'Analizando antes de actuar',
-                intro: 'Los perros muerden por instinto o aburrimiento. Hoy solo observamos a <DOG>.',
+            { 
+                day: 1, title: 'Entiende por qué muerde', 
+                semanaLabel: 'Fundamentos', duracion: '10 min', nivel: 'Fácil',
+                heroAnimation: `<svg class="anim-float text-emerald-600 w-24 h-24 drop-shadow-lg" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>`,
+                heroTitle: 'Analizando el comportamiento antes de actuar',
+                intro: 'Antes de corregir, debes entender. Los perros muerden por instinto, exploración o aburrimiento. Hoy no corregimos nada — solo observamos a <DOG>.',
                 pasos: [
-                    { titulo: 'Observa', desc: 'Mira qué muerde y en qué momento.', emoji: '👁️' },
-                    { titulo: 'Prepara el espacio', desc: 'Retira objetos de valor de su alcance.', emoji: '🏠' }
+                    { titulo: 'Observa sin reaccionar', desc: 'Durante 5 minutos, observa qué muerde <DOG> y en qué momento. ¿Está aburrido? ¿Quiere atención?', emoji: '👁️' },
+                    { titulo: 'Anota el patrón', desc: 'Escribe o recuerda: ¿a qué hora muerde más? ¿Qué muerde primero? Esta información guiará todo el desafío.', emoji: '📝' },
+                    { titulo: 'Prepara el espacio', desc: 'Retira objetos que no quieras que muerda de su zona de acceso. No es castigo — es gestión del ambiente.', emoji: '🏠' }
                 ],
-                tips: ['No grites "NO" todavía — hoy es solo diagnóstico.'], errorTitulo: 'Error del Día 1', errorDesc: 'Intentar corregir antes de entender el patrón.' },
-            { day: 2, title: 'El comando "QUIETO"', duracion: '10 min', nivel: 'Fácil',
-                heroAnimation: `<div class="bg-rose-100 rounded-full p-4 anim-pulse-stop"><i class="fa-solid fa-hand text-rose-500 text-5xl"></i></div>`,
-                heroTitle: 'Fijando el límite',
-                intro: 'Enséñale la señal de parar. Es el comando base.',
+                tips: [
+                    'No grites "NO" todavía — hoy es solo diagnóstico.',
+                    'Los cachorros muerden más durante la dentición (2-6 meses).',
+                    'El aburrimiento es la causa #1 en perros jóvenes.'
+                ],
+                errorTitulo: 'Error típico del Día 1', 
+                errorDesc: 'Intentar corregir antes de entender el patrón. Sin diagnóstico, la corrección no es efectiva.'
+            },
+            { 
+                day: 2, title: 'El comando "QUIETO"', 
+                semanaLabel: 'Fundamentos', duracion: '15 min', nivel: 'Fácil',
+                heroAnimation: `<div class="bg-rose-100 rounded-full p-5 anim-pulse-stop"><i class="fa-solid fa-hand text-rose-500 text-6xl"></i></div>`,
+                heroTitle: 'Fijando el límite con autoridad visual',
+                intro: 'Hoy le enseñas a <DOG> la señal de parar. Es el comando base de todo el desafío. Necesitas: 5-10 premios pequeños.',
                 pasos: [
-                    { titulo: 'La señal', desc: 'Pon la mano abierta frente a su cara cuando muerda algo prohibido.', emoji: '✋' },
-                    { titulo: 'Premio', desc: 'Si para 2 segundos, premio INMEDIATO.', emoji: '🍖' }
+                    { titulo: 'Posición correcta', desc: 'Párate frente a <DOG>. Cuando empiece a morder, pon la mano abierta frente a su cara (señal STOP).', emoji: '✋' },
+                    { titulo: 'Di "QUIETO" una sola vez', desc: 'Voz firme, calma — no grites. Si repites el comando 10 veces, <DOG> aprende a ignorarlo.', emoji: '🗣️' },
+                    { titulo: 'Premio inmediato', desc: 'Si <DOG> para aunque sea 2 segundos, premio INMEDIATO. La ventana es de menos de 3 segundos.', emoji: '🍖' }
                 ],
-                tips: ['El premio debe darse en menos de 3 segundos.'], errorTitulo: 'Error común', errorDesc: 'Repetir "QUIETO" mil veces.' },
-            { day: 3, title: 'Redirección al juguete', duracion: '15 min', nivel: 'Fácil',
+                tips: [
+                    'El premio debe darse en menos de 3 segundos o no conectará la acción.',
+                    'Practica 5-10 repeticiones por sesión, no más.',
+                    'Si falla, termina la sesión y retoma en 30 minutos.'
+                ],
+                errorTitulo: 'El error más común', 
+                errorDesc: 'Repetir "QUIETO, QUIETO" varias veces. Esto le enseña que puede ignorar la primera orden.'
+            },
+            { 
+                day: 3, title: 'Redirección al juguete', 
+                semanaLabel: 'Práctica', duracion: '15 min', nivel: 'Medio',
                 heroAnimation: `<i class="fa-solid fa-baseball text-emerald-500 text-6xl anim-bounce-spin drop-shadow-md"></i>`,
-                heroTitle: 'Cambiando a diversión',
-                intro: 'No basta con decir NO. Debes darle un SÍ.',
+                heroTitle: 'Cambiando lo prohibido por diversión',
+                intro: 'No basta con decir NO — debes darle a <DOG> un SÍ. Hoy aprende a redirigir el mordido hacia su juguete.',
                 pasos: [
-                    { titulo: 'Juguete a mano', desc: 'Di "QUIETO" y ofrece su juguete al instante.', emoji: '🎾' },
-                    { titulo: 'Fiesta', desc: 'Cuando acepte el juguete, ¡celebra!', emoji: '🎉' }
+                    { titulo: 'Juguete siempre a mano', desc: 'Ten el juguete siempre cerca. Di "QUIETO" y ofrece el juguete inmediatamente.', emoji: '🎾' },
+                    { titulo: 'Celebra al aceptar', desc: 'Cuando <DOG> acepte el juguete, ¡celebra! Que asocie el juguete con una fiesta.', emoji: '🎉' },
+                    { titulo: 'Ignorar lo prohibido', desc: 'Si vuelve a lo prohibido, retira el juguete. Controla tú el juego en todo momento.', emoji: '🔄' }
                 ],
-                tips: ['El juguete debe ser muy atractivo.'], errorTitulo: 'Error', errorDesc: 'Castigar sin dar alternativa.' },
-            { day: 4, title: 'Refuerzo sin comida', duracion: '10 min', nivel: 'Medio',
+                tips: [
+                    'Prueba con juguetes que crujen o que puedas llenar con snacks.',
+                    'Rota los juguetes cada 2 días para mantener el interés.',
+                    'Nunca uses tu mano como juguete de mordida.'
+                ],
+                errorTitulo: 'Error frecuente', 
+                errorDesc: 'Castigar físicamente sin dar alternativa. El perro necesita saber QUÉ SÍ puede hacer.'
+            },
+            { 
+                day: 4, title: 'Refuerzo sin comida', 
+                semanaLabel: 'Práctica', duracion: '10 min', nivel: 'Medio',
                 heroAnimation: `<i class="fa-solid fa-hands-clapping text-amber-400 text-6xl anim-wiggle drop-shadow-md"></i>`,
-                heroTitle: 'Obediencia por vínculo',
-                intro: 'Reducimos la comida. <DOG> debe obedecer por ti.',
+                heroTitle: 'Fomentando obediencia por vínculo',
+                intro: 'Esta sesión reducimos los premios de comida. <DOG> debe empezar a obedecer por el vínculo contigo.',
                 pasos: [
-                    { titulo: 'Alternar', desc: 'Premia con caricia y voz positiva.', emoji: '🤗' },
-                    { titulo: 'Sorpresa', desc: 'Da comida solo 1 de cada 3 veces.', emoji: '🎲' }
+                    { titulo: 'Alterna premios', desc: 'Una vez que obedece, premia con caricia y voz positiva en lugar de comida.', emoji: '🤗' },
+                    { titulo: 'Premio sorpresa', desc: 'Da comida solo 1 de cada 3 veces. Es el principio del casino (impredecible).', emoji: '🎲' },
+                    { titulo: 'El elogio final', desc: 'Practica que una sola frase ("¡bien, <DOG>!") sea suficiente recompensa.', emoji: '⭐' }
                 ],
-                tips: ['Tu emoción importa más que las palabras.'], errorTitulo: 'Error', errorDesc: 'Quitar premios de golpe.' },
-            { day: 5, title: 'Prueba a distancia', duracion: '10 min', nivel: 'Medio',
+                tips: [
+                    'Los perros responden más a tu emoción que a tus palabras.',
+                    'Voces agudas y celebraciones exageradas funcionan excelente.'
+                ],
+                errorTitulo: 'Error de la etapa', 
+                errorDesc: 'Eliminar todos los premios de golpe. Reduce gradualmente.'
+            },
+            { 
+                day: 5, title: 'Prueba a distancia', 
+                semanaLabel: 'Avanzado', duracion: '15 min', nivel: 'Avanzado',
                 heroAnimation: `<i class="fa-solid fa-binoculars text-indigo-400 text-6xl anim-float drop-shadow-md"></i>`,
                 heroTitle: 'Monitoreo lejano',
-                intro: 'Ponte a prueba observando desde lejos.',
+                intro: 'Ponte a prueba observando desde el otro lado de la habitación para consolidar el comando.',
                 pasos: [
-                    { titulo: 'Aléjate', desc: 'Deja objetos tentadores y mira de lejos.', emoji: '👀' },
-                    { titulo: 'Usa la voz', desc: 'Si intenta morder, di QUIETO desde tu sitio.', emoji: '🗣️' }
+                    { titulo: 'Aléjate', desc: 'Deja objetos tentadores a su alcance y obsérvalo desde lejos.', emoji: '👀' },
+                    { titulo: 'Usa la voz', desc: 'Si intenta morder, usa el comando QUIETO firme desde donde estás.', emoji: '🗣️' },
+                    { titulo: 'Acércate a premiar', desc: 'Si obedece a la distancia, camina hacia él y dale su premio.', emoji: '🚶' }
                 ],
-                tips: ['La distancia consolida el aprendizaje.'], errorTitulo: 'Error', errorDesc: 'Acercarse corriendo.' },
-            { day: 6, title: 'Nuevos retos', duracion: '15 min', nivel: 'Avanzado',
+                tips: [
+                    'Manejar la distancia es el paso previo a dejarlo solo.',
+                    'Asegúrate de tener contacto visual cuando des la orden de lejos.'
+                ],
+                errorTitulo: 'Error de distancia', 
+                errorDesc: 'Acercarte corriendo gritando. Usa tu voz primero para detenerlo.'
+            },
+            { 
+                day: 6, title: 'Nuevos retos en casa', 
+                semanaLabel: 'Avanzado', duracion: '15 min', nivel: 'Avanzado',
                 heroAnimation: `<i class="fa-solid fa-shoe-prints text-orange-400 text-6xl anim-wiggle drop-shadow-md"></i>`,
-                heroTitle: 'Generalización',
-                intro: 'Exponlo a nuevos objetos para asegurar la regla.',
+                heroTitle: 'Generalización de la regla',
+                intro: 'Hoy expondremos a <DOG> a objetos nuevos para asegurar que la regla aplica a todo en la casa.',
                 pasos: [
-                    { titulo: 'Zapatos viejos', desc: 'Pon zapatos a su alcance y aplica la técnica.', emoji: '👟' }
+                    { titulo: 'Objetos carnada', desc: 'Pon a su alcance cajas de cartón o zapatos viejos controladamente.', emoji: '👟' },
+                    { titulo: 'Aplica técnica', desc: 'Usa la misma redirección al juguete que aprendimos el Día 3.', emoji: '🔁' },
+                    { titulo: 'Refuerzo', desc: 'Felicítalo exageradamente cuando elija su juguete sobre el zapato.', emoji: '👏' }
                 ],
-                tips: ['La regla aplica a todo.'], errorTitulo: 'Error', errorDesc: 'Permitirle morder un zapato pero no otro.' },
-            { day: 7, title: 'Prueba en solitario', duracion: '15 min', nivel: 'Avanzado',
-                heroAnimation: `<i class="fa-solid fa-shield-dog text-emerald-600 text-6xl anim-float drop-shadow-md"></i>`,
-                heroTitle: 'Confianza total',
-                intro: 'Probamos si mantiene el comportamiento a solas.',
+                tips: [
+                    'Para un perro, un zapato viejo y uno nuevo huelen igual de bien.',
+                    'La consistencia debe aplicar para CUALQUIER objeto.'
+                ],
+                errorTitulo: 'Mensajes mixtos', 
+                errorDesc: 'Permitirle morder un zapato viejo "porque ya no sirve". El perro no sabe la diferencia.'
+            },
+            { 
+                day: 7, title: 'Sin supervisión constante', 
+                semanaLabel: 'Consolidación', duracion: '20 min', nivel: 'Avanzado',
+                heroAnimation: `<svg class="anim-float text-emerald-600 w-24 h-24 drop-shadow-md" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>`,
+                heroTitle: 'La prueba de fuego en solitario',
+                intro: 'El día final. Probamos si <DOG> mantiene el comportamiento sin que estés mirándolo. Es la prueba real.',
                 pasos: [
-                    { titulo: 'A solas', desc: 'Déjalo 5 min solo con objetos tentadores.', emoji: '📷' },
-                    { titulo: 'Recompensa', desc: 'Si todo está intacto al volver, ¡celebra!', emoji: '🏆' }
+                    { titulo: 'Zona controlada', desc: 'Deja a <DOG> 5 minutos solo en una habitación con objetos que antes mordía. Observa escondido.', emoji: '📷' },
+                    { titulo: 'Refuerzo tardío', desc: 'Al volver, si todo está intacto, premia a <DOG> con mucha celebración.', emoji: '🏆' },
+                    { titulo: 'Ampliar el tiempo', desc: 'Sube de 5 a 15 min. Aumenta solo si el paso anterior fue exitoso.', emoji: '⏱️' }
                 ],
-                tips: ['Un perro cansado no muerde.'], errorTitulo: 'Error', errorDesc: 'Castigar horas después.' }
+                tips: [
+                    'El ejercicio físico previo reduce el 70% del comportamiento destructivo.',
+                    'Un perro cansado es un perro que no muerde.'
+                ],
+                errorTitulo: 'El peor error', 
+                errorDesc: 'Castigar a tu perro horas después de encontrar algo mordido. No conecta el castigo con el pasado.'
+            }
         ]
     },
     {
-        id: 'bano',
-        name: 'Baño perfecto',
-        icon: '🚽',
-        totalDays: 7,
-        desc: 'El hábito de ir al baño',
-        unlocked: true,
+        id: 'bano', name: 'Baño perfecto', icon: '🚽', totalDays: 7, desc: 'El hábito de ir al baño', unlocked: true,
         lessons: [
-            { day: 1, title: 'Entiende su instinto', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-magnifying-glass text-indigo-400 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Señales previas', intro: 'Los perros dan señales antes de orinar (olfatear, dar vueltas).', pasos: [{ titulo: 'Observa', desc: 'Identifica sus señales hoy.', emoji: '👁️' }, { titulo: 'La zona', desc: 'Elige un único lugar para el baño.', emoji: '📍' }], tips: ['El olfato los hace volver al mismo sitio.'], errorTitulo: 'Error', errorDesc: 'Frotarle la nariz en el accidente.' },
-            { day: 2, title: 'La zona mágica', duracion: '15 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-location-dot text-rose-500 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'Creando el hábito', intro: 'Lleva a <DOG> a su zona antes de que ocurra.', pasos: [{ titulo: 'Al despertar', desc: 'Llévalo directo a su zona.', emoji: '🌅' }, { titulo: 'Paciencia', desc: 'Espera en silencio hasta que termine y premia.', emoji: '⏳' }], tips: ['Repite tras cada comida.'], errorTitulo: 'Error', errorDesc: 'Darle libertad total muy pronto.' },
-            { day: 3, title: 'Espera y Premio', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-gift text-amber-500 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'Refuerzo explosivo', intro: 'El timing del premio es lo que crea el hábito.', pasos: [{ titulo: 'Premio exacto', desc: 'Justo al terminar, dale un snack súper especial.', emoji: '🍖' }], tips: ['Usa un snack que SOLO reciba por ir al baño.'], errorTitulo: 'Error', errorDesc: 'Premiar cuando ya volvió a la cama.' },
-            { day: 4, title: 'Manejo de accidentes', duracion: '10 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-spray-can-sparkles text-cyan-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Limpieza correcta', intro: 'Los accidentes ocurrirán. Tu reacción define el futuro.', pasos: [{ titulo: 'En el acto', desc: 'Si lo ves haciéndolo, di NO y llévalo a su zona.', emoji: '🛑' }, { titulo: 'Enzimas', desc: 'Limpia con un destructor de olores.', emoji: '🧴' }], tips: ['No limpies frente a él.'], errorTitulo: 'Error crítico', errorDesc: 'Limpiar con cloro o amoniaco.' },
-            { day: 5, title: 'Frecuencia de salidas', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-stopwatch text-orange-500 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'Ampliando el tiempo', intro: 'Aumentamos el tiempo entre cada visita al baño.', pasos: [{ titulo: 'Media hora más', desc: 'Si salían cada 2h, intenta 2.5h.', emoji: '⏰' }], tips: ['Anota a qué hora ocurren los accidentes.'], errorTitulo: 'Error', errorDesc: 'Aumentar el tiempo demasiado rápido.' },
-            { day: 6, title: 'Libertad condicionada', duracion: '15 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-door-open text-emerald-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Más espacio', intro: 'Si no hubo accidentes, ampliamos su zona de acceso en casa.', pasos: [{ titulo: 'Un cuarto a la vez', desc: 'Dale acceso a una nueva habitación.', emoji: '🏠' }], tips: ['Supervisa los primeros minutos en la nueva zona.'], errorTitulo: 'Error', errorDesc: 'Dejar puertas abiertas sin supervisión.' },
-            { day: 7, title: 'Consolidación', duracion: '10 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-medal text-amber-400 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'Hábito de hierro', intro: 'Reducimos premios físicos y mantenemos el elogio.', pasos: [{ titulo: 'Voz', desc: 'Usa "¡Bien hecho!" en lugar de comida.', emoji: '🗣️' }], tips: ['El elogio constante nunca debe desaparecer.'], errorTitulo: 'Error', errorDesc: 'Olvidarse de felicitarlo por ir bien.' }
+            { day: 1, title: 'Entiende su instinto', semanaLabel: 'Fundamentos', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-magnifying-glass text-indigo-400 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Señales previas', intro: 'Los perros no orinan "por maldad". Hoy entiendes el patrón de <DOG>.', pasos: [{ titulo: 'Observa', desc: 'Identifica señales: olfatear, dar vueltas o agacharse.', emoji: '👁️' }, { titulo: 'Tiempos clave', desc: 'Anota si lo hace tras comer, jugar o despertar.', emoji: '⏰' }, { titulo: 'La zona', desc: 'Elige UN solo lugar para el baño de forma definitiva.', emoji: '📍' }], tips: ['Cachorros salen cada 2h. Adultos aguantan 4-6h.', 'El olfato los hace volver al mismo sitio siempre.'], errorTitulo: 'Error grave', errorDesc: 'Frotarle la nariz en el accidente. Genera miedo.' },
+            { day: 2, title: 'La zona mágica', semanaLabel: 'Fundamentos', duracion: '15 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-location-dot text-rose-500 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'Creando el hábito', intro: 'Lleva a <DOG> a su zona ANTES de que tenga un accidente.', pasos: [{ titulo: 'Al despertar', desc: 'Antes de todo, llévalo directo a su zona designada.', emoji: '🌅' }, { titulo: 'Espera y calma', desc: 'Espera en silencio 5-10 min hasta que termine.', emoji: '⏳' }, { titulo: 'Premio explosivo', desc: 'Justo al terminar, dale un snack y celebra efusivamente.', emoji: '🎉' }], tips: ['Repite la rutina después de cada comida.', 'Si no hace nada, regresa adentro e intenta en 15 min.'], errorTitulo: 'Error de paciencia', errorDesc: 'Darle libertad por la casa sin supervisión.' },
+            { day: 3, title: 'Refuerzo explosivo', semanaLabel: 'Práctica', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-gift text-amber-500 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'Consolidando con premios', intro: 'El timing del premio es lo único que crea el hábito real.', pasos: [{ titulo: 'Premio exacto', desc: 'Dale un snack súper especial EXACTAMENTE al terminar.', emoji: '🍖' }, { titulo: 'Palabra clave', desc: 'Usa una palabra como "Baño" justo cuando empiece.', emoji: '🗣️' }, { titulo: 'Fiesta', desc: 'Haz que ir al baño ahí sea la mejor parte de su día.', emoji: '🥳' }], tips: ['Usa un snack que SOLO reciba por ir al baño.', 'El timing debe ser en menos de 2 segundos.'], errorTitulo: 'Error de timing', errorDesc: 'Premiar cuando el perro ya volvió a su cama.' },
+            { day: 4, title: 'Manejo de accidentes', semanaLabel: 'Práctica', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-spray-can-sparkles text-cyan-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Limpieza correcta', intro: 'Los accidentes ocurrirán. Tu reacción es lo que importa.', pasos: [{ titulo: 'Reacción en acto', desc: 'Si lo ves haciéndolo, di NO firme y llévalo a su zona.', emoji: '🛑' }, { titulo: 'Limpieza enzimática', desc: 'Limpia con un producto enzimático para matar el olor.', emoji: '🧴' }, { titulo: 'Análisis', desc: 'Piensa: ¿pasó mucho tiempo desde su última salida?', emoji: '🔍' }], tips: ['No limpies frente a él para que no crea que es un juego.', 'El estrés puede causar regresiones temporales.'], errorTitulo: 'Error tóxico', errorDesc: 'Limpiar con cloro. El amoniaco atrae al perro a orinar de nuevo ahí.' },
+            { day: 5, title: 'Ampliando el tiempo', semanaLabel: 'Avanzado', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-stopwatch text-orange-500 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'Frecuencia de salidas', intro: 'Empezamos a confiar en la vejiga de <DOG> un poco más.', pasos: [{ titulo: 'Añade 30 min', desc: 'Si salían cada 2h, intenta esperar 2.5 horas hoy.', emoji: '⏰' }, { titulo: 'Supervisión', desc: 'Vigílalo de cerca durante esos 30 minutos extra.', emoji: '👁️' }, { titulo: 'Ajuste', desc: 'Si tiene un accidente, retrocede al horario anterior.', emoji: '📉' }], tips: ['Anota a qué hora ocurren los accidentes.', 'Evita darle mucha agua justo antes de dormir.'], errorTitulo: 'Paso en falso', errorDesc: 'Aumentar el tiempo de espera demasiado rápido.' },
+            { day: 6, title: 'Libertad condicionada', semanaLabel: 'Avanzado', duracion: '20 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-door-open text-emerald-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Más espacio en casa', intro: 'Si lleva días sin accidentes, ampliamos su zona de acceso libre.', pasos: [{ titulo: 'Un cuarto a la vez', desc: 'Dale acceso libre a una nueva habitación hoy.', emoji: '🏠' }, { titulo: 'Puertas cerradas', desc: 'Mantén cerrados los cuartos con alfombras por ahora.', emoji: '🚪' }, { titulo: 'Monitoreo', desc: 'Supervisa los primeros minutos en la nueva zona.', emoji: '👀' }], tips: ['Los machos no castrados marcan más por territorio.', 'La libertad se gana de a pocos, no de golpe.'], errorTitulo: 'Libertad total', errorDesc: 'Dejarlo solo en toda la casa prematuramente.' },
+            { day: 7, title: 'Hábito de hierro', semanaLabel: 'Consolidación', duracion: '10 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-medal text-amber-400 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'El baño independiente', intro: 'Reducimos premios físicos y mantenemos el elogio para siempre.', pasos: [{ titulo: 'Menos comida', desc: 'Empieza a dar el premio de comida solo 1 de cada 2 veces.', emoji: '📉' }, { titulo: 'Elogio constante', desc: 'Usa tu voz alegre SIEMPRE que lo haga en su lugar.', emoji: '🗣️' }, { titulo: 'Rutina fija', desc: 'Mantén los horarios de salida inamovibles.', emoji: '📅' }], tips: ['El elogio verbal nunca debe desaparecer.', 'Un perro con rutina de horarios tiene digestión perfecta.'], errorTitulo: 'Olvido', errorDesc: 'Olvidarse de felicitarlo. El refuerzo mantiene el hábito vivo.' }
         ]
     },
     {
-        id: 'no-ladre',
-        name: 'No más ladridos',
-        icon: '🔇',
-        totalDays: 7,
-        desc: 'Silencio y calma',
-        unlocked: true,
+        id: 'no-ladre', name: 'No más ladridos', icon: '🔇', totalDays: 7, desc: 'Silencio y calma', unlocked: true,
         lessons: [
-            { day: 1, title: '¿Por qué ladra?', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-ear-listen text-blue-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Escucha el detonante', intro: 'Identifica si es por alerta, aburrimiento o demanda.', pasos: [{ titulo: 'Anota', desc: 'Escribe cuándo y a qué le ladra <DOG>.', emoji: '📝' }], tips: ['El aburrimiento se cura con ejercicio.'], errorTitulo: 'Error', errorDesc: 'Gritarle "Cállate" (cree que ladras con él).' },
-            { day: 2, title: 'Comando SILENCIO', duracion: '15 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-volume-xmark text-rose-500 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'El botón de mute', intro: 'Le enseñaremos qué significa la palabra Silencio.', pasos: [{ titulo: 'Provoca', desc: 'Haz que ladre (timbre).', emoji: '🔔' }, { titulo: 'Premia silencio', desc: 'Di SILENCIO. Si calla 1 segundo, premia.', emoji: '🤫' }], tips: ['Usa un premio súper oloroso.'], errorTitulo: 'Error', errorDesc: 'Repetir la palabra sin dar el premio.' },
-            { day: 3, title: 'Aumentando silencio', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-hourglass-half text-amber-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Resistencia', intro: 'Aumentamos los segundos requeridos para el premio.', pasos: [{ titulo: '5 segundos', desc: 'Exige 5 segundos de silencio antes de dar el premio.', emoji: '⏱️' }], tips: ['Mantén una postura calmada.'], errorTitulo: 'Error', errorDesc: 'Premiar justo cuando vuelve a ladrar.' },
-            { day: 4, title: 'Desensibilización', duracion: '20 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-people-arrows text-emerald-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Cambiar la emoción', intro: 'Que asocie al cartero/personas con algo bueno.', pasos: [{ titulo: 'Distancia', desc: 'Que vea a la persona a lo lejos. Si no ladra, premia.', emoji: '👀' }], tips: ['Persona aparece = llueven premios.'], errorTitulo: 'Error', errorDesc: 'Estar demasiado cerca del estímulo.' },
-            { day: 5, title: 'Acortar distancia', duracion: '20 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-compress text-indigo-400 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'Acercamiento progresivo', intro: 'Nos acercamos al detonante de los ladridos.', pasos: [{ titulo: 'Paso a paso', desc: 'Acorta la distancia 2 metros a la vez. Si ladra, retrocede.', emoji: '📏' }], tips: ['La paciencia es tu mejor arma hoy.'], errorTitulo: 'Error', errorDesc: 'Avanzar aunque el perro esté tenso.' },
-            { day: 6, title: 'Ladrido nocturno', duracion: '10 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-moon text-blue-300 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Noches de paz', intro: 'Evitemos los ladridos por ruidos en la oscuridad.', pasos: [{ titulo: 'Cansancio', desc: 'Juega intenso 1h antes de dormir.', emoji: '🏃' }, { titulo: 'Ruido blanco', desc: 'Pon música suave para bloquear sonidos de la calle.', emoji: '🎵' }], tips: ['Un perro cansado duerme de corrido.'], errorTitulo: 'Error', errorDesc: 'Ir a consolarlo si ladra de noche.' },
-            { day: 7, title: 'Control en la puerta', duracion: '15 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-door-closed text-orange-400 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'El timbre no es enemigo', intro: 'La prueba final: que no ladre como loco al abrir.', pasos: [{ titulo: 'Prueba real', desc: 'Alguien toca. Pide QUIETO y SILENCIO. Si obedece, súper premio.', emoji: '🏆' }], tips: ['Manda al perro a su cama cuando toquen.'], errorTitulo: 'Error', errorDesc: 'Abrir la puerta mientras está ladrando.' }
+            { day: 1, title: '¿Por qué ladra?', semanaLabel: 'Fundamentos', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-ear-listen text-blue-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Escucha el detonante', intro: 'No puedes callar a <DOG> sin entender POR QUÉ ladra.', pasos: [{ titulo: 'Tipo de alerta', desc: 'Ladra por instinto a ruidos o personas extrañas.', emoji: '🚨' }, { titulo: 'Aburrimiento', desc: 'Ladra cuando está solo y sin estimulación física.', emoji: '😴' }, { titulo: 'Demanda', desc: 'Ladra para pedirte atención, comida o juego.', emoji: '🙋' }], tips: ['El aburrimiento se cura con ejercicio físico intenso.', 'Anota siempre a qué hora y a qué le ladra.'], errorTitulo: 'Error común', errorDesc: 'Gritarle "¡Cállate!". Él creerá que estás ladrando junto con él.' },
+            { day: 2, title: 'Comando SILENCIO', semanaLabel: 'Fundamentos', duracion: '15 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-volume-xmark text-rose-500 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'El botón de mute', intro: 'Hoy le enseñas a <DOG> que "SILENCIO" significa dejar de ladrar.', pasos: [{ titulo: 'Provoca el ladrido', desc: 'Toca el timbre o haz que ladre controladamente.', emoji: '🔔' }, { titulo: 'El comando', desc: 'Con voz firme di SILENCIO y pon un premio en su nariz.', emoji: '🤫' }, { titulo: 'Premio rápido', desc: 'Si calla aunque sea 1 segundo, dale el premio.', emoji: '⏱️' }], tips: ['Usa un premio súper oloroso (salchicha/queso).', 'Practica solo 5 repeticiones por sesión.'], errorTitulo: 'Repetición', errorDesc: 'Decir "SILENCIO" varias veces seguidas sin dar el premio.' },
+            { day: 3, title: 'Aumentando silencio', semanaLabel: 'Práctica', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-hourglass-half text-amber-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Resistencia al ladrido', intro: 'Aumentamos los segundos requeridos para darle el premio a <DOG>.', pasos: [{ titulo: 'Pide 3 segundos', desc: 'Espera 3 segundos de silencio antes de dar el premio.', emoji: '⏳' }, { titulo: 'Sube a 5 segundos', desc: 'Si lo logra, intenta esperar 5 segundos completos.', emoji: '⏱️' }, { titulo: 'Firmeza', desc: 'Mantén una postura calmada mientras esperas.', emoji: '🧘' }], tips: ['El olor del premio en tu mano cortará su instinto de ladrar.', 'Si vuelve a ladrar, esconde el premio inmediatamente.'], errorTitulo: 'Mal timing', errorDesc: 'Premiar justo cuando soltó un pequeño ladrido de frustración.' },
+            { day: 4, title: 'Desensibilización', semanaLabel: 'Práctica', duracion: '20 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-people-arrows text-emerald-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Cambiar la emoción', intro: 'Que asocie al cartero o a extraños con lluvia de premios.', pasos: [{ titulo: 'A la distancia', desc: 'Párate a 10 metros del detonante (ej. una persona).', emoji: '👀' }, { titulo: 'Asociación', desc: 'Cuando la persona aparece (y él aún no ladra), premia.', emoji: '🍖' }, { titulo: 'Desaparición', desc: 'Cuando la persona se va, se acaban los premios.', emoji: '📉' }], tips: ['La regla es simple: Extraño = Comida deliciosa.', 'Si ya ladró, es porque estás demasiado cerca.'], errorTitulo: 'Distancia incorrecta', errorDesc: 'Estar tan cerca del estímulo que el perro no puede concentrarse.' },
+            { day: 5, title: 'Acortar distancia', semanaLabel: 'Avanzado', duracion: '20 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-compress text-indigo-400 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'Acercamiento progresivo', intro: 'Pondremos a prueba la desensibilización acercándonos al problema.', pasos: [{ titulo: 'Pasos cortos', desc: 'Acorta la distancia 2 metros hacia la persona/perro.', emoji: '📏' }, { titulo: 'Comando preventivo', desc: 'Usa SILENCIO si notas que levanta las orejas.', emoji: '🤫' }, { titulo: 'Retroceso', desc: 'Si empieza a ladrar, retrocede 3 metros y reintenta.', emoji: '🔙' }], tips: ['La paciencia es tu mejor arma en esta etapa.', 'Haz sesiones cortas para no estresar al perro.'], errorTitulo: 'Avanzar a la fuerza', errorDesc: 'Seguir avanzando aunque el perro esté tenso y ladrando.' },
+            { day: 6, title: 'Ladrido nocturno', semanaLabel: 'Avanzado', duracion: '15 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-moon text-blue-300 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Noches de paz', intro: 'Atacamos los ladridos causados por ruidos en la oscuridad o ansiedad.', pasos: [{ titulo: 'Cansancio extremo', desc: 'Juega o corre intensamente 1 hora antes de dormir.', emoji: '🏃' }, { titulo: 'Zona segura', desc: 'Asegúrate de que su cama esté lejos de ventanas ruidosas.', emoji: '🛏️' }, { titulo: 'Ruido blanco', desc: 'Pon un ventilador o música suave para bloquear sonidos.', emoji: '🎵' }], tips: ['Un perro cansado duerme de corrido sin importar los ruidos.', 'Ignora por completo si ladra para pedir atención nocturna.'], errorTitulo: 'Refuerzo nocturno', errorDesc: 'Ir a consolarlo o gritarle cuando ladra de noche (refuerza la acción).' },
+            { day: 7, title: 'Control en la puerta', semanaLabel: 'Consolidación', duracion: '15 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-door-closed text-orange-400 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'El timbre no es enemigo', intro: 'La prueba de oro: controlar la euforia cuando llega visita.', pasos: [{ titulo: 'Simulación', desc: 'Pide a un amigo que toque el timbre controladamente.', emoji: '🔔' }, { titulo: 'Comando firme', desc: 'Pide QUIETO y SILENCIO antes de tocar la perilla.', emoji: '✋' }, { titulo: 'Premio mayor', desc: 'Si se mantiene callado al abrir, dale el premio mayor (pollo).', emoji: '🏆' }], tips: ['Manda al perro a su cama cada vez que suene el timbre.', 'Repite esto hasta que asocie el timbre con ir a su cama.'], errorTitulo: 'Pérdida de control', errorDesc: 'Abrir la puerta mientras el perro está saltando y ladrando.' }
         ]
     },
     {
-        id: 'trae-pelota',
-        name: 'Trae la pelota',
-        icon: '🎾',
-        totalDays: 7,
-        desc: 'El juego de buscar',
-        unlocked: true,
+        id: 'trae-pelota', name: 'Trae la pelota', icon: '🎾', totalDays: 7, desc: 'El juego de buscar', unlocked: true,
         lessons: [
-            { day: 1, title: 'Interés por el objeto', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-star text-amber-400 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'Hacerlo deseable', intro: 'Antes de lanzar, debe QUERER la pelota.', pasos: [{ titulo: 'Emoción', desc: 'Muévela rápido. Si la toca, premio.', emoji: '✨' }], tips: ['Guárdala después. La escasez genera valor.'], errorTitulo: 'Error', errorDesc: 'Lanzarla el primer día.' },
-            { day: 2, title: 'Lanzamiento corto', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-paper-plane text-cyan-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'El primer vuelo', intro: 'Lanzamos a solo 1 metro.', pasos: [{ titulo: 'Lanza', desc: 'Que la vea volar 1 metro.', emoji: '🎯' }, { titulo: 'Llama', desc: 'Llámalo efusivamente de vuelta.', emoji: '📣' }], tips: ['Si no vuelve, usa correa larga.'], errorTitulo: 'Error', errorDesc: 'Perseguirlo para quitarle la pelota.' },
-            { day: 3, title: 'Intercambio', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-right-left text-emerald-500 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'Aprender a soltar', intro: 'Debe soltarla para que el juego siga.', pasos: [{ titulo: 'Premio por pelota', desc: 'Di SUELTA y ofrece un premio a cambio de la pelota.', emoji: '🔄' }], tips: ['El relanzamiento es su mayor premio.'], errorTitulo: 'Error', errorDesc: 'Jalonear la pelota de su boca.' },
-            { day: 4, title: 'Comando BUSCA', duracion: '10 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-magnifying-glass-location text-indigo-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Asociar palabra', intro: 'Daremos un nombre a la acción.', pasos: [{ titulo: 'Comando', desc: 'Di BUSCA justo antes de lanzarla a 2 metros.', emoji: '🔍' }], tips: ['Termina mientras aún tenga ganas.'], errorTitulo: 'Error', errorDesc: 'Aumentar distancia si no trae la de 1m.' },
-            { day: 5, title: 'Aumentar distancia', duracion: '15 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-rocket text-rose-500 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'Más lejos', intro: 'Lanzamos a 5 metros.', pasos: [{ titulo: 'Lanza lejos', desc: 'Asegúrate de que te vea lanzar y di BUSCA.', emoji: '🚀' }], tips: ['Felicita en grande cuando regrese de tan lejos.'], errorTitulo: 'Error', errorDesc: 'Lanzar hacia una zona insegura.' },
-            { day: 6, title: 'El "ESPERA"', duracion: '15 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-hand text-orange-400 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'Control de impulso', intro: 'Que no salga disparado hasta que tú lo digas.', pasos: [{ titulo: 'Espera', desc: 'Haz que se siente. Lanza la pelota. Pide que ESPERE 2 segundos antes de decir BUSCA.', emoji: '✋' }], tips: ['Si se levanta, ve a buscar la pelota tú.'], errorTitulo: 'Error', errorDesc: 'Dejarlo correr antes del comando.' },
-            { day: 7, title: 'Juego perfecto', duracion: '15 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-trophy text-amber-500 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'Circuito completo', intro: 'Sin comida, puro juego.', pasos: [{ titulo: 'Ciclo', desc: 'Sienta > Espera > Lanza > Busca > Trae > Suelta.', emoji: '🔁' }], tips: ['15 min de fetch equivale a 45 min de caminata.'], errorTitulo: 'Error', errorDesc: 'Dejarle la pelota al terminar de jugar.' }
+            { day: 1, title: 'Interés por el objeto', semanaLabel: 'Fundamentos', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-star text-amber-400 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'Hacerlo deseable', intro: 'Antes de enseñar a traer, <DOG> necesita QUERER la pelota fervientemente.', pasos: [{ titulo: 'Emoción contagiable', desc: 'Muévela rápido, ocúltala y haz que parezca un tesoro.', emoji: '✨' }, { titulo: 'Premio al tacto', desc: 'Si la toca con la nariz, premio inmediato y fiesta.', emoji: '🍖' }, { titulo: 'Sesión corta', desc: 'Termina antes de que pierda el interés (máximo 5 min).', emoji: '⏱️' }], tips: ['Guárdala siempre al terminar. La escasez genera valor.', 'Prueba pelotas que hagan sonido para más atención.'], errorTitulo: 'Quemar motivación', errorDesc: 'Lanzar la pelota lejos el primer día sin haber creado interés previo.' },
+            { day: 2, title: 'Lanzamiento corto', semanaLabel: 'Fundamentos', duracion: '15 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-paper-plane text-cyan-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'El primer vuelo', intro: 'Hoy <DOG> aprende a perseguir a muy corta distancia.', pasos: [{ titulo: 'Vuelo de 1 metro', desc: 'Lanza la pelota a solo 1 metro de distancia.', emoji: '🎯' }, { titulo: 'Llamado alegre', desc: 'Cuando la tome, llámalo efusivamente de vuelta.', emoji: '📣' }, { titulo: 'Guía si no vuelve', desc: 'Si no vuelve, usa una correa larga para guiarlo a ti.', emoji: '🔗' }], tips: ['Si trae la pelota en la boca, la celebración debe ser enorme.', 'Ponte a su nivel (agáchate) para que quiera ir hacia ti.'], errorTitulo: 'Juego de persecución', errorDesc: 'Perseguirlo por la casa para quitarle la pelota.' },
+            { day: 3, title: 'Intercambio voluntario', semanaLabel: 'Práctica', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-right-left text-emerald-500 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'Aprender a soltar', intro: 'Debe aprender que soltar la pelota es el inicio de más diversión.', pasos: [{ titulo: 'Muestra el premio', desc: 'Cuando regrese con la pelota, muestra un snack irresistible.', emoji: '🍖' }, { titulo: 'Comando SUELTA', desc: 'Di SUELTA justo cuando abra la boca para comer el premio.', emoji: '🔄' }, { titulo: 'Relanzamiento', desc: 'Da el premio y LANZA la pelota de nuevo como recompensa extra.', emoji: '🚀' }], tips: ['El relanzamiento es su mayor premio, más que la comida.', 'Si no suelta, mantén tu mano quieta con el premio hasta que lo haga.'], errorTitulo: 'Pelea de fuerza', errorDesc: 'Jalonear la pelota de su boca (creerá que juegan a tirar).' },
+            { day: 4, title: 'Comando BUSCA', semanaLabel: 'Práctica', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-magnifying-glass-location text-indigo-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Asociar palabra a acción', intro: 'Daremos un nombre oficial a la acción de ir por el objeto.', pasos: [{ titulo: 'Pre-lanzamiento', desc: 'Sostén la pelota y asegúrate de que te esté mirando.', emoji: '👀' }, { titulo: 'El Comando', desc: 'Di BUSCA con voz energética justo un segundo antes de lanzar.', emoji: '🔍' }, { titulo: 'Sube a 2 metros', desc: 'Lanza un poco más lejos hoy si los retornos han sido buenos.', emoji: '📏' }], tips: ['Termina el juego mientras <DOG> aún tenga muchísimas ganas.', 'Si no la busca, acompáñalo corriendo hacia la pelota.'], errorTitulo: 'Avanzar rápido', errorDesc: 'Aumentar la distancia drásticamente si aún no trae la pelota de 1m.' },
+            { day: 5, title: 'Aumentar distancia', semanaLabel: 'Avanzado', duracion: '20 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-rocket text-rose-500 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'Vuelos largos', intro: 'Llevamos el juego al parque o a un patio grande.', pasos: [{ titulo: 'Lanzamiento a 5m', desc: 'Asegúrate de que vea tu brazo lanzar la pelota a 5 metros.', emoji: '🚀' }, { titulo: 'Llamado exagerado', desc: 'Cuando la tome de tan lejos, llámalo con los brazos abiertos.', emoji: '🙌' }, { titulo: 'Varía el objeto', desc: 'Prueba lanzar un frisbee suave o un peluche hoy.', emoji: '🪃' }], tips: ['Felicita en grande cuando regrese de tan lejos.', 'El cansancio reduce el entusiasmo. 15 min máximo por sesión.'], errorTitulo: 'Entorno peligroso', errorDesc: 'Lanzar hacia una zona insegura o cerca de autos.' },
+            { day: 6, title: 'El comando ESPERA', semanaLabel: 'Avanzado', duracion: '15 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-hand text-orange-400 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'Control de impulso extremo', intro: 'Enseñamos a <DOG> a no salir disparado hasta que tú des la orden.', pasos: [{ titulo: 'Postura inicial', desc: 'Haz que se siente a tu lado.', emoji: '⬇️' }, { titulo: 'Amague', desc: 'Lanza la pelota. Pide que ESPERE 2 segundos quieto.', emoji: '✋' }, { titulo: 'Liberación', desc: 'Di BUSCA para liberarlo hacia la pelota.', emoji: '🏃' }], tips: ['Si se levanta antes del comando, ve tú a buscar la pelota y no lo dejes jugar.', 'Este ejercicio es excelente para su disciplina mental.'], errorTitulo: 'Prematuro', errorDesc: 'Dejarlo correr tras la pelota antes de que des el comando de liberación.' },
+            { day: 7, title: 'Juego perfecto', semanaLabel: 'Maestría', duracion: '20 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-trophy text-amber-500 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'El circuito completo', intro: 'Hoy jugamos el ciclo completo solo usando el juego como recompensa.', pasos: [{ titulo: 'Ciclo cerrado', desc: 'Sienta > Espera > Lanza > Busca > Trae > Suelta.', emoji: '🔁' }, { titulo: 'Tú controlas', desc: 'Tú decides cuándo empieza y cuándo termina el juego.', emoji: '🎬' }, { titulo: 'Cero comida', desc: 'No uses snacks hoy. El fetch se vuelve autosustentable.', emoji: '🚫' }], tips: ['15 min de fetch equivale a 45 min de caminata en gasto energético.', 'Limpia su juguete al llegar a casa.'], errorTitulo: 'Accesibilidad', errorDesc: 'Dejarle la pelota disponible todo el día después de jugar.' }
         ]
     },
     {
-        id: 'comandos',
-        name: 'Comandos básicos',
-        icon: '🐾',
-        totalDays: 7,
-        desc: 'Los esenciales',
-        unlocked: true,
+        id: 'comandos', name: 'Comandos básicos', icon: '🐾', totalDays: 7, desc: 'Los esenciales', unlocked: true,
         lessons: [
-            { day: 1, title: 'SIÉNTATE', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-arrow-down text-blue-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'El comando base', intro: 'La obediencia empieza aquí.', pasos: [{ titulo: 'Guía', desc: 'Pasa el premio sobre su cabeza para que baje el trasero.', emoji: '🍖' }, { titulo: 'Momento exacto', desc: 'Di SIÉNTATE justo cuando toque el suelo.', emoji: '✅' }], tips: ['Nunca empujes su lomo hacia abajo.'], errorTitulo: 'Error', errorDesc: 'Repetir la palabra sin que lo haga.' },
-            { day: 2, title: 'QUIETO (Inicio)', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-hand text-rose-500 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'Autocontrol', intro: 'Que se quede donde está por 2 segundos.', pasos: [{ titulo: 'Detén', desc: 'Pide Siéntate. Mano en STOP. Espera 2 seg y premia.', emoji: '✋' }], tips: ['Agrega la palabra LIBRE para terminar el ejercicio.'], errorTitulo: 'Error', errorDesc: 'Pedirle mucho tiempo el primer día.' },
-            { day: 3, title: 'VEN (Emergencia)', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-bullhorn text-amber-500 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'El salvavidas', intro: 'Debe venir feliz siempre.', pasos: [{ titulo: 'Llamado', desc: 'Agáchate, brazos abiertos y di VEN con emoción.', emoji: '📣' }], tips: ['Tú debes ser lo más divertido del parque.'], errorTitulo: 'Error', errorDesc: 'Llamarlo para bañarlo o castigarlo.' },
-            { day: 4, title: 'ECHADO', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-bed text-indigo-400 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'El comando de la calma', intro: 'Ideal para restaurantes o visitas.', pasos: [{ titulo: 'Hacia abajo', desc: 'Desde Siéntate, baja el premio al piso. Di ECHADO.', emoji: '⬇️' }], tips: ['Algunos perros tardan porque se sienten vulnerables.'], errorTitulo: 'Error', errorDesc: 'Forzarlo contra el suelo.' },
-            { day: 5, title: 'QUIETO + Distancia', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-shoe-prints text-cyan-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Alejándonos', intro: 'Aumentamos la dificultad del Quieto.', pasos: [{ titulo: 'Un paso', desc: 'Pide Quieto, da un paso atrás. Si no se mueve, regresa y premia.', emoji: '👣' }], tips: ['Si se mueve, pide menos distancia.'], errorTitulo: 'Error', errorDesc: 'Llamarlo (Ven) desde la posición de Quieto (lo confunde).' },
-            { day: 6, title: 'Distracciones', duracion: '15 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-tree text-emerald-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Fuera de casa', intro: 'Llevamos los comandos al jardín o calle tranquila.', pasos: [{ titulo: 'Repaso exterior', desc: 'Practica Sentado y Echado con ruidos de fondo.', emoji: '🌳' }], tips: ['Usa premios de mucho valor (pollo/salchicha) afuera.'], errorTitulo: 'Error', errorDesc: 'Exigir perfección sin aumentar el valor del premio.' },
-            { day: 7, title: 'El examen final', duracion: '20 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-graduation-cap text-orange-500 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'Maestría', intro: 'Integración en el mundo real.', pasos: [{ titulo: 'Puerta abierta', desc: 'Abre la puerta principal. Pide Quieto. No debe salir.', emoji: '🚪' }], tips: ['Reduce los premios, aumenta el elogio.'], errorTitulo: 'Error', errorDesc: 'Dejar de practicar una vez que aprende.' }
+            { day: 1, title: 'SIÉNTATE', semanaLabel: 'Fundamentos', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-arrow-down text-blue-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'El comando base', intro: '"Siéntate" es el inicio de toda obediencia canina.', pasos: [{ titulo: 'Guía con premio', desc: 'Pasa el premio sobre su cabeza lentamente hacia atrás.', emoji: '🍖' }, { titulo: 'Reacción natural', desc: 'Al seguir el premio, su trasero bajará automáticamente.', emoji: '⬇️' }, { titulo: 'Momento exacto', desc: 'Di SIÉNTATE justo cuando toque el suelo y premia.', emoji: '✅' }], tips: ['Nunca empujes su lomo hacia abajo. Forzarlo genera estrés.', 'Haz 5 a 8 repeticiones y termina la sesión con éxito.'], errorTitulo: 'Repetición inútil', errorDesc: 'Decir la palabra múltiples veces sin que el perro haga el movimiento.' },
+            { day: 2, title: 'QUIETO (Inicio)', semanaLabel: 'Fundamentos', duracion: '15 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-hand text-rose-500 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'El arte del autocontrol', intro: 'Hoy le enseñamos a mantenerse en posición hasta que tú lo liberes.', pasos: [{ titulo: 'Posición base', desc: 'Pide a <DOG> que se siente frente a ti.', emoji: '🐕' }, { titulo: 'Señal de STOP', desc: 'Mano abierta al frente, di QUIETO. Espera 2 segundos.', emoji: '✋' }, { titulo: 'Liberación', desc: 'Si no se mueve, di LIBRE (o ¡Vamos!) y dale su premio.', emoji: '🟢' }], tips: ['Agrega la palabra LIBRE siempre, para que sepa cuándo moverse.', 'Si se mueve, vuelve a empezar sin enojarte.'], errorTitulo: 'Exigencia', errorDesc: 'Pedirle 10 segundos el primer día y frustrarse si falla.' },
+            { day: 3, title: 'VEN (Emergencia)', semanaLabel: 'Práctica', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-bullhorn text-amber-500 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'El salvavidas', intro: 'Este comando salva vidas en la calle. Debe ser la mejor experiencia.', pasos: [{ titulo: 'Alegría total', desc: 'Agáchate, abre los brazos y di VEN con voz de fiesta.', emoji: '📣' }, { titulo: 'Premio explosivo', desc: 'Cuando llegue a ti, dale el mejor premio del día y caricias.', emoji: '🎉' }, { titulo: 'Juego de escondidas', desc: 'Llámalo desde otro cuarto para que te busque por la casa.', emoji: '🏠' }], tips: ['Tú debes ser siempre lo más divertido del mundo cuando lo llamas.', 'Usa su nombre antes del comando: "<DOG>, ¡VEN!".'], errorTitulo: 'Asociación negativa', errorDesc: 'Llamarlo para bañarlo, regañarlo o meterlo a la jaula.' },
+            { day: 4, title: 'ECHADO', semanaLabel: 'Práctica', duracion: '20 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-bed text-indigo-400 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'El comando de la calma', intro: 'Ideal para estar tranquilos en restaurantes o cuando hay visitas.', pasos: [{ titulo: 'Desde sentado', desc: 'Pídele que se siente primero.', emoji: '🪑' }, { titulo: 'Hacia abajo', desc: 'Baja el premio lentamente hasta el piso, entre sus patas.', emoji: '⬇️' }, { titulo: 'El comando', desc: 'Cuando sus codos toquen el suelo, di ECHADO y premia.', emoji: '🛌' }], tips: ['Algunos perros tardan porque se sienten vulnerables en el piso.', 'Paciencia, este comando toma más tiempo que el Siéntate.'], errorTitulo: 'Fuerza bruta', errorDesc: 'Forzarlo contra el suelo aplastándole la espalda.' },
+            { day: 5, title: 'QUIETO + Distancia', semanaLabel: 'Avanzado', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-shoe-prints text-cyan-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Alejándonos lentamente', intro: 'Aumentamos la dificultad del Quieto agregando pasos hacia atrás.', pasos: [{ titulo: 'El primer paso', desc: 'Pide Quieto y da solo UN paso hacia atrás.', emoji: '👣' }, { titulo: 'Retorno rápido', desc: 'Si no se mueve, regresa inmediatamente a él y premia.', emoji: '🚶' }, { titulo: 'Dos pasos', desc: 'Si domina un paso, intenta con dos pasos. Ve lento.', emoji: '📏' }], tips: ['Si se levanta, es porque aumentaste la distancia muy rápido.', 'No lo llames a ti, SIEMPRE regresa tú a premiarlo en su sitio.'], errorTitulo: 'Confusión de comandos', errorDesc: 'Llamarlo (Ven) desde la posición de Quieto. Debe quedarse hasta que lo liberes.' },
+            { day: 6, title: 'Distracciones', semanaLabel: 'Avanzado', duracion: '20 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-tree text-emerald-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Fuera de la zona de confort', intro: 'Llevamos los comandos al jardín o a una calle tranquila.', pasos: [{ titulo: 'Entorno nuevo', desc: 'Ve a un lugar con ruidos leves y olores nuevos.', emoji: '🌳' }, { titulo: 'Repaso total', desc: 'Practica Sentado, Quieto y Echado en este nuevo lugar.', emoji: '📋' }, { titulo: 'Sube la apuesta', desc: 'Usa premios de mayor valor (pollo/salchicha) por la distracción.', emoji: '🍗' }], tips: ['Un perro que obedece en casa es como un niño en preescolar; afuera es la universidad.', 'Empieza en lugares con poca gente.'], errorTitulo: 'Exigencia irreal', errorDesc: 'Exigir perfección en el parque sin usar premios de alto valor.' },
+            { day: 7, title: 'El examen final', semanaLabel: 'Maestría', duracion: '20 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-graduation-cap text-orange-500 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'Integración en la vida real', intro: 'Aplicamos todo en situaciones cotidianas críticas.', pasos: [{ titulo: 'Puerta abierta', desc: 'Abre la puerta de calle. Pide Quieto. No debe salir.', emoji: '🚪' }, { titulo: 'Plato de comida', desc: 'Debe Sentarse y Esperar antes de que le des permiso de comer.', emoji: '🥣' }, { titulo: 'Reducción de premios', desc: 'Premia con comida solo las tareas más difíciles.', emoji: '📉' }], tips: ['Reduce los premios gradualmente, pero aumenta el elogio verbal.', '5 minutos de práctica diaria mantienen la obediencia de por vida.'], errorTitulo: 'Abandono', errorDesc: 'Dejar de practicar una vez que aprende los comandos.' }
         ]
     },
     {
-        id: 'no-jale',
-        name: 'No jalar la correa',
-        icon: '🦮',
-        totalDays: 7,
-        desc: 'Paseos relajados',
-        unlocked: true,
+        id: 'no-jale', name: 'No jalar la correa', icon: '🦮', totalDays: 7, desc: 'Paseos relajados', unlocked: true,
         lessons: [
-            { day: 1, title: '¿Por qué jala?', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-link text-slate-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'La física del paseo', intro: 'Jalar funciona porque cedes. Hoy cambiamos la regla.', pasos: [{ titulo: 'La regla de oro', desc: 'Correa tensa = paramos. Correa floja = avanzamos.', emoji: '⚖️' }], tips: ['Usa arnés de enganche frontal.'], errorTitulo: 'Error', errorDesc: 'Dar un solo paso si la correa está tensa.' },
-            { day: 2, title: 'El Árbol', duracion: '15 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-tree text-emerald-600 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'Echar raíces', intro: 'La técnica base para detener el jalón.', pasos: [{ titulo: 'Inmóvil', desc: 'Siente tensión y párate en seco. Sé un árbol.', emoji: '🛑' }, { titulo: 'Avanza', desc: 'Cuando afloje la tensión, di "Bien" y da un paso.', emoji: '🚶' }], tips: ['Llegarás solo a la esquina. Es normal.'], errorTitulo: 'Error', errorDesc: 'Jalonear de regreso.' },
-            { day: 3, title: 'Premio en posición', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-star text-amber-400 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'Recompensar lo bueno', intro: 'No solo parar lo malo, premiar lo bueno.', pasos: [{ titulo: 'Junto a ti', desc: 'Da premios CADA 3 PASOS si va a tu lado.', emoji: '🍖' }], tips: ['Da el premio a la altura de tu rodilla izquierda.'], errorTitulo: 'Error', errorDesc: 'Premiarlo cuando está adelante tuyo.' },
-            { day: 4, title: 'Cambio de dirección', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-arrows-turn-right text-indigo-400 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'Tú eres el guía', intro: 'Evita que se adelante.', pasos: [{ titulo: 'Giro sorpresa', desc: 'Si se adelanta mucho, gira 180° de la nada.', emoji: '↩️' }], tips: ['Esto lo obliga a estar atento a ti.'], errorTitulo: 'Error', errorDesc: 'Seguir su ritmo de caminata.' },
-            { day: 5, title: 'El comando "MIRA"', duracion: '15 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-eye text-cyan-500 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'Foco en ti', intro: 'Vencer las distracciones del parque.', pasos: [{ titulo: 'Atención', desc: 'Al ver un perro, di MIRA y muestra un premio en tu cara.', emoji: '👁️' }], tips: ['Tú debes ser más interesante que el otro perro.'], errorTitulo: 'Error', errorDesc: 'Tirar de la correa cuando ve a otro perro.' },
-            { day: 6, title: 'Reducir premios', duracion: '20 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-chart-line text-emerald-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Autonomía', intro: 'Espaciamos la recompensa.', pasos: [{ titulo: 'Cada 10 pasos', desc: 'Premia solo cada 10-15 pasos en buena posición.', emoji: '📉' }], tips: ['El paseo en sí mismo se vuelve el premio.'], errorTitulo: 'Error', errorDesc: 'Dejar de premiar por completo de un día a otro.' },
-            { day: 7, title: 'Paseo de conexión', duracion: '20 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-heart text-rose-500 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'El paseo perfecto', intro: 'El disfrute mutuo en la calle.', pasos: [{ titulo: 'Paseo largo', desc: 'Integra el Árbol, premios y cambios de dirección con fluidez.', emoji: '❤️' }], tips: ['Habla con tu perro durante el paseo.'], errorTitulo: 'Error', errorDesc: 'Usar correa retráctil (enseña a jalar).' }
+            { day: 1, title: '¿Por qué jala?', semanaLabel: 'Fundamentos', duracion: '10 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-link text-slate-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'La física del paseo', intro: '<DOG> jala porque jalar le funciona para avanzar. Hoy cambiamos la regla del juego.', pasos: [{ titulo: 'La regla de oro', desc: 'Correa tensa = paramos. Correa floja = avanzamos.', emoji: '⚖️' }, { titulo: 'Equipamiento', desc: 'Usa un arnés de enganche frontal para tener control inmediato.', emoji: '🦺' }, { titulo: 'Posición ideal', desc: 'Su hombro debe estar a la altura de tu pierna izquierda.', emoji: '📍' }], tips: ['El arnés frontal cambia la dinámica física del jalón al instante.', 'Nunca uses collares de ahorcamiento.'], errorTitulo: 'Refuerzo del jalón', errorDesc: 'Dar aunque sea un solo paso mientras la correa está tensa.' },
+            { day: 2, title: 'El Árbol', semanaLabel: 'Fundamentos', duracion: '20 min', nivel: 'Fácil', heroAnimation: `<i class="fa-solid fa-tree text-emerald-600 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'Echar raíces en el suelo', intro: 'La técnica base para detener el jalón es volverte inamovible.', pasos: [{ titulo: 'Inmóvil', desc: 'Al sentir la mínima tensión, párate en seco. Eres un árbol.', emoji: '🛑' }, { titulo: 'Espera relajación', desc: 'Espera a que él voltee a verte o que la correa se afloje sola.', emoji: '⏳' }, { titulo: 'Avanza y premia', desc: 'Cuando afloje, di "Bien" y da un paso adelante.', emoji: '🚶' }], tips: ['Llegarás solo a la esquina hoy, y está perfecto.', 'La consistencia debe ser del 100% en cada paso.'], errorTitulo: 'Pelea de fuerza', errorDesc: 'Jalonear de regreso a tu perro. Tú siempre debes ser un punto fijo.' },
+            { day: 3, title: 'Premio en posición', semanaLabel: 'Práctica', duracion: '20 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-star text-amber-400 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'Recompensar lo bueno', intro: 'No basta con parar lo malo, debemos premiar activamente la posición correcta.', pasos: [{ titulo: 'Refuerzo constante', desc: 'Da premios CADA 3 PASOS si va a tu lado con la correa floja.', emoji: '🍖' }, { titulo: 'Posición del premio', desc: 'Entrega el snack exactamente a la altura de tu rodilla izquierda.', emoji: '🦵' }, { titulo: 'Elogio', desc: 'Acompaña cada premio con un "¡Muy bien, <DOG>!".', emoji: '🗣️' }], tips: ['Lleva una bolsa de premios enganchada a tu cintura para rapidez.', 'Si jala, aplica la técnica del Árbol.'], errorTitulo: 'Posición errónea', errorDesc: 'Premiarlo extendiendo tu brazo hacia adelante (le enseñas a ir adelante).' },
+            { day: 4, title: 'Cambio de dirección', semanaLabel: 'Práctica', duracion: '20 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-arrows-turn-right text-indigo-400 text-6xl anim-bounce-spin drop-shadow-md"></i>`, heroTitle: 'Tú eres el guía', intro: 'Evita que se adelante demostrándole que tú decides la ruta.', pasos: [{ titulo: 'Anticipación', desc: 'Si ves que empieza a acelerar para adelantarte...', emoji: '👀' }, { titulo: 'Giro sorpresa', desc: 'Gira 180° de la nada y camina en sentido contrario.', emoji: '↩️' }, { titulo: 'Llamado', desc: 'Haz un ruidito con la boca para que te siga al girar.', emoji: '💋' }], tips: ['Esto lo obliga a estar atento a tus pies, no al frente.', 'Haz 5 o 6 cambios de dirección por cuadra.'], errorTitulo: 'Paseo reactivo', errorDesc: 'Seguir su ritmo de caminata rápida para evitar que jale.' },
+            { day: 5, title: 'El comando "MIRA"', semanaLabel: 'Avanzado', duracion: '20 min', nivel: 'Medio', heroAnimation: `<i class="fa-solid fa-eye text-cyan-500 text-6xl anim-pulse-stop drop-shadow-md"></i>`, heroTitle: 'Foco en ti', intro: 'Vencer las distracciones del parque logrando que te mire a los ojos.', pasos: [{ titulo: 'Atención visual', desc: 'Al ver un perro a lo lejos, di MIRA.', emoji: '👁️' }, { titulo: 'Imán de comida', desc: 'Lleva un premio desde su nariz hasta tus ojos.', emoji: '🧲' }, { titulo: 'Contacto visual', desc: 'Cuando te mire a los ojos, premio inmediato.', emoji: '🏆' }], tips: ['Tú debes ser más interesante que el otro perro del parque.', 'Hazlo antes de que empiece a jalar hacia el otro perro.'], errorTitulo: 'Pelea de correas', errorDesc: 'Tirar de la correa desesperadamente cuando ve a otro perro.' },
+            { day: 6, title: 'Reducir premios', semanaLabel: 'Avanzado', duracion: '25 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-chart-line text-emerald-500 text-6xl anim-float drop-shadow-md"></i>`, heroTitle: 'Autonomía de paseo', intro: 'Espaciamos la recompensa para que el paseo sea natural.', pasos: [{ titulo: 'Aumenta pasos', desc: 'Pasa de premiar cada 3 pasos a premiar cada 10 pasos.', emoji: '📈' }, { titulo: 'Sorpresa', desc: 'Luego, premia cada 20 pasos, pero con un premio más grande.', emoji: '🎲' }, { titulo: 'Elogio', desc: 'Mantén el "Muy bien" constante aunque no haya comida.', emoji: '🗣️' }], tips: ['El paseo, el olfateo y la calle se vuelven su propio premio.', 'Si hay regresiones, vuelve a premiar cada 3 pasos.'], errorTitulo: 'Corte abrupto', errorDesc: 'Dejar de premiar por completo de un día a otro y esperar perfección.' },
+            { day: 7, title: 'Paseo de conexión', semanaLabel: 'Maestría', duracion: '30 min', nivel: 'Avanzado', heroAnimation: `<i class="fa-solid fa-heart text-rose-500 text-6xl anim-wiggle drop-shadow-md"></i>`, heroTitle: 'El paseo perfecto', intro: 'Un perro a tu lado no solo obedece, está conectado emocionalmente.', pasos: [{ titulo: 'Integración', desc: 'Integra el Árbol, premios espaciados y cambios de dirección con fluidez.', emoji: '🧩' }, { titulo: 'Tiempo de olfato', desc: 'Permítele oler los árboles. El olfato es su forma de leer las noticias.', emoji: '🌳' }, { titulo: 'Disfrute mutuo', desc: 'Relájate, respira y disfruta de la compañía de <DOG>.', emoji: '❤️' }], tips: ['Habla con tu perro durante el paseo, eso fortalece el vínculo.', 'Un buen paseo relaja la mente de ambos.'], errorTitulo: 'Herramienta errónea', errorDesc: 'Usar correa retráctil (extensible). Le enseña al perro a jalar para ganar cuerda.' }
         ]
     }
 ];
 
 // =============================================
-// ESTADO Y LOCALSTORAGE
+// LÓGICA CORE Y UX
 // =============================================
 let dogName = '';
 let currentChallenge = null;
@@ -394,12 +417,9 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('screen-hub');
 });
 
-function loadTrackerData() { const saved = localStorage.getItem(`eduDog_tracker_${dogName}`); trackerData = saved ? JSON.parse(saved) : {}; }
+function loadTrackerData() { const s = localStorage.getItem(`eduDog_tracker_${dogName}`); trackerData = s ? JSON.parse(s) : {}; }
 function saveTrackerData() { localStorage.setItem(`eduDog_tracker_${dogName}`, JSON.stringify(trackerData)); }
 
-// =============================================
-// INTERFAZ
-// =============================================
 function renderHub() {
     document.getElementById('hub-dog-name').innerText = `${dogName} 🐾`;
     let totalPassed = 0, totalDays = 0;
@@ -437,8 +457,6 @@ function renderHub() {
 
 function openChallenge(id) {
     currentChallenge = CHALLENGES.find(c => c.id === id);
-    if (!currentChallenge) return;
-
     document.getElementById('challenge-title').innerText = currentChallenge.name;
     document.getElementById('challenge-icon-big').innerText = currentChallenge.icon;
     document.getElementById('challenge-name-big').innerText = currentChallenge.name;
@@ -446,8 +464,7 @@ function openChallenge(id) {
 
     const chTracker = trackerData[currentChallenge.id] || {};
     const passedCount = Object.values(chTracker).filter(t => t.passed).length;
-    const pct = Math.round((passedCount / currentChallenge.totalDays) * 100);
-    document.getElementById('challenge-progress-bar').style.width = pct + '%';
+    document.getElementById('challenge-progress-bar').style.width = `${Math.round((passedCount/currentChallenge.totalDays)*100)}%`;
     document.getElementById('challenge-progress-text').innerText = `${passedCount}/${currentChallenge.totalDays}`;
 
     renderDays();
@@ -469,20 +486,15 @@ function renderDays() {
         const isFailed = track && !track.passed;
         const isReady = i === highestPassedDay + 1 || isFailed;
         const isLocked = !isPassed && !isReady;
-        const hasContent = !!lesson;
 
         let stateClass = isLocked ? 'day-locked' : isPassed ? 'day-done' : (isFailed ? 'day-failed' : 'day-ready');
-        let clickFn = (!isLocked && hasContent) ? `openLesson(${i})` : '';
-
-        let circleContent = i;
+        let clickFn = (!isLocked && lesson) ? `openLesson(${i})` : '';
+        let circleContent = isPassed ? '<i class="fa-solid fa-check"></i>' : isFailed ? '<i class="fa-solid fa-rotate-right"></i>' : i;
         let circleClass = isPassed ? 'bg-emerald-500 text-white' : isFailed ? 'bg-rose-500 text-white' : isReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400';
-        if (isPassed) circleContent = '<i class="fa-solid fa-check"></i>';
-        else if (isFailed) circleContent = '<i class="fa-solid fa-rotate-right"></i>';
-
-        const subtitle = isPassed ? `Completado ✅` : isFailed ? `Requiere reintento 🔴` : isReady ? `⏱ ${lesson ? lesson.duracion : '10 min'} · Toca para jugar` : 'Bloqueado';
+        let subtitle = isPassed ? `Completado ✅` : isFailed ? `Requiere reintento 🔴` : isReady ? `⏱ ${lesson.duracion} · Toca para entrenar` : 'Bloqueado';
 
         container.innerHTML += `
-            <div onclick="${clickFn}" class="day-item bg-white rounded-2xl border-2 border-slate-100 p-4 flex items-center gap-3 ${stateClass} ${(!isLocked && hasContent) ? 'cursor-pointer' : ''}">
+            <div onclick="${clickFn}" class="day-item bg-white rounded-2xl border-2 border-slate-100 p-4 flex items-center gap-3 ${stateClass} ${!isLocked ? 'cursor-pointer' : ''}">
                 <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shrink-0 shadow-sm ${circleClass}">${circleContent}</div>
                 <div class="flex-1 min-w-0">
                     <h4 class="font-extrabold text-slate-900 text-sm leading-tight">${lesson ? lesson.title : `Día ${i}`}</h4>
@@ -495,78 +507,67 @@ function renderDays() {
 
 function openLesson(dayNum, keepScroll = false) {
     const lesson = currentChallenge.lessons.find(l => l.day === dayNum);
-    if (!lesson) return;
     currentLessonDay = dayNum;
-
     document.getElementById('lesson-header-title').innerText = `Día ${dayNum} · ${lesson.title}`;
+    document.getElementById('lesson-header-sub').innerText = lesson.semanaLabel;
+
     const chTracker = trackerData[currentChallenge.id] || {};
     const trackInfo = chTracker[dayNum];
     const replace = (str) => str.replace(/<DOG>/g, `<strong class="brand-text">${dogName}</strong>`);
     
     let html = '';
-    // Hero Animation (SVG / FontAwesome)
-    if (lesson.heroAnimation) {
-        html += `
-            <div class="bg-gradient-to-br from-emerald-50 to-teal-100 rounded-[1.5rem] p-6 mb-5 flex flex-col items-center justify-center shadow-inner border border-emerald-100">
-                <div class="mb-4 h-20 flex items-center justify-center">${lesson.heroAnimation}</div>
-                <p class="text-emerald-800 font-extrabold text-sm text-center">${lesson.heroTitle}</p>
-            </div>`;
-    }
-
-    html += `<div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm mt-2"><p class="text-slate-600 text-sm leading-relaxed font-medium">${replace(lesson.intro)}</p></div>`;
     
-    // Pasos
-    html += `<div class="mt-5"><h3 class="font-extrabold text-slate-900 text-base mb-3">📋 Pasos de hoy</h3><div class="space-y-3">`;
+    // HERO & ETIQUETAS
+    html += `
+        <div class="bg-gradient-to-br from-emerald-50 to-teal-100 rounded-[1.5rem] p-6 flex flex-col items-center justify-center shadow-inner border border-emerald-100">
+            <div class="mb-4 h-20 flex items-center justify-center">${lesson.heroAnimation}</div>
+            <p class="text-emerald-800 font-extrabold text-sm text-center leading-tight">${lesson.heroTitle}</p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap mt-4">
+            <span class="bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full border border-emerald-100"><i class="fa-solid fa-stopwatch mr-1"></i> ${lesson.duracion}</span>
+            <span class="bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full"><i class="fa-solid fa-bullseye text-rose-500 mr-1"></i> ${lesson.nivel}</span>
+            <span class="bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full"><i class="fa-regular fa-calendar text-orange-500 mr-1"></i> ${lesson.semanaLabel}</span>
+        </div>`;
+
+    // INTRO & PASOS
+    html += `<div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm mt-5"><p class="text-slate-600 text-sm leading-relaxed font-medium">${replace(lesson.intro)}</p></div>`;
+    html += `<div class="mt-5"><h3 class="font-extrabold text-slate-900 text-base mb-3"><i class="fa-solid fa-clipboard-list text-emerald-600 mr-1"></i> Pasos de hoy</h3><div class="space-y-3">`;
     lesson.pasos.forEach((paso, idx) => {
         html += `<div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-start gap-3"><div class="step-badge shrink-0 mt-0.5 shadow-sm">${idx + 1}</div><div class="flex-1"><h4 class="font-extrabold text-slate-900 text-sm mb-1">${paso.emoji} ${paso.titulo}</h4><p class="text-slate-500 text-xs leading-relaxed">${replace(paso.desc)}</p></div></div>`;
     });
     html += '</div></div>';
 
-    // Tip & Error
+    // TIPS PRO MULTIPLES
+    html += `<div class="mt-5"><h3 class="font-extrabold text-slate-900 text-base mb-3"><i class="fa-regular fa-lightbulb text-amber-500 mr-1"></i> Tips Pro</h3><div class="space-y-2">`;
+    lesson.tips.forEach(tip => {
+        html += `<div class="tip-card bg-emerald-50 rounded-2xl p-4 shadow-sm"><p class="text-emerald-800 text-xs font-medium leading-relaxed">${replace(tip)}</p></div>`;
+    });
+    html += `</div></div>`;
+
+    // ERROR COMÚN
     html += `
-        <div class="mt-5">
-            <h3 class="font-extrabold text-slate-900 text-base mb-3">💡 Tip Pro</h3>
-            <div class="tip-card bg-emerald-50 rounded-2xl p-4 shadow-sm"><p class="text-emerald-800 text-xs font-medium leading-relaxed">${replace(lesson.tips[0])}</p></div>
-        </div>
-        <div class="error-card bg-rose-50 rounded-2xl p-4 mt-5 shadow-sm flex items-start gap-2">
-            <span class="text-lg shrink-0">⚠️</span>
+        <div class="error-card bg-rose-50 rounded-2xl p-4 mt-5 shadow-sm flex items-start gap-3">
+            <span class="text-xl shrink-0 mt-0.5"><i class="fa-solid fa-triangle-exclamation text-rose-500"></i></span>
             <div><h4 class="font-extrabold text-rose-700 text-sm mb-1">${lesson.errorTitulo}</h4><p class="text-rose-600 text-xs leading-relaxed">${replace(lesson.errorDesc)}</p></div>
         </div>`;
 
-    // Botones de acción inferiores
-    if (trackInfo) {
-        if (trackInfo.passed) {
-            const resultLabel = trackInfo.result === 'excelente' ? 'Excelente' : 'Bien hecho';
-            html += `
-                <div class="bg-emerald-50 rounded-2xl p-5 border-2 border-emerald-200 text-center mt-6 shadow-sm">
-                    <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-500 text-xl mx-auto mb-2"><i class="fa-solid fa-check"></i></div>
-                    <p class="text-emerald-800 font-extrabold text-base">Día completado: ${resultLabel}</p>
-                    <p class="text-emerald-600 text-xs mt-1 font-medium mb-4">¡${dogName} está avanzando! 🐾</p>
-                    <button id="btn-back-lesson-bottom" onclick="showScreen('screen-challenge')" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-md">
-                        <i class="fa-solid fa-arrow-left text-xs"></i> Volver al desafío
-                    </button>
-                </div>`;
-        } else {
-            // Reprobado (Difícil)
-            html += `
-                <div class="bg-rose-50 rounded-2xl p-5 border-2 border-rose-200 text-center mt-6 shadow-sm">
-                    <div class="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center text-rose-500 text-xl mx-auto mb-2"><i class="fa-solid fa-rotate-right"></i></div>
-                    <p class="text-rose-800 font-extrabold text-base">Lección marcada como Difícil</p>
-                    <p class="text-rose-600 text-xs mt-1 font-medium mb-5">Toma un respiro. Repetir la lección es clave para que ${dogName} aprenda sin estrés.</p>
-                    <div class="space-y-3">
-                        <button onclick="showScreen('screen-challenge')" class="w-full bg-white text-rose-700 border border-rose-200 font-bold py-3 rounded-xl text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-arrow-left text-xs"></i> Volver al panel para reintentar
-                        </button>
-                        <button onclick="forcePass(${dayNum})" class="w-full text-slate-500 font-bold py-2 text-xs active:scale-95 transition-all">
-                            Forzar avance al siguiente día <i class="fa-solid fa-forward-step ml-1"></i>
-                        </button>
-                    </div>
-                </div>`;
-        }
+    // LÓGICA DE BOTONES Y ESTADOS
+    if (trackInfo && trackInfo.passed) {
+        // Pantalla Verde (Éxito)
+        const resultLabel = trackInfo.result === 'excelente' ? '🟢 Excelente' : '🟡 Bien hecho';
+        html += `
+            <div class="bg-emerald-50 rounded-2xl p-5 border-2 border-emerald-200 text-center mt-6 shadow-sm">
+                <p class="text-emerald-800 font-extrabold text-base mb-1">✅ Día completado — ${resultLabel}</p>
+                <p class="text-emerald-600 text-xs font-medium mb-4">¡${dogName} está avanzando! 🐾</p>
+                <button id="btn-back-lesson-bottom" onclick="showScreen('screen-challenge')" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl text-sm active:scale-95 transition-all shadow-md">
+                    <i class="fa-solid fa-arrow-left text-xs mr-2"></i> Volver al desafío
+                </button>
+            </div>`;
     } else {
+        // Pantalla Normal para reintentar o completar
         html += `
             <div class="mt-8">
-                <button onclick="openCompleteModal()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl transition-all text-base shadow-[0_8px_20px_-6px_rgba(5,150,105,0.5)] active:scale-95 flex items-center justify-center gap-2">
+                <button id="btn-complete-main" onclick="openCompleteModal()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl transition-all text-base shadow-[0_8px_20px_-6px_rgba(5,150,105,0.5)] active:scale-95 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-clipboard-check text-lg"></i> ¡Completar Día ${dayNum}!
                 </button>
             </div>`;
@@ -575,7 +576,7 @@ function openLesson(dayNum, keepScroll = false) {
     html += '<div class="h-4"></div>';
     document.getElementById('lesson-content').innerHTML = html;
     
-    // Control de Scroll UX
+    // Control de Scroll UX: Arriba al entrar, se mantiene al guardar.
     showScreen('screen-lesson');
     if (!keepScroll) { document.getElementById('screen-lesson').scrollTop = 0; }
 }
@@ -591,46 +592,58 @@ function saveDay(result) {
     closeModal();
 
     if (passed) {
+        // Victoria o Día Normal
         const passedCount = Object.values(trackerData[currentChallenge.id]).filter(t => t.passed).length;
         if (passedCount >= currentChallenge.totalDays) {
             showScreen('screen-victory');
         } else {
             showToast(`¡Buen trabajo con ${dogName}!`);
-            openLesson(currentLessonDay, true); // keepScroll = true
-            renderDays();
-            renderHub();
-
-            // Auto-redirect de 3 segundos
-            const backBtn = document.getElementById('btn-back-lesson-bottom');
-            if (backBtn) {
-                let countdown = 3;
-                backBtn.innerHTML = `<i class="fa-solid fa-arrow-left text-xs"></i> Volver al desafío (${countdown}s)`;
-                const timer = setInterval(() => {
-                    countdown--;
-                    if (countdown <= 0) {
-                        clearInterval(timer);
-                        if (document.getElementById('screen-lesson').classList.contains('active')) showScreen('screen-challenge');
-                    } else {
-                        backBtn.innerHTML = `<i class="fa-solid fa-arrow-left text-xs"></i> Volver al desafío (${countdown}s)`;
-                    }
-                }, 1000);
-            }
+            openLesson(currentLessonDay, true); // Recarga para mostrar cuadro verde y dejar scroll abajo
+            startRedirectCountdown('btn-back-lesson-bottom');
         }
     } else {
+        // Marcó Difícil (Reintento)
         showToast(`Día guardado. ¡Paciencia, ustedes pueden!`, 'error');
-        openLesson(currentLessonDay, true); // keepScroll = true
-        renderDays();
-        renderHub();
+        // Convertimos el botón de completar en una cuenta regresiva para devolverlo al panel naturalmente
+        const btn = document.getElementById('btn-complete-main');
+        if (btn) {
+            btn.className = "w-full bg-slate-200 text-slate-600 font-bold py-4 rounded-2xl text-base flex items-center justify-center gap-2";
+            let countdown = 3;
+            btn.innerHTML = `<i class="fa-solid fa-rotate-right"></i> Volviendo al panel en ${countdown}s...`;
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    showScreen('screen-challenge');
+                    renderDays();
+                    renderHub();
+                } else {
+                    btn.innerHTML = `<i class="fa-solid fa-rotate-right"></i> Volviendo al panel en ${countdown}s...`;
+                }
+            }, 1000);
+        }
     }
 }
 
-function forcePass(dayNum) {
-    trackerData[currentChallenge.id][dayNum].passed = true;
-    saveTrackerData();
-    showToast('Avance forzado. ¡Sigue adelante!');
-    openLesson(dayNum, true); // keepScroll = true
-    renderDays();
-    renderHub();
+function startRedirectCountdown(btnId) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+        let countdown = 3;
+        btn.innerHTML = `<i class="fa-solid fa-arrow-left text-xs mr-2"></i> Volver al desafío (${countdown}s)`;
+        const timer = setInterval(() => {
+            countdown--;
+            if (countdown <= 0) {
+                clearInterval(timer);
+                if (document.getElementById('screen-lesson').classList.contains('active')) {
+                    showScreen('screen-challenge');
+                    renderDays();
+                    renderHub();
+                }
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-arrow-left text-xs mr-2"></i> Volver al desafío (${countdown}s)`;
+            }
+        }, 1000);
+    }
 }
 
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }

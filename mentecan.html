@@ -178,15 +178,15 @@
     <!-- ===================== SCREEN: CHALLENGE DETAIL ===================== -->
     <section id="screen-challenge" class="screen bg-[#f8fafc]">
         <!-- Header -->
-        <div class="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-5 py-4 flex items-center justify-between z-30">
-            <button onclick="showScreen('screen-hub')" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-600">
+        <div class="sticky top-0 bg-emerald-600 text-white border-b border-emerald-700 px-5 py-4 flex items-center justify-between z-30 shadow-md">
+            <button onclick="showScreen('screen-hub')" class="w-9 h-9 bg-emerald-700 rounded-full flex items-center justify-center text-white">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
             </button>
             <div class="text-center">
-                <h2 class="font-extrabold text-slate-900 text-sm" id="challenge-title">Desafío</h2>
-                <p class="text-[10px] text-slate-400 font-bold" id="challenge-subtitle">21 días</p>
+                <h2 class="font-extrabold text-white text-sm" id="challenge-title">Desafío</h2>
+                <p class="text-[10px] text-emerald-200 font-bold" id="challenge-subtitle">21 días</p>
             </div>
-            <a href="index.html" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500">
+            <a href="index.html" class="w-9 h-9 bg-emerald-700 rounded-full flex items-center justify-center text-white">
                 <i class="fa-solid fa-house text-sm"></i>
             </a>
         </div>
@@ -217,15 +217,15 @@
     <!-- ===================== SCREEN: LESSON ===================== -->
     <section id="screen-lesson" class="screen bg-[#f8fafc]">
         <!-- Header -->
-        <div class="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-5 py-4 flex items-center justify-between z-30">
-            <button id="btn-back-lesson" onclick="showScreen('screen-challenge')" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-600">
+        <div class="sticky top-0 bg-emerald-600 text-white border-b border-emerald-700 px-5 py-4 flex items-center justify-between z-30 shadow-md">
+            <button id="btn-back-lesson" onclick="showScreen('screen-challenge')" class="w-9 h-9 bg-emerald-700 rounded-full flex items-center justify-center text-white">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
             </button>
             <div class="text-center">
-                <h2 class="font-extrabold text-slate-900 text-sm" id="lesson-header-title">Día 1</h2>
-                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest" id="lesson-header-sub">Semana 1 · Fundamentos</p>
+                <h2 class="font-extrabold text-white text-sm" id="lesson-header-title">Día 1</h2>
+                <p class="text-[10px] font-bold text-emerald-200 uppercase tracking-widest" id="lesson-header-sub">Semana 1 · Fundamentos</p>
             </div>
-            <a href="index.html" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500">
+            <a href="index.html" class="w-9 h-9 bg-emerald-700 rounded-full flex items-center justify-center text-white">
                 <i class="fa-solid fa-house text-sm"></i>
             </a>
         </div>
@@ -290,6 +290,7 @@ const CHALLENGES = [
         color: 'emerald',
         desc: 'Elimina el hábito de morder en 3 semanas',
         semanas: ['Fundamentos', 'Corrección', 'Consolidar'],
+        unlocked: true,
         lessons: [
             // SEMANA 1 — FUNDAMENTOS
             {
@@ -398,6 +399,56 @@ const CHALLENGES = [
                 errorDesc: 'Castigar después de encontrar algo mordido. <DOG> no conecta el castigo tardío con la acción pasada.',
             },
         ]
+    },
+    {
+        id: 'bano',
+        name: 'Baño perfecto',
+        icon: '🚽',
+        totalDays: 14,
+        unlocked: false,
+        desc: 'Enseña a tu perro dónde hacer sus necesidades',
+        semanas: ['Fundamentos', 'Consolidar'],
+        lessons: []
+    },
+    {
+        id: 'no-ladre',
+        name: 'No más ladridos',
+        icon: '🔇',
+        totalDays: 14,
+        unlocked: false,
+        desc: 'Controla los ladridos excesivos en 2 semanas',
+        semanas: ['Fundamentos', 'Consolidar'],
+        lessons: []
+    },
+    {
+        id: 'trae-pelota',
+        name: 'Trae la pelota',
+        icon: '🎾',
+        totalDays: 7,
+        unlocked: false,
+        desc: 'Aprende el juego de buscar y traer en 7 días',
+        semanas: ['Aprendizaje'],
+        lessons: []
+    },
+    {
+        id: 'comandos',
+        name: 'Comandos básicos',
+        icon: '🐾',
+        totalDays: 21,
+        unlocked: false,
+        desc: 'Siéntate, quieto, ven — domínalos todos',
+        semanas: ['Fundamentos', 'Práctica', 'Consolidar'],
+        lessons: []
+    },
+    {
+        id: 'no-jale',
+        name: 'No jalar la correa',
+        icon: '🦮',
+        totalDays: 14,
+        unlocked: false,
+        desc: 'Paseos tranquilos sin que te arrastre',
+        semanas: ['Fundamentos', 'Consolidar'],
+        lessons: []
     }
 ];
 
@@ -469,23 +520,42 @@ function renderHub() {
         const chTracker = trackerData[ch.id] || {};
         const completed = Object.keys(chTracker).length;
         const pctCh = Math.round((completed / ch.totalDays) * 100);
-        container.innerHTML += `
-            <div onclick="openChallenge('${ch.id}')" class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm active:scale-[0.98] transition-all cursor-pointer">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 brand-bg rounded-2xl flex items-center justify-center text-xl shrink-0">${ch.icon}</div>
-                    <div class="flex-1 min-w-0">
-                        <h4 class="font-extrabold text-slate-900 text-sm leading-tight">${ch.name}</h4>
-                        <p class="text-[10px] text-slate-400 font-medium mt-0.5">${ch.totalDays} días · ${ch.desc}</p>
-                        <div class="flex items-center gap-2 mt-2">
-                            <div class="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                                <div class="bg-emerald-500 h-full rounded-full transition-all" style="width:${pctCh}%"></div>
+        const isUnlocked = ch.unlocked !== false;
+
+        if (isUnlocked) {
+            container.innerHTML += `
+                <div onclick="openChallenge('${ch.id}')" class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm active:scale-[0.98] transition-all cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 brand-bg rounded-2xl flex items-center justify-center text-xl shrink-0">${ch.icon}</div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-extrabold text-slate-900 text-sm leading-tight">${ch.name}</h4>
+                            <p class="text-[10px] text-slate-400 font-medium mt-0.5">${ch.totalDays} días · ${ch.desc}</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <div class="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                    <div class="bg-emerald-500 h-full rounded-full transition-all" style="width:${pctCh}%"></div>
+                                </div>
+                                <span class="text-[10px] font-black text-slate-400">${completed}/${ch.totalDays}</span>
                             </div>
-                            <span class="text-[10px] font-black text-slate-400">${completed}/${ch.totalDays}</span>
                         </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
                     </div>
-                    <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
-                </div>
-            </div>`;
+                </div>`;
+        } else {
+            container.innerHTML += `
+                <div onclick="openChallengeUpsell('${ch.name}')" class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm active:scale-[0.98] transition-all cursor-pointer opacity-75">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-xl shrink-0">${ch.icon}</div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-extrabold text-slate-500 text-sm leading-tight">${ch.name}</h4>
+                            <p class="text-[10px] text-slate-400 font-medium mt-0.5">${ch.totalDays} días · ${ch.desc}</p>
+                            <div class="flex items-center gap-1 mt-2">
+                                <span class="bg-slate-100 text-slate-400 text-[10px] font-black px-2 py-0.5 rounded-full">🔒 Bloqueado</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-lock text-slate-300 text-xs"></i>
+                    </div>
+                </div>`;
+        }
     });
 }
 
@@ -743,6 +813,18 @@ function saveDay(result) {
             }, 1000);
         }
     }
+}
+
+// =============================================
+// UPSELL DESAFÍO BLOQUEADO
+// =============================================
+function openChallengeUpsell(challengeName) {
+    const session = JSON.parse(localStorage.getItem('eduDogSession'));
+    const phone = session ? session.phone : '';
+    const isPeru = phone.startsWith('51');
+    const priceText = isPeru ? 'S/ 15' : '$4.99 USD';
+    const msg = `Hola 👋\n\nQuiero desbloquear el desafío *${challengeName}* de MenteCan Vital por ${priceText}.\n\n👤 Mi cuenta: +${phone}`;
+    window.open(`https://wa.me/51932335202?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 // =============================================

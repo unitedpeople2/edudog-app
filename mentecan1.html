@@ -20,70 +20,45 @@
         .screen {
             display: none; flex: 1; flex-direction: column;
             animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow-y: auto; background-color: #f8fafc;
+            overflow-y: auto; overflow-x: hidden; background-color: #f8fafc;
         }
         .screen.active { display: flex; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Estética Premium Mentecan Vital - Degradado Kira */
+        /* Estética Premium Mentecan Vital */
         .brand-gradient { 
             background: linear-gradient(160deg, #0f3041 0%, #124c5c 30%, #108560 60%, #10b981 100%); 
             position: relative; overflow: hidden; 
         }
-        /* Formas degradadas suaves superpuestas - premium */
         .brand-gradient::before {
             content: ''; position: absolute; top: -30%; left: -40%; width: 100%; height: 100%;
             background: radial-gradient(circle, rgba(16, 185, 129, 0.5) 0%, rgba(16, 185, 129, 0) 70%);
             border-radius: 50%; z-index: 1; transform: scale(1.4);
         }
-        .brand-gradient::after {
-            content: ''; position: absolute; bottom: -30%; right: -40%; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, rgba(16, 185, 129, 0) 70%);
-            border-radius: 50%; z-index: 1; transform: scale(1.2);
-        }
 
-        /* Pestañas */
-        .tab-btn { padding-bottom: 0.75rem; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: 800; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-        .tab-btn.active { border-color: #10b981; color: #108560; }
-        
-        /* Ajuste de z-index para pestañas pegajosas */
-        .sticky-tabs { position: sticky; top: 0; background-color: #f8fafc; z-index: 30; }
+        /* Pestañas (Idénticas a la captura) */
+        .sticky-tabs { position: sticky; top: 0; background-color: #ffffff; z-index: 30; border-bottom: 1px solid #f1f5f9; }
+        .tab-btn { padding-bottom: 0.8rem; padding-top: 0.8rem; font-weight: 800; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; transition: color 0.2s; position: relative; }
+        .tab-btn.active { color: #059669; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 10%; width: 80%; height: 3px; background-color: #059669; border-radius: 3px 3px 0 0; }
 
-        /* REPRODUCTOR Y TIMER (BLOB) */
+        /* REPRODUCTOR Y TIMER */
         .blob-container {
-            position: relative; width: 160px; height: 160px; 
-            margin: 15px auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; width: 150px; height: 150px; 
+            margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .blob-shape {
-            position: absolute; inset: 0;
-            background: rgba(16, 185, 129, 0.08);
-            border: 1.5px solid rgba(16, 185, 129, 0.15);
-            border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
-            transition: all 1s ease-in-out;
-            z-index: 1;
+            position: absolute; inset: 0; background: rgba(16, 185, 129, 0.08); border: 1.5px solid rgba(16, 185, 129, 0.15); border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transition: all 1s ease-in-out; z-index: 1;
         }
-        .active-session .blob-shape {
-            animation: breathe 4s ease-in-out infinite;
-            background: rgba(16, 185, 129, 0.15);
-            border-color: #10b981;
-        }
-        @keyframes breathe {
-            0%, 100% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: scale(1); }
-            50% { border-radius: 58% 42% 38% 62% / 55% 55% 45% 45%; transform: scale(1.06); }
-        }
-        .counter-text { position: relative; z-index: 10; font-size: 2.5rem; font-weight: 900; color: #0f3041; letter-spacing: -1.5px; line-height: 1; }
-        .action-trigger { position: relative; z-index: 10; margin-top: 8px; width: 45px; height: 45px; background: #108560; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 12px -2px rgba(16, 133, 96, 0.3); cursor: pointer; transition: all 0.2s; }
-        .action-trigger:active { transform: scale(0.95); box-shadow: 0 4px 6px -1px rgba(16, 133, 96, 0.2); }
-
-        /* Tags e Iconos */
-        .tag { background: #f1f5f9; color: #475569; font-size: 10px; font-weight: 800; padding: 5px 12px; border-radius: 20px; text-transform: uppercase; display: flex; align-items: center; gap: 5px; border: 1px solid #e2e8f0; }
-        .step-badge { width: 24px; height: 24px; border-radius: 50%; background: #108560; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; flex-shrink: 0; }
+        .active-session .blob-shape { animation: breathe 4s ease-in-out infinite; background: rgba(16, 185, 129, 0.15); border-color: #10b981; }
+        @keyframes breathe { 0%, 100% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: scale(1); } 50% { border-radius: 58% 42% 38% 62% / 55% 55% 45% 45%; transform: scale(1.06); } }
         
-        /* Estados de los días */
-        .day-item.failed { border-color: #fca5a5 !important; background: #fff1f2 !important; }
-        .day-item.failed h4 { color: #b91c1c; }
-        .day-item.failed .status-icon { color: #ef4444; }
+        .action-trigger { position: relative; z-index: 10; width: 48px; height: 48px; background: #108560; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 12px -2px rgba(16, 133, 96, 0.3); cursor: pointer; transition: transform 0.2s; font-size: 1.2rem; }
+        .action-trigger:active { transform: scale(0.92); }
+
+        /* Pasos de Hoy (Idéntico a captura) */
+        .step-circle { width: 30px; height: 30px; border-radius: 50%; background: #108560; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; box-shadow: 0 2px 5px rgba(16, 133, 96, 0.4); }
 
         .modal-bg { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); }
     </style>
@@ -97,8 +72,8 @@
 
 <div class="app-container md:rounded-[2.5rem] md:border-[8px] md:border-slate-900 shadow-2xl">
 
-    <div id="app-header" class="brand-gradient text-white px-5 py-4 flex items-center justify-between z-40 shrink-0 sticky top-0 shadow-md">
-        <button id="btn-header-back" onclick="goBack()" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all">
+    <div id="app-header" class="brand-gradient text-white px-5 py-4 flex items-center justify-between z-50 relative shrink-0 shadow-md">
+        <button id="btn-header-back" onclick="goBack()" class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition-all cursor-pointer">
             <i class="fa-solid fa-chevron-left"></i>
         </button>
         
@@ -106,7 +81,7 @@
             <h2 class="font-black text-base tracking-tight flex justify-center items-center gap-2">Mentecan Vital</h2>
         </div>
         
-        <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all">
+        <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition-all cursor-pointer">
             <i class="fa-solid fa-house"></i>
         </button>
     </div>
@@ -145,17 +120,17 @@
         <div id="days-container" class="px-6 py-4 space-y-3 pb-8"></div>
     </section>
 
-    <section id="screen-lesson" class="screen">
-        <div class="px-6 py-6" id="lesson-content"></div>
+    <section id="screen-lesson" class="screen relative">
+        <div id="lesson-content" class="pb-10"></div>
     </section>
 
     <div id="modal-complete" class="hidden absolute inset-0 z-50 modal-bg flex flex-col justify-end">
         <div class="bg-white rounded-t-[2.5rem] p-8 shadow-2xl">
             <div class="text-center mb-8"><div class="text-5xl mb-3">✨</div><h3 class="text-2xl font-black text-slate-900 tracking-tight">¿Cómo fue la sesión?</h3><p class="text-slate-400 text-sm font-medium mt-1">Tu honestidad garantiza un aprendizaje real.</p></div>
             <div class="space-y-3">
-                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-800 p-5 rounded-3xl font-black text-sm border border-emerald-100 flex items-center justify-between active:scale-95 transition-all shadow-sm"><span><i class="fa-star mr-2 text-emerald-600"></i> ¡Excelente progreso!</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
-                <button onclick="saveDay('bien')" class="w-full bg-amber-50 text-amber-800 p-5 rounded-3xl font-black text-sm border border-amber-100 flex items-center justify-between active:scale-95 transition-all shadow-sm"><span><i class="fa-thumbs-up mr-2 text-amber-500"></i> Estuvo bien</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
-                <button onclick="saveDay('dificil')" class="w-full bg-rose-50 text-rose-800 p-5 rounded-3xl font-black text-sm border border-rose-100 flex items-center justify-between active:scale-95 transition-all shadow-sm"><span><i class="fa-triangle-exclamation mr-2 text-rose-600"></i> Difícil - Reintentar</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
+                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-800 p-5 rounded-3xl font-black text-sm border border-emerald-100 flex items-center justify-between active:scale-95 transition-all shadow-sm"><span><i class="fa-solid fa-star mr-2 text-emerald-600"></i> ¡Excelente progreso!</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
+                <button onclick="saveDay('bien')" class="w-full bg-amber-50 text-amber-800 p-5 rounded-3xl font-black text-sm border border-amber-100 flex items-center justify-between active:scale-95 transition-all shadow-sm"><span><i class="fa-solid fa-thumbs-up mr-2 text-amber-500"></i> Estuvo bien</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
+                <button onclick="saveDay('dificil')" class="w-full bg-rose-50 text-rose-800 p-5 rounded-3xl font-black text-sm border border-rose-100 flex items-center justify-between active:scale-95 transition-all shadow-sm"><span><i class="fa-solid fa-triangle-exclamation mr-2 text-rose-600"></i> Difícil - Reintentar</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
                 <button onclick="closeModal()" class="w-full text-slate-400 py-4 font-bold text-sm active:scale-95 transition-transform">Cancelar</button>
             </div>
         </div>
@@ -164,26 +139,82 @@
 
 <script>
 // =============================================
-// CONTENIDO COMPLETO
+// CONTENIDO PREMIUM ALTAMENTE PERSUASIVO
 // =============================================
 const CHALLENGES = [
     {
         id: 'no-muerda', name: 'No muerda las cosas', icon: '🦷', totalDays: 7, desc: 'Educa su boca y protege tu hogar',
-        introAchieve: 'Transformaremos su instinto de morder en un comportamiento controlado y seguro, protegiendo tu hogar y mejorando tu comunicación.',
+        introAchieve: 'Transformaremos su instinto destructivo en un comportamiento controlado y seguro. Salva tus zapatos, protege tu hogar y crea un vínculo de respeto absoluto.',
         lessons: [
-            { day: 1, title: 'El código secreto', semanaLabel: 'Fase 1: Diagnóstico', duracion: '10 min', nivel: 'Fácil', categoria: 'Psicología', icon: 'fa-magnifying-glass', teoria: { audioSeconds: 30, intro: "¿Por qué muerde todo? 🧠", cuerpo: "Tu peludo no es rebelde, es curioso. Al no tener manos, usa su boca para 'tocar' y descubrir el mundo.", puntosClave: ["Exploración: Su boca es su mano.", "Instinto: Morder alivia el estrés.", "Misión: Identifica sus texturas favoritas."] }, practica: { timerSeconds: 600, pasos: [{ titulo: 'Observa sin reaccionar', desc: 'Nota qué muerde <DOG> y en qué momento.', emoji: '🔍', icon: 'fa-magnifying-glass' }, { titulo: 'Anota el patrón', desc: '¿Es madera, plástico o tela?', emoji: '📝', icon: 'fa-pen-to-square' }, { titulo: 'Prepara el espacio', desc: 'Retira objetos de su zona por hoy.', emoji: '🏠', icon: 'fa-house-circle-check' }]}, tips: ["Hoy no digas NO, solo observa.", "Un perro cansado muerde un 70% menos."], error: { titulo: "Error típico", desc: "Corregir antes de entender el por qué." }, resumen: "Hoy el éxito es identificar el patrón." },
-            { day: 2, title: 'El comando QUIETO', semanaLabel: 'Fase 2: Control', duracion: '15 min', nivel: 'Fácil', categoria: 'Obediencia', icon: 'fa-hand', teoria: { audioSeconds: 30, intro: "Fijando el límite visual ✋", cuerpo: "Hoy le enseñas a parar. Necesitas premios pequeños.", puntosClave: ["Señal: Mano abierta frente a su cara.", "Voz: Di 'QUIETO' una sola vez.", "Premio: Dale el snack si para 2 segundos."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Mano de STOP', desc: 'Pon tu mano abierta entre él y el objeto.', emoji: '✋', icon: 'fa-hand' }, { titulo: 'Comando verbal', desc: 'Di QUIETO firme y calmado.', emoji: '🗣️', icon: 'fa-comment' }, { titulo: 'Refuerzo', desc: 'Premia si se aleja del objeto.', emoji: '🍖', icon: 'fa-bone' }]}, tips: ["El premio debe ser en menos de 2 segundos."], error: { titulo: "Error de repetición", desc: "Decir QUIETO diez veces." }, resumen: "Tu mano es la frontera." },
-            { day: 3, title: 'Redirección al "SÍ"', semanaLabel: 'Fase 2: Control', duracion: '12 min', nivel: 'Medio', categoria: 'Sustitución', icon: 'fa-baseball', teoria: { audioSeconds: 30, intro: "Cambio por diversión 🎾", cuerpo: "Dale una alternativa que SÍ pueda morder.", puntosClave: ["Alternativa: Ten su juguete favorito.", "Intercambio: Quita el zapato y da el juguete.", "Fiesta: Celebra cuando muerda su juguete."] }, practica: { timerSeconds: 720, pasos: [{ titulo: 'La carnada', desc: 'Deja un objeto tentador cerca.', emoji: '👟', icon: 'fa-shoe-prints' }, { titulo: 'El cambio', desc: 'Di QUIETO y ofrece su juguete.', emoji: '🎾', icon: 'fa-baseball' }, { titulo: 'Refuerzo', desc: 'Premia si elige el juguete.', emoji: '🎉', icon: 'fa-gift' }]}, tips: ["Rota sus juguetes cada 2 días."], error: { titulo: "Error de frustración", desc: "Quitarle algo sin dar nada a cambio." }, resumen: "Morder es necesario, morder lo correcto es lo que enseñamos." },
-            { day: 4, title: 'El juego del SUELTA', semanaLabel: 'Fase 3: Avanzado', duracion: '15 min', nivel: 'Medio', categoria: 'Seguridad', icon: 'fa-arrows-rotate', teoria: { audioSeconds: 30, intro: "Entregar el tesoro 🔄", cuerpo: "Evita que trague algo peligroso.", puntosClave: ["Confianza: Soltar trae premios.", "Comando: Di 'SUELTA' mientras ofreces algo mejor.", "Intercambio: Nunca luches por el objeto."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Tironeo suave', desc: 'Juega a tirar de un juguete.', emoji: '🦴', icon: 'fa-dog' }, { titulo: 'Pide el suelta', desc: 'Muestra un premio y di SUELTA.', emoji: '🗣️', icon: 'fa-bullhorn' }, { titulo: 'Premia', desc: 'En cuanto abra la boca, da el premio.', emoji: '🍖', icon: 'fa-circle-check' }]}, tips: ["Si no suelta, quédate inmóvil."], error: { titulo: "Pelea de fuerza", desc: "Jalonear el objeto genera que apriete más." }, resumen: "Soltar es un acto de confianza." },
-            { day: 5, title: 'Prueba de Distancia', semanaLabel: 'Fase 3: Avanzado', duracion: '10 min', nivel: 'Avanzado', categoria: 'Resistencia', icon: 'fa-ruler-horizontal', teoria: { audioSeconds: 30, intro: "Obediencia remota 📏", cuerpo: "Hoy comprobamos si te escucha de lejos.", puntosClave: ["Distancia: Aléjate 3 pasos de <DOG>.", "Foco: Mantén contacto visual firme.", "Voz: Proyecta el comando con seguridad."] }, practica: { timerSeconds: 600, pasos: [{ titulo: 'Posicionamiento', desc: 'Pide que se quede y aléjate.', emoji: '🚶', icon: 'fa-person-walking-arrow-right' }, { titulo: 'Tentación', desc: 'Lanza un objeto cerca de él.', emoji: '👟', icon: 'fa-binoculars' }, { titulo: 'Corrección', desc: 'Usa QUIETO si intenta ir.', emoji: '🏆', icon: 'fa-medal' }]}, tips: ["Aumenta la distancia centímetro a centímetro."], error: { titulo: "Error de velocidad", desc: "Alejarte demasiado rápido el primer intento." }, resumen: "Tu voz es la correa invisible." },
-            { day: 6, title: 'Generalización', semanaLabel: 'Fase 4: Consolidación', duracion: '15 min', nivel: 'Avanzado', categoria: 'Entorno', icon: 'fa-house-signal', teoria: { audioSeconds: 30, intro: "La regla aplica a todo 🏠", cuerpo: "QUIETO aplica para zapatos, muebles y cables.", puntosClave: ["Variedad: Usa objetos nuevos.", "Entorno: Cambia de habitación.", "Consistencia: La regla no cambia."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Circuito', desc: 'Pon 3 objetos prohibidos en el suelo.', emoji: '📦', icon: 'fa-boxes-stacked' }, { titulo: 'Caminata', desc: 'Camina entre los objetos con él.', emoji: '🐕', icon: 'fa-route' }, { titulo: 'Elección', desc: 'Premia si ignora los objetos solo.', emoji: '✅', icon: 'fa-circle-check' }]}, tips: ["Usa calcetines, suelen ser los más difíciles."], error: { titulo: "Mensajes mixtos", desc: "Dejar que muerda zapatos viejos." }, resumen: "Toda la casa es una zona de respeto." },
-            { day: 7, title: 'Independencia Real', semanaLabel: 'Fase 4: Consolidación', duracion: '20 min', nivel: 'Avanzado', categoria: 'Éxito', icon: 'fa-trophy', teoria: { audioSeconds: 30, intro: "La prueba final 🏆", cuerpo: "¿Qué hace cuando no miras?", puntosClave: ["Privacidad: Déjalo solo 5 min.", "Retorno: Si todo está bien, fiesta épica.", "Hábito: El autocontrol es su nueva forma de ser."] }, practica: { timerSeconds: 1200, pasos: [{ titulo: 'Simulacro', desc: 'Sal del cuarto por 5 minutos.', emoji: '🚪', icon: 'fa-door-closed' }, { titulo: 'Regreso', desc: 'Si no mordió nada, dale su premio favorito.', emoji: '🍗', icon: 'fa-star' }, { titulo: 'Cierre', desc: 'Aumenta a 10 min. ¡Lo lograron!.', emoji: '🎓', icon: 'fa-graduation-cap' }]}, tips: ["El ejercicio previo reduce el instinto destructivo."], error: { titulo: "Castigo tardío", desc: "Regañarlo horas después de un mordisco no sirve." }, resumen: "Has transformado su impulsividad en autocontrol." }
+            { 
+                day: 1, title: 'El código de su mente', semanaLabel: 'Fase 1: Diagnóstico', duracion: '10 min', nivel: 'Fácil', categoria: 'Psicología', icon: 'fa-magnifying-glass', 
+                teoria: { audioSeconds: 60, intro: "La Psicología del Mordisco 🧠", cuerpo: "Tu perro no destruye por rebeldía o para castigarte. Usa su mandíbula como tú usas tus manos: para explorar, liberar ansiedad y descargar energía estancada. Si solo le dices 'NO', le quitas su herramienta sin darle soluciones, generando más frustración. Hoy cambiamos las reglas: dejamos de reaccionar para empezar a observar estratégicamente.", puntosClave: ["La información es poder: Identificar qué muerde revela qué necesita.", "No hay maldad, hay instinto: Morder es su válvula de escape biológica.", "Regla de Oro hoy: Cero correcciones. Solo observa y analiza."] }, 
+                practica: { timerSeconds: 600, pasos: [
+                    { titulo: 'Fase de observación pasiva', desc: 'Actúa como un espectador invisible. Deja que explore y anota exactamente hacia qué materiales se dirige (¿madera, plástico suave, tela?).', emoji: '🔍', icon: 'fa-eye' }, 
+                    { titulo: 'Mapeo de detonantes', desc: 'Identifica el momento exacto. ¿Lo hace cuando llegas del trabajo? ¿Cuando está aburrido? Este es su patrón.', emoji: '🗺️', icon: 'fa-map-location-dot' }, 
+                    { titulo: 'Gestión del entorno', desc: 'Retira tácticamente los objetos de valor de su alcance. No lo castigues, simplemente quítale la oportunidad de fallar hoy.', emoji: '🛡️', icon: 'fa-shield-halved' }]}, 
+                tips: ["Un perro exhausto físicamente reduce su necesidad de morder en un 80%."], error: { titulo: "El error de novato", desc: "Gritarle o corregirlo sin entender primero por qué eligió ese objeto específico." }, resumen: "El diagnóstico preciso hoy garantiza la obediencia de mañana." 
+            },
+            { 
+                day: 2, title: 'El poder del "QUIETO"', semanaLabel: 'Fase 2: Control', duracion: '15 min', nivel: 'Fácil', categoria: 'Obediencia', icon: 'fa-hand', 
+                teoria: { audioSeconds: 90, intro: "Límites sin miedo ✋", cuerpo: "El comando 'QUIETO' es la frontera invisible entre el caos y el control. No necesitamos alzar la voz ni intimidar; los perros respetan el lenguaje corporal seguro y directo. Hoy estableceremos tu mano como una barrera psicológica absoluta que él decidirá respetar a cambio de una recompensa de alto valor.", puntosClave: ["Firmeza visual: Tu mano extendida es una pared emocional.", "Voz de ancla: Un solo comando firme, sin titubeos ni repeticiones.", "Micro-segundos de oro: El premio debe llegar en el instante exacto en que se detiene."] }, 
+                practica: { timerSeconds: 900, pasos: [
+                    { titulo: 'La frontera visual', desc: 'Cuando intente acercarse a un objeto, interpon tu mano firme y abierta frente a su campo de visión, sin tocarlo.', emoji: '✋', icon: 'fa-hand' }, 
+                    { titulo: 'El comando único', desc: 'Di "QUIETO" desde el diafragma, con voz grave y segura. Jamás lo repitas dos veces.', emoji: '🗣️', icon: 'fa-comment' }, 
+                    { titulo: 'El pago inmediato', desc: 'Si detiene su avance, aunque sea por 2 segundos, entrégale un snack premium inmediatamente.', emoji: '💎', icon: 'fa-gem' }]}, 
+                tips: ["Usa trozos de salchicha o queso del tamaño de un guisante para que no se llene y quiera más."], error: { titulo: "Desgaste del comando", desc: "Repetir 'Quieto, quieto, ¡que te estés quieto!'. Le enseñas que tus primeras órdenes son opcionales." }, resumen: "Tu seguridad al dar la orden es lo que genera su obediencia." 
+            },
+            { 
+                day: 3, title: 'Cambio por diversión', semanaLabel: 'Fase 2: Control', duracion: '12 min', nivel: 'Medio', categoria: 'Sustitución', icon: 'fa-baseball', 
+                teoria: { audioSeconds: 60, intro: "El arte de la redirección 🎾", cuerpo: "Prohibir crea deseo. Si solo le quitas lo que tiene, crearás un perro frustrado y obsesionado. La técnica maestra de los entrenadores top es la 'Sustitución de Alto Valor'. Le diremos: 'No puedes morder este zapato, pero SÍ puedes destrozar este juguete increíble'. Transformamos la prohibición en una invitación a jugar.", puntosClave: ["El intercambio justo: Nunca le quites algo sin ofrecerle algo mejor.", "El SÍ es más fuerte que el NO: Refuerza lo permitido, ignora lo prohibido.", "Conviértete en el premio: Tu entusiasmo al darle el juguete es la verdadera recompensa."] }, 
+                practica: { timerSeconds: 720, pasos: [
+                    { titulo: 'La carnada controlada', desc: 'Coloca un zapato viejo o cartón en el suelo. Mantente cerca con su juguete favorito escondido.', emoji: '👟', icon: 'fa-shoe-prints' }, 
+                    { titulo: 'El intercambio maestro', desc: 'Cuando vaya por la carnada, di QUIETO. Al detenerse, haz aparecer su juguete de forma emocionante.', emoji: '✨', icon: 'fa-wand-magic-sparkles' }, 
+                    { titulo: 'Fiesta de refuerzo', desc: 'En cuanto su boca toque el juguete permitido, celebra con voz aguda y juega con él unos segundos.', emoji: '🎉', icon: 'fa-party-horn' }]}, 
+                tips: ["Rota sus juguetes cada 2 días. La novedad dispara la dopamina en su cerebro."], error: { titulo: "Generar competencia", desc: "Jalonearle el zapato para quitárselo. Él creerá que es un juego de tira y afloja y lo morderá más fuerte." }, resumen: "Morder es biológico; elegir QUÉ morder es el resultado de tu liderazgo." 
+            },
+            { 
+                day: 4, title: 'Confianza ciega (SUELTA)', semanaLabel: 'Fase 3: Avanzado', duracion: '15 min', nivel: 'Medio', categoria: 'Seguridad', icon: 'fa-arrows-rotate', 
+                teoria: { audioSeconds: 90, intro: "Entregar el tesoro 🔄", cuerpo: "El comando 'SUELTA' no es obediencia, es confianza pura. Un perro no entrega un recurso valioso (un hueso o algo robado) a alguien en quien no confía. Hoy le demostraremos que soltar lo que tiene en la boca no significa perderlo, sino activar una máquina expendedora de premios aún mejores. Esto puede salvarle la vida si algún día atrapa algo tóxico en la calle.", puntosClave: ["Cero confrontación: La fuerza bruta genera resistencia y mordidas defensivas.", "La economía del perro: Te doy esto de valor 5 a cambio de tu premio de valor 10.", "Paciencia táctica: Quien se mueve primero, pierde. Mantén la calma hasta que él decida soltar."] }, 
+                practica: { timerSeconds: 900, pasos: [
+                    { titulo: 'Enganche suave', desc: 'Juega a tirar de un juguete trenzado o cuerda. Mantén una tensión suave pero firme.', emoji: '🪢', icon: 'fa-link' }, 
+                    { titulo: 'Congelación y comando', desc: 'Deja de moverte por completo (vuélvete aburrido). Pon un snack irresistible frente a su nariz y di SUELTA.', emoji: '🧊', icon: 'fa-snowflake' }, 
+                    { titulo: 'El truque', desc: 'El instante microscópico en que abra la mandíbula para oler el snack, entrégaselo y retira el juguete suavemente.', emoji: '🤝', icon: 'fa-handshake' }]}, 
+                tips: ["Si no suelta, no repitas el comando. Simplemente acércale más el snack oloroso a la nariz y espera."], error: { titulo: "La trampa de la fuerza", desc: "Abrirle la mandíbula con tus manos. Destruyes el vínculo de confianza instantáneamente." }, resumen: "Soltar voluntariamente es la máxima prueba de respeto hacia tu liderazgo." 
+            },
+            { 
+                day: 5, title: 'La correa invisible', semanaLabel: 'Fase 3: Avanzado', duracion: '10 min', nivel: 'Avanzado', categoria: 'Resistencia', icon: 'fa-ruler-horizontal', 
+                teoria: { audioSeconds: 60, intro: "Obediencia a distancia 📏", cuerpo: "Cualquier perro obedece si tienes un premio a tres centímetros de su nariz. El verdadero adiestramiento premium se demuestra cuando tu voz es suficiente para detenerlo desde la distancia. Hoy expandimos el radio de control. Construiremos un 'campo de fuerza' emocional donde tu orden se respeta sin importar a cuántos pasos estés.", puntosClave: ["Proyección de voz: Tu energía debe cruzar la habitación.", "Contacto visual: Es el cable inalámbrico que los conecta.", "Progreso milimétrico: La confianza se construye paso a paso, no saltando al vacío."] }, 
+                practica: { timerSeconds: 600, pasos: [
+                    { titulo: 'Posicionamiento estratégico', desc: 'Pídele que se quede quieto. Da dos pasos firmes hacia atrás, manteniendo contacto visual absoluto.', emoji: '🚶‍♂️', icon: 'fa-shoe-prints' }, 
+                    { titulo: 'Prueba de tentación', desc: 'Coloca o lanza suavemente un objeto que le guste a un lado suyo, fuera de su alcance inmediato.', emoji: '🎯', icon: 'fa-bullseye' }, 
+                    { titulo: 'El retorno triunfal', desc: 'Si hace el intento de ir, usa un "QUIETO" profundo. Si se contiene, acércate TÚ a él y entrégale el premio doble.', emoji: '🏆', icon: 'fa-trophy' }]}, 
+                tips: ["El premio siempre se entrega en el sitio donde le pediste que se quedara, nunca lo llames hacia ti para premiarlo."], error: { titulo: "Exceso de ambición", desc: "Alejarte 5 metros en el primer intento. Romperás su concentración y fallará." }, resumen: "El respeto a tu voz es más fuerte que cualquier barrera física." 
+            },
+            { 
+                day: 6, title: 'Comportamiento blindado', semanaLabel: 'Fase 4: Consolidación', duracion: '15 min', nivel: 'Avanzado', categoria: 'Entorno', icon: 'fa-shield-halved', 
+                teoria: { audioSeconds: 60, intro: "Consistencia absoluta 🏠", cuerpo: "Los perros son contextuales. Que no muerda la silla de la sala no significa que sepa que la cama de tu cuarto también se respeta. Para blindar el buen comportamiento, necesitamos llevar la regla a cada rincón de la casa y con cada textura posible. Hoy le demostraremos que el estándar de excelencia no cambia según la habitación.", puntosClave: ["Variabilidad calculada: Exponerlo a texturas que antes le obsesionaban.", "Cero excepciones: La regla aplica hoy, mañana y siempre.", "Decisiones autónomas: Permitir que él elija lo correcto sin que se lo pidas."] }, 
+                practica: { timerSeconds: 900, pasos: [
+                    { titulo: 'El circuito de tentaciones', desc: 'Crea un pasillo colocando 3 objetos tentadores (un calcetín, un plástico, un cojín) en el suelo, separados por 1 metro.', emoji: '🚧', icon: 'fa-traffic-cone' }, 
+                    { titulo: 'Paseo de revisión', desc: 'Camina junto a él a través del pasillo. Tu postura debe ser erguida y segura.', emoji: '🐕', icon: 'fa-dog' }, 
+                    { titulo: 'Premio por omisión', desc: 'No digas nada. Si pasa por el lado de un objeto y decide IGNORARLO voluntariamente, hazle la mayor fiesta de la semana.', emoji: '🌟', icon: 'fa-star' }]}, 
+                tips: ["Los calcetines usados tienen tu olor y son el mayor imán de mordidas; si ignora uno, el entrenamiento está funcionando."], error: { titulo: "Dobles raseros", desc: "Regalarle un zapato viejo para jugar. Tu perro no distingue entre tu zapato viejo y tu zapato de 200 dólares." }, resumen: "La verdadera obediencia ocurre cuando él elige portarse bien sin que lo mires." 
+            },
+            { 
+                day: 7, title: 'La Prueba Maestra', semanaLabel: 'Fase 4: Consolidación', duracion: '20 min', nivel: 'Avanzado', categoria: 'Éxito', icon: 'fa-crown', 
+                teoria: { audioSeconds: 60, intro: "Independencia Real 🏆", cuerpo: "Has transformado su mente. El último nivel del adiestramiento no requiere correas, premios constantes ni órdenes; requiere autonomía. La 'Prueba Maestra' evalúa el autocontrol de tu peludo cuando está en total soledad. Si superan esto, habrán graduado de la gestión de crisis a un estilo de vida de confianza absoluta mutua.", puntosClave: ["El test de fuego: Su comportamiento en privado revela su verdadero aprendizaje.", "Desapego positivo: Confía en el trabajo que has hecho estos 6 días.", "El fin del hábito: Un perro con autocontrol es un compañero para toda la vida."] }, 
+                practica: { timerSeconds: 1200, pasos: [
+                    { titulo: 'Preparación del escenario', desc: 'Deja la habitación tal cual está. Objetos a la vista. Despídete con naturalidad y sal del cuarto cerrando la puerta.', emoji: '🚪', icon: 'fa-door-closed' }, 
+                    { titulo: 'El silencio táctico', desc: 'Espera afuera exactamente 5 minutos. No entres si lo escuchas caminar, solo si escuchas destrucción activa.', emoji: '⏱️', icon: 'fa-stopwatch' }, 
+                    { titulo: 'La graduación', desc: 'Abre la puerta. Si el cuarto está intacto, no le des un snack; dale el Jackpot (un puñado generoso de comida) y celebra su graduación.', emoji: '🎓', icon: 'fa-graduation-cap' }]}, 
+                tips: ["Asegúrate de que haya hecho al menos 30 minutos de ejercicio antes de esta prueba para vaciar su ansiedad física."], error: { titulo: "El castigo retroactivo", desc: "Si falló y rompió algo, regañarlo al entrar. Él no asociará el regaño con la mordida de hace 3 minutos, solo pensará que entrar por esa puerta te vuelve agresivo." }, resumen: "Has esculpido la mente de tu perro. Disfruta de la paz en tu hogar." 
+            }
         ]
     }
 ];
 
 // =============================================
-// LÓGICA CORE
+// LÓGICA CORE Y FIX DE NAVEGACIÓN
 // =============================================
 let dogName = localStorage.getItem('currentDogName') || 'Kira'; 
 let currentChallenge = null, currentLessonDay = null, currentTab = 'teoria';
@@ -203,7 +234,6 @@ function renderHub() {
         const passedCount = Object.values(chTracker).filter(t => t.passed).length;
         const pct = Math.round((passedCount / ch.totalDays) * 100);
         
-        // Actualizar progreso
         if(ch === CHALLENGES[0]) {
             document.getElementById('hub-progress-text').innerText = `${passedCount}/${ch.totalDays} días`;
             document.getElementById('hub-progress-bar').style.width = `${pct}%`;
@@ -224,11 +254,8 @@ function renderHub() {
 
 function openChallenge(id) {
     currentChallenge = CHALLENGES.find(c => c.id === id);
-    
-    // Cargar datos en la pantalla de reto
     document.getElementById('challenge-screen-title').innerText = currentChallenge.name;
-    document.getElementById('challenge-intro-text').innerText = currentChallenge.introAchieve || 'Mejorar el comportamiento y vínculo con tu mascota a través de consistencia.';
-    
+    document.getElementById('challenge-intro-text').innerText = currentChallenge.introAchieve;
     renderDays();
     showScreen('screen-challenge');
 }
@@ -250,13 +277,13 @@ function renderDays() {
         const isLocked = !isPassed && !isReady;
 
         container.innerHTML += `
-            <div onclick="${!isLocked ? `openLesson(${i})` : ''}" class="day-item bg-white rounded-3xl p-4 flex items-center gap-4 border-2 ${isPassed ? 'border-emerald-100 bg-emerald-50/20' : isFailed ? 'failed' : isLocked ? 'opacity-40 border-slate-50 cursor-not-allowed' : 'border-emerald-200 bg-emerald-50/40 cursor-pointer active:scale-95 transition-transform shadow-sm'}">
-                <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm ${isPassed ? 'brand-gradient text-white' : isFailed ? 'bg-rose-500 text-white' : 'bg-white text-slate-400'} shadow-inner">${i}</div>
+            <div onclick="${!isLocked ? `openLesson(${i})` : ''}" class="bg-white rounded-3xl p-4 flex items-center gap-4 border-2 ${isPassed ? 'border-emerald-100 bg-emerald-50/20' : isFailed ? 'border-rose-100 bg-rose-50/40' : isLocked ? 'opacity-40 border-slate-50 cursor-not-allowed' : 'border-emerald-200 bg-white cursor-pointer active:scale-95 transition-transform shadow-sm'}">
+                <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm ${isPassed ? 'brand-gradient text-white shadow-md' : isFailed ? 'bg-rose-500 text-white shadow-md' : 'bg-slate-100 text-slate-400'}">${i}</div>
                 <div class="flex-1">
                     <h4 class="font-black text-slate-800 text-xs">${lesson ? lesson.title : `Día ${i}`}</h4>
-                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-wider mt-0.5">${isPassed ? '¡Completado!' : isFailed ? 'Requiere reintento' : isLocked ? 'Bloqueado' : 'Entrenar ahora'}</p>
+                    <p class="text-[8px] font-black uppercase tracking-wider mt-0.5 ${isPassed ? 'text-emerald-600' : isFailed ? 'text-rose-500' : 'text-slate-400'}">${isPassed ? '¡Completado!' : isFailed ? 'Requiere reintento' : isLocked ? 'Bloqueado' : 'Entrenar ahora'}</p>
                 </div>
-                <i class="fa-solid ${lesson ? lesson.icon : 'fa-lock'} status-icon ${isPassed ? 'text-emerald-600' : isFailed ? 'text-rose-500' : 'text-slate-200'}"></i>
+                <i class="fa-solid ${lesson ? (isPassed ? 'fa-check' : 'fa-play') : 'fa-lock'} ${isPassed ? 'text-emerald-500' : isFailed ? 'text-rose-400' : isLocked ? 'text-slate-200' : 'text-slate-300'}"></i>
             </div>`;
     }
 }
@@ -266,7 +293,6 @@ function openLesson(day) {
     currentTab = 'teoria';
     currentAudioTime = 0; 
     currentTimerTime = 0;
-    
     const lesson = currentChallenge.lessons.find(l => l.day === day);
     renderLessonContent(lesson);
     showScreen('screen-lesson');
@@ -278,12 +304,13 @@ function renderLessonContent(lesson) {
     const chTracker = trackerData[currentChallenge.id] || {};
     const isPassed = chTracker[currentLessonDay] && chTracker[currentLessonDay].passed;
 
+    // PESTAÑAS (Estilo idéntico a la captura 3)
     let html = `
-        <div class="flex border-b border-slate-100 mb-6 sticky-tabs pt-2 pb-2 shadow-sm rounded-t-3xl px-1">
+        <div class="flex sticky-tabs mb-6">
             <button onclick="switchTab('teoria')" class="flex-1 tab-btn ${currentTab === 'teoria' ? 'active' : ''}">TEORÍA</button>
             <button onclick="switchTab('practica')" class="flex-1 tab-btn ${currentTab === 'practica' ? 'active' : ''}">PRÁCTICA</button>
         </div>
-    `;
+        <div class="px-6"> `;
 
     if (currentTab === 'teoria') {
         let displayMins = Math.floor(lesson.teoria.audioSeconds / 60);
@@ -292,105 +319,114 @@ function renderLessonContent(lesson) {
         html += `
             <div class="blob-container" id="audio-container">
                 <div class="blob-shape"></div>
-                <div class="blob-content text-center">
-                    <div id="audio-time" class="counter-text">${displayMins}:${displaySecs.toString().padStart(2, '0')}</div>
-                    <div onclick="toggleAudio(${lesson.teoria.audioSeconds})" class="action-trigger mx-auto" id="audio-play-btn"><i class="fa-solid fa-play"></i></div>
-                </div>
+                <div class="action-trigger" onclick="toggleAudio(${lesson.teoria.audioSeconds})" id="audio-play-btn"><i class="fa-solid fa-play ml-1"></i></div>
             </div>
-            <div class="flex flex-wrap gap-2 justify-center mb-6">
-                <span class="tag"><i class="fa-solid fa-clock text-emerald-600"></i> ${lesson.duracion}</span>
+            
+            <div class="flex flex-wrap gap-2 justify-center mb-8">
+                <span class="tag"><i class="fa-regular fa-clock text-emerald-600"></i> ${lesson.duracion}</span>
                 <span class="tag"><i class="fa-solid fa-bolt text-rose-500"></i> ${lesson.nivel}</span>
                 <span class="tag"><i class="fa-solid fa-bookmark text-blue-500"></i> ${lesson.categoria}</span>
             </div>
-            <div class="space-y-4">
-                <h3 class="font-black text-slate-900 text-xl tracking-tight leading-tight text-center">${replace(lesson.teoria.intro)}</h3>
-                <p class="text-slate-500 text-sm leading-relaxed text-center px-2">${replace(lesson.teoria.cuerpo)}</p>
-                <div class="space-y-2.5 mt-6">
-                    ${lesson.teoria.puntosClave.map(p => `<p class="text-xs font-bold text-slate-700 flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><i class="fa-solid fa-circle-check text-emerald-600"></i> ${replace(p)}</p>`).join('')}
-                </div>
-                <button onclick="switchTab('practica')" class="w-full brand-gradient text-white font-black py-5 rounded-3xl mt-8 shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">¡Entendido! Ir a la práctica <i class="fa-solid fa-arrow-right text-xs"></i></button>
-            </div>`;
+            
+            <div class="text-center mb-6">
+                <h3 class="font-black text-slate-900 text-2xl tracking-tight leading-tight mb-2">${replace(lesson.teoria.intro)}</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed px-1">${replace(lesson.teoria.cuerpo)}</p>
+            </div>
+            
+            <div class="space-y-3 mt-6">
+                ${lesson.teoria.puntosClave.map(p => `
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-start gap-3">
+                        <i class="fa-solid fa-circle-check text-emerald-600 mt-1"></i>
+                        <p class="text-[13px] font-bold text-slate-700 leading-snug">${replace(p)}</p>
+                    </div>
+                `).join('')}
+            </div>
+        `;
     } else {
+        // PRÁCTICA
         let timerMins = Math.floor(lesson.practica.timerSeconds / 60);
         let timerSecs = lesson.practica.timerSeconds % 60;
         
         html += `
-            <div class="text-center"><p class="text-[9px] font-black text-slate-400 uppercase tracking-wider mt-2">Temporizador de práctica activo</p></div>
-            <div class="blob-container" id="timer-container">
+            <div class="blob-container" id="timer-container" style="height: 120px; margin-top: 10px;">
                 <div class="blob-shape"></div>
-                <div class="blob-content text-center">
-                    <div id="lesson-timer" class="counter-text">${timerMins}:${timerSecs.toString().padStart(2, '0')}</div>
-                    <div onclick="toggleTimer(${lesson.practica.timerSeconds})" class="action-trigger mx-auto" id="timer-play-btn"><i class="fa-solid fa-play"></i></div>
-                </div>
+                <div id="lesson-timer" class="counter-text text-[3rem] tracking-tighter">${timerMins}:${timerSecs.toString().padStart(2, '0')}</div>
             </div>
-            <div class="space-y-3.5">
-                <h3 class="font-black text-slate-900 text-sm mb-2 ml-2 flex items-center gap-2"><i class="fa-solid fa-list-check text-emerald-600"></i> Pasos de hoy:</h3>
+            
+            <div class="flex justify-center mb-8">
+                <div class="action-trigger w-12 h-12 text-lg" onclick="toggleTimer(${lesson.practica.timerSeconds})" id="timer-play-btn"><i class="fa-solid fa-play ml-1"></i></div>
+            </div>
+            
+            <h3 class="font-black text-slate-900 text-[15px] mb-4 flex items-center gap-2 tracking-tight"><i class="fa-solid fa-list-check text-emerald-600"></i> Pasos de hoy:</h3>
+            
+            <div class="space-y-4">
                 ${lesson.practica.pasos.map((p, i) => `
-                    <div class="bg-white rounded-3xl border border-slate-100 p-5 flex gap-4 shadow-sm">
-                        <div class="step-badge">${i+1}</div>
+                    <div class="bg-white rounded-2xl border border-slate-100 p-5 flex items-start gap-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                        <div class="step-circle">${i+1}</div>
                         <div>
-                            <h4 class="font-black text-slate-900 text-xs flex items-center gap-2"><i class="fa-solid ${p.icon} text-emerald-600/30"></i> ${p.titulo}</h4>
-                            <p class="text-[11px] text-slate-500 leading-relaxed mt-1">${replace(p.desc)}</p>
+                            <h4 class="font-black text-slate-900 text-[14px] flex items-center gap-2 mb-1">
+                                <i class="fa-solid ${p.icon} text-slate-300"></i> ${p.titulo}
+                            </h4>
+                            <p class="text-[12px] text-slate-500 leading-relaxed">${replace(p.desc)}</p>
                         </div>
-                    </div>`).join('')}
-                
-                <div class="mt-8 px-2 space-y-4 pt-4 border-t border-slate-100">
-                    <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-wider ml-1">Tips de Experto</h3>
-                    <div class="space-y-2.5">
-                        ${lesson.tips.map(t => `<div class="bg-emerald-50/50 border-l-4 border-emerald-400 p-4 rounded-r-2xl text-[11px] font-semibold text-emerald-800">${replace(t)}</div>`).join('')}
                     </div>
-                    <div class="bg-rose-50 border-l-4 border-rose-400 p-4 rounded-r-2xl">
-                        <h4 class="font-black text-rose-700 text-[10px] uppercase mb-1 tracking-wider">${lesson.error.titulo}</h4>
-                        <p class="text-[11px] text-rose-600 font-medium">${replace(lesson.error.desc)}</p>
-                    </div>
-                </div>
+                `).join('')}
             </div>
-            <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-3xl mt-10 shadow-sm border border-amber-100">
-                <span class="text-[9px] font-black uppercase text-amber-700 block mb-1.5 tracking-wider">La clave de hoy</span>
-                <p class="text-xs font-bold italic text-amber-950 leading-snug">"${replace(lesson.resumen)}"</p>
+            
+            <div class="mt-8 pt-2">
+                <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-widest mb-3">Tips de Experto</h3>
+                <div class="space-y-3">
+                    ${lesson.tips.map(t => `
+                        <div class="bg-emerald-50/50 border-l-[3px] border-emerald-500 p-4 rounded-r-2xl text-[12px] font-bold text-emerald-800 leading-relaxed shadow-sm">
+                            ${replace(t)}
+                        </div>
+                    `).join('')}
+                </div>
             </div>
         `;
+        
         if (isPassed) {
-            html += `<button onclick="goBack()" class="w-full brand-gradient text-white font-black py-5 rounded-3xl mt-10 shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform"><i class="fa-solid fa-rotate-left text-xs"></i> Volver al listado</button>`;
+            html += `<button onclick="goBack()" class="w-full brand-gradient text-white font-black py-4 rounded-[1.2rem] mt-10 shadow-lg flex items-center justify-center gap-3 active:scale-95 transition-transform"><i class="fa-solid fa-check text-sm"></i> Día superado. Volver</button>`;
         } else {
-            html += `<button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black py-5 rounded-3xl mt-10 shadow-2xl active:scale-95 transition-all tracking-tight">COMPLETAR DÍA</button>`;
+            html += `<button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black py-4 rounded-[1.2rem] mt-10 shadow-xl active:scale-95 transition-transform tracking-tight text-[15px]">COMPLETAR DÍA ${currentLessonDay}</button>`;
         }
     }
-    container.innerHTML = html + `<div class="h-10"></div>`;
+    
+    container.innerHTML = html + `</div>`; // Cierra el div del padding lateral
 }
 
 function switchTab(tab) {
     currentTab = tab; 
-    if(audioInterval) clearInterval(audioInterval); 
-    if(timerInterval) clearInterval(timerInterval);
-    audioInterval = null; timerInterval = null;
-    currentAudioTime = 0; currentTimerTime = 0;
+    if(audioInterval) clearInterval(audioInterval); if(timerInterval) clearInterval(timerInterval);
+    audioInterval = null; timerInterval = null; currentAudioTime = 0; currentTimerTime = 0;
     renderLessonContent(currentChallenge.lessons.find(l => l.day === currentLessonDay));
     document.getElementById('screen-lesson').scrollTo(0, 0);
 }
 
 function toggleAudio(total) {
-    const btn = document.getElementById('audio-play-btn'), container = document.getElementById('audio-container'), display = document.getElementById('audio-time');
-    if (audioInterval) { clearInterval(audioInterval); audioInterval = null; btn.innerHTML = '<i class="fa-solid fa-play"></i>'; container.classList.remove('active-session'); 
+    const btn = document.getElementById('audio-play-btn'), container = document.getElementById('audio-container');
+    if (audioInterval) { 
+        clearInterval(audioInterval); audioInterval = null; btn.innerHTML = '<i class="fa-solid fa-play ml-1"></i>'; container.classList.remove('active-session'); 
     } else { 
         if (currentAudioTime === 0) currentAudioTime = total;
         container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; 
         audioInterval = setInterval(() => { 
-            currentAudioTime--; let mins = Math.floor(currentAudioTime / 60); let secs = currentAudioTime % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`; 
-            if (currentAudioTime <= 0) { clearInterval(audioInterval); audioInterval = null; currentAudioTime = 0; container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; } 
+            currentAudioTime--; 
+            if (currentAudioTime <= 0) { clearInterval(audioInterval); audioInterval = null; currentAudioTime = 0; container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; showToast("Audio finalizado"); } 
         }, 1000); 
     }
 }
 
 function toggleTimer(total) {
     const btn = document.getElementById('timer-play-btn'), container = document.getElementById('timer-container'), display = document.getElementById('lesson-timer');
-    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; btn.innerHTML = '<i class="fa-solid fa-play"></i>'; container.classList.remove('active-session'); 
+    if (timerInterval) { 
+        clearInterval(timerInterval); timerInterval = null; btn.innerHTML = '<i class="fa-solid fa-play ml-1"></i>'; container.classList.remove('active-session'); 
     } else { 
         if (currentTimerTime === 0) currentTimerTime = total;
         container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; 
         timerInterval = setInterval(() => { 
             currentTimerTime--; let mins = Math.floor(currentTimerTime / 60); let secs = currentTimerTime % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`; 
-            if (currentTimerTime <= 0) { clearInterval(timerInterval); timerInterval = null; currentTimerTime = 0; container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; showToast("¡Sesión completada!"); } 
+            if (currentTimerTime <= 0) { clearInterval(timerInterval); timerInterval = null; currentTimerTime = 0; container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; showToast("¡Práctica completada!"); } 
         }, 1000); 
     }
 }
@@ -398,25 +434,24 @@ function toggleTimer(total) {
 function showScreen(id) {
     if(audioInterval) clearInterval(audioInterval); if(timerInterval) clearInterval(timerInterval);
     audioInterval = null; timerInterval = null;
-
+    
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.getElementById(id).scrollTo(0, 0);
 
-    // Ocultar botón de retroceder solo en el hub principal
     const backBtn = document.getElementById('btn-header-back');
-    if(id === 'screen-hub') {
-        backBtn.style.visibility = 'hidden';
-    } else {
-        backBtn.style.visibility = 'visible';
-    }
+    backBtn.style.visibility = (id === 'screen-hub') ? 'hidden' : 'visible';
 }
 
+// FIX DE NAVEGACIÓN GARANTIZADA
 function goBack() {
-    const activeScreen = document.querySelector('.screen.active');
-    if (activeScreen.id === 'screen-lesson') {
+    const activeScreens = document.querySelectorAll('.screen.active');
+    if (activeScreens.length === 0) return;
+    const activeId = activeScreens[0].id;
+
+    if (activeId === 'screen-lesson') {
         showScreen('screen-challenge');
-    } else if (activeScreen.id === 'screen-challenge') {
+    } else if (activeId === 'screen-challenge') {
         showScreen('screen-hub');
     }
 }
@@ -432,7 +467,6 @@ function saveDay(result) {
     
     closeModal();
     showToast(passed ? `¡Día superado!` : `Guardado para reintento`);
-    
     renderHub(); renderDays(); showScreen('screen-challenge');
 }
 

@@ -28,17 +28,17 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Brand Styles */
+        /* Colores de Marca */
         .brand-bg { background: linear-gradient(135deg, #059669 0%, #064e3b 100%); }
         .brand-text { color: #059669; font-weight: 800; }
 
-        /* Modern Tabs */
+        /* Pestañas */
         .tab-btn { padding-bottom: 0.75rem; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: 800; font-size: 0.75rem; color: #94a3b8; letter-spacing: 0.05em; }
         .tab-btn.active { border-color: #10b981; color: #059669; }
 
-        /* REPRODUCTOR DE AUDIO ORGÁNICO (BLOB) */
-        .blob-audio-container {
-            position: relative; width: 240px; height: 240px;
+        /* REPRODUCTOR Y TIMER (BLOB) */
+        .blob-container {
+            position: relative; width: 220px; height: 220px;
             margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .blob-shape {
@@ -49,8 +49,8 @@
             transition: all 1s ease-in-out;
             z-index: 1;
         }
-        /* Animación de Respiración cuando se activa */
-        .audio-playing .blob-shape {
+        /* Animación de Respiración */
+        .active-session .blob-shape {
             animation: breathe 4s ease-in-out infinite;
             background: rgba(16, 185, 129, 0.2);
             border-color: #10b981;
@@ -61,16 +61,16 @@
             50% { border-radius: 58% 42% 38% 62% / 55% 55% 45% 45%; transform: scale(1.1); }
         }
         
-        .audio-content { position: relative; z-index: 10; text-align: center; }
-        #audio-time { font-size: 3.5rem; font-weight: 900; color: #064e3b; letter-spacing: -2px; line-height: 1; }
-        .play-trigger { 
+        .blob-content { position: relative; z-index: 10; text-align: center; }
+        .counter-text { font-size: 3.5rem; font-weight: 900; color: #064e3b; letter-spacing: -2px; line-height: 1; }
+        
+        .action-trigger { 
             margin-top: 10px; width: 50px; height: 50px; 
             background: #059669; color: white; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3);
-            cursor: pointer; transition: all 0.3s;
+            cursor: pointer; transition: all 0.3s; margin-inline: auto;
         }
-        .play-trigger:active { transform: scale(0.9); }
 
         .step-badge {
             width: 24px; height: 24px; border-radius: 50%;
@@ -98,26 +98,24 @@
                 <i class="fa-solid fa-user"></i>
             </div>
         </div>
-        <div class="flex-1 px-5 py-5 space-y-5 pb-10">
-            <div class="brand-bg rounded-[2rem] p-5 text-white shadow-xl relative overflow-hidden">
+        <div class="flex-1 px-5 py-5 space-y-5 pb-10 text-center">
+            <div class="brand-bg rounded-[2rem] p-5 text-white shadow-xl relative overflow-hidden text-left">
                 <div class="relative z-10">
-                    <p class="text-emerald-300 text-[10px] font-black uppercase tracking-widest mb-1">Tu compañero</p>
+                    <p class="text-emerald-300 text-[10px] font-black uppercase tracking-widest mb-1">Compañero de aventura</p>
                     <h3 class="text-2xl font-black tracking-tight" id="hub-dog-name">Cargando...</h3>
                     <div class="mt-4 bg-white/10 p-3 rounded-2xl border border-white/10">
                         <div class="flex justify-between items-center text-xs font-bold mb-2">
-                            <span class="text-slate-200">Progreso global</span>
-                            <span class="text-white" id="hub-progress-text">0 días</span>
+                            <span class="text-slate-200">Progreso Total</span>
+                            <span class="text-white" id="hub-progress-text">0/42 días</span>
                         </div>
                         <div class="w-full bg-white/20 rounded-full h-2 overflow-hidden">
-                            <div id="hub-progress-bar" class="bg-white h-full rounded-full transition-all" style="width:0%"></div>
+                            <div id="hub-progress-bar" class="bg-white h-full rounded-full transition-all duration-700" style="width:0%"></div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div>
-                <h3 class="font-extrabold text-slate-900 text-base mb-3 text-center">Desafíos de Entrenamiento</h3>
-                <div id="challenges-container" class="grid grid-cols-1 gap-3"></div>
-            </div>
+            <h3 class="font-black text-slate-900 text-lg mt-6 mb-4 italic">¿Qué quieres mejorar hoy?</h3>
+            <div id="challenges-container" class="grid grid-cols-1 gap-4"></div>
         </div>
     </section>
 
@@ -128,13 +126,11 @@
             </button>
             <div class="text-center">
                 <h2 class="font-extrabold text-white text-sm" id="challenge-title">Desafío</h2>
-                <p class="text-[10px] text-emerald-200 font-bold uppercase tracking-widest">7 DÍAS DE ENTRENAMIENTO</p>
+                <p class="text-[10px] text-emerald-200 font-bold uppercase tracking-widest">Plan de 7 Días</p>
             </div>
             <div class="w-9 h-9"></div>
         </div>
-        <div class="flex-1 px-5 py-5 space-y-4 pb-10">
-            <div id="days-container" class="space-y-3 mt-2"></div>
-        </div>
+        <div class="flex-1 px-5 py-5 space-y-3 pb-10" id="days-container"></div>
     </section>
 
     <section id="screen-lesson" class="screen">
@@ -148,21 +144,24 @@
             </div>
             <div class="w-9 h-9"></div>
         </div>
-        
-        <div class="flex-1 px-5 py-5 pb-10" id="lesson-content">
-            </div>
+        <div class="flex-1 px-5 py-5 pb-10" id="lesson-content"></div>
     </section>
 
     <div id="modal-complete" class="hidden absolute inset-0 z-50 modal-bg flex flex-col justify-end">
         <div class="bg-white rounded-t-[2.5rem] p-8">
             <div class="text-center mb-6">
                 <div class="text-5xl mb-3">🎉</div>
-                <h3 class="text-xl font-black text-slate-900">¿Cómo fue la sesión?</h3>
+                <h3 class="text-xl font-black text-slate-900">¡Misión cumplida!</h3>
+                <p class="text-slate-500 text-sm mt-1">¿Cómo respondió tu peludo hoy?</p>
             </div>
             <div class="space-y-3">
-                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-4 rounded-2xl font-bold text-sm border border-emerald-100 flex items-center justify-center gap-2">Excelente</button>
-                <button onclick="saveDay('bien')" class="w-full bg-amber-50 text-amber-700 p-4 rounded-2xl font-bold text-sm border border-amber-100 flex items-center justify-center gap-2">Bien</button>
-                <button onclick="closeModal()" class="w-full text-slate-400 py-3 font-bold text-sm mt-2">Cancelar</button>
+                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-4 rounded-2xl font-bold text-sm border border-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    <i class="fa-solid fa-star text-emerald-500"></i> ¡Excelente, aprendió rápido!
+                </button>
+                <button onclick="saveDay('bien')" class="w-full bg-amber-50 text-amber-700 p-4 rounded-2xl font-bold text-sm border border-amber-100 flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    <i class="fa-solid fa-thumbs-up text-amber-500"></i> Bien, vamos por buen camino
+                </button>
+                <button onclick="closeModal()" class="w-full text-slate-400 py-3 font-bold text-sm mt-2">Seguir practicando</button>
             </div>
         </div>
     </div>
@@ -171,38 +170,102 @@
 
 <script>
 // =============================================
-// DATOS
+// DATA - TODOS LOS RETOS RESTAURADOS
 // =============================================
 const CHALLENGES = [
     {
-        id: 'no-muerda',
-        name: 'No muerda las cosas',
-        icon: '🦷',
-        totalDays: 7,
-        desc: 'Elimina el hábito de morder',
+        id: 'no-muerda', name: 'No muerda las cosas', icon: '🦷', totalDays: 7,
         lessons: [
             { 
-                day: 1, title: 'Entiende por qué muerde', 
-                semanaLabel: 'Fase de Observación',
+                day: 1, title: 'El código secreto', semanaLabel: 'Fase: Detective',
                 teoria: {
-                    audioSeconds: 45,
-                    intro: "¿Por qué <DOG> muerde todo? 🦷",
-                    cuerpo: "Morder es la forma en que tu perro interactúa con su entorno. Al no tener manos, usa su boca para explorar texturas y aliviar el estrés o aburrimiento.",
-                    puntosClave: [
-                        "Exploración: Descubre el mundo con la boca.",
-                        "Alivio: Reduce la ansiedad y el aburrimiento.",
-                        "Detective: Hoy solo observamos el patrón."
-                    ]
+                    audioSeconds: 25,
+                    intro: "¿Por qué muerde todo? 🦷",
+                    cuerpo: "Tu peludo no es rebelde, es curioso. Al no tener manos, usa su boca para 'tocar' y descubrir texturas.",
+                    puntosClave: ["Exploración: Su boca es su mano.", "Alivio: Morder reduce su estrés.", "Misión: Identifica qué texturas ama."]
                 },
-                practica: {
-                    timerSeconds: 600,
-                    pasos: [
-                        { titulo: 'Observación Silenciosa', desc: 'Nota qué objetos prefiere morder durante 5 min.', emoji: '👁️' },
-                        { titulo: 'Identifica texturas', desc: '¿Es madera, plástico o tela?', emoji: '📝' },
-                        { titulo: 'Gestión básica', desc: 'Retira objetos peligrosos de su alcance.', emoji: '🏠' }
-                    ]
+                practica: { timerSeconds: 600, pasos: [{titulo: 'Observa', desc: 'Nota qué muerde cuando está solo.', emoji:'👁️'}, {titulo: 'Anota', desc:'¿Prefiere madera o tela?', emoji:'📝'}] },
+                resumen: "Conviértete en el detective que tu peludo necesita. Entender el por qué es el 50% de la solución."
+            }
+        ]
+    },
+    {
+        id: 'bano', name: 'Baño perfecto', icon: '🚽', totalDays: 7,
+        lessons: [
+            { 
+                day: 1, title: 'La zona sagrada', semanaLabel: 'Fase: Hábitos',
+                teoria: {
+                    audioSeconds: 25,
+                    intro: "¿Cómo piensa su instinto? 🚽",
+                    cuerpo: "Los perros buscan superficies por olor. Tu meta es que asocie 'su lugar' con una fiesta de premios.",
+                    puntosClave: ["Instinto: El olfato guía su baño.", "Rutina: La clave es la anticipación.", "Misión: Elige un solo lugar definitivo."]
                 },
-                resumen: "El primer paso no es la obediencia, es entender qué necesita tu perro."
+                practica: { timerSeconds: 600, pasos: [{titulo: 'Elige el sitio', desc: 'Un lugar tranquilo y accesible.', emoji:'📍'}, {titulo: 'Espera el momento', desc:'Llévalo tras comer o despertar.', emoji:'⏳'}] },
+                resumen: "La paciencia hoy es tu ahorro de limpieza mañana. Un perro con rutina no tiene accidentes."
+            }
+        ]
+    },
+    {
+        id: 'no-ladre', name: 'No más ladridos', icon: '🔇', totalDays: 7,
+        lessons: [
+            { 
+                day: 1, title: 'Escucha el mensaje', semanaLabel: 'Fase: Calma',
+                teoria: {
+                    audioSeconds: 25,
+                    intro: "¿Por qué grita tu peludo? 🔇",
+                    cuerpo: "El ladrido es su voz. Si gritas para callarlo, él cree que estás 'ladrando' con él.",
+                    puntosClave: ["Alerta: Te está avisando algo.", "Demanda: Quiere tu atención ahora.", "Misión: Identifica el disparador real."]
+                },
+                practica: { timerSeconds: 600, pasos: [{titulo: 'Escucha', desc: '¿A qué hora ladra más?', emoji:'👂'}, {titulo: 'Calma total', desc:'No reacciones con ruidos fuertes.', emoji:'🧘'}] },
+                resumen: "Tu calma es el espejo de tu peludo. Si tú estás tranquilo, él aprenderá a estarlo."
+            }
+        ]
+    },
+    {
+        id: 'trae-pelota', name: 'Trae la pelota', icon: '🎾', totalDays: 7,
+        lessons: [
+            { 
+                day: 1, title: 'El objeto del deseo', semanaLabel: 'Fase: Motivación',
+                teoria: {
+                    audioSeconds: 25,
+                    intro: "Haciendo la pelota irresistible 🎾",
+                    cuerpo: "Para que la traiga, primero debe amarla. La pelota es un tesoro que solo aparece cuando tú estás.",
+                    puntosClave: ["Interés: Haz que la pelota 'cobre vida'.", "Escasez: Guárdala cuando acabe el juego.", "Misión: Logra que la toque con su nariz."]
+                },
+                practica: { timerSeconds: 300, pasos: [{titulo: 'Anima el juguete', desc: 'Muévelo rápido por el suelo.', emoji:'✨'}, {titulo: 'Premia el contacto', desc:'Snack cada vez que la toque.', emoji:'🍖'}] },
+                resumen: "Tú eres el director de la diversión. Si tú te emocionas, tu peludo también lo hará."
+            }
+        ]
+    },
+    {
+        id: 'comandos', name: 'Comandos básicos', icon: '🐾', totalDays: 7,
+        lessons: [
+            { 
+                day: 1, title: 'Sentado perfecto', semanaLabel: 'Fase: Conexión',
+                teoria: {
+                    audioSeconds: 25,
+                    intro: "El inicio de la obediencia 🐾",
+                    cuerpo: "Sentarse es el primer paso del autocontrol. No uses fuerza, usa la nariz de tu peludo para guiarlo.",
+                    puntosClave: ["Guía: El premio es tu volante.", "Posición: El trasero baja naturalmente.", "Misión: 5 repeticiones exitosas."]
+                },
+                practica: { timerSeconds: 300, pasos: [{titulo: 'Luring', desc: 'Lleva el premio sobre su cabeza.', emoji:'👃'}, {titulo: 'Clicker mental', desc:'Dile "Bien" al segundo exacto.', emoji:'✅'}] },
+                resumen: "Un perro que se sienta es un perro que escucha. Estás construyendo un lenguaje común."
+            }
+        ]
+    },
+    {
+        id: 'no-jale', name: 'Paseo relajado', icon: '🦮', totalDays: 7,
+        lessons: [
+            { 
+                day: 1, title: 'La física de la correa', semanaLabel: 'Fase: Guía',
+                teoria: {
+                    audioSeconds: 25,
+                    intro: "¿Por qué jala tanto? 🦮",
+                    cuerpo: "Jala porque jalar le funciona para avanzar. Hoy aprenderá que la correa tensa significa detenerse.",
+                    puntosClave: ["Tensión: Correa tensa = Paramos.", "Relajación: Correa floja = Avanzamos.", "Misión: Vuélvete un árbol inamovible."]
+                },
+                practica: { timerSeconds: 600, pasos: [{titulo: 'El Árbol', desc: 'Párate en seco si hay tensión.', emoji:'🌳'}, {titulo: 'Espera contacto', desc:'Avanza solo cuando te mire.', emoji:'👀'}] },
+                resumen: "El paseo no es una lucha, es una conversación a través de la correa."
             }
         ]
     }
@@ -217,7 +280,7 @@ let timerInterval = null;
 let trackerData = JSON.parse(localStorage.getItem(`eduDog_tracker_${dogName}`)) || {};
 
 // =============================================
-// LOGICA UI
+// LÓGICA DE CONTROLADORES
 // =============================================
 
 document.addEventListener('DOMContentLoaded', () => { renderHub(); showScreen('screen-hub'); });
@@ -226,20 +289,26 @@ function renderHub() {
     document.getElementById('hub-dog-name').innerText = `${dogName} 🐾`;
     const container = document.getElementById('challenges-container');
     container.innerHTML = '';
+    let totalPassed = 0;
+    
     CHALLENGES.forEach(ch => {
         const chTracker = trackerData[ch.id] || {};
         const passedCount = Object.values(chTracker).filter(t => t.passed).length;
+        totalPassed += passedCount;
         container.innerHTML += `
-            <div onclick="openChallenge('${ch.id}')" class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm active:scale-95 transition-all cursor-pointer">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 brand-bg rounded-2xl flex items-center justify-center text-xl text-white">${ch.icon}</div>
-                    <div class="flex-1">
-                        <h4 class="font-extrabold text-slate-900 text-sm">${ch.name}</h4>
-                        <p class="text-[10px] text-slate-400 font-medium">${passedCount}/${ch.totalDays} Completado</p>
-                    </div>
+            <div onclick="openChallenge('${ch.id}')" class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm active:scale-95 transition-all cursor-pointer flex items-center gap-3">
+                <div class="w-12 h-12 brand-bg rounded-2xl flex items-center justify-center text-xl text-white">${ch.icon}</div>
+                <div class="flex-1 text-left">
+                    <h4 class="font-black text-slate-900 text-sm">${ch.name}</h4>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-tight">${passedCount}/${ch.totalDays} Días completados</p>
                 </div>
+                <i class="fa-solid fa-chevron-right text-slate-300"></i>
             </div>`;
     });
+    
+    const pct = Math.round((totalPassed / 42) * 100);
+    document.getElementById('hub-progress-text').innerText = `${totalPassed}/42 días`;
+    document.getElementById('hub-progress-bar').style.width = pct + '%';
 }
 
 function openChallenge(id) {
@@ -253,25 +322,24 @@ function renderDays() {
     const container = document.getElementById('days-container');
     const chTracker = trackerData[currentChallenge.id] || {};
     container.innerHTML = '';
-    for (let i = 1; i <= currentChallenge.totalDays; i++) {
+    for (let i = 1; i <= 7; i++) {
         const lesson = currentChallenge.lessons.find(l => l.day === i);
         const isPassed = chTracker[i] && chTracker[i].passed;
         const isReady = i === 1 || (chTracker[i-1] && chTracker[i-1].passed);
         container.innerHTML += `
-            <div onclick="${isReady ? `openLesson(${i})` : ''}" class="bg-white rounded-2xl border-2 p-4 flex items-center justify-between ${isPassed ? 'border-emerald-500' : isReady ? 'border-emerald-200 bg-emerald-50' : 'opacity-40'}">
-                <div class="flex items-center gap-3">
+            <div onclick="${isReady && lesson ? `openLesson(${i})` : ''}" class="bg-white rounded-2xl border-2 p-4 flex items-center justify-between ${isPassed ? 'border-emerald-500' : isReady && lesson ? 'border-emerald-200 bg-emerald-50' : 'opacity-40'}">
+                <div class="flex items-center gap-3 text-left">
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs ${isPassed ? 'bg-emerald-500 text-white' : 'bg-slate-100'}">${i}</div>
-                    <h4 class="font-bold text-sm text-slate-800">${lesson ? lesson.title : `Día ${i}`}</h4>
+                    <h4 class="font-bold text-sm text-slate-800">${lesson ? lesson.title : `Día ${i} (Próximamente)`}</h4>
                 </div>
-                ${isPassed ? '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : isReady ? '<i class="fa-solid fa-play text-emerald-500 text-xs"></i>' : '<i class="fa-solid fa-lock text-slate-300 text-xs"></i>'}
+                ${isPassed ? '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : isReady && lesson ? '<i class="fa-solid fa-play text-emerald-500 text-xs"></i>' : '<i class="fa-solid fa-lock text-slate-300 text-xs"></i>'}
             </div>`;
     }
 }
 
 function openLesson(dayNum) {
     const lesson = currentChallenge.lessons.find(l => l.day === dayNum);
-    currentLessonDay = dayNum;
-    currentTab = 'teoria';
+    currentLessonDay = dayNum; currentTab = 'teoria';
     document.getElementById('lesson-header-title').innerText = `Día ${dayNum}`;
     document.getElementById('lesson-header-sub').innerText = lesson.semanaLabel;
     renderLessonContent(lesson);
@@ -279,7 +347,7 @@ function openLesson(dayNum) {
 }
 
 function renderLessonContent(lesson) {
-    const replace = (str) => str.replace(/<DOG>/g, `<span class="brand-text">${dogName}</span>`);
+    const replace = (s) => s.replace(/<DOG>/g, `<span class="brand-text">${dogName}</span>`);
     const container = document.getElementById('lesson-content');
     
     let html = `
@@ -291,44 +359,32 @@ function renderLessonContent(lesson) {
 
     if (currentTab === 'teoria') {
         html += `
-            <div class="text-center mb-2"><span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Escuchar lección</span></div>
-            
-            <div class="blob-audio-container" id="audio-container">
+            <div class="blob-container" id="audio-container">
                 <div class="blob-shape"></div>
-                <div class="audio-content">
-                    <div id="audio-time">0:45</div>
-                    <div onclick="toggleAudio(${lesson.teoria.audioSeconds})" class="play-trigger" id="audio-play-btn">
-                        <i class="fa-solid fa-play"></i>
-                    </div>
+                <div class="blob-content">
+                    <div id="audio-time" class="counter-text">0:25</div>
+                    <div onclick="toggleAudio(${lesson.teoria.audioSeconds})" class="action-trigger" id="audio-play-btn"><i class="fa-solid fa-play"></i></div>
                 </div>
             </div>
-
-            <div class="space-y-4 mt-6">
-                <h3 class="font-black text-slate-900 text-lg leading-tight text-center">${replace(lesson.teoria.intro)}</h3>
-                <p class="text-slate-600 text-sm leading-relaxed text-center px-4">${replace(lesson.teoria.cuerpo)}</p>
-                <div class="space-y-2 mt-4 px-2">
-                    ${lesson.teoria.puntosClave.map(p => `<p class="text-[11px] font-bold text-slate-500 flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-100"><i class="fa-solid fa-circle-check text-emerald-500"></i> ${replace(p)}</p>`).join('')}
+            <div class="space-y-4 px-1 text-center">
+                <h3 class="font-black text-slate-900 text-lg">${replace(lesson.teoria.intro)}</h3>
+                <p class="text-slate-600 text-sm leading-relaxed px-4">${replace(lesson.teoria.cuerpo)}</p>
+                <div class="space-y-2 mt-4 px-2 text-left">
+                    ${lesson.teoria.puntosClave.map(p => `<p class="text-xs font-bold text-slate-500 flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><i class="fa-solid fa-circle-check text-emerald-500"></i> ${replace(p)}</p>`).join('')}
                 </div>
-                
-                <button onclick="switchTab('practica')" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl mt-8 shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 active:scale-95 transition-all">
-                    ¡Entendido! Ver práctica <i class="fa-solid fa-arrow-right text-xs"></i>
-                </button>
+                <button onclick="switchTab('practica')" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl mt-8 shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 active:scale-95 transition-all">¡Entendido! Ver pasos <i class="fa-solid fa-arrow-right text-xs"></i></button>
             </div>`;
     } else {
         html += `
-            <div class="text-center mb-2"><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Temporizador de Sesión</span></div>
-            <div class="blob-audio-container" id="timer-container">
+            <div class="blob-container" id="timer-container">
                 <div class="blob-shape"></div>
-                <div class="audio-content">
-                    <div id="lesson-timer" style="font-size: 3.5rem; font-weight: 900; color: #064e3b; letter-spacing: -2px;">10:00</div>
-                    <div onclick="toggleTimer(${lesson.practica.timerSeconds})" class="play-trigger" id="timer-play-btn">
-                        <i class="fa-solid fa-play"></i>
-                    </div>
+                <div class="blob-content">
+                    <div id="lesson-timer" class="counter-text">10:00</div>
+                    <div onclick="toggleTimer(${lesson.practica.timerSeconds})" class="action-trigger" id="timer-play-btn"><i class="fa-solid fa-play"></i></div>
                 </div>
             </div>
-
-            <div class="space-y-3 mt-6">
-                <h3 class="font-black text-slate-900 text-sm mb-2 ml-1">Pasos a seguir:</h3>
+            <div class="space-y-3 mt-6 text-left">
+                <h3 class="font-black text-slate-900 text-sm mb-2 ml-1">Instrucciones de hoy:</h3>
                 ${lesson.practica.pasos.map((p, i) => `
                     <div class="bg-white rounded-2xl border border-slate-100 p-4 flex gap-4 shadow-sm">
                         <div class="step-badge">${i+1}</div>
@@ -338,70 +394,53 @@ function renderLessonContent(lesson) {
                         </div>
                     </div>`).join('')}
             </div>
-
-            <div class="bg-amber-50 border-l-4 border-amber-400 p-5 rounded-r-3xl mt-8 shadow-sm">
+            <div class="bg-amber-50 border-l-4 border-amber-400 p-5 rounded-r-3xl mt-8 shadow-sm text-left">
                 <span class="text-[9px] font-black uppercase text-amber-700 block mb-1">La clave de hoy</span>
                 <p class="text-xs font-semibold italic text-amber-900 leading-tight">"${replace(lesson.resumen)}"</p>
             </div>
-
             <button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl mt-8 shadow-xl active:scale-95 transition-all">COMPLETAR DÍA</button>
         `;
     }
-
     container.innerHTML = html;
 }
 
 function switchTab(tab) {
-    currentTab = tab;
-    clearInterval(audioInterval); clearInterval(timerInterval);
+    currentTab = tab; clearInterval(audioInterval); clearInterval(timerInterval);
     audioInterval = null; timerInterval = null;
     const lesson = currentChallenge.lessons.find(l => l.day === currentLessonDay);
     renderLessonContent(lesson);
 }
 
-// LOGICA AUDIO BLOB
-function toggleAudio(totalSeconds) {
+function toggleAudio(total) {
     const btn = document.getElementById('audio-play-btn');
     const container = document.getElementById('audio-container');
-    const timeDisplay = document.getElementById('audio-time');
-    
+    const display = document.getElementById('audio-time');
     if (audioInterval) {
         clearInterval(audioInterval); audioInterval = null;
-        btn.innerHTML = '<i class="fa-solid fa-play"></i>';
-        container.classList.remove('audio-playing');
+        btn.innerHTML = '<i class="fa-solid fa-play"></i>'; container.classList.remove('active-session');
     } else {
-        let time = totalSeconds;
-        container.classList.add('audio-playing');
-        btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        let time = total; container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
         audioInterval = setInterval(() => {
-            time--;
-            let mins = Math.floor(time / 60);
-            let secs = time % 60;
-            timeDisplay.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-            if (time <= 0) { clearInterval(audioInterval); container.classList.remove('audio-playing'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; }
+            time--; let mins = Math.floor(time / 60); let secs = time % 60;
+            display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+            if (time <= 0) { clearInterval(audioInterval); container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; }
         }, 1000);
     }
 }
 
-// LOGICA TIMER BLOB
-function toggleTimer(totalSeconds) {
+function toggleTimer(total) {
     const btn = document.getElementById('timer-play-btn');
     const container = document.getElementById('timer-container');
     const display = document.getElementById('lesson-timer');
     if (timerInterval) {
         clearInterval(timerInterval); timerInterval = null;
-        btn.innerHTML = '<i class="fa-solid fa-play"></i>';
-        container.classList.remove('audio-playing');
+        btn.innerHTML = '<i class="fa-solid fa-play"></i>'; container.classList.remove('active-session');
     } else {
-        let time = totalSeconds;
-        container.classList.add('audio-playing');
-        btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        let time = total; container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
         timerInterval = setInterval(() => {
-            time--;
-            let mins = Math.floor(time / 60);
-            let secs = time % 60;
+            time--; let mins = Math.floor(time / 60); let secs = time % 60;
             display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-            if (time <= 0) { clearInterval(timerInterval); container.classList.remove('audio-playing'); }
+            if (time <= 0) { clearInterval(timerInterval); container.classList.remove('active-session'); showToast("¡Excelente sesión!"); }
         }, 1000);
     }
 }
@@ -413,10 +452,8 @@ function saveDay(result) {
     if (!trackerData[currentChallenge.id]) trackerData[currentChallenge.id] = {};
     trackerData[currentChallenge.id][currentLessonDay] = { result, passed: true };
     localStorage.setItem(`eduDog_tracker_${dogName}`, JSON.stringify(trackerData));
-    closeModal();
-    showToast(`Día superado. ¡Buen trabajo!`);
-    showScreen('screen-challenge');
-    renderDays(); renderHub();
+    closeModal(); showToast(`Día superado. ¡Vamos por más!`);
+    renderHub(); renderDays(); showScreen('screen-challenge');
 }
 
 function showScreen(id) {
@@ -425,10 +462,8 @@ function showScreen(id) {
 }
 
 function showToast(msg) {
-    const t = document.getElementById('toast');
-    document.getElementById('toast-msg').innerText = msg;
-    t.classList.remove('-translate-y-24', 'opacity-0');
-    t.classList.add('translate-y-0', 'opacity-100');
+    const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg;
+    t.classList.remove('-translate-y-24', 'opacity-0'); t.classList.add('translate-y-0', 'opacity-100');
     setTimeout(() => { t.classList.add('-translate-y-24', 'opacity-0'); t.classList.remove('translate-y-0', 'opacity-100'); }, 3000);
 }
 </script>

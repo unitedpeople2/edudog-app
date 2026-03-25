@@ -101,7 +101,7 @@
                         <p class="text-violet-300 text-[10px] font-black uppercase tracking-widest mb-1" id="user-display-phone">+51 000 000 000</p>
                         <h3 class="text-xl font-black tracking-tight leading-tight"><span id="display-dog-name">Tu Peludo</span> 🐾</h3>
                         <div class="mt-4 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-                            <div class="flex justify-between items-center text-xs font-bold mb-2"><span class="text-slate-200">Progreso Pro</span><span id="apps-count" class="text-white">0/1</span></div>
+                            <div class="flex justify-between items-center text-xs font-bold mb-2"><span class="text-slate-200">Progreso Pro</span><span id="apps-count" class="text-white">0/0</span></div>
                             <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"><div id="progress-bar" class="bg-amber-400 h-full rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div></div>
                         </div>
                     </div>
@@ -110,13 +110,66 @@
                 <div><h3 class="font-extrabold text-slate-900 text-lg mb-4">Biblioteca Interactiva</h3><div id="ebooks-container" class="space-y-4"></div></div>
             </div>
         </section>
+
+        <div id="modal-upsell" class="hidden absolute inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end transition-all">
+            <div class="bg-white rounded-t-[2.5rem] p-8 transform translate-y-full transition-transform duration-300" id="upsell-content">
+                <div class="flex items-center gap-4 mb-6">
+                    <div id="upsell-icon-container" class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner">
+                        <i id="upsell-icon" class="fa-solid fa-star"></i>
+                    </div>
+                    <div>
+                        <h3 id="upsell-title" class="text-xl font-black text-slate-900 leading-tight">Nombre App</h3>
+                        <p id="upsell-subtitle" class="text-xs font-bold text-slate-400 mt-1">Subtítulo</p>
+                    </div>
+                </div>
+                
+                <h4 class="font-black text-sm text-slate-800 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i> ¿Qué incluye tu acceso?
+                </h4>
+                <ul id="upsell-benefits" class="space-y-2.5 mb-8 text-sm text-slate-600 font-medium">
+                    </ul>
+
+                <div class="space-y-3">
+                    <button id="btn-confirm-upsell" class="w-full text-white font-black py-4 rounded-2xl text-[15px] shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2">
+                        Desbloquear por <span id="upsell-price">S/ 0</span>
+                    </button>
+                    <button onclick="closeUpsellModal()" class="w-full text-slate-400 font-bold py-3 text-sm active:scale-95 transition-transform">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         const API_URL = "https://bot-cursos-digitales-500394828639.southamerica-west1.run.app";
         const TIPO_CAMBIO = 3.50; 
-        const appsList = [{ id: "nutrican", name: "NutriCan Vital", desc: "Calculadora exacta de dieta natural.", icon: "fa-bowl-food", color: "text-amber-600", bg: "bg-amber-100", price: "9.99" }];
-        const ebooksList = [{ id: "nutrichef", name: "NutriChef Vital", desc: "Recetario dinámico según tu país.", icon: "fa-fire-burner", color: "text-rose-600", bg: "bg-rose-100", price: "4.99" }];
+        
+        // --- LISTA DE PRODUCTOS ACTUALIZADA CON BENEFICIOS ---
+        const appsList = [
+            { 
+                id: "nutrican", name: "NutriCan Vital", subtitle: "Calculadora de Dieta Natural", 
+                desc: "Calculadora exacta de dieta natural.", icon: "fa-bowl-food", color: "text-amber-600", bg: "bg-amber-100", price: "9.99",
+                themeBtn: "bg-amber-500 shadow-amber-500/30",
+                benefits: ["Porciones exactas según peso y edad", "Transición segura sin problemas gástricos", "Monitoreo de digestión diaria", "Acceso de por vida desde tu celular"]
+            },
+            { 
+                id: "mentecan", name: "Mentecan Vital", subtitle: "Programa de Psicología y Obediencia", 
+                desc: "Entrena su mente y elimina malos hábitos.", icon: "fa-brain", color: "text-emerald-600", bg: "bg-emerald-100", price: "14.99",
+                themeBtn: "bg-emerald-500 shadow-emerald-500/30",
+                benefits: ["Retos prácticos de 7 días", "Audios de psicología canina", "Solución definitiva a mordiscos", "Comandos visuales y de voz efectivos"]
+            }
+        ];
+
+        const ebooksList = [
+            { 
+                id: "nutrichef", name: "NutriChef Vital", subtitle: "Recetario Dinámico y Compras", 
+                desc: "Recetario dinámico según tu país.", icon: "fa-fire-burner", color: "text-rose-600", bg: "bg-rose-100", price: "4.99",
+                themeBtn: "bg-rose-500 shadow-rose-500/30",
+                benefits: ["50 Recetas Premium (Desayuno, Almuerzo, Cena)", "Modo 'Chef' con temporizadores en pantalla", "Ingredientes adaptados a tu país", "Lista de compras automática para WhatsApp"]
+            }
+        ];
+        
         let currentUser = null;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -124,12 +177,28 @@
             if(savedSession) { const creds = JSON.parse(savedSession); performLogin(creds.phone, creds.pin, true); }
         });
 
+        // --- FUNCIONES DE LOGIN Y NAVEGACIÓN (ORIGINALES) ---
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = message;
             toast.classList.remove('-translate-y-24', 'opacity-0');
             toast.classList.add('translate-y-0', 'opacity-100');
             setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('-translate-y-24', 'opacity-0'); }, 3000);
+        }
+
+        async function handleLoginButton() {
+            const phoneInput = document.getElementById('login-phone').value;
+            const codeInput = document.getElementById('country-code').value;
+            const pinInput = document.getElementById('login-pin').value;
+            if(!phoneInput || !pinInput) { showToast('Completa todos los datos', 'error'); return; }
+            
+            const btnText = document.getElementById('btn-text');
+            const btnLoader = document.getElementById('btn-loader');
+            btnText.classList.add('opacity-0'); btnLoader.classList.remove('hidden');
+            
+            await performLogin(`${codeInput}${phoneInput}`, pinInput, false);
+            
+            btnText.classList.remove('opacity-0'); btnLoader.classList.add('hidden');
         }
 
         async function performLogin(phone, pin, isAutoLoad = false) {
@@ -144,23 +213,46 @@
             } catch (e) { if(!isAutoLoad) showToast('Error de servidor', 'error'); }
         }
 
+        async function saveWelcomeName() {
+            const name = document.getElementById('welcome-dog-name').value;
+            if(!name) { showToast('Ingresa un nombre', 'error'); return; }
+            try {
+                const response = await fetch(`${API_URL}/api/hub/perfil`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telefono: currentUser.phone, pin: currentUser.pin, dogName: name }) });
+                if (response.ok) {
+                    currentUser.dogName = name;
+                    localStorage.setItem('eduDogSession', JSON.stringify(currentUser));
+                    renderHub(); showScreen('screen-hub');
+                } else { showToast('Error al guardar', 'error'); }
+            } catch (e) { showToast('Error de conexión', 'error'); }
+        }
+
+        // --- RENDERIZADO DEL HUB (ACTUALIZADO) ---
         function renderHub() {
             document.getElementById('user-display-phone').innerText = `+${currentUser.phone}`;
             document.getElementById('display-dog-name').innerText = `Entrenamiento de ${currentUser.dogName}`;
             const isPeru = currentUser.phone.startsWith('51');
             const getPrice = (usd) => isPeru ? { text: `S/ ${Math.round(usd * TIPO_CAMBIO)}`, val: Math.round(usd * TIPO_CAMBIO), curr: "PEN" } : { text: `$${usd} USD`, val: usd, curr: "USD" };
 
+            // Progreso dinámico
+            const ownedAppsCount = currentUser.apps.filter(appId => appsList.some(a => a.id === appId)).length;
+            const totalAppsCount = appsList.length;
+            document.getElementById('apps-count').innerText = `${ownedAppsCount}/${totalAppsCount}`;
+            const progressPct = totalAppsCount > 0 ? (ownedAppsCount / totalAppsCount) * 100 : 0;
+            document.getElementById('progress-bar').style.width = `${progressPct}%`;
+
             const appsContainer = document.getElementById('tools-container');
             appsContainer.innerHTML = '';
             appsList.forEach(app => {
                 const owned = currentUser.apps.includes(app.id);
-                const price = getPrice(app.price);
                 appsContainer.innerHTML += `
                     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
-                        <h4 class="font-extrabold text-slate-900">${app.name}</h4>
-                        <p class="text-xs text-slate-500 mb-4">${app.desc}</p>
-                        ${owned ? `<button onclick="openApp('${app.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">Abrir App</button>` : 
-                        `<button onclick="openUpsell('${app.name}', '${price.val}', '${price.curr}', 'herramienta')" class="w-full bg-violet-50 text-violet-700 py-3 rounded-xl font-bold border border-violet-200">Desbloquear por ${price.text}</button>`}
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center ${app.bg} ${app.color}"><i class="fa-solid ${app.icon}"></i></div>
+                            <h4 class="font-extrabold text-slate-900">${app.name}</h4>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-4 ml-1">${app.desc}</p>
+                        ${owned ? `<button onclick="openApp('${app.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Abrir App</button>` : 
+                        `<button onclick="openUpsellModal('${app.id}', 'herramienta')" class="w-full bg-violet-50 text-violet-700 py-3 rounded-xl font-bold border border-violet-200 active:scale-95 transition-transform">Ver Detalles</button>`}
                     </div>`;
             });
 
@@ -168,14 +260,62 @@
             ebooksContainer.innerHTML = '';
             ebooksList.forEach(ebook => {
                 const owned = currentUser.ebooks.includes(ebook.id);
-                const price = getPrice(ebook.price);
                 ebooksContainer.innerHTML += `
-                    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
-                        <h4 class="font-extrabold text-slate-900">${ebook.name}</h4>
-                        ${owned ? `<button onclick="openApp('${ebook.id}')" class="w-full bg-slate-900 text-white py-2.5 rounded-xl text-xs font-bold">Ver Recetario</button>` : 
-                        `<button onclick="openUpsell('${ebook.name}', '${price.val}', '${price.curr}', 'eBook')" class="w-full bg-rose-50 text-rose-600 py-2.5 rounded-xl text-xs font-bold border border-rose-200">Desbloquear por ${price.text}</button>`}
+                    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center ${ebook.bg} ${ebook.color}"><i class="fa-solid ${ebook.icon}"></i></div>
+                            <h4 class="font-extrabold text-slate-900 text-sm">${ebook.name}</h4>
+                        </div>
+                        ${owned ? `<button onclick="openApp('${ebook.id}')" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold active:scale-95 transition-transform">Ver</button>` : 
+                        `<button onclick="openUpsellModal('${ebook.id}', 'eBook')" class="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-xs font-bold border border-rose-200 active:scale-95 transition-transform">Desbloquear</button>`}
                     </div>`;
             });
+        }
+
+        // --- LÓGICA DEL MODAL UPSELL ---
+        let pendingUpsellItem = null;
+
+        function openUpsellModal(id, type) {
+            const item = type === 'herramienta' ? appsList.find(a => a.id === id) : ebooksList.find(e => e.id === id);
+            if(!item) return;
+
+            pendingUpsellItem = { item: item, type: type };
+            const isPeru = currentUser.phone.startsWith('51');
+            const priceText = isPeru ? `S/ ${Math.round(item.price * TIPO_CAMBIO)}` : `$${item.price} USD`;
+
+            document.getElementById('upsell-icon').className = `fa-solid ${item.icon} ${item.color}`;
+            document.getElementById('upsell-icon-container').className = `w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner ${item.bg}`;
+            document.getElementById('upsell-title').innerText = item.name;
+            document.getElementById('upsell-subtitle').innerText = item.subtitle;
+            document.getElementById('upsell-price').innerText = priceText;
+            
+            const btnConfirm = document.getElementById('btn-confirm-upsell');
+            btnConfirm.className = `w-full text-white font-black py-4 rounded-2xl text-[15px] shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 ${item.themeBtn}`;
+
+            const ul = document.getElementById('upsell-benefits');
+            ul.innerHTML = '';
+            item.benefits.forEach(b => {
+                ul.innerHTML += `<li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs"></i> <span>${b}</span></li>`;
+            });
+
+            const modal = document.getElementById('modal-upsell');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => { document.getElementById('upsell-content').classList.remove('translate-y-full'); }, 10);
+            
+            btnConfirm.onclick = () => {
+                openUpsell(item.name, isPeru ? Math.round(item.price * TIPO_CAMBIO) : item.price, isPeru ? 'PEN' : 'USD', type);
+            };
+        }
+
+        function closeUpsellModal() {
+            document.getElementById('upsell-content').classList.add('translate-y-full');
+            setTimeout(() => {
+                const modal = document.getElementById('modal-upsell');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                pendingUpsellItem = null;
+            }, 300);
         }
 
         function openApp(id) { 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduDog Pro - Entrenamiento Profesional</title>
+    <title>Mentecan Vital - Entrenamiento Profesional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -27,15 +27,15 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Estética Premium */
-        .brand-gradient { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
+        /* Estética Mentecan Vital */
+        .brand-gradient { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
+        .header-gradient { background: linear-gradient(to right, #059669, #10b981); }
         
         /* Pestañas */
         .tab-btn { padding-bottom: 0.75rem; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: 800; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .tab-btn.active { border-color: #10b981; color: #059669; }
 
-        /* BLOB DESIGN (Audio & Timer) */
+        /* REPRODUCTOR Y TIMER (BLOB) */
         .blob-container {
             position: relative; width: 230px; height: 230px;
             margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -52,21 +52,20 @@
             animation: breathe 4s ease-in-out infinite;
             background: rgba(16, 185, 129, 0.18);
             border-color: #10b981;
-            box-shadow: 0 0 40px rgba(16, 185, 129, 0.1);
         }
         @keyframes breathe {
             0%, 100% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: scale(1); }
             50% { border-radius: 58% 42% 38% 62% / 55% 55% 45% 45%; transform: scale(1.08); }
         }
         .counter-text { position: relative; z-index: 10; font-size: 3.5rem; font-weight: 900; color: #064e3b; letter-spacing: -2px; }
-        .action-trigger { position: relative; z-index: 10; margin-top: 10px; width: 55px; height: 55px; background: #059669; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3); font-size: 1.2rem; cursor: pointer; }
+        .action-trigger { position: relative; z-index: 10; margin-top: 10px; width: 55px; height: 55px; background: #059669; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3); cursor: pointer; }
 
         /* Tags e Iconos */
         .tag { background: #f1f5f9; color: #475569; font-size: 10px; font-weight: 800; padding: 5px 12px; border-radius: 20px; text-transform: uppercase; display: flex; align-items: center; gap: 5px; border: 1px solid #e2e8f0; }
         .step-badge { width: 26px; height: 26px; border-radius: 50%; background: #059669; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
         
         /* Estados de los días */
-        .day-item.failed { border-color: #fca5a5; background: #fff1f2; }
+        .day-item.failed { border-color: #fca5a5 !important; background: #fff1f2 !important; }
         .day-item.failed h4 { color: #b91c1c; }
         .day-item.failed .status-icon { color: #ef4444; }
 
@@ -82,9 +81,18 @@
 
 <div class="app-container md:rounded-[2.5rem] md:border-[10px] md:border-slate-900">
 
+    <div id="app-header" class="header-gradient text-white px-6 py-4 flex items-center justify-between z-30 shrink-0 sticky top-0 shadow-md" style="display: none;">
+        <button id="btn-header-back" onclick="goBack()" class="w-10 h-10 bg-black/10 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="text-center">
+            <h2 id="header-title" class="font-black text-sm">Mentecan Vital</h2>
+            <p id="header-sub" class="text-[9px] font-black text-emerald-100 uppercase tracking-widest"></p>
+        </div>
+        <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-black/10 rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-house text-sm"></i></button>
+    </div>
+
     <section id="screen-hub" class="screen">
         <div class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex justify-between items-center z-30">
-            <h2 class="font-black text-slate-800 text-lg flex items-center gap-2"><i class="fa-solid fa-paw text-emerald-500"></i> EduDog Pro</h2>
+            <h2 class="font-black text-slate-800 text-lg flex items-center gap-2"><i class="fa-solid fa-paw text-emerald-500"></i> Mentecan Vital</h2>
             <div class="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400"><i class="fa-solid fa-shield-dog"></i></div>
         </div>
         <div class="px-6 py-6 space-y-6">
@@ -103,30 +111,20 @@
     </section>
 
     <section id="screen-challenge" class="screen">
-        <div class="sticky top-0 bg-emerald-600 text-white px-6 py-4 flex items-center justify-between z-30">
-            <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-emerald-700/50 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
-            <h2 class="font-black text-sm" id="challenge-title">Desafío</h2>
-            <div class="w-10 h-10"></div>
-        </div>
         <div id="days-container" class="px-6 py-6 space-y-3"></div>
     </section>
 
     <section id="screen-lesson" class="screen">
-        <div class="sticky top-0 bg-emerald-600 text-white px-6 py-4 flex items-center justify-between z-30">
-            <button onclick="showScreen('screen-challenge')" class="w-10 h-10 bg-emerald-700/50 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
-            <div class="text-center"><h2 class="font-black text-sm" id="lesson-header-title">Día 1</h2><p id="lesson-header-sub" class="text-[9px] font-black text-emerald-200 uppercase tracking-widest"></p></div>
-            <div class="w-10 h-10"></div>
-        </div>
         <div class="px-6 py-6 pb-12" id="lesson-content"></div>
     </section>
 
     <div id="modal-complete" class="hidden absolute inset-0 z-50 modal-bg flex flex-col justify-end">
         <div class="bg-white rounded-t-[3rem] p-8 shadow-2xl">
-            <div class="text-center mb-8"><div class="text-5xl mb-4">✨</div><h3 class="text-2xl font-black text-slate-900">¿Cómo fue la sesión?</h3><p class="text-slate-400 text-sm font-medium mt-1 text-balance">Tu honestidad es la clave para un aprendizaje real.</p></div>
+            <div class="text-center mb-8"><div class="text-5xl mb-4">✨</div><h3 class="text-2xl font-black text-slate-900">¿Cómo fue la sesión?</h3><p class="text-slate-400 text-sm font-medium mt-1">Tu honestidad garantiza un aprendizaje real.</p></div>
             <div class="space-y-3">
-                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-5 rounded-[2rem] font-black text-sm border border-emerald-100 flex items-center justify-between group active:scale-95 transition-all"><span><i class="fa-solid fa-star mr-2 text-emerald-500"></i> ¡Excelente progreso!</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
-                <button onclick="saveDay('bien')" class="w-full bg-amber-50 text-amber-700 p-5 rounded-[2rem] font-black text-sm border border-amber-100 flex items-center justify-between group active:scale-95 transition-all"><span><i class="fa-solid fa-thumbs-up mr-2 text-amber-500"></i> Estuvo bien</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
-                <button onclick="saveDay('dificil')" class="w-full bg-rose-50 text-rose-700 p-5 rounded-[2rem] font-black text-sm border border-rose-100 flex items-center justify-between group active:scale-95 transition-all"><span><i class="fa-solid fa-triangle-exclamation mr-2 text-rose-500"></i> Difícil - Reintentar</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
+                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-5 rounded-[2rem] font-black text-sm border border-emerald-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-star mr-2 text-emerald-500"></i> ¡Excelente progreso!</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
+                <button onclick="saveDay('bien')" class="w-full bg-amber-50 text-amber-700 p-5 rounded-[2rem] font-black text-sm border border-amber-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-thumbs-up mr-2 text-amber-500"></i> Estuvo bien</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
+                <button onclick="saveDay('dificil')" class="w-full bg-rose-50 text-rose-700 p-5 rounded-[2rem] font-black text-sm border border-rose-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-triangle-exclamation mr-2 text-rose-500"></i> Difícil - Reintentar</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
                 <button onclick="closeModal()" class="w-full text-slate-400 py-4 font-bold text-sm">Cancelar</button>
             </div>
         </div>
@@ -139,98 +137,21 @@
 // =============================================
 const CHALLENGES = [
     {
-        id: 'no-muerda', name: 'No muerda las cosas', icon: '🦷', totalDays: 7, desc: 'Protege tu hogar y educa su boca',
+        id: 'no-muerda', name: 'No muerda las cosas', icon: '🦷', totalDays: 7, desc: 'Educa su boca y protege tu hogar',
         lessons: [
-            { 
-                day: 1, title: 'El código secreto', semanaLabel: 'Fase 1: Diagnóstico', duracion: '10 min', nivel: 'Fácil', categoria: 'Psicología',
-                teoria: { audioSeconds: 25, intro: "¿Por qué muerde todo? 🧠", cuerpo: "Tu peludo no es rebelde, es curioso. Al no tener manos, usa su boca para 'tocar' y descubrir el mundo.", puntosClave: ["Exploración: Su boca es su mano.", "Instinto: Morder alivia el estrés.", "Misión: Identifica sus texturas favoritas."] },
-                practica: { timerSeconds: 600, pasos: [
-                    { titulo: 'Observa sin reaccionar', desc: 'Nota qué muerde <DOG> y en qué momento exacto. ¿Aburrimiento o atención?', emoji: '🔍', icon: 'fa-magnifying-glass' },
-                    { titulo: 'Anota el patrón', desc: '¿Prefiere madera, plástico o tela? Saber esto es el 50% de la solución.', emoji: '📝', icon: 'fa-pen-to-square' },
-                    { titulo: 'Prepara el espacio', desc: 'Retira objetos prohibidos de su zona por hoy. No es castigo, es gestión.', emoji: '🏠', icon: 'fa-house-circle-check' }
-                ]},
-                tips: ["Hoy no digas NO, solo sé un detective.", "Un perro cansado físicamente muerde un 70% menos."],
-                error: { titulo: "Error típico del Día 1", desc: "Corregir sin entender. Si muerde por ansiedad, el castigo solo empeora el cuadro." },
-                resumen: "Hoy el éxito no es que deje de morder, sino que tú entiendas por qué lo hace."
-            },
-            { 
-                day: 2, title: 'El comando QUIETO', semanaLabel: 'Fase 2: Control', duracion: '15 min', nivel: 'Fácil', categoria: 'Obediencia',
-                teoria: { audioSeconds: 30, intro: "Fijando el límite visual ✋", cuerpo: "Hoy le enseñamos a parar. Necesitas premios pequeños y mucha paciencia.", puntosClave: ["Señal: Mano abierta frente a su cara.", "Voz: Di 'QUIETO' una sola vez, firme y calmado.", "Premio: Dale el snack si para 2 segundos."] },
-                practica: { timerSeconds: 900, pasos: [
-                    { titulo: 'Mano de STOP', desc: 'Cuando intente morder, pon tu mano abierta entre él y el objeto.', emoji: '✋', icon: 'fa-hand' },
-                    { titulo: 'Comando verbal', desc: 'Di QUIETO. No repitas la palabra; dilo una vez y espera.', emoji: '🗣️', icon: 'fa-comment' },
-                    { titulo: 'Refuerzo positivo', desc: 'Premia al instante si se aleja del objeto prohibido.', emoji: '🍖', icon: 'fa-bone' }
-                ]},
-                tips: ["El premio debe ocurrir en menos de 2 segundos.", "Usa premios de alto valor (pollo o queso)."],
-                error: { titulo: "El error de repetición", desc: "Decir QUIETO diez veces. Esto le enseña a ignorar la primera orden." },
-                resumen: "Tu mano es la frontera. Sé consistente y <DOG> respetará el límite."
-            },
-            { 
-                day: 3, title: 'Redirección al "SÍ"', semanaLabel: 'Fase 2: Control', duracion: '12 min', nivel: 'Medio', categoria: 'Sustitución',
-                teoria: { audioSeconds: 25, intro: "Cambiando lo prohibido por diversión 🎾", cuerpo: "No basta con decir NO, debes darle una alternativa que SÍ pueda morder.", puntosClave: ["Alternativa: Ten su juguete favorito a mano.", "Intercambio: Quita el zapato y da el juguete.", "Fiesta: Celebra cuando muerda el juguete."] },
-                practica: { timerSeconds: 720, pasos: [
-                    { titulo: 'La carnada', desc: 'Deja un objeto tentador pero supervisado cerca de <DOG>.', emoji: '👟', icon: 'fa-shoe-prints' },
-                    { titulo: 'El cambio', desc: 'Si va a morderlo, di QUIETO y ofrece su juguete de inmediato.', emoji: '🎾', icon: 'fa-baseball' },
-                    { titulo: 'Refuerzo de elección', desc: 'Si elige el juguete sobre el objeto, dale un premio extra.', emoji: '🎉', icon: 'fa-gift' }
-                ]},
-                tips: ["Rota sus juguetes para que siempre parezcan nuevos.", "Un juguete con texturas parecidas a lo que muerde funciona mejor."],
-                error: { titulo: "Error de frustración", desc: "Quitarle algo sin darle nada a cambio; eso genera ansiedad por morder." },
-                resumen: "Enséñale qué SÍ puede morder y se olvidará de lo prohibido."
-            },
-            { 
-                day: 4, title: 'El juego del SUELTA', semanaLabel: 'Fase 3: Avanzado', duracion: '15 min', nivel: 'Medio', categoria: 'Seguridad',
-                teoria: { audioSeconds: 28, intro: "Aprender a entregar el tesoro 🔄", cuerpo: "Suelte es vital. Evita que trague algo peligroso y refuerza tu liderazgo positivo.", puntosClave: ["Intercambio: Nunca luches por el objeto.", "Comando: Di 'SUELTA' mientras ofreces algo mejor.", "Confianza: Él debe saber que soltar trae premios."] },
-                practica: { timerSeconds: 900, pasos: [
-                    { titulo: 'Tironeo suave', desc: 'Juega a tirar de un juguete con <DOG>.', emoji: '🦴', icon: 'fa-dog' },
-                    { titulo: 'Pide el suelta', desc: 'Muestra un premio en tu otra mano y di SUELTA sin jalar.', emoji: '🗣️', icon: 'fa-bullhorn' },
-                    { titulo: 'Premia el espacio', desc: 'En cuanto abra la boca, da el premio y devuelve el juguete.', emoji: '🍖', icon: 'fa-circle-check' }
-                ]},
-                tips: ["Devolverle el juguete tras soltar le enseña que tú no eres un ladrón.", "Si no suelta, quédate inmóvil hasta que se aburra."],
-                error: { titulo: "Pelea de fuerza", desc: "Jalonear el objeto. <DOG> creerá que es un juego de fuerza y apretará más." },
-                resumen: "Soltar es un acto de confianza, no una pérdida."
-            },
-            { 
-                day: 5, title: 'Prueba de Distancia', semanaLabel: 'Fase 3: Avanzado', duracion: '10 min', nivel: 'Avanzado', categoria: 'Resistencia',
-                teoria: { audioSeconds: 30, intro: "Obediencia sin contacto físico 📏", cuerpo: "Hoy comprobamos si te escucha aunque no estés encima de él.", puntosClave: ["Distancia: Aléjate 3 pasos de <DOG>.", "Foco: Mantén contacto visual firme.", "Voz: Proyecta el comando QUIETO con seguridad."] },
-                practica: { timerSeconds: 600, pasos: [
-                    { titulo: 'Posicionamiento', desc: 'Pide a <DOG> que se quede quieto y aléjate lentamente.', emoji: '🚶', icon: 'fa-person-walking-arrow-right' },
-                    { titulo: 'Tentación lejana', desc: 'Lanza un objeto cerca de él mientras tú estás lejos.', emoji: '👟', icon: 'fa-binoculars' },
-                    { titulo: 'Corrección remota', desc: 'Si intenta ir, usa QUIETO. Si obedece, ve tú hacia él a premiar.', emoji: '🏆', icon: 'fa-medal' }
-                ]},
-                tips: ["No lo llames a él; ve tú a premiarlo donde se quedó quieto.", "Aumenta la distancia centímetro a centímetro."],
-                error: { titulo: "Error de velocidad", desc: "Alejarte demasiado rápido el primer intento. La distancia se gana con calma." },
-                resumen: "Tu voz es la correa invisible que protege tu hogar."
-            },
-            { 
-                day: 6, title: 'Generalización', semanaLabel: 'Fase 4: Consolidación', duracion: '15 min', nivel: 'Avanzado', categoria: 'Entorno',
-                teoria: { audioSeconds: 25, intro: "La regla aplica a todo 🏠", cuerpo: "Hoy le enseñamos que QUIETO aplica para zapatos, muebles y cables por igual.", puntosClave: ["Variedad: Usa objetos nuevos que le llamen la atención.", "Entorno: Cambia de habitación durante la práctica.", "Consistencia: La regla no cambia según el objeto."] },
-                practica: { timerSeconds: 900, pasos: [
-                    { titulo: 'Circuito de objetos', desc: 'Pon 3 objetos prohibidos en el suelo en diferentes puntos.', emoji: '📦', icon: 'fa-boxes-stacked' },
-                    { titulo: 'Caminata guiada', desc: 'Camina con él entre los objetos. Pide QUIETO si olfatea alguno.', emoji: '🐕', icon: 'fa-route' },
-                    { titulo: 'Elección libre', desc: 'Suéltalo un momento y observa. Premia cada vez que ignore los objetos.', emoji: '✅', icon: 'fa-circle-check' }
-                ]},
-                tips: ["Usa objetos que huelan mucho a ti (calcetines), suelen ser los más difíciles.", "Mantén sesiones de máximo 15 minutos."],
-                error: { titulo: "Mensajes mixtos", desc: "Dejar que muerda un zapato viejo 'porque no importa'. Él no sabe distinguir entre viejo y nuevo." },
-                resumen: "Tu casa entera es ahora una zona de respeto mutuo."
-            },
-            { 
-                day: 7, title: 'Independencia Real', semanaLabel: 'Fase 4: Consolidación', duracion: '20 min', nivel: 'Avanzado', categoria: 'Éxito',
-                teoria: { audioSeconds: 25, intro: "La prueba de fuego en solitario 🏆", cuerpo: "¿Qué hace cuando no miras? Hoy consolidamos el hábito permanente.", puntosClave: ["Privacidad: Déjalo solo 5 min en una zona controlada.", "Retorno: Si todo está intacto, la fiesta debe ser épica.", "Hábito: El adiestramiento se vuelve su nueva forma de ser."] },
-                practica: { timerSeconds: 1200, pasos: [
-                    { titulo: 'Simulacro de ausencia', desc: 'Sal de la habitación por 5 minutos. Observa si puedes por una rendija.', emoji: '🚪', icon: 'fa-door-closed' },
-                    { titulo: 'El regreso triunfal', desc: 'Vuelve. Si no mordió nada, dale su premio favorito (pollo/queso).', emoji: '🍗', icon: 'fa-star' },
-                    { titulo: 'Cierre del reto', desc: 'Repite aumentando el tiempo a 10 minutos. Felicítate, ¡lo lograron!.', emoji: '🎓', icon: 'fa-graduation-cap' }
-                ]},
-                tips: ["El ejercicio previo a dejarlo solo reduce el instinto destructivo en un 90%.", "Un perro cansado es un perro educado."],
-                error: { titulo: "Castigo tardío", desc: "Regañarlo si encuentras algo mordido horas después. Él no conectará el pasado con tu enojo." },
-                resumen: "Has transformado su impulsividad en autocontrol. ¡Felicidades!."
-            }
+            { day: 1, title: 'El código secreto', semanaLabel: 'Fase 1: Diagnóstico', duracion: '10 min', nivel: 'Fácil', categoria: 'Psicología', icon: 'fa-magnifying-glass', teoria: { audioSeconds: 25, intro: "¿Por qué muerde todo? 🧠", cuerpo: "Tu peludo no es rebelde, es curioso. Al no tener manos, usa su boca para 'tocar' y descubrir el mundo.", puntosClave: ["Exploración: Su boca es su mano.", "Instinto: Morder alivia el estrés.", "Misión: Identifica sus texturas favoritas."] }, practica: { timerSeconds: 600, pasos: [{ titulo: 'Observa sin reaccionar', desc: 'Nota qué muerde <DOG> y en qué momento.', emoji: '🔍', icon: 'fa-magnifying-glass' }, { titulo: 'Anota el patrón', desc: '¿Es madera, plástico o tela?', emoji: '📝', icon: 'fa-pen-to-square' }, { titulo: 'Prepara el espacio', desc: 'Retira objetos de su zona por hoy.', emoji: '🏠', icon: 'fa-house-circle-check' }]}, tips: ["Hoy no digas NO, solo observa.", "Un perro cansado muerde un 70% menos."], error: { titulo: "Error típico", desc: "Corregir antes de entender el por qué." }, resumen: "Hoy el éxito es identificar el patrón." },
+            { day: 2, title: 'El comando QUIETO', semanaLabel: 'Fase 2: Control', duracion: '15 min', nivel: 'Fácil', categoria: 'Obediencia', icon: 'fa-hand', teoria: { audioSeconds: 30, intro: "Fijando el límite visual ✋", cuerpo: "Hoy le enseñas a parar. Necesitas premios pequeños.", puntosClave: ["Señal: Mano abierta frente a su cara.", "Voz: Di 'QUIETO' una sola vez.", "Premio: Dale el snack si para 2 segundos."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Mano de STOP', desc: 'Pon tu mano abierta entre él y el objeto.', emoji: '✋', icon: 'fa-hand' }, { titulo: 'Comando verbal', desc: 'Di QUIETO firme y calmado.', emoji: '🗣️', icon: 'fa-comment' }, { titulo: 'Refuerzo', desc: 'Premia si se aleja del objeto.', emoji: '🍖', icon: 'fa-bone' }]}, tips: ["El premio debe ser en menos de 2 segundos."], error: { titulo: "Error de repetición", desc: "Decir QUIETO diez veces." }, resumen: "Tu mano es la frontera." },
+            { day: 3, title: 'Redirección al "SÍ"', semanaLabel: 'Fase 2: Control', duracion: '12 min', nivel: 'Medio', categoria: 'Sustitución', icon: 'fa-baseball', teoria: { audioSeconds: 25, intro: "Cambio por diversión 🎾", cuerpo: "Dale una alternativa que SÍ pueda morder.", puntosClave: ["Alternativa: Ten su juguete favorito.", "Intercambio: Quita el zapato y da el juguete.", "Fiesta: Celebra cuando muerda su juguete."] }, practica: { timerSeconds: 720, pasos: [{ titulo: 'La carnada', desc: 'Deja un objeto tentador cerca.', emoji: '👟', icon: 'fa-shoe-prints' }, { titulo: 'El cambio', desc: 'Di QUIETO y ofrece su juguete.', emoji: '🎾', icon: 'fa-baseball' }, { titulo: 'Refuerzo', desc: 'Premia si elige el juguete.', emoji: '🎉', icon: 'fa-gift' }]}, tips: ["Rota sus juguetes cada 2 días."], error: { titulo: "Error de frustración", desc: "Quitarle algo sin dar nada a cambio." }, resumen: "Morder es necesario, morder lo correcto es lo que enseñamos." },
+            { day: 4, title: 'El juego del SUELTA', semanaLabel: 'Fase 3: Avanzado', duracion: '15 min', nivel: 'Medio', categoria: 'Seguridad', icon: 'fa-arrows-rotate', teoria: { audioSeconds: 28, intro: "Entregar el tesoro 🔄", cuerpo: "Evita que trague algo peligroso.", puntosClave: ["Confianza: Soltar trae premios.", "Comando: Di 'SUELTA' mientras ofreces algo mejor.", "Intercambio: Nunca luches por el objeto."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Tironeo suave', desc: 'Juega a tirar de un juguete.', emoji: '🦴', icon: 'fa-dog' }, { titulo: 'Pide el suelta', desc: 'Muestra un premio y di SUELTA.', emoji: '🗣️', icon: 'fa-bullhorn' }, { titulo: 'Premia', desc: 'En cuanto abra la boca, da el premio.', emoji: '🍖', icon: 'fa-circle-check' }]}, tips: ["Si no suelta, quédate inmóvil."], error: { titulo: "Pelea de fuerza", desc: "Jalonear el objeto genera que apriete más." }, resumen: "Soltar es un acto de confianza." },
+            { day: 5, title: 'Prueba de Distancia', semanaLabel: 'Fase 3: Avanzado', duracion: '10 min', nivel: 'Avanzado', categoria: 'Resistencia', icon: 'fa-ruler-horizontal', teoria: { audioSeconds: 30, intro: "Obediencia remota 📏", cuerpo: "Hoy comprobamos si te escucha de lejos.", puntosClave: ["Distancia: Aléjate 3 pasos de <DOG>.", "Foco: Mantén contacto visual firme.", "Voz: Proyecta el comando con seguridad."] }, practica: { timerSeconds: 600, pasos: [{ titulo: 'Posicionamiento', desc: 'Pide que se quede y aléjate.', emoji: '🚶', icon: 'fa-person-walking-arrow-right' }, { titulo: 'Tentación', desc: 'Lanza un objeto cerca de él.', emoji: '👟', icon: 'fa-binoculars' }, { titulo: 'Corrección', desc: 'Usa QUIETO si intenta ir.', emoji: '🏆', icon: 'fa-medal' }]}, tips: ["Aumenta la distancia centímetro a centímetro."], error: { titulo: "Error de velocidad", desc: "Alejarte demasiado rápido el primer intento." }, resumen: "Tu voz es la correa invisible." },
+            { day: 6, title: 'Generalización', semanaLabel: 'Fase 4: Consolidación', duracion: '15 min', nivel: 'Avanzado', categoria: 'Entorno', icon: 'fa-house-signal', teoria: { audioSeconds: 25, intro: "La regla aplica a todo 🏠", cuerpo: "QUIETO aplica para zapatos, muebles y cables.", puntosClave: ["Variedad: Usa objetos nuevos.", "Entorno: Cambia de habitación.", "Consistencia: La regla no cambia."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Circuito', desc: 'Pon 3 objetos prohibidos en el suelo.', emoji: '📦', icon: 'fa-boxes-stacked' }, { titulo: 'Caminata', desc: 'Camina entre los objetos con él.', emoji: '🐕', icon: 'fa-route' }, { titulo: 'Elección', desc: 'Premia si ignora los objetos solo.', emoji: '✅', icon: 'fa-circle-check' }]}, tips: ["Usa calcetines, suelen ser los más difíciles."], error: { titulo: "Mensajes mixtos", desc: "Dejar que muerda zapatos viejos." }, resumen: "Toda la casa es una zona de respeto." },
+            { day: 7, title: 'Independencia Real', semanaLabel: 'Fase 4: Consolidación', duracion: '20 min', nivel: 'Avanzado', categoria: 'Éxito', icon: 'fa-trophy', teoria: { audioSeconds: 25, intro: "La prueba final 🏆", cuerpo: "¿Qué hace cuando no miras?", puntosClave: ["Privacidad: Déjalo solo 5 min.", "Retorno: Si todo está bien, fiesta épica.", "Hábito: El autocontrol es su nueva forma de ser."] }, practica: { timerSeconds: 1200, pasos: [{ titulo: 'Simulacro', desc: 'Sal del cuarto por 5 minutos.', emoji: '🚪', icon: 'fa-door-closed' }, { titulo: 'Regreso', desc: 'Si no mordió nada, dale su premio favorito.', emoji: '🍗', icon: 'fa-star' }, { titulo: 'Cierre', desc: 'Aumenta a 10 min. ¡Lo lograron!.', emoji: '🎓', icon: 'fa-graduation-cap' }]}, tips: ["El ejercicio previo reduce el instinto destructivo."], error: { titulo: "Castigo tardío", desc: "Regañarlo horas después de un mordisco no sirve." }, resumen: "Has transformado su impulsividad en autocontrol." }
         ]
     }
 ];
 
 // =============================================
-// LÓGICA DE PROGRESO Y UI
+// LÓGICA CORE — MENTECAN VITAL
 // =============================================
 let dogName = localStorage.getItem('currentDogName') || 'tu peludo';
 let currentChallenge = null, currentLessonDay = null, currentTab = 'teoria', audioInterval = null, timerInterval = null;
@@ -247,23 +168,20 @@ function renderHub() {
         const passedCount = Object.values(chTracker).filter(t => t.passed).length;
         const pct = Math.round((passedCount / ch.totalDays) * 100);
         container.innerHTML += `
-            <div onclick="openChallenge('${ch.id}')" class="glass-card rounded-[2.5rem] p-5 shadow-sm active:scale-95 transition-all cursor-pointer flex items-center gap-4">
-                <div class="w-14 h-14 brand-gradient rounded-3xl flex items-center justify-center text-2xl text-white shadow-lg shadow-emerald-200">${ch.icon}</div>
+            <div onclick="openChallenge('${ch.id}')" class="bg-white rounded-[2.5rem] p-5 shadow-sm active:scale-95 transition-all cursor-pointer flex items-center gap-4 border border-slate-100">
+                <div class="w-14 h-14 brand-gradient rounded-3xl flex items-center justify-center text-2xl text-white shadow-lg shadow-emerald-100">${ch.icon}</div>
                 <div class="flex-1">
                     <h4 class="font-black text-slate-800 text-sm leading-tight">${ch.name}</h4>
                     <p class="text-[10px] text-slate-400 font-bold tracking-tight uppercase mt-0.5">${passedCount}/${ch.totalDays} Días completados</p>
-                    <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden"><div class="brand-gradient h-full" style="width:${pct}%"></div></div>
+                    <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden"><div class="brand-gradient h-full transition-all duration-700" style="width:${pct}%"></div></div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-slate-200"></i>
             </div>`;
     });
-    document.getElementById('hub-progress-text').innerText = `${Object.values(trackerData).reduce((acc, ch) => acc + Object.values(ch).filter(t => t.passed).length, 0)}/7 días`;
-    document.getElementById('hub-progress-bar').style.width = '0%'; // Simulación
 }
 
 function openChallenge(id) {
     currentChallenge = CHALLENGES.find(c => c.id === id);
-    document.getElementById('challenge-title').innerText = currentChallenge.name;
     renderDays();
     showScreen('screen-challenge');
 }
@@ -273,7 +191,6 @@ function renderDays() {
     const chTracker = trackerData[currentChallenge.id] || {};
     container.innerHTML = '';
     
-    // Determinar último día pasado
     let highestPassed = 0;
     Object.keys(chTracker).forEach(d => { if(chTracker[d].passed) highestPassed = Math.max(highestPassed, parseInt(d)); });
 
@@ -285,17 +202,14 @@ function renderDays() {
         const isReady = i === highestPassed + 1 || isFailed;
         const isLocked = !isPassed && !isReady;
 
-        let icon = isPassed ? 'fa-circle-check' : isFailed ? 'fa-rotate-right' : isLocked ? 'fa-lock' : 'fa-play';
-        let statusText = isPassed ? '¡Completado!' : isFailed ? 'Requiere reintento' : isLocked ? 'Bloqueado' : 'Listo para entrenar';
-
         container.innerHTML += `
-            <div onclick="${!isLocked ? `openLesson(${i})` : ''}" class="day-item glass-card rounded-[2rem] p-4 flex items-center gap-4 border-2 ${isPassed ? 'border-emerald-100 bg-emerald-50/30' : isFailed ? 'failed' : isLocked ? 'opacity-40' : 'border-emerald-200 bg-emerald-50/50'}">
+            <div onclick="${!isLocked ? `openLesson(${i})` : ''}" class="day-item bg-white rounded-[2rem] p-4 flex items-center gap-4 border-2 ${isPassed ? 'border-emerald-100 bg-emerald-50/20' : isFailed ? 'failed' : isLocked ? 'opacity-40 border-slate-50' : 'border-emerald-200 bg-emerald-50/40'}">
                 <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm ${isPassed ? 'bg-emerald-500 text-white' : isFailed ? 'bg-rose-500 text-white' : 'bg-white text-slate-400'}">${i}</div>
                 <div class="flex-1">
                     <h4 class="font-black text-slate-800 text-xs">${lesson ? lesson.title : `Día ${i}`}</h4>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">${statusText}</p>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">${isPassed ? '¡Completado!' : isFailed ? 'Requiere reintento' : isLocked ? 'Bloqueado' : 'Entrenar ahora'}</p>
                 </div>
-                <i class="fa-solid ${icon} status-icon ${isPassed ? 'text-emerald-500' : isFailed ? 'text-rose-500' : 'text-slate-200'}"></i>
+                <i class="fa-solid ${lesson ? lesson.icon : 'fa-lock'} status-icon ${isPassed ? 'text-emerald-500' : isFailed ? 'text-rose-500' : 'text-slate-200'}"></i>
             </div>`;
     }
 }
@@ -303,14 +217,13 @@ function renderDays() {
 function openLesson(day) {
     currentLessonDay = day; currentTab = 'teoria';
     const lesson = currentChallenge.lessons.find(l => l.day === day);
-    document.getElementById('lesson-header-title').innerText = `Día ${day}`;
-    document.getElementById('lesson-header-sub').innerText = lesson.semanaLabel;
     renderLessonContent(lesson);
     showScreen('screen-lesson');
+    document.getElementById('screen-lesson').scrollTop = 0; // Reset scroll al inicio
 }
 
 function renderLessonContent(lesson) {
-    const replace = (s) => s.replace(/<DOG>/g, `<span class="brand-text">${dogName}</span>`);
+    const replace = (s) => s.replace(/<DOG>/g, `<span class="font-black text-emerald-600">${dogName}</span>`);
     const container = document.getElementById('lesson-content');
     const chTracker = trackerData[currentChallenge.id] || {};
     const isPassed = chTracker[currentLessonDay] && chTracker[currentLessonDay].passed;
@@ -336,16 +249,17 @@ function renderLessonContent(lesson) {
                 <span class="tag"><i class="fa-solid fa-bolt text-rose-500"></i> ${lesson.nivel}</span>
                 <span class="tag"><i class="fa-solid fa-bookmark text-blue-500"></i> ${lesson.categoria}</span>
             </div>
-            <div class="space-y-4 px-2">
+            <div class="space-y-4">
                 <h3 class="font-black text-slate-900 text-xl leading-tight text-center">${replace(lesson.teoria.intro)}</h3>
-                <p class="text-slate-500 text-sm leading-relaxed text-center">${replace(lesson.teoria.cuerpo)}</p>
+                <p class="text-slate-500 text-sm leading-relaxed text-center px-2">${replace(lesson.teoria.cuerpo)}</p>
                 <div class="space-y-2 mt-6">
                     ${lesson.teoria.puntosClave.map(p => `<p class="text-xs font-bold text-slate-600 flex items-center gap-3 bg-white p-4 rounded-3xl border border-slate-100 shadow-sm"><i class="fa-solid fa-circle-check text-emerald-500"></i> ${replace(p)}</p>`).join('')}
                 </div>
-                <button onclick="switchTab('practica')" class="w-full brand-gradient text-white font-black py-5 rounded-[2rem] mt-8 shadow-xl shadow-emerald-100 active:scale-95 transition-all flex items-center justify-center gap-3">¡Entendido! Ir a la práctica <i class="fa-solid fa-arrow-right text-xs"></i></button>
+                <button onclick="switchTab('practica')" class="w-full brand-gradient text-white font-black py-5 rounded-[2rem] mt-8 shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">¡Entendido! Ir a la práctica <i class="fa-solid fa-arrow-right text-xs"></i></button>
             </div>`;
     } else {
         html += `
+            <div class="text-center"><p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Temporizador de práctica activo</p></div>
             <div class="blob-container" id="timer-container">
                 <div class="blob-shape"></div>
                 <div class="blob-content">
@@ -359,7 +273,7 @@ function renderLessonContent(lesson) {
                     <div class="bg-white rounded-[2rem] border border-slate-100 p-5 flex gap-4 shadow-sm">
                         <div class="step-badge">${i+1}</div>
                         <div>
-                            <h4 class="font-black text-slate-900 text-xs flex items-center gap-2"><i class="fa-solid ${p.icon} text-emerald-500/50"></i> ${p.titulo}</h4>
+                            <h4 class="font-black text-slate-900 text-xs flex items-center gap-2"><i class="fa-solid ${p.icon} text-emerald-500/30"></i> ${p.titulo}</h4>
                             <p class="text-[11px] text-slate-500 leading-relaxed mt-1">${replace(p.desc)}</p>
                         </div>
                     </div>`).join('')}
@@ -367,26 +281,23 @@ function renderLessonContent(lesson) {
                 <div class="mt-8 px-2 space-y-4">
                     <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-widest ml-1">Tips de Experto</h3>
                     <div class="space-y-2">
-                        ${lesson.tips.map(t => `<div class="bg-emerald-50/50 border-l-4 border-emerald-400 p-4 rounded-r-2xl text-[11px] font-semibold text-emerald-800 leading-relaxed">${replace(t)}</div>`).join('')}
+                        ${lesson.tips.map(t => `<div class="bg-emerald-50/50 border-l-4 border-emerald-400 p-4 rounded-r-2xl text-[11px] font-semibold text-emerald-800">${replace(t)}</div>`).join('')}
                     </div>
-                    <div class="bg-rose-50 border-l-4 border-rose-400 p-4 rounded-r-2xl text-left">
+                    <div class="bg-rose-50 border-l-4 border-rose-400 p-4 rounded-r-2xl">
                         <h4 class="font-black text-rose-700 text-[10px] uppercase mb-1">${lesson.error.titulo}</h4>
                         <p class="text-[11px] text-rose-600 font-medium">${replace(lesson.error.desc)}</p>
                     </div>
                 </div>
             </div>
-
             <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-[2.5rem] mt-10 shadow-sm">
                 <span class="text-[9px] font-black uppercase text-amber-700 block mb-1 tracking-widest">La clave de hoy</span>
                 <p class="text-xs font-bold italic text-amber-900 leading-tight">"${replace(lesson.resumen)}"</p>
             </div>
         `;
-
-        // Lógica de visualización del botón: si ya pasó, mostramos estado; si no, botón completar.
         if (isPassed) {
-            html += `<div class="mt-10 bg-emerald-500 text-white p-5 rounded-[2rem] text-center font-black text-sm shadow-xl flex items-center justify-center gap-3"><i class="fa-solid fa-circle-check"></i> ¡Día Superado con éxito!</div>`;
+            html += `<button onclick="showScreen('screen-challenge')" class="w-full brand-gradient text-white font-black py-5 rounded-[2rem] mt-10 shadow-xl flex items-center justify-center gap-3 active:scale-95"><i class="fa-solid fa-rotate-left text-xs"></i> Volver al listado</button>`;
         } else {
-            html += `<button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black py-5 rounded-[2rem] mt-10 shadow-2xl active:scale-95 transition-all">FINALIZAR SESIÓN</button>`;
+            html += `<button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black py-5 rounded-[2rem] mt-10 shadow-2xl active:scale-95 transition-all">COMPLETAR DÍA</button>`;
         }
     }
     container.innerHTML = html + `<div class="h-12"></div>`;
@@ -402,19 +313,22 @@ function switchTab(tab) {
 function toggleAudio(total) {
     const btn = document.getElementById('audio-play-btn'), container = document.getElementById('audio-container'), display = document.getElementById('audio-time');
     if (audioInterval) { clearInterval(audioInterval); audioInterval = null; btn.innerHTML = '<i class="fa-solid fa-play"></i>'; container.classList.remove('active-session'); }
-    else { let time = total; container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-        audioInterval = setInterval(() => { time--; let mins = Math.floor(time / 60), secs = time % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-        if (time <= 0) { clearInterval(audioInterval); container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; } }, 1000); }
+    else { let time = total; container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; audioInterval = setInterval(() => { time--; let mins = Math.floor(time / 60), secs = time % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`; if (time <= 0) { clearInterval(audioInterval); container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; } }, 1000); }
 }
 
 function toggleTimer(total) {
     const btn = document.getElementById('timer-play-btn'), container = document.getElementById('timer-container'), display = document.getElementById('lesson-timer');
     if (timerInterval) { clearInterval(timerInterval); timerInterval = null; btn.innerHTML = '<i class="fa-solid fa-play"></i>'; container.classList.remove('active-session'); }
-    else { let time = total; container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-        timerInterval = setInterval(() => { time--; let mins = Math.floor(time / 60), secs = time % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-        if (time <= 0) { clearInterval(timerInterval); container.classList.remove('active-session'); showToast("¡Excelente sesión!"); } }, 1000); }
+    else { let time = total; container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; timerInterval = setInterval(() => { time--; let mins = Math.floor(time / 60), secs = time % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`; if (time <= 0) { clearInterval(timerInterval); container.classList.remove('active-session'); showToast("¡Sesión completada!"); } }, 1000); }
 }
 
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+    document.getElementById('app-header').style.display = (id === 'screen-hub') ? 'none' : 'flex';
+    if (currentChallenge) { document.getElementById('header-title').innerText = currentChallenge.name; document.getElementById('header-sub').innerText = (id === 'screen-lesson') ? `Día ${currentLessonDay}` : 'Plan de 7 días'; }
+}
+
+function goBack() { if (currentScreen === 'screen-lesson') showScreen('screen-challenge'); else showScreen('screen-hub'); }
 function openCompleteModal() { document.getElementById('modal-complete').classList.remove('hidden'); }
 function closeModal() { document.getElementById('modal-complete').classList.add('hidden'); }
 
@@ -424,12 +338,11 @@ function saveDay(result) {
     trackerData[currentChallenge.id][currentLessonDay] = { result, passed };
     localStorage.setItem(`eduDog_tracker_${dogName}`, JSON.stringify(trackerData));
     closeModal();
-    showToast(passed ? `¡Día ${currentLessonDay} superado!` : `Sesión guardada para reintento`);
+    showToast(passed ? `¡Día superado!` : `Guardado para reintento`);
     renderHub(); renderDays(); showScreen('screen-challenge');
 }
 
-function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
-function showToast(msg, type='success') {
+function showToast(msg) {
     const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg;
     t.classList.remove('-translate-y-24', 'opacity-0'); t.classList.add('translate-y-0', 'opacity-100');
     setTimeout(() => { t.classList.add('-translate-y-24', 'opacity-0'); t.classList.remove('translate-y-0', 'opacity-100'); }, 3000);

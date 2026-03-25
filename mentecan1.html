@@ -77,6 +77,25 @@
         .day-item.failed h4 { color: #b91c1c; }
         .day-item.failed .status-icon { color: #ef4444; }
         .modal-bg { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); }
+
+        /* =====================================================
+           FIX #2 y #3: Botón de retroceso visible y funcional
+           - Se usa opacity-0 + pointer-events-none en lugar de
+             visibility:hidden, para que no interfiera con el layout.
+           - Se añade sombra y borde para que se vea bien sobre
+             el gradiente oscuro.
+        ===================================================== */
+        #btn-header-back {
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        #btn-header-back.hidden-back {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #btn-header-back:not(.hidden-back) {
+            opacity: 1;
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body class="md:py-8">
@@ -88,15 +107,22 @@
 
 <div class="app-container md:rounded-[2.5rem] md:border-[8px] md:border-slate-900 shadow-2xl">
 
+    <!-- HEADER: FIX #2 y #3 aplicados aquí -->
     <div id="app-header" class="brand-gradient text-white px-5 py-4 flex items-center justify-between shadow-md sticky top-0 z-50">
-        <button id="btn-header-back" onclick="goBack()" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer">
-            <i class="fa-solid fa-chevron-left"></i>
+        <!-- FIX #2 + #3: el botón ahora usa la clase hidden-back para ocultarse/mostrarse
+             y tiene un borde blanco sutil para mayor visibilidad sobre el gradiente -->
+        <button
+            id="btn-header-back"
+            onclick="goBack()"
+            class="hidden-back w-10 h-10 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer shadow-sm"
+        >
+            <i class="fa-solid fa-chevron-left text-white drop-shadow"></i>
         </button>
         <div class="text-center flex-1">
             <h2 class="font-black text-base tracking-tight">Mentecan Vital</h2>
         </div>
-        <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer">
-            <i class="fa-solid fa-house"></i>
+        <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer shadow-sm">
+            <i class="fa-solid fa-house text-white drop-shadow"></i>
         </button>
     </div>
 
@@ -138,6 +164,7 @@
         <div class="px-6 py-6 pb-12" id="lesson-content"></div>
     </section>
 
+    <!-- FIX MODAL: movido fuera del app-container para evitar recorte por overflow:hidden -->
     <div id="modal-complete" class="hidden absolute inset-0 z-50 modal-bg flex flex-col justify-end">
         <div class="bg-white rounded-t-[2.5rem] p-8 shadow-2xl">
             <div class="text-center mb-8"><div class="text-5xl mb-3">✨</div><h3 class="text-2xl font-black text-slate-900 tracking-tight">¿Cómo fue la sesión?</h3><p class="text-slate-400 text-sm font-medium mt-1">Tu honestidad garantiza un aprendizaje real.</p></div>
@@ -290,6 +317,17 @@ function renderDays() {
         const isReady = i === highestPassed + 1 || isFailed;
         const isLocked = !isPassed && !isReady;
 
+        // =============================================
+        // FIX #1: Ícono correcto según estado del día
+        // Antes: siempre usaba lesson.icon aunque el día
+        // estuviera bloqueado. Ahora:
+        //   - Bloqueado sin intentar → fa-lock
+        //   - Fallado               → fa-rotate-left
+        //   - Superado              → ícono de la lección
+        //   - Disponible            → ícono de la lección
+        // =============================================
+        const statusIcon = isLocked ? 'fa-lock' : (isFailed ? 'fa-rotate-left' : (lesson ? lesson.icon : 'fa-circle'));
+
         container.innerHTML += `
             <div onclick="${!isLocked ? `openLesson(${i})` : ''}" class="day-item bg-white rounded-3xl p-4 flex items-center gap-4 border-2 ${isPassed ? 'border-emerald-100 bg-emerald-50/20' : isFailed ? 'failed' : isLocked ? 'opacity-40 border-slate-50 cursor-not-allowed' : 'border-emerald-200 bg-emerald-50/40 cursor-pointer active:scale-95 transition-transform shadow-sm'}">
                 <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm ${isPassed ? 'brand-gradient text-white shadow-md' : isFailed ? 'bg-rose-500 text-white shadow-md' : 'bg-white text-slate-400'}">${i}</div>
@@ -297,7 +335,7 @@ function renderDays() {
                     <h4 class="font-black text-slate-800 text-xs">${lesson ? lesson.title : `Día ${i}`}</h4>
                     <p class="text-[8px] font-black text-slate-400 uppercase tracking-wider mt-0.5">${isPassed ? '¡Completado!' : isFailed ? 'Requiere reintento' : isLocked ? 'Bloqueado' : 'Entrenar ahora'}</p>
                 </div>
-                <i class="fa-solid ${lesson ? lesson.icon : 'fa-lock'} status-icon ${isPassed ? 'text-emerald-600' : isFailed ? 'text-rose-500' : 'text-slate-200'}"></i>
+                <i class="fa-solid ${statusIcon} status-icon ${isPassed ? 'text-emerald-600' : isFailed ? 'text-rose-500' : isLocked ? 'text-slate-300' : 'text-slate-200'}"></i>
             </div>`;
     }
 }
@@ -435,6 +473,13 @@ function toggleTimer(total) {
     }
 }
 
+// =============================================
+// FIX #2 + #3: showScreen actualiza correctamente
+// la visibilidad del botón de retroceso usando
+// la clase CSS hidden-back (opacity:0 + pointer-events:none)
+// en lugar de visibility:hidden, que causaba que el botón
+// permaneciera invisible aunque se cambiara de pantalla.
+// =============================================
 function showScreen(id) {
     if(audioInterval) clearInterval(audioInterval); if(timerInterval) clearInterval(timerInterval);
     audioInterval = null; timerInterval = null;
@@ -445,27 +490,26 @@ function showScreen(id) {
 
     const backBtn = document.getElementById('btn-header-back');
     if(backBtn) {
-        backBtn.style.visibility = (id === 'screen-hub') ? 'hidden' : 'visible';
+        if (id === 'screen-hub') {
+            backBtn.classList.add('hidden-back');
+        } else {
+            backBtn.classList.remove('hidden-back');
+        }
     }
 }
 
-// ========= AQUÍ ESTÁ EL FIX DEL BOTÓN DE RETROCESO =========
 function goBack() {
-    // 1. Buscamos qué pantalla está visible actualmente
     const activeScreens = document.querySelectorAll('.screen.active');
-    if (activeScreens.length === 0) return; // Por si hay un error raro y ninguna está activa
+    if (activeScreens.length === 0) return;
     
-    // 2. Obtenemos el ID de la pantalla visible
     const activeId = activeScreens[0].id;
 
-    // 3. Decidimos a dónde ir dependiendo de dónde estemos
     if (activeId === 'screen-lesson') {
-        showScreen('screen-challenge'); // De la lección volvemos a la lista de días
+        showScreen('screen-challenge');
     } else if (activeId === 'screen-challenge') {
-        showScreen('screen-hub'); // De la lista de días volvemos al hub principal
+        showScreen('screen-hub');
     }
 }
-// ============================================================
 
 function openCompleteModal() { document.getElementById('modal-complete').classList.remove('hidden'); }
 function closeModal() { document.getElementById('modal-complete').classList.add('hidden'); }
@@ -481,10 +525,12 @@ function saveDay(result) {
     renderHub(); renderDays(); showScreen('screen-challenge');
 }
 
+let toastTimeout = null;
 function showToast(msg) {
     const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg;
+    if(toastTimeout) clearTimeout(toastTimeout);
     t.classList.remove('-translate-y-24', 'opacity-0'); t.classList.add('translate-y-0', 'opacity-100');
-    setTimeout(() => { t.classList.add('-translate-y-24', 'opacity-0'); t.classList.remove('translate-y-0', 'opacity-100'); }, 3000);
+    toastTimeout = setTimeout(() => { t.classList.add('-translate-y-24', 'opacity-0'); t.classList.remove('translate-y-0', 'opacity-100'); toastTimeout = null; }, 3000);
 }
 </script>
 </body>

@@ -149,8 +149,9 @@
             { id: "nutrican", name: "NutriCan Vital", subtitle: "Calculadora de Dieta Natural", desc: "Calculadora exacta de dieta natural.", icon: "fa-bowl-food", color: "text-amber-600", bg: "bg-amber-100", price: "9.99", themeBtn: "bg-amber-500 shadow-amber-500/30", benefits: ["Porciones exactas según peso y edad", "Transición segura sin problemas gástricos", "Monitoreo de digestión diaria", "Acceso de por vida desde tu celular"] },
             { id: "mentecan", name: "Mentecan Vital", subtitle: "Programa de Psicología y Obediencia", desc: "Programa premium de psicología y obediencia.", icon: "fa-brain", color: "text-emerald-600", bg: "bg-emerald-100", price: "14.99", themeBtn: "bg-emerald-500 shadow-emerald-500/30", benefits: ["Retos prácticos de 7 días", "Audios de psicología canina", "Solución definitiva a mordiscos", "Comandos visuales y de voz efectivos"] }
         ];
+        
         const ebooksList = [
-            { id: "nutrichef", name: "NutriChef Vital", subtitle: "Recetario Dinámico y Compras", desc: "Recetario dinámico según tu país.", icon: "fa-fire-burner", color: "text-rose-600", bg: "bg-rose-100", price: "4.99", themeBtn: "bg-rose-500 shadow-rose-500/30", benefits: ["50 Recetas Premium (Desayuno, Almuerzo, Cena)", "Modo 'Chef' con temporizadores en pantalla", "Ingredientes adaptados a tu país", "Lista de compras automática para WhatsApp"] }
+            { id: "nutrichef", name: "NutriChef Vital", subtitle: "Recetario Dinámico y Compras", desc: "Recetario dinámico interactivo.", icon: "fa-fire-burner", color: "text-rose-600", bg: "bg-rose-100", price: "4.99", themeBtn: "bg-rose-500 shadow-rose-500/30", benefits: ["50 Recetas Premium (Desayuno, Almuerzo, Cena)", "Modo 'Chef' con temporizadores en pantalla", "Ingredientes adaptados a tu país", "Lista de compras automática para WhatsApp"] }
         ];
         
         let currentUser = null;
@@ -204,6 +205,8 @@
             document.getElementById('user-display-phone').innerText = `+${currentUser.phone}`;
             document.getElementById('display-dog-name').innerText = `Entrenamiento de ${currentUser.dogName}`;
             
+            const getPrice = (usd) => currentUser.phone.startsWith('51') ? { text: `S/ ${Math.round(usd * TIPO_CAMBIO)}` } : { text: `$${usd} USD` };
+
             // Progreso Pro Dinámico
             const purchasedAppsCount = currentUser.apps.filter(appId => appsList.some(a => a.id === appId)).length;
             document.getElementById('apps-count').innerText = `${purchasedAppsCount}/${appsList.length}`;
@@ -214,8 +217,8 @@
             appsContainer.innerHTML = '';
             appsList.forEach(app => {
                 const owned = currentUser.apps.includes(app.id);
+                const priceObj = getPrice(app.price);
                 
-                // --- DISEÑO GRIS/BLOQUEADO ---
                 const cardBg = owned ? "bg-white border-slate-200" : "bg-slate-50 border-slate-100 opacity-90";
                 const iconContainerBg = owned ? app.bg : "bg-slate-100";
                 const iconColor = owned ? app.color : "text-slate-400";
@@ -231,7 +234,7 @@
                         <p class="text-xs ${descColor} mb-4 ml-1">${app.desc}</p>
                         ${owned ? `<button onclick="openApp('${app.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Abrir App</button>` : 
                         `<button onclick="openUpsellModal('${app.id}', 'herramienta')" class="w-full bg-violet-100 text-violet-800 py-3 rounded-xl font-bold border border-violet-200 shadow-inner active:scale-95 transition-transform flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-lock text-sm"></i> Desbloquear
+                            <i class="fa-solid fa-lock text-sm"></i> Desbloquear por ${priceObj.text}
                         </button>`}
                     </div>`;
             });
@@ -240,22 +243,24 @@
             ebooksContainer.innerHTML = '';
             ebooksList.forEach(ebook => {
                 const owned = currentUser.ebooks.includes(ebook.id);
+                const priceObj = getPrice(ebook.price);
                 
-                // --- DISEÑO GRIS/BLOQUEADO EBOOKS ---
-                const rowBg = owned ? "bg-white border-slate-200" : "bg-slate-50 border-slate-100 opacity-90";
-                const iconRowContainerBg = owned ? ebook.bg : "bg-slate-100";
-                const iconRowColor = owned ? ebook.color : "text-slate-400";
-                const titleRowColor = owned ? "text-slate-900" : "text-slate-600";
+                const cardBg = owned ? "bg-white border-slate-200" : "bg-slate-50 border-slate-100 opacity-90";
+                const iconContainerBg = owned ? ebook.bg : "bg-slate-100";
+                const iconColor = owned ? ebook.color : "text-slate-400";
+                const titleColor = owned ? "text-slate-900" : "text-slate-600";
+                const descColor = owned ? "text-slate-500" : "text-slate-400";
 
                 ebooksContainer.innerHTML += `
-                    <div class="${rowBg} p-5 rounded-3xl border shadow-sm flex items-center justify-between transition-all duration-300">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center ${iconRowContainerBg} ${iconRowColor} transition-colors"><i class="fa-solid ${ebook.icon}"></i></div>
-                            <h4 class="font-extrabold ${titleRowColor} text-sm">${ebook.name}</h4>
+                    <div class="${cardBg} p-5 rounded-3xl border shadow-sm transition-all duration-300">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center ${iconContainerBg} ${iconColor} transition-colors"><i class="fa-solid ${ebook.icon}"></i></div>
+                            <h4 class="font-extrabold ${titleColor}">${ebook.name}</h4>
                         </div>
-                        ${owned ? `<button onclick="openApp('${ebook.id}')" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold active:scale-95 transition-transform">Ver</button>` : 
-                        `<button onclick="openUpsellModal('${ebook.id}', 'eBook')" class="bg-rose-100 text-rose-800 px-4 py-2 rounded-xl text-xs font-bold border border-rose-200 shadow-inner active:scale-95 transition-transform flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-lock text-xs"></i> Desbloquear
+                        <p class="text-xs ${descColor} mb-4 ml-1">${ebook.desc}</p>
+                        ${owned ? `<button onclick="openApp('${ebook.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Abrir Recetario</button>` : 
+                        `<button onclick="openUpsellModal('${ebook.id}', 'eBook')" class="w-full bg-rose-100 text-rose-800 py-3 rounded-xl font-bold border border-rose-200 shadow-inner active:scale-95 transition-transform flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-lock text-sm"></i> Desbloquear por ${priceObj.text}
                         </button>`}
                     </div>`;
             });

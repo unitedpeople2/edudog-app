@@ -9,7 +9,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; color: #1e293b; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; }
 
         .app-container {
             max-width: 420px; margin: 0 auto; height: 100dvh;
@@ -27,47 +27,43 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Estética Premium Emerald & Black */
-        .brand-gradient { background: linear-gradient(135deg, #064e3b 0%, #10b981 100%); }
-        .header-gradient { background: linear-gradient(to bottom, #000000, #064e3b); }
+        /* Estética Premium: Verde Protagonista con Toques Negros */
+        .brand-gradient { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
+        .header-gradient { background: linear-gradient(135deg, #064e3b 0%, #059669 100%); }
         
-        /* Pestañas Modernas */
-        .tab-btn { padding: 1rem 0; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: 800; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; }
-        .tab-btn.active { border-color: #10b981; color: #064e3b; }
+        /* Pestañas Corregidas */
+        .tab-btn { flex: 1; padding: 1rem 0; font-weight: 800; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; position: relative; transition: all 0.3s; }
+        .tab-btn.active { color: #059669; }
+        .tab-indicator { position: absolute; bottom: 0; left: 0; height: 3px; background: #10b981; transition: all 0.3s ease; border-radius: 3px 3px 0 0; }
 
-        /* REPRODUCTOR Y TIMER (ESTILO TECNOLÓGICO) */
+        /* REPRODUCTOR Y TIMER (Círculo Perfecto para evitar distorsión) */
         .blob-container {
-            position: relative; width: 220px; height: 220px;
-            margin: 30px auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; width: 200px; height: 200px;
+            margin: 25px auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .blob-shape {
             position: absolute; inset: 0;
-            background: #000000;
-            border: 2px solid #10b981;
-            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            transition: all 1s ease-in-out;
+            background: #0f172a; /* Fondo oscuro premium */
+            border: 4px solid #10b981;
+            border-radius: 50%; /* Círculo perfecto */
             z-index: 1;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
         }
-        .active-session .blob-shape {
-            animation: breathe 3s ease-in-out infinite;
-            border-color: #34d399;
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
-        }
-        @keyframes breathe {
-            0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; transform: scale(1); }
-            50% { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; transform: scale(1.05); }
-        }
-        .counter-text { position: relative; z-index: 10; font-size: 3.5rem; font-weight: 900; color: #ffffff; letter-spacing: -2px; }
-        .action-trigger { position: relative; z-index: 10; margin-top: 10px; width: 50px; height: 50px; background: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid #000; }
-
-        /* Cards Premium */
-        .premium-card { background: white; border: 1px solid rgba(6, 78, 59, 0.08); border-radius: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.02); }
+        .active-session .blob-shape { animation: pulseGlow 2s ease-in-out infinite; }
+        @keyframes pulseGlow { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); } 50% { transform: scale(1.03); box-shadow: 0 0 40px rgba(16, 185, 129, 0.4); } }
         
-        .tag { background: #000; color: #34d399; font-size: 9px; font-weight: 800; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; border: 1px solid #10b981; }
+        .counter-text { position: relative; z-index: 10; font-size: 3.2rem; font-weight: 900; color: #ffffff; letter-spacing: -2px; }
+        .action-trigger { position: relative; z-index: 10; margin-top: 8px; width: 48px; height: 48px; background: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid #0f172a; transition: transform 0.2s; }
+        .action-trigger:active { transform: scale(0.9); }
 
-        /* Navegación Inferior */
-        .nav-footer { background: #ffffff; border-top: 1px solid #f1f5f9; padding: 1.25rem 1.5rem; display: flex; gap: 4px; position: sticky; bottom: 0; z-index: 40; }
+        /* Cards y Tags */
+        .premium-card { background: white; border: 1px solid #f1f5f9; border-radius: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .tag-green { background: #ecfdf5; color: #059669; font-size: 10px; font-weight: 800; padding: 5px 12px; border-radius: 12px; text-transform: uppercase; border: 1px solid #d1fae5; }
+
+        /* Navegación Inferior Persistente */
+        .nav-footer { background: #ffffff; border-top: 1px solid #f1f5f9; padding: 1.25rem 1.5rem; display: flex; gap: 12px; position: sticky; bottom: 0; z-index: 40; }
+        
+        .modal-bg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); }
     </style>
 </head>
 <body>
@@ -79,31 +75,30 @@
 
 <div class="app-container md:rounded-[2.5rem] md:border-[10px] md:border-slate-900">
 
-    <div id="app-header" class="header-gradient text-white px-6 py-6 flex items-center justify-between z-30 shrink-0 sticky top-0 shadow-lg" style="display: none;">
-        <div class="flex items-center gap-3">
-            <button onclick="goBack()" class="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 active:scale-90 transition-all"><i class="fa-solid fa-arrow-left"></i></button>
+    <div id="app-header" class="header-gradient text-white px-6 py-5 flex items-center justify-between z-30 shrink-0 sticky top-0 shadow-lg" style="display: none;">
+        <div class="flex items-center gap-4">
+            <button onclick="goBack()" class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center border border-white/10 active:scale-90 transition-all"><i class="fa-solid fa-arrow-left"></i></button>
             <div>
-                <h2 id="header-title" class="font-black text-sm tracking-tight">Mentecan Vital</h2>
-                <p id="header-sub" class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest"></p>
+                <h2 id="header-title" class="font-black text-sm tracking-tight leading-none">Mentecan Vital</h2>
+                <p id="header-sub" class="text-[9px] font-bold text-emerald-200 uppercase tracking-widest mt-1"></p>
             </div>
         </div>
         <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white border border-white/5"><i class="fa-solid fa-house text-sm"></i></button>
     </div>
 
     <section id="screen-hub" class="screen">
-        <div class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-5 flex justify-between items-center z-30">
-            <h2 class="font-black text-slate-800 text-xl flex items-center gap-2 tracking-tighter"><i class="fa-solid fa-paw text-emerald-600"></i> Mentecan <span class="text-emerald-500">Vital</span></h2>
+        <div class="sticky top-0 bg-white/90 backdrop-blur-md border-b border-slate-100 px-6 py-5 flex justify-between items-center z-30">
+            <h2 class="font-black text-slate-800 text-xl tracking-tighter"><i class="fa-solid fa-paw text-emerald-600 mr-1"></i> Mentecan Vital</h2>
             <div class="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400"><i class="fa-solid fa-shield-dog"></i></div>
         </div>
         <div class="px-6 py-6 space-y-6">
-            <div class="header-gradient rounded-[2.5rem] p-7 text-white shadow-2xl relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -mr-10 -mt-10 blur-3xl"></div>
+            <div class="header-gradient rounded-[2.5rem] p-7 text-white shadow-xl relative overflow-hidden">
                 <div class="relative z-10">
-                    <p class="text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-1">Tu progreso actual</p>
+                    <p class="text-emerald-300 text-[10px] font-black uppercase tracking-widest mb-1">Tu progreso de entrenamiento</p>
                     <h3 class="text-2xl font-black tracking-tight" id="hub-dog-name">...</h3>
-                    <div class="mt-6 bg-white/5 p-5 rounded-[2rem] border border-white/10 backdrop-blur-sm">
-                        <div class="flex justify-between text-[10px] font-black uppercase mb-3"><span>Sesiones Completadas</span><span id="hub-progress-text">0/7 días</span></div>
-                        <div class="w-full bg-white/10 rounded-full h-2.5 overflow-hidden"><div id="hub-progress-bar" class="brand-gradient h-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="width:0%"></div></div>
+                    <div class="mt-6 bg-black/20 p-5 rounded-[2rem] border border-white/10">
+                        <div class="flex justify-between text-[10px] font-black uppercase mb-2"><span>Sesiones</span><span id="hub-progress-text">0/7 días</span></div>
+                        <div class="w-full bg-white/10 rounded-full h-2.5 overflow-hidden"><div id="hub-progress-bar" class="bg-emerald-400 h-full transition-all duration-1000 shadow-[0_0_10px_rgba(52,211,153,0.5)]" style="width:0%"></div></div>
                     </div>
                 </div>
             </div>
@@ -118,20 +113,20 @@
     <section id="screen-lesson" class="screen">
         <div class="flex-1 overflow-y-auto px-6 py-6" id="lesson-content"></div>
         <div class="nav-footer">
-            <button onclick="goBack()" class="flex-1 bg-slate-100 text-slate-500 h-14 rounded-2xl font-bold text-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+            <button onclick="goBack()" class="w-1/3 bg-slate-100 text-slate-500 h-14 rounded-2xl font-bold text-sm active:scale-95 transition-all flex items-center justify-center gap-2">
                 <i class="fa-solid fa-chevron-left"></i> Volver
             </button>
-            <div id="lesson-action-container" class="flex-[2]"></div>
+            <div id="lesson-action-container" class="w-2/3"></div>
         </div>
     </section>
 
     <div id="modal-complete" class="hidden absolute inset-0 z-50 modal-bg flex flex-col justify-end">
         <div class="bg-white rounded-t-[3rem] p-8 shadow-2xl">
-            <div class="text-center mb-8"><div class="text-5xl mb-4">⭐</div><h3 class="text-2xl font-black text-slate-900">¿Cómo fue la sesión?</h3><p class="text-slate-400 text-sm font-medium mt-1">Evalúa el desempeño de hoy.</p></div>
+            <div class="text-center mb-8"><div class="text-5xl mb-4">✨</div><h3 class="text-2xl font-black text-slate-900">¿Cómo fue la sesión?</h3><p class="text-slate-400 text-sm font-medium mt-1">Tu honestidad garantiza el éxito del plan.</p></div>
             <div class="space-y-3">
-                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-5 rounded-[2rem] font-black text-sm border border-emerald-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-star mr-2 text-emerald-500"></i> ¡Excelente!</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
+                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-5 rounded-[2rem] font-black text-sm border border-emerald-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-star mr-2 text-emerald-500"></i> ¡Excelente progreso!</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
                 <button onclick="saveDay('bien')" class="w-full bg-amber-50 text-amber-700 p-5 rounded-[2rem] font-black text-sm border border-amber-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-thumbs-up mr-2 text-amber-500"></i> Estuvo bien</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
-                <button onclick="saveDay('dificil')" class="w-full bg-rose-50 text-rose-700 p-5 rounded-[2rem] font-black text-sm border border-rose-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-triangle-exclamation mr-2 text-rose-500"></i> Fue difícil</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
+                <button onclick="saveDay('dificil')" class="w-full bg-rose-50 text-rose-700 p-5 rounded-[2rem] font-black text-sm border border-rose-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-triangle-exclamation mr-2 text-rose-500"></i> Difícil - Reintentar</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
                 <button onclick="closeModal()" class="w-full text-slate-400 py-4 font-bold text-sm">Cancelar</button>
             </div>
         </div>
@@ -139,23 +134,22 @@
 </div>
 
 <script>
-// VARIABLES DE ESTADO CORREGIDAS
 let dogName = localStorage.getItem('currentDogName') || 'tu peludo';
-let currentScreen = 'screen-hub'; // Seguimiento de pantalla activa
+let currentScreen = 'screen-hub';
 let currentChallenge = null, currentLessonDay = null, currentTab = 'teoria', audioInterval = null, timerInterval = null;
 let trackerData = JSON.parse(localStorage.getItem(`eduDog_tracker_${dogName}`)) || {};
 
 const CHALLENGES = [
     {
-        id: 'no-muerda', name: 'No muerda las cosas', icon: '🦷', totalDays: 7, desc: 'Educa su boca y protege tu hogar',
+        id: 'no-muerda', name: 'No muerda las cosas', icon: '🦷', totalDays: 7, desc: 'Protege tu hogar educando su boca',
         lessons: [
-            { day: 1, title: 'El código secreto', semanaLabel: 'Fase 1: Diagnóstico', duracion: '10 min', nivel: 'Fácil', categoria: 'Psicología', icon: 'fa-magnifying-glass', teoria: { audioSeconds: 25, intro: "¿Por qué muerde todo? 🧠", cuerpo: "Tu peludo no es rebelde, es curioso. Al no tener manos, usa su boca para 'tocar' y descubrir el mundo.", puntosClave: ["Exploración: Su boca es su mano.", "Instinto: Morder alivia el estrés.", "Misión: Identifica sus texturas favoritas."] }, practica: { timerSeconds: 600, pasos: [{ titulo: 'Observa sin reaccionar', desc: 'Nota qué muerde <DOG> y en qué momento.', emoji: '🔍', icon: 'fa-magnifying-glass' }, { titulo: 'Anota el patrón', desc: '¿Es madera, plástico o tela?', emoji: '📝', icon: 'fa-pen-to-square' }, { titulo: 'Prepara el espacio', desc: 'Retira objetos de su zona por hoy.', emoji: '🏠', icon: 'fa-house-circle-check' }]}, tips: ["Hoy no digas NO, solo observa.", "Un perro cansado muerde un 70% menos."], error: { titulo: "Error típico", desc: "Corregir antes de entender el por qué." }, resumen: "Hoy el éxito es identificar el patrón." },
-            { day: 2, title: 'El comando QUIETO', semanaLabel: 'Fase 2: Control', duracion: '15 min', nivel: 'Fácil', categoria: 'Obediencia', icon: 'fa-hand', teoria: { audioSeconds: 30, intro: "Fijando el límite visual ✋", cuerpo: "Hoy le enseñas a parar. Necesitas premios pequeños.", puntosClave: ["Señal: Mano abierta frente a su cara.", "Voz: Di 'QUIETO' una sola vez.", "Premio: Dale el snack si para 2 segundos."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Mano de STOP', desc: 'Pon tu mano abierta entre él y el objeto.', emoji: '✋', icon: 'fa-hand' }, { titulo: 'Comando verbal', desc: 'Di QUIETO firme y calmado.', emoji: '🗣️', icon: 'fa-comment' }, { titulo: 'Refuerzo', desc: 'Premia si se aleja del objeto.', emoji: '🍖', icon: 'fa-bone' }]}, tips: ["El premio debe ser en menos de 2 segundos."], error: { titulo: "Error de repetición", desc: "Decir QUIETO diez veces." }, resumen: "Tu mano es la frontera." },
-            { day: 3, title: 'Redirección al "SÍ"', semanaLabel: 'Fase 2: Control', duracion: '12 min', nivel: 'Medio', categoria: 'Sustitución', icon: 'fa-baseball', teoria: { audioSeconds: 25, intro: "Cambio por diversión 🎾", cuerpo: "Dale una alternativa que SÍ pueda morder.", puntosClave: ["Alternativa: Ten su juguete favorito.", "Intercambio: Quita el zapato y da el juguete.", "Fiesta: Celebra cuando muerda su juguete."] }, practica: { timerSeconds: 720, pasos: [{ titulo: 'La carnada', desc: 'Deja un objeto tentador cerca.', emoji: '👟', icon: 'fa-shoe-prints' }, { titulo: 'El cambio', desc: 'Di QUIETO y ofrece su juguete.', emoji: '🎾', icon: 'fa-baseball' }, { titulo: 'Refuerzo', desc: 'Premia si elige el juguete.', emoji: '🎉', icon: 'fa-gift' }]}, tips: ["Rota sus juguetes cada 2 días."], error: { titulo: "Error de frustración", desc: "Quitarle algo sin dar nada a cambio." }, resumen: "Morder es necesario, morder lo correcto es lo que enseñamos." },
-            { day: 4, title: 'El juego del SUELTA', semanaLabel: 'Fase 3: Avanzado', duracion: '15 min', nivel: 'Medio', categoria: 'Seguridad', icon: 'fa-arrows-rotate', teoria: { audioSeconds: 28, intro: "Entregar el tesoro 🔄", cuerpo: "Evita que trague algo peligroso.", puntosClave: ["Confianza: Soltar trae premios.", "Comando: Di 'SUELTA' mientras ofreces algo mejor.", "Intercambio: Nunca luches por el objeto."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Tironeo suave', desc: 'Juega a tirar de un juguete.', emoji: '🦴', icon: 'fa-dog' }, { titulo: 'Pide el suelta', desc: 'Muestra un premio y di SUELTA.', emoji: '🗣️', icon: 'fa-bullhorn' }, { titulo: 'Premia', desc: 'En cuanto abra la boca, da el premio.', emoji: '🍖', icon: 'fa-circle-check' }]}, tips: ["Si no suelta, quédate inmóvil."], error: { titulo: "Pelea de fuerza", desc: "Jalonear el objeto genera que apriete más." }, resumen: "Soltar es un acto de confianza." },
-            { day: 5, title: 'Prueba de Distancia', semanaLabel: 'Fase 3: Avanzado', duracion: '10 min', nivel: 'Avanzado', categoria: 'Resistencia', icon: 'fa-ruler-horizontal', teoria: { audioSeconds: 30, intro: "Obediencia remota 📏", cuerpo: "Hoy comprobamos si te escucha de lejos.", puntosClave: ["Distancia: Aléjate 3 pasos de <DOG>.", "Foco: Mantén contacto visual firme.", "Voz: Proyecta el comando con seguridad."] }, practica: { timerSeconds: 600, pasos: [{ titulo: 'Posicionamiento', desc: 'Pide que se quede y aléjate.', emoji: '🚶', icon: 'fa-person-walking-arrow-right' }, { titulo: 'Tentación', desc: 'Lanza un objeto cerca de él.', emoji: '👟', icon: 'fa-binoculars' }, { titulo: 'Corrección', desc: 'Usa QUIETO si intenta ir.', emoji: '🏆', icon: 'fa-medal' }]}, tips: ["Aumenta la distancia centímetro a centímetro."], error: { titulo: "Error de velocidad", desc: "Alejarte demasiado rápido el primer intento." }, resumen: "Tu voz es la correa invisible." },
-            { day: 6, title: 'Generalización', semanaLabel: 'Fase 4: Consolidación', duracion: '15 min', nivel: 'Avanzado', categoria: 'Entorno', icon: 'fa-house-signal', teoria: { audioSeconds: 25, intro: "La regla aplica a todo 🏠", cuerpo: "QUIETO aplica para zapatos, muebles y cables.", puntosClave: ["Variedad: Usa objetos nuevos.", "Entorno: Cambia de habitación.", "Consistencia: La regla no cambia."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Circuito', desc: 'Pon 3 objetos prohibidos en el suelo.', emoji: '📦', icon: 'fa-boxes-stacked' }, { titulo: 'Caminata', desc: 'Camina entre los objetos con él.', emoji: '🐕', icon: 'fa-route' }, { titulo: 'Elección', desc: 'Premia si ignora los objetos solo.', emoji: '✅', icon: 'fa-circle-check' }]}, tips: ["Usa calcetines, suelen ser los más difíciles."], error: { titulo: "Mensajes mixtos", desc: "Dejar que muerda zapatos viejos." }, resumen: "Toda la casa es una zona de respeto." },
-            { day: 7, title: 'Independencia Real', semanaLabel: 'Fase 4: Consolidación', duracion: '20 min', nivel: 'Avanzado', categoria: 'Éxito', icon: 'fa-trophy', teoria: { audioSeconds: 25, intro: "La prueba final 🏆", cuerpo: "¿Qué hace cuando no miras?", puntosClave: ["Privacidad: Déjalo solo 5 min.", "Retorno: Si todo está bien, fiesta épica.", "Hábito: El autocontrol es su nueva forma de ser."] }, practica: { timerSeconds: 1200, pasos: [{ titulo: 'Simulacro', desc: 'Sal del cuarto por 5 minutos.', emoji: '🚪', icon: 'fa-door-closed' }, { titulo: 'Regreso', desc: 'Si no mordió nada, dale su premio favorito.', emoji: '🍗', icon: 'fa-star' }, { titulo: 'Cierre', desc: 'Aumenta a 10 min. ¡Lo lograron!.', emoji: '🎓', icon: 'fa-graduation-cap' }]}, tips: ["El ejercicio previo reduce el instinto destructivo."], error: { titulo: "Castigo tardío", desc: "Regañarlo horas después de un mordisco no sirve." }, resumen: "Has transformado su impulsividad en autocontrol." }
+            { day: 1, title: 'El código secreto', semanaLabel: 'Fase 1: Diagnóstico', duracion: '10 min', nivel: 'Fácil', categoria: 'Psicología', icon: 'fa-magnifying-glass', teoria: { audioSeconds: 25, intro: "¿Por qué muerde todo? 🧠", cuerpo: "Tu peludo usa su boca para 'tocar' y descubrir el mundo. No es rebeldía, es curiosidad instintiva.", puntosClave: ["Exploración: Su boca es su mano.", "Instinto: Morder calma su ansiedad.", "Misión: Identifica sus texturas favoritas."] }, practica: { timerSeconds: 600, pasos: [{ titulo: 'Observa sin reaccionar', desc: 'Nota qué muerde <DOG> y en qué momento.', emoji: '🔍', icon: 'fa-magnifying-glass' }, { titulo: 'Anota el patrón', desc: '¿Es madera, plástico o tela?', emoji: '📝', icon: 'fa-pen-to-square' }, { titulo: 'Prepara el espacio', desc: 'Retira objetos de su zona por hoy.', emoji: '🏠', icon: 'fa-house-circle-check' }]}, tips: ["Hoy no digas NO, solo observa.", "Un perro cansado muerde un 70% menos."], error: { titulo: "Error típico", desc: "Corregir antes de entender el por qué." }, resumen: "Hoy el éxito es identificar el patrón." },
+            { day: 2, title: 'El comando QUIETO', semanaLabel: 'Fase 2: Control', duracion: '15 min', nivel: 'Fácil', categoria: 'Obediencia', icon: 'fa-hand', teoria: { audioSeconds: 30, intro: "Fijando el límite visual ✋", cuerpo: "Hoy le enseñamos a parar. La mano abierta es la señal universal de STOP.", puntosClave: ["Señal: Mano abierta frente a su cara.", "Voz: Di 'QUIETO' una sola vez con firmeza.", "Premio: Dale el snack si para 2 segundos."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Mano de STOP', desc: 'Pon tu mano abierta entre él y el objeto.', emoji: '✋', icon: 'fa-hand' }, { titulo: 'Comando verbal', desc: 'Di QUIETO firme y calmado.', emoji: '🗣️', icon: 'fa-comment' }, { titulo: 'Refuerzo', desc: 'Premia si se aleja del objeto.', emoji: '🍖', icon: 'fa-bone' }]}, tips: ["El premio debe ser inmediato."], error: { titulo: "Repetición excesiva", desc: "No digas el comando mil veces." }, resumen: "Tu mano es la frontera." },
+            { day: 3, title: 'Redirección al "SÍ"', semanaLabel: 'Fase 2: Control', duracion: '12 min', nivel: 'Medio', categoria: 'Sustitución', icon: 'fa-baseball', teoria: { audioSeconds: 25, intro: "Cambio por diversión 🎾", cuerpo: "Morder es necesario para él. Enséñale que hay cosas que SÍ puede morder.", puntosClave: ["Alternativa: Ten su juguete favorito listo.", "Intercambio: Quita el zapato y da el juguete.", "Fiesta: Celebra cuando elija su juguete."] }, practica: { timerSeconds: 720, pasos: [{ titulo: 'La carnada', desc: 'Deja un objeto tentador cerca.', emoji: '👟', icon: 'fa-shoe-prints' }, { titulo: 'El cambio', desc: 'Di QUIETO y ofrece su juguete.', emoji: '🎾', icon: 'fa-baseball' }, { titulo: 'Refuerzo', desc: 'Premia si elige el juguete.', emoji: '🎉', icon: 'fa-gift' }]}, tips: ["Rota sus juguetes para que no se aburra."], error: { titulo: "Frustración", desc: "No quites cosas sin dar algo a cambio." }, resumen: "Morder lo correcto es lo que enseñamos." },
+            { day: 4, title: 'El juego del SUELTA', semanaLabel: 'Fase 3: Avanzado', duracion: '15 min', nivel: 'Medio', categoria: 'Seguridad', icon: 'fa-arrows-rotate', teoria: { audioSeconds: 28, intro: "Entregar el tesoro 🔄", cuerpo: "Soltar es un acto de confianza absoluta. Evita luchas de fuerza.", puntosClave: ["Confianza: Soltar trae algo mejor.", "Comando: Di 'SUELTA' al ofrecer el premio.", "Intercambio: Nunca jalonees el objeto."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Tironeo suave', desc: 'Juega a tirar de un juguete.', emoji: '🦴', icon: 'fa-dog' }, { titulo: 'Pide el suelta', desc: 'Muestra un premio y di SUELTA.', emoji: '🗣️', icon: 'fa-bullhorn' }, { titulo: 'Premia', desc: 'En cuanto abra la boca, da el premio.', emoji: '🍖', icon: 'fa-circle-check' }]}, tips: ["Si no suelta, quédate como una estatua."], error: { titulo: "Pelea de fuerza", desc: "Jalonear hace que apriete más." }, resumen: "Soltar es confiar en ti." },
+            { day: 5, title: 'Prueba de Distancia', semanaLabel: 'Fase 3: Avanzado', duracion: '10 min', nivel: 'Avanzado', categoria: 'Resistencia', icon: 'fa-ruler-horizontal', teoria: { audioSeconds: 30, intro: "Obediencia remota 📏", cuerpo: "¿Te escucha si no estás encima de él? Vamos a probar el autocontrol lejano.", puntosClave: ["Distancia: Aléjate 3 pasos de <DOG>.", "Foco: Mantén contacto visual.", "Voz: Proyecta el comando con seguridad."] }, practica: { timerSeconds: 600, pasos: [{ titulo: 'Posicionamiento', desc: 'Pide que se quede y aléjate.', emoji: '🚶', icon: 'fa-person-walking-arrow-right' }, { titulo: 'Tentación', desc: 'Lanza un objeto cerca de él.', emoji: '👟', icon: 'fa-binoculars' }, { titulo: 'Corrección', desc: 'Usa QUIETO si intenta ir.', emoji: '🏆', icon: 'fa-medal' }]}, tips: ["Aumenta la distancia poco a poco."], error: { titulo: "Velocidad", desc: "No te alejes corriendo la primera vez." }, resumen: "Tu voz es su guía a distancia." },
+            { day: 6, title: 'Generalización', semanaLabel: 'Fase 4: Consolidación', duracion: '15 min', nivel: 'Avanzado', categoria: 'Entorno', icon: 'fa-house-signal', teoria: { audioSeconds: 25, intro: "Reglas para toda la casa 🏠", cuerpo: "El respeto a los objetos debe ser igual en la sala que en el cuarto o el jardín.", puntosClave: ["Variedad: Usa objetos que nunca ha visto.", "Entorno: Cambia de habitación.", "Consistencia: La regla nunca cambia."] }, practica: { timerSeconds: 900, pasos: [{ titulo: 'Circuito', desc: 'Pon 3 objetos prohibidos en el suelo.', emoji: '📦', icon: 'fa-boxes-stacked' }, { titulo: 'Caminata', desc: 'Camina entre los objetos con él.', emoji: '🐕', icon: 'fa-route' }, { titulo: 'Elección', desc: 'Premia si ignora los objetos solo.', emoji: '✅', icon: 'fa-circle-check' }]}, tips: ["Usa calcetines usados, son el reto final."], error: { titulo: "Mensajes mixtos", desc: "No dejes que muerda zapatos viejos." }, resumen: "Respeto total en todo el hogar." },
+            { day: 7, title: 'Independencia Real', semanaLabel: 'Fase 4: Consolidación', duracion: '20 min', nivel: 'Avanzado', categoria: 'Éxito', icon: 'fa-trophy', teoria: { audioSeconds: 25, intro: "La prueba final 🏆", cuerpo: "¿Se comporta cuando no lo estás mirando? El autocontrol debe ser su nuevo hábito.", puntosClave: ["Privacidad: Déjalo solo 5 min.", "Retorno: Si no hizo nada malo, ¡gran fiesta!", "Hábito: El autocontrol es parte de él."] }, practica: { timerSeconds: 1200, pasos: [{ titulo: 'Simulacro', desc: 'Sal del cuarto por 5 minutos.', emoji: '🚪', icon: 'fa-door-closed' }, { titulo: 'Regreso', desc: 'Si no mordió nada, dale su premio favorito.', emoji: '🍗', icon: 'fa-star' }, { titulo: 'Cierre', desc: 'Aumenta a 10 min. ¡Lo lograron!.', emoji: '🎓', icon: 'fa-graduation-cap' }]}, tips: ["El ejercicio previo ayuda a que esté tranquilo."], error: { titulo: "Castigo tardío", desc: "Regañar después del acto no educa." }, resumen: "De impulsividad a autocontrol real." }
         ]
     }
 ];
@@ -172,10 +166,10 @@ function renderHub() {
         const pct = Math.round((passedCount / ch.totalDays) * 100);
         container.innerHTML += `
             <div onclick="openChallenge('${ch.id}')" class="premium-card p-5 active:scale-95 transition-all cursor-pointer flex items-center gap-4 hover:border-emerald-300">
-                <div class="w-14 h-14 header-gradient rounded-3xl flex items-center justify-center text-2xl text-white shadow-lg shadow-emerald-100">${ch.icon}</div>
+                <div class="w-14 h-14 header-gradient rounded-3xl flex items-center justify-center text-2xl text-white shadow-lg shadow-emerald-100/20">${ch.icon}</div>
                 <div class="flex-1">
                     <h4 class="font-black text-slate-800 text-sm leading-tight">${ch.name}</h4>
-                    <p class="text-[10px] text-slate-400 font-bold tracking-tight uppercase mt-1">${passedCount}/${ch.totalDays} Sesiones</p>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-tight uppercase mt-1">${passedCount}/${ch.totalDays} Días</p>
                     <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden"><div class="brand-gradient h-full transition-all duration-700" style="width:${pct}%"></div></div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-slate-200"></i>
@@ -193,7 +187,6 @@ function renderDays() {
     const container = document.getElementById('days-container');
     const chTracker = trackerData[currentChallenge.id] || {};
     container.innerHTML = '';
-    
     let highestPassed = 0;
     Object.keys(chTracker).forEach(d => { if(chTracker[d].passed) highestPassed = Math.max(highestPassed, parseInt(d)); });
 
@@ -206,7 +199,7 @@ function renderDays() {
         const isLocked = !isPassed && !isReady;
 
         container.innerHTML += `
-            <div onclick="${!isLocked ? `openLesson(${i})` : ''}" class="premium-card p-4 flex items-center gap-4 border-2 ${isPassed ? 'border-emerald-100 bg-emerald-50/20' : isFailed ? 'border-rose-100 bg-rose-50/20' : isLocked ? 'opacity-40 grayscale' : 'border-emerald-500/20 bg-white shadow-emerald-500/5'}">
+            <div onclick="${!isLocked ? `openLesson(${i})` : ''}" class="premium-card p-4 flex items-center gap-4 border-2 ${isPassed ? 'border-emerald-100 bg-emerald-50/20' : isFailed ? 'border-rose-100 bg-rose-50/20' : isLocked ? 'opacity-40 grayscale' : 'border-emerald-500/20 bg-emerald-50/10'}">
                 <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm ${isPassed ? 'header-gradient text-white' : isFailed ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-400'}">${i}</div>
                 <div class="flex-1">
                     <h4 class="font-black text-slate-800 text-xs">${lesson ? lesson.title : `Día ${i}`}</h4>
@@ -232,9 +225,10 @@ function renderLessonContent() {
     const isPassed = chTracker[currentLessonDay] && chTracker[currentLessonDay].passed;
 
     let html = `
-        <div class="flex border-b border-slate-100 mb-8 sticky top-0 bg-[#f8fafc] z-10">
-            <button onclick="switchTab('teoria')" class="flex-1 tab-btn ${currentTab === 'teoria' ? 'active' : ''}">Fundamentos</button>
-            <button onclick="switchTab('practica')" class="flex-1 tab-btn ${currentTab === 'practica' ? 'active' : ''}">Práctica</button>
+        <div class="flex relative mb-8 sticky top-0 bg-[#f8fafc] z-10 w-full">
+            <button onclick="switchTab('teoria')" class="tab-btn ${currentTab === 'teoria' ? 'active' : ''}">Fundamentos</button>
+            <button onclick="switchTab('practica')" class="tab-btn ${currentTab === 'practica' ? 'active' : ''}">Práctica</button>
+            <div class="tab-indicator" style="width: 50%; left: ${currentTab === 'teoria' ? '0%' : '50%'}"></div>
         </div>
     `;
 
@@ -248,17 +242,17 @@ function renderLessonContent() {
                 </div>
             </div>
             <div class="flex flex-wrap gap-2 justify-center mb-8">
-                <span class="tag">${lesson.duracion}</span>
-                <span class="tag">${lesson.nivel}</span>
+                <span class="tag-green"><i class="fa-solid fa-clock mr-1"></i> ${lesson.duracion}</span>
+                <span class="tag-green"><i class="fa-solid fa-bolt mr-1"></i> ${lesson.nivel}</span>
             </div>
             <div class="space-y-4">
                 <h3 class="font-black text-slate-900 text-xl leading-tight text-center">${replace(lesson.teoria.intro)}</h3>
                 <p class="text-slate-500 text-sm leading-relaxed text-center px-4">${replace(lesson.teoria.cuerpo)}</p>
                 <div class="space-y-2 mt-8">
-                    ${lesson.teoria.puntosClave.map(p => `<p class="text-xs font-bold text-slate-600 flex items-center gap-3 bg-white p-5 rounded-[1.5rem] border border-slate-100"><i class="fa-solid fa-check-circle text-emerald-500"></i> ${replace(p)}</p>`).join('')}
+                    ${lesson.teoria.puntosClave.map(p => `<p class="text-[11px] font-bold text-slate-600 flex items-center gap-3 bg-white p-5 rounded-[1.8rem] border border-slate-100 shadow-sm"><i class="fa-solid fa-check-circle text-emerald-500 text-lg"></i> ${replace(p)}</p>`).join('')}
                 </div>
             </div>`;
-        actionContainer.innerHTML = `<button onclick="switchTab('practica')" class="w-full brand-gradient text-white font-black h-14 rounded-2xl shadow-lg active:scale-95 transition-all">Siguiente <i class="fa-solid fa-arrow-right ml-2 text-xs"></i></button>`;
+        actionContainer.innerHTML = `<button onclick="switchTab('practica')" class="w-full brand-gradient text-white font-black h-14 rounded-2xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">Ir a Práctica <i class="fa-solid fa-arrow-right text-xs"></i></button>`;
     } else {
         html += `
             <div class="blob-container" id="timer-container">
@@ -271,7 +265,7 @@ function renderLessonContent() {
             <div class="space-y-3">
                 ${lesson.practica.pasos.map((p, i) => `
                     <div class="premium-card p-5 flex gap-4">
-                        <div class="w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center font-black text-xs shrink-0">${i+1}</div>
+                        <div class="w-7 h-7 bg-emerald-600 text-white rounded-full flex items-center justify-center font-black text-xs shrink-0">${i+1}</div>
                         <div>
                             <h4 class="font-black text-slate-900 text-xs">${p.titulo}</h4>
                             <p class="text-[11px] text-slate-500 leading-relaxed mt-1">${replace(p.desc)}</p>
@@ -280,20 +274,18 @@ function renderLessonContent() {
             </div>`;
         actionContainer.innerHTML = isPassed 
             ? `<button onclick="goBack()" class="w-full header-gradient text-white font-black h-14 rounded-2xl">Volver al Plan</button>`
-            : `<button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black h-14 rounded-2xl shadow-xl active:scale-95">Completar Sesión</button>`;
+            : `<button onclick="openCompleteModal()" class="w-full brand-gradient text-white font-black h-14 rounded-2xl shadow-xl active:scale-95">Completar Sesión</button>`;
     }
     container.innerHTML = html;
 }
 
-// LOGICA DE NAVEGACION MEJORADA
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
     document.getElementById('app-header').style.display = (id === 'screen-hub') ? 'none' : 'flex';
-    currentScreen = id; // Actualizamos el estado
-    
+    currentScreen = id;
     if (currentChallenge) {
         document.getElementById('header-title').innerText = currentChallenge.name;
-        document.getElementById('header-sub').innerText = (id === 'screen-lesson') ? `Día ${currentLessonDay}` : 'Plan Premium';
+        document.getElementById('header-sub').innerText = (id === 'screen-lesson') ? `Sesión Día ${currentLessonDay}` : 'Plan de 7 días';
     }
 }
 

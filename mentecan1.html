@@ -29,26 +29,25 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Emerald brand */
+        /* Brand Colors */
         .brand-bg { background: linear-gradient(135deg, #059669 0%, #064e3b 100%); }
         .brand-text { color: #059669; font-weight: 800; }
-        .brand-btn { background-color: #059669; }
-        .brand-btn:active { transform: scale(0.97); }
 
-        /* Day states */
-        .day-locked { opacity: 0.35; pointer-events: none; }
-        .day-ready { border-color: #059669 !important; background: #ecfdf5 !important; }
-        .day-done { background: #ffffff; border-color: #10b981; }
-
-        /* Pestañas */
+        /* Pestañas Modernas */
         .tab-btn { padding-bottom: 0.75rem; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: 800; font-size: 0.75rem; color: #94a3b8; letter-spacing: 0.05em; }
         .tab-btn.active { border-color: #10b981; color: #059669; }
 
-        /* Reproductor de Audio Visual */
-        .waveform-container { display: flex; align-items: center; gap: 3px; height: 30px; }
-        .wave-bar { width: 3px; background: #10b981; border-radius: 50px; height: 8px; }
-        .wave-anim { animation: wave-pulse 1.2s ease-in-out infinite; }
-        @keyframes wave-pulse { 0%, 100% { height: 8px; } 50% { height: 25px; } }
+        /* Waveform de Audio Profesional */
+        .waveform { display: flex; align-items: center; gap: 3px; height: 40px; }
+        .wave-bar { width: 3px; background: #10b981; border-radius: 50px; transition: height 0.3s ease; }
+        /* Alturas variables para simular onda real */
+        .wave-bar:nth-child(odd) { height: 12px; }
+        .wave-bar:nth-child(even) { height: 25px; }
+        .wave-bar:nth-child(3n) { height: 35px; }
+        .wave-bar:nth-child(4n) { height: 18px; }
+
+        .playing .wave-bar { animation: wave-pulse 1s ease-in-out infinite; }
+        @keyframes wave-pulse { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.5); } }
 
         /* Timer Card */
         .timer-card.active { background: #0f172a; border-color: #1e293b; color: white; }
@@ -126,7 +125,7 @@
             </button>
             <div class="text-center">
                 <h2 class="font-extrabold text-white text-sm" id="lesson-header-title">Día 1</h2>
-                <p class="text-[10px] font-bold text-emerald-200 uppercase tracking-widest" id="lesson-header-sub">Fundamentos</p>
+                <p class="text-[10px] font-bold text-emerald-200 uppercase tracking-widest" id="lesson-header-sub">Fase 1</p>
             </div>
             <div class="w-9 h-9"></div>
         </div>
@@ -158,7 +157,7 @@
 
 <script>
 // =============================================
-// DATA - RETO "NO MUERDA" CON NUEVA ESTRUCTURA
+// DATA - RETO "NO MUERDA" 
 // =============================================
 const CHALLENGES = [
     {
@@ -171,7 +170,6 @@ const CHALLENGES = [
             { 
                 day: 1, title: 'Entiende por qué muerde', 
                 semanaLabel: 'Día 1 / Fase 1',
-                audioUrl: null, 
                 teoria: {
                     intro: "¿Por qué <DOG> muerde todo? 🦷",
                     cuerpo: "Morder no es un acto de rebeldía o maldad; para un perro, es su forma de interactuar con el mundo. Al no tener manos, <DOG> usa su boca para descubrir texturas. En cachorros alivia la dentición y en adultos libera estrés.",
@@ -191,7 +189,6 @@ const CHALLENGES = [
                 },
                 resumen: "No busques obediencia todavía, busca información. Un perro aburrido se entrena distinto a uno ansioso."
             }
-            // Agrega el resto de días aquí con el mismo formato
         ]
     }
 ];
@@ -204,7 +201,7 @@ let timerInterval = null;
 let trackerData = JSON.parse(localStorage.getItem(`eduDog_tracker_${dogName}`)) || {};
 
 // =============================================
-// LÓGICA DE NAVEGACIÓN Y RENDER
+// LÓGICA DE RENDERIZADO
 // =============================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -216,12 +213,9 @@ function renderHub() {
     document.getElementById('hub-dog-name').innerText = `${dogName} 🐾`;
     const container = document.getElementById('challenges-container');
     container.innerHTML = '';
-    
     CHALLENGES.forEach(ch => {
         const chTracker = trackerData[ch.id] || {};
         const passedCount = Object.values(chTracker).filter(t => t.passed).length;
-        const pct = Math.round((passedCount / ch.totalDays) * 100) || 0;
-
         container.innerHTML += `
             <div onclick="openChallenge('${ch.id}')" class="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm active:scale-95 transition-all cursor-pointer">
                 <div class="flex items-center gap-3">
@@ -246,14 +240,12 @@ function renderDays() {
     const container = document.getElementById('days-container');
     const chTracker = trackerData[currentChallenge.id] || {};
     container.innerHTML = '';
-
     for (let i = 1; i <= currentChallenge.totalDays; i++) {
         const lesson = currentChallenge.lessons.find(l => l.day === i);
         const isPassed = chTracker[i] && chTracker[i].passed;
         const isReady = i === 1 || (chTracker[i-1] && chTracker[i-1].passed);
-
         container.innerHTML += `
-            <div onclick="${isReady ? `openLesson(${i})` : ''}" class="bg-white rounded-2xl border-2 p-4 flex items-center justify-between ${isPassed ? 'day-done border-emerald-500' : isReady ? 'day-ready' : 'day-locked'}">
+            <div onclick="${isReady ? `openLesson(${i})` : ''}" class="bg-white rounded-2xl border-2 p-4 flex items-center justify-between ${isPassed ? 'border-emerald-500' : isReady ? 'border-emerald-200 bg-emerald-50' : 'opacity-40'}">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs ${isPassed ? 'bg-emerald-500 text-white' : 'bg-slate-100'}">${i}</div>
                     <h4 class="font-bold text-sm text-slate-800">${lesson ? lesson.title : `Día ${i}`}</h4>
@@ -286,33 +278,40 @@ function renderLessonContent(lesson) {
 
     if (currentTab === 'teoria') {
         html += `
-            <div class="bg-emerald-50 rounded-[2rem] p-6 border border-emerald-100 mb-6 shadow-sm">
+            <div id="audio-player" class="bg-emerald-50 rounded-[2rem] p-6 border border-emerald-100 mb-6 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Escucha la lección (45s)</span>
-                    <i class="fa-solid fa-bolt text-emerald-400 text-xs"></i>
+                    <i class="fa-solid fa-waveform text-emerald-400"></i>
                 </div>
-                <div class="flex items-center gap-4">
-                    <button class="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg"><i class="fa-solid fa-play ml-1"></i></button>
-                    <div class="flex-1 waveform-container">
-                        ${Array(18).fill('<div class="wave-bar"></div>').join('')}
+                <div class="flex items-center gap-5">
+                    <button onclick="this.parentElement.parentElement.classList.toggle('playing')" class="w-14 h-14 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg active:scale-90 transition-all"><i class="fa-solid fa-play text-lg ml-1"></i></button>
+                    <div class="flex-1 waveform">
+                        ${Array(22).fill('<div class="wave-bar"></div>').join('')}
                     </div>
                 </div>
             </div>
+
             <div class="space-y-4 px-1">
-                <h3 class="font-black text-slate-900 text-lg">${replace(lesson.teoria.intro)}</h3>
+                <h3 class="font-black text-slate-900 text-lg leading-tight">${replace(lesson.teoria.intro)}</h3>
                 <p class="text-slate-600 text-sm leading-relaxed">${replace(lesson.teoria.cuerpo)}</p>
-                <div class="space-y-2 mt-4">
-                    ${lesson.teoria.puntosClave.map(p => `<p class="text-xs font-bold text-slate-500 flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500"></i> ${replace(p)}</p>`).join('')}
+                <div class="space-y-3 mt-4">
+                    ${lesson.teoria.puntosClave.map(p => `<p class="text-xs font-bold text-slate-500 flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><i class="fa-solid fa-check-circle text-emerald-500"></i> ${replace(p)}</p>`).join('')}
                 </div>
+                
+                <button onclick="switchTab('practica')" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl mt-6 shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    ¡Entendido! Ver pasos <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
             </div>`;
     } else {
         html += `
             <div id="timer-card" class="timer-card bg-white rounded-[2rem] p-6 border-2 border-dashed border-slate-200 text-center mb-6 transition-all duration-500">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Sesión Diaria</p>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Entrenamiento Activo</p>
                 <div id="lesson-timer" class="text-5xl font-black text-slate-900 mb-4 tabular-nums">10:00</div>
-                <button onclick="toggleTimer(${lesson.practica.timerSeconds})" id="timer-btn" class="bg-emerald-600 text-white px-8 py-3 rounded-full font-extrabold text-sm shadow-md active:scale-95 transition-all">Iniciar Entrenamiento</button>
+                <button onclick="toggleTimer(${lesson.practica.timerSeconds})" id="timer-btn" class="bg-emerald-600 text-white px-8 py-3 rounded-full font-extrabold text-sm shadow-md active:scale-95 transition-all">Iniciar Sesión</button>
             </div>
+
             <div class="space-y-3">
+                <h3 class="font-black text-slate-900 text-sm mb-2 ml-1">Pasos de hoy:</h3>
                 ${lesson.practica.pasos.map((p, i) => `
                     <div class="bg-white rounded-2xl border border-slate-100 p-4 flex gap-4 shadow-sm">
                         <div class="step-badge">${i+1}</div>
@@ -321,16 +320,16 @@ function renderLessonContent(lesson) {
                             <p class="text-[11px] text-slate-500 leading-relaxed mt-1">${replace(p.desc)}</p>
                         </div>
                     </div>`).join('')}
-            </div>`;
-    }
+            </div>
 
-    html += `
-        <div class="bg-amber-50 border-l-4 border-amber-400 p-5 rounded-r-3xl mt-8 shadow-sm">
-            <span class="text-[9px] font-black uppercase text-amber-700 block mb-1">La clave de hoy</span>
-            <p class="text-xs font-semibold italic text-amber-900">"${replace(lesson.resumen)}"</p>
-        </div>
-        <button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl mt-8 shadow-xl active:scale-95 transition-all">TERMINAR DÍA</button>
-        <div class="h-10"></div>`;
+            <div class="bg-amber-50 border-l-4 border-amber-400 p-5 rounded-r-3xl mt-8 shadow-sm">
+                <span class="text-[9px] font-black uppercase text-amber-700 block mb-1">La clave de hoy</span>
+                <p class="text-xs font-semibold italic text-amber-900 leading-tight">"${replace(lesson.resumen)}"</p>
+            </div>
+
+            <button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl mt-8 shadow-xl active:scale-95 transition-all">FINALIZAR ENTRENAMIENTO</button>
+        `;
+    }
 
     container.innerHTML = html;
 }
@@ -341,33 +340,27 @@ function switchTab(tab) {
     timerInterval = null;
     const lesson = currentChallenge.lessons.find(l => l.day === currentLessonDay);
     renderLessonContent(lesson);
+    document.getElementById('screen-lesson').scrollTop = 0;
 }
 
 function toggleTimer(totalSeconds) {
     const btn = document.getElementById('timer-btn');
     const card = document.getElementById('timer-card');
-    const bars = document.querySelectorAll('.wave-bar');
-    
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
         btn.innerText = "Reanudar";
         card.classList.remove('active');
-        bars.forEach(b => b.classList.remove('wave-anim'));
     } else {
         let time = totalSeconds;
         card.classList.add('active');
         btn.innerText = "Pausar";
-        bars.forEach(b => b.classList.add('wave-anim'));
         timerInterval = setInterval(() => {
             time--;
             let mins = Math.floor(time / 60);
             let secs = time % 60;
             document.getElementById('lesson-timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-            if (time <= 0) {
-                clearInterval(timerInterval);
-                showToast("¡Sesión completada! 🏆");
-            }
+            if (time <= 0) { clearInterval(timerInterval); showToast("¡Excelente sesión! 🏆"); }
         }, 1000);
     }
 }
@@ -380,7 +373,7 @@ function saveDay(result) {
     trackerData[currentChallenge.id][currentLessonDay] = { result, passed: true };
     localStorage.setItem(`eduDog_tracker_${dogName}`, JSON.stringify(trackerData));
     closeModal();
-    showToast(`Día ${currentLessonDay} guardado con éxito`);
+    showToast(`¡Día ${currentLessonDay} superado!`);
     showScreen('screen-challenge');
     renderDays();
     renderHub();

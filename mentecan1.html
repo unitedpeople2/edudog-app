@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mentecan Vital - Entrenamiento Profesional</title>
+    <title>Mentecan Vital - Entrenamiento Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -27,49 +27,47 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Estética Mentecan Vital */
-        .brand-gradient { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
-        .header-gradient { background: linear-gradient(to right, #059669, #10b981); }
+        /* Estética Premium Emerald & Black */
+        .brand-gradient { background: linear-gradient(135deg, #064e3b 0%, #10b981 100%); }
+        .header-gradient { background: linear-gradient(to bottom, #000000, #064e3b); }
         
-        /* Pestañas */
-        .tab-btn { padding-bottom: 0.75rem; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: 800; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-        .tab-btn.active { border-color: #10b981; color: #059669; }
+        /* Pestañas Modernas */
+        .tab-btn { padding: 1rem 0; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: 800; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; }
+        .tab-btn.active { border-color: #10b981; color: #064e3b; }
 
-        /* REPRODUCTOR Y TIMER (BLOB) */
+        /* REPRODUCTOR Y TIMER (ESTILO TECNOLÓGICO) */
         .blob-container {
-            position: relative; width: 230px; height: 230px;
-            margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; width: 220px; height: 220px;
+            margin: 30px auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .blob-shape {
             position: absolute; inset: 0;
-            background: rgba(16, 185, 129, 0.1);
-            border: 2px solid rgba(16, 185, 129, 0.2);
-            border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+            background: #000000;
+            border: 2px solid #10b981;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
             transition: all 1s ease-in-out;
             z-index: 1;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
         }
         .active-session .blob-shape {
-            animation: breathe 4s ease-in-out infinite;
-            background: rgba(16, 185, 129, 0.18);
-            border-color: #10b981;
+            animation: breathe 3s ease-in-out infinite;
+            border-color: #34d399;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
         }
         @keyframes breathe {
-            0%, 100% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: scale(1); }
-            50% { border-radius: 58% 42% 38% 62% / 55% 55% 45% 45%; transform: scale(1.08); }
+            0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; transform: scale(1); }
+            50% { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; transform: scale(1.05); }
         }
-        .counter-text { position: relative; z-index: 10; font-size: 3.5rem; font-weight: 900; color: #064e3b; letter-spacing: -2px; }
-        .action-trigger { position: relative; z-index: 10; margin-top: 10px; width: 55px; height: 55px; background: #059669; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3); cursor: pointer; }
+        .counter-text { position: relative; z-index: 10; font-size: 3.5rem; font-weight: 900; color: #ffffff; letter-spacing: -2px; }
+        .action-trigger { position: relative; z-index: 10; margin-top: 10px; width: 50px; height: 50px; background: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid #000; }
 
-        /* Tags e Iconos */
-        .tag { background: #f1f5f9; color: #475569; font-size: 10px; font-weight: 800; padding: 5px 12px; border-radius: 20px; text-transform: uppercase; display: flex; align-items: center; gap: 5px; border: 1px solid #e2e8f0; }
-        .step-badge { width: 26px; height: 26px; border-radius: 50%; background: #059669; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+        /* Cards Premium */
+        .premium-card { background: white; border: 1px solid rgba(6, 78, 59, 0.08); border-radius: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.02); }
         
-        /* Estados de los días */
-        .day-item.failed { border-color: #fca5a5 !important; background: #fff1f2 !important; }
-        .day-item.failed h4 { color: #b91c1c; }
-        .day-item.failed .status-icon { color: #ef4444; }
+        .tag { background: #000; color: #34d399; font-size: 9px; font-weight: 800; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; border: 1px solid #10b981; }
 
-        .modal-bg { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); }
+        /* Navegación Inferior */
+        .nav-footer { background: #ffffff; border-top: 1px solid #f1f5f9; padding: 1.25rem 1.5rem; display: flex; gap: 4px; position: sticky; bottom: 0; z-index: 40; }
     </style>
 </head>
 <body>
@@ -81,28 +79,31 @@
 
 <div class="app-container md:rounded-[2.5rem] md:border-[10px] md:border-slate-900">
 
-    <div id="app-header" class="header-gradient text-white px-6 py-4 flex items-center justify-between z-30 shrink-0 sticky top-0 shadow-md" style="display: none;">
-        <button id="btn-header-back" onclick="goBack()" class="w-10 h-10 bg-black/10 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
-        <div class="text-center">
-            <h2 id="header-title" class="font-black text-sm">Mentecan Vital</h2>
-            <p id="header-sub" class="text-[9px] font-black text-emerald-100 uppercase tracking-widest"></p>
+    <div id="app-header" class="header-gradient text-white px-6 py-6 flex items-center justify-between z-30 shrink-0 sticky top-0 shadow-lg" style="display: none;">
+        <div class="flex items-center gap-3">
+            <button onclick="goBack()" class="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 active:scale-90 transition-all"><i class="fa-solid fa-arrow-left"></i></button>
+            <div>
+                <h2 id="header-title" class="font-black text-sm tracking-tight">Mentecan Vital</h2>
+                <p id="header-sub" class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest"></p>
+            </div>
         </div>
-        <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-black/10 rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-house text-sm"></i></button>
+        <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white border border-white/5"><i class="fa-solid fa-house text-sm"></i></button>
     </div>
 
     <section id="screen-hub" class="screen">
-        <div class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex justify-between items-center z-30">
-            <h2 class="font-black text-slate-800 text-lg flex items-center gap-2"><i class="fa-solid fa-paw text-emerald-500"></i> Mentecan Vital</h2>
+        <div class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-5 flex justify-between items-center z-30">
+            <h2 class="font-black text-slate-800 text-xl flex items-center gap-2 tracking-tighter"><i class="fa-solid fa-paw text-emerald-600"></i> Mentecan <span class="text-emerald-500">Vital</span></h2>
             <div class="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400"><i class="fa-solid fa-shield-dog"></i></div>
         </div>
         <div class="px-6 py-6 space-y-6">
-            <div class="brand-gradient rounded-[2.5rem] p-6 text-white shadow-xl relative overflow-hidden">
+            <div class="header-gradient rounded-[2.5rem] p-7 text-white shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -mr-10 -mt-10 blur-3xl"></div>
                 <div class="relative z-10">
-                    <p class="text-emerald-100 text-[10px] font-black uppercase tracking-widest mb-1">Entrenamiento de hoy</p>
-                    <h3 class="text-2xl font-black tracking-tight" id="hub-dog-name">Cargando...</h3>
-                    <div class="mt-5 bg-black/10 p-4 rounded-3xl border border-white/10">
-                        <div class="flex justify-between text-[10px] font-black uppercase mb-2"><span>Progreso Semanal</span><span id="hub-progress-text">0/7 días</span></div>
-                        <div class="w-full bg-white/20 rounded-full h-2 overflow-hidden"><div id="hub-progress-bar" class="bg-white h-full transition-all duration-1000" style="width:0%"></div></div>
+                    <p class="text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-1">Tu progreso actual</p>
+                    <h3 class="text-2xl font-black tracking-tight" id="hub-dog-name">...</h3>
+                    <div class="mt-6 bg-white/5 p-5 rounded-[2rem] border border-white/10 backdrop-blur-sm">
+                        <div class="flex justify-between text-[10px] font-black uppercase mb-3"><span>Sesiones Completadas</span><span id="hub-progress-text">0/7 días</span></div>
+                        <div class="w-full bg-white/10 rounded-full h-2.5 overflow-hidden"><div id="hub-progress-bar" class="brand-gradient h-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="width:0%"></div></div>
                     </div>
                 </div>
             </div>
@@ -115,16 +116,22 @@
     </section>
 
     <section id="screen-lesson" class="screen">
-        <div class="px-6 py-6 pb-12" id="lesson-content"></div>
+        <div class="flex-1 overflow-y-auto px-6 py-6" id="lesson-content"></div>
+        <div class="nav-footer">
+            <button onclick="goBack()" class="flex-1 bg-slate-100 text-slate-500 h-14 rounded-2xl font-bold text-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-chevron-left"></i> Volver
+            </button>
+            <div id="lesson-action-container" class="flex-[2]"></div>
+        </div>
     </section>
 
     <div id="modal-complete" class="hidden absolute inset-0 z-50 modal-bg flex flex-col justify-end">
         <div class="bg-white rounded-t-[3rem] p-8 shadow-2xl">
-            <div class="text-center mb-8"><div class="text-5xl mb-4">✨</div><h3 class="text-2xl font-black text-slate-900">¿Cómo fue la sesión?</h3><p class="text-slate-400 text-sm font-medium mt-1">Tu honestidad garantiza un aprendizaje real.</p></div>
+            <div class="text-center mb-8"><div class="text-5xl mb-4">⭐</div><h3 class="text-2xl font-black text-slate-900">¿Cómo fue la sesión?</h3><p class="text-slate-400 text-sm font-medium mt-1">Evalúa el desempeño de hoy.</p></div>
             <div class="space-y-3">
-                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-5 rounded-[2rem] font-black text-sm border border-emerald-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-star mr-2 text-emerald-500"></i> ¡Excelente progreso!</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
+                <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-700 p-5 rounded-[2rem] font-black text-sm border border-emerald-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-star mr-2 text-emerald-500"></i> ¡Excelente!</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
                 <button onclick="saveDay('bien')" class="w-full bg-amber-50 text-amber-700 p-5 rounded-[2rem] font-black text-sm border border-amber-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-thumbs-up mr-2 text-amber-500"></i> Estuvo bien</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
-                <button onclick="saveDay('dificil')" class="w-full bg-rose-50 text-rose-700 p-5 rounded-[2rem] font-black text-sm border border-rose-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-triangle-exclamation mr-2 text-rose-500"></i> Difícil - Reintentar</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
+                <button onclick="saveDay('dificil')" class="w-full bg-rose-50 text-rose-700 p-5 rounded-[2rem] font-black text-sm border border-rose-100 flex items-center justify-between active:scale-95 transition-all"><span><i class="fa-solid fa-triangle-exclamation mr-2 text-rose-500"></i> Fue difícil</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
                 <button onclick="closeModal()" class="w-full text-slate-400 py-4 font-bold text-sm">Cancelar</button>
             </div>
         </div>
@@ -132,9 +139,12 @@
 </div>
 
 <script>
-// =============================================
-// CONTENIDO COMPLETO — 7 DÍAS "NO MUERDA"
-// =============================================
+// VARIABLES DE ESTADO CORREGIDAS
+let dogName = localStorage.getItem('currentDogName') || 'tu peludo';
+let currentScreen = 'screen-hub'; // Seguimiento de pantalla activa
+let currentChallenge = null, currentLessonDay = null, currentTab = 'teoria', audioInterval = null, timerInterval = null;
+let trackerData = JSON.parse(localStorage.getItem(`eduDog_tracker_${dogName}`)) || {};
+
 const CHALLENGES = [
     {
         id: 'no-muerda', name: 'No muerda las cosas', icon: '🦷', totalDays: 7, desc: 'Educa su boca y protege tu hogar',
@@ -150,13 +160,6 @@ const CHALLENGES = [
     }
 ];
 
-// =============================================
-// LÓGICA CORE — MENTECAN VITAL
-// =============================================
-let dogName = localStorage.getItem('currentDogName') || 'tu peludo';
-let currentChallenge = null, currentLessonDay = null, currentTab = 'teoria', audioInterval = null, timerInterval = null;
-let trackerData = JSON.parse(localStorage.getItem(`eduDog_tracker_${dogName}`)) || {};
-
 document.addEventListener('DOMContentLoaded', () => { renderHub(); showScreen('screen-hub'); });
 
 function renderHub() {
@@ -168,11 +171,11 @@ function renderHub() {
         const passedCount = Object.values(chTracker).filter(t => t.passed).length;
         const pct = Math.round((passedCount / ch.totalDays) * 100);
         container.innerHTML += `
-            <div onclick="openChallenge('${ch.id}')" class="bg-white rounded-[2.5rem] p-5 shadow-sm active:scale-95 transition-all cursor-pointer flex items-center gap-4 border border-slate-100">
-                <div class="w-14 h-14 brand-gradient rounded-3xl flex items-center justify-center text-2xl text-white shadow-lg shadow-emerald-100">${ch.icon}</div>
+            <div onclick="openChallenge('${ch.id}')" class="premium-card p-5 active:scale-95 transition-all cursor-pointer flex items-center gap-4 hover:border-emerald-300">
+                <div class="w-14 h-14 header-gradient rounded-3xl flex items-center justify-center text-2xl text-white shadow-lg shadow-emerald-100">${ch.icon}</div>
                 <div class="flex-1">
                     <h4 class="font-black text-slate-800 text-sm leading-tight">${ch.name}</h4>
-                    <p class="text-[10px] text-slate-400 font-bold tracking-tight uppercase mt-0.5">${passedCount}/${ch.totalDays} Días completados</p>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-tight uppercase mt-1">${passedCount}/${ch.totalDays} Sesiones</p>
                     <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden"><div class="brand-gradient h-full transition-all duration-700" style="width:${pct}%"></div></div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-slate-200"></i>
@@ -203,35 +206,35 @@ function renderDays() {
         const isLocked = !isPassed && !isReady;
 
         container.innerHTML += `
-            <div onclick="${!isLocked ? `openLesson(${i})` : ''}" class="day-item bg-white rounded-[2rem] p-4 flex items-center gap-4 border-2 ${isPassed ? 'border-emerald-100 bg-emerald-50/20' : isFailed ? 'failed' : isLocked ? 'opacity-40 border-slate-50' : 'border-emerald-200 bg-emerald-50/40'}">
-                <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm ${isPassed ? 'bg-emerald-500 text-white' : isFailed ? 'bg-rose-500 text-white' : 'bg-white text-slate-400'}">${i}</div>
+            <div onclick="${!isLocked ? `openLesson(${i})` : ''}" class="premium-card p-4 flex items-center gap-4 border-2 ${isPassed ? 'border-emerald-100 bg-emerald-50/20' : isFailed ? 'border-rose-100 bg-rose-50/20' : isLocked ? 'opacity-40 grayscale' : 'border-emerald-500/20 bg-white shadow-emerald-500/5'}">
+                <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm ${isPassed ? 'header-gradient text-white' : isFailed ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-400'}">${i}</div>
                 <div class="flex-1">
                     <h4 class="font-black text-slate-800 text-xs">${lesson ? lesson.title : `Día ${i}`}</h4>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">${isPassed ? '¡Completado!' : isFailed ? 'Requiere reintento' : isLocked ? 'Bloqueado' : 'Entrenar ahora'}</p>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">${isPassed ? 'Completado' : isFailed ? 'Reintentar' : isLocked ? 'Bloqueado' : 'Entrenar ahora'}</p>
                 </div>
-                <i class="fa-solid ${lesson ? lesson.icon : 'fa-lock'} status-icon ${isPassed ? 'text-emerald-500' : isFailed ? 'text-rose-500' : 'text-slate-200'}"></i>
+                <i class="fa-solid ${isLocked ? 'fa-lock' : lesson.icon} ${isPassed ? 'text-emerald-500' : 'text-slate-200'}"></i>
             </div>`;
     }
 }
 
 function openLesson(day) {
     currentLessonDay = day; currentTab = 'teoria';
-    const lesson = currentChallenge.lessons.find(l => l.day === day);
-    renderLessonContent(lesson);
+    renderLessonContent();
     showScreen('screen-lesson');
-    document.getElementById('screen-lesson').scrollTop = 0; // Reset scroll al inicio
 }
 
-function renderLessonContent(lesson) {
+function renderLessonContent() {
+    const lesson = currentChallenge.lessons.find(l => l.day === currentLessonDay);
     const replace = (s) => s.replace(/<DOG>/g, `<span class="font-black text-emerald-600">${dogName}</span>`);
     const container = document.getElementById('lesson-content');
+    const actionContainer = document.getElementById('lesson-action-container');
     const chTracker = trackerData[currentChallenge.id] || {};
     const isPassed = chTracker[currentLessonDay] && chTracker[currentLessonDay].passed;
 
     let html = `
-        <div class="flex border-b border-slate-100 mb-6 sticky top-0 bg-[#f8fafc] z-10">
-            <button onclick="switchTab('teoria')" class="flex-1 tab-btn ${currentTab === 'teoria' ? 'active' : ''}">TEORÍA</button>
-            <button onclick="switchTab('practica')" class="flex-1 tab-btn ${currentTab === 'practica' ? 'active' : ''}">PRÁCTICA</button>
+        <div class="flex border-b border-slate-100 mb-8 sticky top-0 bg-[#f8fafc] z-10">
+            <button onclick="switchTab('teoria')" class="flex-1 tab-btn ${currentTab === 'teoria' ? 'active' : ''}">Fundamentos</button>
+            <button onclick="switchTab('practica')" class="flex-1 tab-btn ${currentTab === 'practica' ? 'active' : ''}">Práctica</button>
         </div>
     `;
 
@@ -244,22 +247,20 @@ function renderLessonContent(lesson) {
                     <div onclick="toggleAudio(${lesson.teoria.audioSeconds})" class="action-trigger" id="audio-play-btn"><i class="fa-solid fa-play"></i></div>
                 </div>
             </div>
-            <div class="flex flex-wrap gap-2 justify-center mb-6">
-                <span class="tag"><i class="fa-solid fa-clock text-emerald-500"></i> ${lesson.duracion}</span>
-                <span class="tag"><i class="fa-solid fa-bolt text-rose-500"></i> ${lesson.nivel}</span>
-                <span class="tag"><i class="fa-solid fa-bookmark text-blue-500"></i> ${lesson.categoria}</span>
+            <div class="flex flex-wrap gap-2 justify-center mb-8">
+                <span class="tag">${lesson.duracion}</span>
+                <span class="tag">${lesson.nivel}</span>
             </div>
             <div class="space-y-4">
                 <h3 class="font-black text-slate-900 text-xl leading-tight text-center">${replace(lesson.teoria.intro)}</h3>
-                <p class="text-slate-500 text-sm leading-relaxed text-center px-2">${replace(lesson.teoria.cuerpo)}</p>
-                <div class="space-y-2 mt-6">
-                    ${lesson.teoria.puntosClave.map(p => `<p class="text-xs font-bold text-slate-600 flex items-center gap-3 bg-white p-4 rounded-3xl border border-slate-100 shadow-sm"><i class="fa-solid fa-circle-check text-emerald-500"></i> ${replace(p)}</p>`).join('')}
+                <p class="text-slate-500 text-sm leading-relaxed text-center px-4">${replace(lesson.teoria.cuerpo)}</p>
+                <div class="space-y-2 mt-8">
+                    ${lesson.teoria.puntosClave.map(p => `<p class="text-xs font-bold text-slate-600 flex items-center gap-3 bg-white p-5 rounded-[1.5rem] border border-slate-100"><i class="fa-solid fa-check-circle text-emerald-500"></i> ${replace(p)}</p>`).join('')}
                 </div>
-                <button onclick="switchTab('practica')" class="w-full brand-gradient text-white font-black py-5 rounded-[2rem] mt-8 shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">¡Entendido! Ir a la práctica <i class="fa-solid fa-arrow-right text-xs"></i></button>
             </div>`;
+        actionContainer.innerHTML = `<button onclick="switchTab('practica')" class="w-full brand-gradient text-white font-black h-14 rounded-2xl shadow-lg active:scale-95 transition-all">Siguiente <i class="fa-solid fa-arrow-right ml-2 text-xs"></i></button>`;
     } else {
         html += `
-            <div class="text-center"><p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Temporizador de práctica activo</p></div>
             <div class="blob-container" id="timer-container">
                 <div class="blob-shape"></div>
                 <div class="blob-content">
@@ -268,67 +269,64 @@ function renderLessonContent(lesson) {
                 </div>
             </div>
             <div class="space-y-3">
-                <h3 class="font-black text-slate-900 text-sm mb-2 ml-2 flex items-center gap-2"><i class="fa-solid fa-list-check text-emerald-500"></i> Pasos de hoy:</h3>
                 ${lesson.practica.pasos.map((p, i) => `
-                    <div class="bg-white rounded-[2rem] border border-slate-100 p-5 flex gap-4 shadow-sm">
-                        <div class="step-badge">${i+1}</div>
+                    <div class="premium-card p-5 flex gap-4">
+                        <div class="w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center font-black text-xs shrink-0">${i+1}</div>
                         <div>
-                            <h4 class="font-black text-slate-900 text-xs flex items-center gap-2"><i class="fa-solid ${p.icon} text-emerald-500/30"></i> ${p.titulo}</h4>
+                            <h4 class="font-black text-slate-900 text-xs">${p.titulo}</h4>
                             <p class="text-[11px] text-slate-500 leading-relaxed mt-1">${replace(p.desc)}</p>
                         </div>
                     </div>`).join('')}
-                
-                <div class="mt-8 px-2 space-y-4">
-                    <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-widest ml-1">Tips de Experto</h3>
-                    <div class="space-y-2">
-                        ${lesson.tips.map(t => `<div class="bg-emerald-50/50 border-l-4 border-emerald-400 p-4 rounded-r-2xl text-[11px] font-semibold text-emerald-800">${replace(t)}</div>`).join('')}
-                    </div>
-                    <div class="bg-rose-50 border-l-4 border-rose-400 p-4 rounded-r-2xl">
-                        <h4 class="font-black text-rose-700 text-[10px] uppercase mb-1">${lesson.error.titulo}</h4>
-                        <p class="text-[11px] text-rose-600 font-medium">${replace(lesson.error.desc)}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-[2.5rem] mt-10 shadow-sm">
-                <span class="text-[9px] font-black uppercase text-amber-700 block mb-1 tracking-widest">La clave de hoy</span>
-                <p class="text-xs font-bold italic text-amber-900 leading-tight">"${replace(lesson.resumen)}"</p>
-            </div>
-        `;
-        if (isPassed) {
-            html += `<button onclick="showScreen('screen-challenge')" class="w-full brand-gradient text-white font-black py-5 rounded-[2rem] mt-10 shadow-xl flex items-center justify-center gap-3 active:scale-95"><i class="fa-solid fa-rotate-left text-xs"></i> Volver al listado</button>`;
-        } else {
-            html += `<button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black py-5 rounded-[2rem] mt-10 shadow-2xl active:scale-95 transition-all">COMPLETAR DÍA</button>`;
-        }
+            </div>`;
+        actionContainer.innerHTML = isPassed 
+            ? `<button onclick="goBack()" class="w-full header-gradient text-white font-black h-14 rounded-2xl">Volver al Plan</button>`
+            : `<button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black h-14 rounded-2xl shadow-xl active:scale-95">Completar Sesión</button>`;
     }
-    container.innerHTML = html + `<div class="h-12"></div>`;
+    container.innerHTML = html;
+}
+
+// LOGICA DE NAVEGACION MEJORADA
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+    document.getElementById('app-header').style.display = (id === 'screen-hub') ? 'none' : 'flex';
+    currentScreen = id; // Actualizamos el estado
+    
+    if (currentChallenge) {
+        document.getElementById('header-title').innerText = currentChallenge.name;
+        document.getElementById('header-sub').innerText = (id === 'screen-lesson') ? `Día ${currentLessonDay}` : 'Plan Premium';
+    }
+}
+
+function goBack() {
+    if (currentScreen === 'screen-lesson') showScreen('screen-challenge');
+    else if (currentScreen === 'screen-challenge') showScreen('screen-hub');
 }
 
 function switchTab(tab) {
-    currentTab = tab; clearInterval(audioInterval); clearInterval(timerInterval);
+    currentTab = tab;
+    clearInterval(audioInterval); clearInterval(timerInterval);
     audioInterval = null; timerInterval = null;
-    renderLessonContent(currentChallenge.lessons.find(l => l.day === currentLessonDay));
-    document.getElementById('screen-lesson').scrollTop = 0;
+    renderLessonContent();
 }
 
 function toggleAudio(total) {
     const btn = document.getElementById('audio-play-btn'), container = document.getElementById('audio-container'), display = document.getElementById('audio-time');
     if (audioInterval) { clearInterval(audioInterval); audioInterval = null; btn.innerHTML = '<i class="fa-solid fa-play"></i>'; container.classList.remove('active-session'); }
-    else { let time = total; container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; audioInterval = setInterval(() => { time--; let mins = Math.floor(time / 60), secs = time % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`; if (time <= 0) { clearInterval(audioInterval); container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; } }, 1000); }
+    else { 
+        let time = total; container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; 
+        audioInterval = setInterval(() => { time--; let mins = Math.floor(time / 60), secs = time % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`; if (time <= 0) { clearInterval(audioInterval); container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; } }, 1000); 
+    }
 }
 
 function toggleTimer(total) {
     const btn = document.getElementById('timer-play-btn'), container = document.getElementById('timer-container'), display = document.getElementById('lesson-timer');
     if (timerInterval) { clearInterval(timerInterval); timerInterval = null; btn.innerHTML = '<i class="fa-solid fa-play"></i>'; container.classList.remove('active-session'); }
-    else { let time = total; container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; timerInterval = setInterval(() => { time--; let mins = Math.floor(time / 60), secs = time % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`; if (time <= 0) { clearInterval(timerInterval); container.classList.remove('active-session'); showToast("¡Sesión completada!"); } }, 1000); }
+    else { 
+        let time = total; container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; 
+        timerInterval = setInterval(() => { time--; let mins = Math.floor(time / 60), secs = time % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`; if (time <= 0) { clearInterval(timerInterval); container.classList.remove('active-session'); showToast("¡Sesión completada!"); } }, 1000); 
+    }
 }
 
-function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
-    document.getElementById('app-header').style.display = (id === 'screen-hub') ? 'none' : 'flex';
-    if (currentChallenge) { document.getElementById('header-title').innerText = currentChallenge.name; document.getElementById('header-sub').innerText = (id === 'screen-lesson') ? `Día ${currentLessonDay}` : 'Plan de 7 días'; }
-}
-
-function goBack() { if (currentScreen === 'screen-lesson') showScreen('screen-challenge'); else showScreen('screen-hub'); }
 function openCompleteModal() { document.getElementById('modal-complete').classList.remove('hidden'); }
 function closeModal() { document.getElementById('modal-complete').classList.add('hidden'); }
 

@@ -107,21 +107,18 @@
 
 <div class="app-container md:rounded-[2.5rem] md:border-[8px] md:border-slate-900 shadow-2xl">
 
-    <!-- HEADER: FIX #2 y #3 aplicados aquí -->
     <div id="app-header" class="brand-gradient text-white px-5 py-4 flex items-center justify-between shadow-md sticky top-0 z-50">
-        <!-- FIX #2 + #3: el botón ahora usa la clase hidden-back para ocultarse/mostrarse
-             y tiene un borde blanco sutil para mayor visibilidad sobre el gradiente -->
         <button
             id="btn-header-back"
             onclick="goBack()"
-            class="hidden-back w-10 h-10 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer shadow-sm"
+            class="relative z-10 hidden-back w-10 h-10 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer shadow-sm"
         >
             <i class="fa-solid fa-chevron-left text-white drop-shadow"></i>
         </button>
-        <div class="text-center flex-1">
+        <div class="relative z-10 text-center flex-1">
             <h2 class="font-black text-base tracking-tight">Mentecan Vital</h2>
         </div>
-        <button onclick="showScreen('screen-hub')" class="w-10 h-10 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer shadow-sm">
+        <button onclick="showScreen('screen-hub')" class="relative z-10 w-10 h-10 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer shadow-sm">
             <i class="fa-solid fa-house text-white drop-shadow"></i>
         </button>
     </div>
@@ -164,7 +161,6 @@
         <div class="px-6 py-6 pb-12" id="lesson-content"></div>
     </section>
 
-    <!-- FIX MODAL: movido fuera del app-container para evitar recorte por overflow:hidden -->
     <div id="modal-complete" class="hidden absolute inset-0 z-50 modal-bg flex flex-col justify-end">
         <div class="bg-white rounded-t-[2.5rem] p-8 shadow-2xl">
             <div class="text-center mb-8"><div class="text-5xl mb-3">✨</div><h3 class="text-2xl font-black text-slate-900 tracking-tight">¿Cómo fue la sesión?</h3><p class="text-slate-400 text-sm font-medium mt-1">Tu honestidad garantiza un aprendizaje real.</p></div>

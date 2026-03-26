@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centro de Mando Pro - EduDog</title>
+    <title>Centro de Mando - EduDog Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
@@ -15,231 +15,199 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; color: #0f172a; }
-        .step-content { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .tag-badge { background: white; border: 1px solid #3b82f6; color: #1d4ed8; padding: 6px 14px; border-radius: 9999px; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.875rem; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1); }
-        .premium-input { border: 1px solid #e2e8f0; transition: all 0.2s; }
-        .premium-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+        .premium-input:focus-within { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); border-color: #3b82f6; }
+        .tag-badge { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 4px 10px; border-radius: 8px; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
     </style>
 </head>
 <body class="pb-20">
 
     <nav class="bg-white border-b border-slate-200 px-6 py-4 mb-8 sticky top-0 z-50">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-extrabold text-blue-600 tracking-tight">EduDog <span class="text-slate-400 font-light">Admin Pro</span></h1>
-            <div class="flex items-center gap-3">
-                <span id="connection-status" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-green-500">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Conectado a Firestore
-                </span>
-            </div>
+            <h1 class="text-xl font-extrabold text-slate-900">EduDog <span class="text-blue-600">Control Panel</span></h1>
+            <div id="user-info" class="text-sm font-bold text-slate-500">v2.5 Dynamic ID</div>
         </div>
     </nav>
 
-    <main class="max-w-3xl mx-auto px-4">
-        
-        <section class="step-content bg-white p-8 rounded-3xl shadow-sm border border-slate-200 mb-6">
-            <div class="flex items-center gap-4 mb-6">
-                <span class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</span>
-                <h2 class="text-xl font-bold">Identificación del Producto</h2>
-            </div>
+    <main class="max-w-4xl mx-auto px-4 space-y-6">
 
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-extrabold mb-6 flex items-center gap-2">
+                <span class="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm">1</span>
+                Identificación del Producto
+            </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">ID del Producto (Firestore)</label>
-                    <input type="text" id="prod-id" placeholder="ej: mentecan" class="w-full p-4 rounded-xl premium-input outline-none">
-                    <p class="text-[10px] text-slate-400 mt-2 uppercase font-bold">⚠️ Este ID debe coincidir con el del Hub</p>
+                <div class="space-y-2">
+                    <label class="text-xs font-black uppercase text-slate-400 ml-1">ID Único (Firestore)</label>
+                    <input type="text" id="prod-id" placeholder="ej: mentecan" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 premium-input outline-none font-bold">
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Nombre Comercial</label>
-                    <input type="text" id="prod-nombre" placeholder="ej: Mentecan Vital" class="w-full p-4 rounded-xl premium-input outline-none">
+                <div class="space-y-2">
+                    <label class="text-xs font-black uppercase text-slate-400 ml-1">Nombre Comercial</label>
+                    <input type="text" id="prod-nombre" placeholder="ej: Mentecan Vital" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 premium-input outline-none font-bold">
                 </div>
             </div>
-        </section>
+        </div>
 
-        <section class="step-content bg-white p-8 rounded-3xl shadow-sm border border-slate-200 mb-6">
-            <div class="flex items-center gap-4 mb-6">
-                <span class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</span>
-                <h2 class="text-xl font-bold">¿Qué desbloquea este pago?</h2>
-            </div>
-
-            <div class="space-y-8">
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-3">Apps a desbloquear</label>
-                    <div class="flex gap-2 mb-4">
-                        <input type="text" id="input-app" placeholder="Escribe el ID (ej: mentecan) y pulsa Enter" class="flex-1 p-4 rounded-xl premium-input outline-none">
-                        <button onclick="addDeliverable('app')" class="bg-blue-600 text-white px-6 rounded-xl hover:bg-blue-700 transition-colors">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-extrabold mb-6 flex items-center gap-2">
+                <span class="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm">2</span>
+                Apps y eBooks a Desbloquear
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <label class="text-xs font-black uppercase text-slate-400 ml-1">IDs de Apps</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-app" placeholder="Escribe id y Enter" class="flex-1 p-3 bg-slate-50 rounded-xl border border-slate-100 outline-none">
+                        <button onclick="addTag('app')" class="bg-slate-900 text-white px-4 rounded-xl"><i class="fa-solid fa-plus"></i></button>
                     </div>
-                    <div id="container-apps" class="flex flex-wrap gap-2 min-h-[40px] p-2 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                        </div>
+                    <div id="tags-apps" class="flex flex-wrap gap-2 p-3 bg-slate-50 rounded-2xl min-h-[60px]"></div>
                 </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-3">eBooks Interactivos</label>
-                    <div class="flex gap-2 mb-4">
-                        <input type="text" id="input-ebook" placeholder="Escribe el ID (ej: recetario) y pulsa Enter" class="flex-1 p-4 rounded-xl premium-input outline-none">
-                        <button onclick="addDeliverable('ebook')" class="bg-blue-600 text-white px-6 rounded-xl hover:bg-blue-700 transition-colors">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
+                <div class="space-y-4">
+                    <label class="text-xs font-black uppercase text-slate-400 ml-1">IDs de eBooks</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-ebook" placeholder="Escribe id y Enter" class="flex-1 p-3 bg-slate-50 rounded-xl border border-slate-100 outline-none">
+                        <button onclick="addTag('ebook')" class="bg-slate-900 text-white px-4 rounded-xl"><i class="fa-solid fa-plus"></i></button>
                     </div>
-                    <div id="container-ebooks" class="flex flex-wrap gap-2 min-h-[40px] p-2 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                        </div>
+                    <div id="tags-ebooks" class="flex flex-wrap gap-2 p-3 bg-slate-50 rounded-2xl min-h-[60px]"></div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <section class="step-content bg-white p-8 rounded-3xl shadow-sm border border-slate-200 mb-6">
-            <div class="flex items-center gap-4 mb-6">
-                <span class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">3</span>
-                <h2 class="text-xl font-bold">Precios y Estrategia</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Precio Principal (S/)</label>
-                    <input type="number" id="prod-precio" placeholder="25" class="w-full p-4 rounded-xl premium-input outline-none">
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-extrabold mb-6 flex items-center gap-2">
+                <span class="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm">3</span>
+                Configuración de Oferta
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-2">
+                    <label class="text-xs font-black uppercase text-slate-400 ml-1">Precio Principal (S/)</label>
+                    <input type="number" id="prod-precio" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 premium-input outline-none font-bold">
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Precio Order Bump (S/)</label>
-                    <input type="number" id="prod-precio-bump" placeholder="19" class="w-full p-4 rounded-xl premium-input outline-none">
+                <div class="space-y-2">
+                    <label class="text-xs font-black uppercase text-slate-400 ml-1">Precio Bump (S/)</label>
+                    <input type="number" id="prod-precio-bump" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 premium-input outline-none font-bold text-blue-600">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-black uppercase text-slate-400 ml-1">ID del Bump</label>
+                    <input type="text" id="prod-id-bump" placeholder="ej: nutrichef" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 premium-input outline-none font-bold">
                 </div>
             </div>
+        </div>
 
-            <div class="p-6 bg-blue-50 rounded-2xl border border-blue-100">
-                <label class="block text-sm font-bold text-blue-800 mb-2">ID del Producto para Order Bump</label>
-                <input type="text" id="prod-id-bump" placeholder="ej: nutrichef" class="w-full p-4 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 outline-none">
-                <p class="text-[10px] text-blue-400 mt-2 font-bold italic uppercase">Este ID se activará como un regalo/adicional</p>
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-extrabold mb-6 flex items-center gap-2">
+                <span class="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm">4</span>
+                Contenido y Multimedia
+            </h2>
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase text-slate-400 ml-1">URL Video (Venta)</label>
+                        <input type="text" id="prod-video" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-100 premium-input outline-none text-sm">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase text-slate-400 ml-1">URL Audio (Valeria)</label>
+                        <input type="text" id="prod-audio" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-100 premium-input outline-none text-sm">
+                    </div>
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="text-xs font-black uppercase text-slate-400 ml-1">Descripción para IA (Dolores/Beneficios)</label>
+                    <textarea id="prod-ia-desc" rows="4" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 premium-input outline-none text-sm"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-black uppercase text-slate-400 ml-1">Mensaje de Bienvenida (WhatsApp)</label>
+                    <textarea id="prod-mensaje-1" rows="3" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 premium-input outline-none text-sm"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-black uppercase text-slate-400 ml-1">Texto Cierre de Ventas (Checklist)</label>
+                    <textarea id="prod-cierre" rows="3" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 premium-input outline-none text-sm"></textarea>
+                </div>
             </div>
-        </section>
+        </div>
 
-        <button onclick="saveProduct()" id="btn-save" class="w-full bg-slate-900 text-white py-6 rounded-3xl text-xl font-black shadow-2xl hover:bg-blue-600 transition-all transform active:scale-95 flex items-center justify-center gap-4">
+        <button onclick="saveProduct()" id="btn-save" class="w-full bg-blue-600 text-white py-6 rounded-3xl text-xl font-black shadow-xl hover:bg-blue-700 transition-all flex items-center justify-center gap-3">
             <i class="fa-solid fa-cloud-arrow-up"></i>
-            PUBLICAR EN EL BOT
+            PUBLICAR PRODUCTO
         </button>
 
     </main>
 
     <script>
-        // --- CONFIGURACIÓN DE FIREBASE (TU CONFIG REAL) ---
         const firebaseConfig = {
-            apiKey: "AIzaSyD8G_C2Y0_6Yv8_YV9_YV0_YV1_YV2", // Esta es tu llave real que extraje de tu archivo
+            apiKey: "AIzaSyD8G_C2Y0_6Yv8_YV9_YV0_YV1_YV2", // USA TU LLAVE AQUÍ
             authDomain: "guias-facil-bot.firebaseapp.com",
             projectId: "guias-facil-bot",
             storageBucket: "guias-facil-bot.appspot.com",
             messagingSenderId: "177419891970",
             appId: "1:177419891970:web:96825c942e5b7cc8143341"
         };
-        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // --- ESTADO LOCAL ---
-        let appsToUnlock = [];
-        let ebooksToUnlock = [];
+        let appsList = [];
+        let ebooksList = [];
 
-        // --- LÓGICA DE ETIQUETAS DINÁMICAS ---
-        function addDeliverable(type) {
-            const inputId = type === 'app' ? 'input-app' : 'input-ebook';
-            const input = document.getElementById(inputId);
+        function addTag(type) {
+            const input = document.getElementById(type === 'app' ? 'input-app' : 'input-ebook');
             const val = input.value.trim().toLowerCase();
-            
-            if (!val) return;
-
-            if (type === 'app') {
-                if (!appsToUnlock.includes(val)) appsToUnlock.push(val);
-            } else {
-                if (!ebooksToUnlock.includes(val)) ebooksToUnlock.push(val);
-            }
-
+            if(!val) return;
+            if(type === 'app' && !appsList.includes(val)) appsList.push(val);
+            if(type === 'ebook' && !ebooksList.includes(val)) ebooksList.push(val);
             input.value = '';
             renderTags();
         }
 
         function removeTag(type, val) {
-            if (type === 'app') {
-                appsToUnlock = appsToUnlock.filter(i => i !== val);
-            } else {
-                ebooksToUnlock = ebooksToUnlock.filter(i => i !== val);
-            }
+            if(type === 'app') appsList = appsList.filter(i => i !== val);
+            else ebooksList = ebooksList.filter(i => i !== val);
             renderTags();
         }
 
         function renderTags() {
-            const appContainer = document.getElementById('container-apps');
-            const ebookContainer = document.getElementById('container-ebooks');
-
-            appContainer.innerHTML = appsToUnlock.map(id => `
-                <div class="tag-badge">
-                    <span>${id}</span>
-                    <button onclick="removeTag('app', '${id}')" class="hover:text-red-500 transition-colors">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                    </button>
-                </div>
-            `).join('') || '<span class="text-slate-300 text-xs italic p-1">Ninguna app seleccionada</span>';
-
-            ebookContainer.innerHTML = ebooksToUnlock.map(id => `
-                <div class="tag-badge">
-                    <span>${id}</span>
-                    <button onclick="removeTag('ebook', '${id}')" class="hover:text-red-500 transition-colors">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                    </button>
-                </div>
-            `).join('') || '<span class="text-slate-300 text-xs italic p-1">Ningún ebook seleccionado</span>';
+            document.getElementById('tags-apps').innerHTML = appsList.map(id => `
+                <div class="tag-badge">${id}<button onclick="removeTag('app', '${id}')"><i class="fa-solid fa-xmark ml-1 text-red-400"></i></button></div>
+            `).join('');
+            document.getElementById('tags-ebooks').innerHTML = ebooksList.map(id => `
+                <div class="tag-badge">${id}<button onclick="removeTag('ebook', '${id}')"><i class="fa-solid fa-xmark ml-1 text-red-400"></i></button></div>
+            `).join('');
         }
 
-        // Manejar tecla Enter
-        ['input-app', 'input-ebook'].forEach(id => {
-            document.getElementById(id).addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addDeliverable(id.includes('app') ? 'app' : 'ebook');
-                }
-            });
-        });
-
-        // --- GUARDADO FINAL EN FIRESTORE ---
         async function saveProduct() {
             const docId = document.getElementById('prod-id').value.trim().toLowerCase();
+            if(!docId) { alert("ID del documento es obligatorio"); return; }
+
             const btn = document.getElementById('btn-save');
-
-            if (!docId) {
-                alert("❌ Error: Necesitas poner un ID (ej: mentecan)");
-                return;
-            }
-
+            btn.innerHTML = "Guardando...";
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> PROCESANDO...`;
 
-            const payload = {
-                nombre_producto: document.getElementById('prod-nombre').value.trim(),
+            const data = {
+                nombre_producto: document.getElementById('prod-nombre').value,
                 precio_oferta: parseFloat(document.getElementById('prod-precio').value) || 0,
                 precio_oferta_bump: parseFloat(document.getElementById('prod-precio-bump').value) || 0,
                 id_oferta_bump: document.getElementById('prod-id-bump').value.trim().toLowerCase(),
-                apps_a_desbloquear: appsToUnlock,
-                ebooks_a_desbloquear: ebooksToUnlock,
+                apps_a_desbloquear: appsList,
+                ebooks_a_desbloquear: ebooksList,
+                url_video: document.getElementById('prod-video').value,
+                url_audio: document.getElementById('prod-audio').value,
+                descripcion_para_ia: document.getElementById('prod-ia-desc').value,
+                mensaje_1: document.getElementById('prod-mensaje-1').value,
+                texto_cierre_ventas: document.getElementById('prod-cierre').value,
                 tipo_oferta: "principal",
+                activo: true,
                 fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
-                await db.collection('productos').doc(docId).set(payload, { merge: true });
-                
-                // Efecto visual de éxito
-                btn.classList.replace('bg-slate-900', 'bg-green-500');
-                btn.innerHTML = `<i class="fa-solid fa-check-double"></i> ¡PRODUCTO ACTIVO!`;
-                
-                setTimeout(() => {
-                    btn.classList.replace('bg-green-500', 'bg-slate-900');
-                    btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> PUBLICAR EN EL BOT`;
-                    btn.disabled = false;
-                }, 3000);
-
-            } catch (error) {
-                console.error("Error Firestore:", error);
-                alert("❌ Error crítico: No se pudo guardar. Revisa la consola.");
+                await db.collection('productos').doc(docId).set(data, { merge: true });
+                alert("¡Guardado! El bot ya reconoce el ID: " + docId);
+            } catch (e) {
+                console.error(e);
+                alert("Error al guardar");
+            } finally {
+                btn.innerHTML = "PUBLICAR PRODUCTO";
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> REINTENTAR GUARDADO`;
             }
         }
     </script>

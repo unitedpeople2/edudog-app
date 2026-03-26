@@ -266,7 +266,6 @@
             });
         }
 
-        // Lógica del Modal Upsell (Ventana de Beneficios)
         let pendingUpsellItem = null;
 
         function openUpsellModal(id, type) {
@@ -292,7 +291,8 @@
             const modal = document.getElementById('modal-upsell'); modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { document.getElementById('upsell-content').classList.remove('translate-y-full'); }, 10);
             
-            btnConfirm.onclick = () => { openUpsell(item.name, isPeru ? Math.round(item.price * TIPO_CAMBIO) : item.price, isPeru ? 'PEN' : 'USD', type); };
+            // Pasamos el ID del item a la función openUpsell
+            btnConfirm.onclick = () => { openUpsell(item.id, item.name, isPeru ? Math.round(item.price * TIPO_CAMBIO) : item.price, isPeru ? 'PEN' : 'USD', type); };
         }
 
         function closeUpsellModal() {
@@ -302,10 +302,12 @@
 
         function openApp(id) { localStorage.setItem('currentDogName', currentUser.dogName); window.location.href = `${id}.html`; }
 
-        function openUpsell(itemName, itemPrice, currency, type) {
+        function openUpsell(itemId, itemName, itemPrice, currency, type) {
             const itemTypeLabel = type === 'eBook' ? 'el eBook' : 'la herramienta';
             const priceText = currency === 'PEN' ? `S/ ${itemPrice}` : `$${itemPrice} USD`;
-            const msg = `Hola Soporte 👋\n\nQuiero desbloquear ${itemTypeLabel} *${itemName}* por ${priceText}.\n\n👤 Mi cuenta es: +${currentUser.phone}\n💳 ¿Me dan los pasos para pagar?`;
+            
+            // Agregamos [ID: nutrican] al final del mensaje
+            const msg = `Hola Soporte 👋\n\nQuiero desbloquear ${itemTypeLabel} *${itemName}* por ${priceText}.\n\n👤 Mi cuenta es: +${currentUser.phone}\n💳 ¿Me dan los pasos para pagar?\n\n[ID: ${itemId}]`;
             window.open(`https://wa.me/51932335202?text=${encodeURIComponent(msg)}`, '_blank');
         }
 

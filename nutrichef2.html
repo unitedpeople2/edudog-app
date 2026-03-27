@@ -367,6 +367,9 @@
     </div>
 
     <script>
+        // ==========================================
+        // LÓGICA CORE (Buscador, 50 Recetas, WhatsApp)
+        // ==========================================
         let dogName = "tu peludo";
         let countryCode = "51"; 
         let currentScreen = 'screen-lobby';
@@ -383,7 +386,7 @@
         
         let favoriteRecipes = [];
         let selectedDailyMeals = {}; 
-        let selectedSnackId = null; // FIX: Variable para almacenar el snack elegido
+        let selectedSnackId = null;
 
         const dictionary = {
             "camote": { "51": "Camote", "54": "Batata", "52": "Camote", "34": "Boniato" },
@@ -647,7 +650,6 @@
                 selectedDailyMeals[i] = randRecipe.id;
             }
             
-            // FIX: Limpiar snack al randomizar
             selectedSnackId = null;
             document.getElementById('btn-add-snack').classList.remove('hidden');
             document.getElementById('snack-section').classList.add('hidden');
@@ -660,7 +662,6 @@
             openPlanner(); 
         }
 
-        // FIX: Nueva función para seleccionar el Snack dentro del carrusel de Snack
         function selectSnack(recipeId) {
             selectedSnackId = recipeId;
             renderSnackCarousel();
@@ -682,7 +683,14 @@
                 if(!selectedDailyMeals[i]) selectedDailyMeals[i] = options[0].id;
 
                 let cards = '';
-                const displayOptions = options;
+                
+                // FIX: Lógica de ordenamiento magnético (Opción B)
+                let displayOptions = [...options];
+                const selectedIndex = displayOptions.findIndex(r => r.id === selectedDailyMeals[i]);
+                if(selectedIndex > -1) {
+                    const selectedItem = displayOptions.splice(selectedIndex, 1)[0];
+                    displayOptions.unshift(selectedItem);
+                }
 
                 displayOptions.forEach(opt => {
                     const isSelected = selectedDailyMeals[i] === opt.id;
@@ -722,7 +730,6 @@
                 `;
             }
             
-            // Restaurar visualmente el snack si estaba seleccionado
             if(selectedSnackId) {
                 document.getElementById('btn-add-snack').classList.add('hidden');
                 document.getElementById('snack-section').classList.remove('hidden');
@@ -732,7 +739,6 @@
             showScreen('screen-daily-plan');
         }
 
-        // FIX: Lógica para inyectar el carrusel de Snack
         function activateSnack() {
             document.getElementById('btn-add-snack').classList.add('hidden');
             document.getElementById('snack-section').classList.remove('hidden');
@@ -740,7 +746,6 @@
             const snackLimit = Math.round(nutriCanPlan.totalGrams * 0.10);
             document.getElementById('snack-limit-grams').innerText = `${snackLimit}g`;
             
-            // Seleccionar uno al azar si no hay
             if(!selectedSnackId) {
                 const options = recipes.filter(r => r.category === 'snack');
                 selectedSnackId = options[Math.floor(Math.random() * options.length)].id;
@@ -749,11 +754,19 @@
             renderSnackCarousel();
         }
 
-        // FIX: Dibujar el carrusel exclusivo de snacks
         function renderSnackCarousel() {
             const container = document.getElementById('snack-carousel-container');
-            const snackOptions = recipes.filter(r => r.category === 'snack');
             const snackLimit = Math.round(nutriCanPlan.totalGrams * 0.10);
+
+            // FIX: Lógica de ordenamiento magnético para el Snack (Opción B)
+            let snackOptions = [...recipes.filter(r => r.category === 'snack')];
+            if(selectedSnackId) {
+                const selectedIndex = snackOptions.findIndex(r => r.id === selectedSnackId);
+                if(selectedIndex > -1) {
+                    const selectedItem = snackOptions.splice(selectedIndex, 1)[0];
+                    snackOptions.unshift(selectedItem);
+                }
+            }
 
             let cards = '';
             snackOptions.forEach(opt => {
@@ -803,7 +816,6 @@
             showScreen('screen-recipe');
         }
 
-        // FIX: Recibe los gramos exactos dependiendo si es ración principal o snack
         function openSyncedRecipe(id, targetGrams) {
             isSyncMode = true;
             loadRecipe(id);
@@ -1033,7 +1045,6 @@
             }, 300);
         }
 
-        // FIX: Integración de los ingredientes del Snack a la lista de WhatsApp
         function generateWhatsAppList() {
             const tomas = nutriCanPlan.etapa === 'cachorro' ? 3 : 2;
             let missing = false;
@@ -1042,7 +1053,6 @@
 
             let aggList = { prot: {}, veg: {}, bone: {} };
             
-            // 1. Sumar Comidas Principales
             for(let i=0; i<tomas; i++) {
                 const recipeId = selectedDailyMeals[i];
                 const rec = recipes.find(r => r.id === recipeId);
@@ -1058,7 +1068,6 @@
                 });
             }
             
-            // 2. Sumar Snack (si está activado)
             if (selectedSnackId && !document.getElementById('snack-section').classList.contains('hidden')) {
                 const rec = recipes.find(r => r.id === selectedSnackId);
                 let totalBase = 0;
@@ -1074,7 +1083,6 @@
                 });
             }
 
-            // 3. Imprimir el Mensaje
             let msg = `🛒 *Lista de Compras - NutriChef* 🐶\n*Para el menú de hoy de ${dogName}:*\n\n`;
             if(Object.keys(aggList.prot).length > 0) {
                 msg += `🥩 *PROTEÍNAS:*\n`;

@@ -43,19 +43,11 @@
         .day-completed { background-color: #ffffff; border-color: #10b981; cursor: pointer; }
         .day-completed:hover { background-color: #f0fdf4; }
 
-        /* Animación LATIDO de las tarjetas de ingredientes */
         @keyframes pulse-soft {
             0%, 100% { transform: scale(1); box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
             50% { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); border-color: #fcd34d; }
         }
         .pulse-card { animation: pulse-soft 3s ease-in-out infinite; cursor: pointer; }
-
-        /* Animación LATIDO INTENSO para el Botón de Venta (Efecto Imán) */
-        @keyframes pulse-btn {
-            0%, 100% { transform: scale(1); box-shadow: 0 4px 6px -1px rgba(244, 63, 94, 0.2); }
-            50% { transform: scale(1.03); box-shadow: 0 12px 20px -3px rgba(244, 63, 94, 0.4); }
-        }
-        .pulse-btn { animation: pulse-btn 2s ease-in-out infinite; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -261,6 +253,8 @@
                 
                 <div id="ingredients-list" class="space-y-3"></div>
                 <div id="meal-division" class="mt-4"></div>
+                
+                <div id="subtle-upsell-container"></div>
             </div>
 
             <div id="dog-profile-card" class="bg-white rounded-2xl border border-amber-100 shadow-sm px-4 py-3 flex items-center gap-3">
@@ -300,8 +294,6 @@
 
                 <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col divide-y divide-slate-100" id="tracker-container"></div>
                 
-                <div id="cross-sell-container"></div>
-
             </div>
 
             <div class="space-y-3 mt-8">
@@ -357,7 +349,7 @@
                         <p class="text-[11px] text-slate-300">Recetario adaptado para mantener la dieta</p>
                     </div>
                 </div>
-                <button onclick="openNutriChefUpsell()" class="pulse-btn w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl text-sm text-center transition-all active:scale-95">
+                <button onclick="openNutriChefUpsellModal()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl text-sm text-center transition-all active:scale-95">
                     Desbloquear Recetario de Mantenimiento 🍳
                 </button>
             </div>
@@ -518,6 +510,39 @@
             <div class="flex gap-3">
                 <button onclick="closeResetModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl hover:bg-slate-200">Cancelar</button>
                 <button onclick="confirmResetApp()" class="w-full bg-rose-500 text-white font-bold py-3.5 rounded-xl hover:bg-rose-600">Sí, borrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-upsell" class="hidden absolute inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end transition-all">
+        <div class="bg-white rounded-t-[2.5rem] p-8 transform translate-y-full transition-transform duration-300" id="upsell-content">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner transition-colors bg-rose-100 text-rose-600">
+                    <i class="fa-solid fa-fire-burner"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-black text-slate-900 leading-tight">NutriChef Vital</h3>
+                    <p class="text-xs font-bold text-slate-400 mt-1">Recetario Dinámico y Compras</p>
+                </div>
+            </div>
+            
+            <h4 class="font-black text-sm text-slate-800 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-emerald-500"></i> ¿Qué incluye tu acceso?
+            </h4>
+            <ul class="space-y-2.5 mb-8 text-sm text-slate-600 font-medium text-left pl-1">
+                <li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs shrink-0"></i> <span>50 Recetas Premium (Desayuno, Almuerzo, Cena)</span></li>
+                <li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs shrink-0"></i> <span>Modo 'Chef' con temporizadores en pantalla</span></li>
+                <li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs shrink-0"></i> <span>Ingredientes adaptados a tu país</span></li>
+                <li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs shrink-0"></i> <span>Lista de compras automática para WhatsApp</span></li>
+            </ul>
+
+            <div class="space-y-3">
+                <button onclick="confirmNutriChefUpsell()" class="w-full text-white font-black py-4 rounded-2xl text-[15px] shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 bg-rose-500 hover:bg-rose-600 shadow-rose-500/30">
+                    Desbloquear por <span id="upsell-price">S/ 17</span>
+                </button>
+                <button onclick="closeUpsellModal()" class="w-full text-slate-400 font-bold py-3 text-sm active:scale-95 transition-transform hover:text-slate-600">
+                    Cancelar
+                </button>
             </div>
         </div>
     </div>
@@ -1004,30 +1029,26 @@ function renderDashboard() {
             <div class="text-right bg-white px-3 py-1.5 rounded-xl border border-amber-100 shadow-sm"><span class="block font-black text-slate-900 text-xl leading-none">${gramosPorToma}g</span><span class="text-[9px] font-bold text-slate-400 uppercase">por comida</span></div>
         </div>`;
 
-    renderHealthStatus();
-    renderBadges();
-    renderTrackerUI();
-    renderProfileCard();
-
-    // RENDERIZAR CAJITA VIP DE CROSS-SELLING CON PRECIO DINÁMICO
+    // RENDERIZAR UPSELL SUTIL DEBAJO DE LOS CUENCOS
     const sessionInfo = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
     const isPeru = (sessionInfo.phone || '').startsWith('51');
     const priceText = isPeru ? 'S/ 17' : '$4.99 USD';
     
-    document.getElementById('cross-sell-container').innerHTML = `
-        <div class="mt-6 bg-gradient-to-br from-rose-50 to-orange-50 rounded-[1.5rem] p-6 border border-rose-100 shadow-sm relative overflow-hidden">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-rose-200 rounded-full mix-blend-multiply filter blur-2xl opacity-50"></div>
-            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-amber-200 rounded-full mix-blend-multiply filter blur-2xl opacity-50"></div>
-            
-            <div class="relative z-10 text-center">
-                <h4 class="font-black text-slate-800 text-[15px] mb-2 leading-tight">💡 Potencia este plan con el Recetario Premium</h4>
-                <p class="text-xs text-slate-600 font-medium mb-5 leading-relaxed">No improvises en la cocina. Aprende a combinar estos ingredientes en 50 recetas exactas paso a paso.</p>
-                <button onclick="openNutriChefUpsell()" class="pulse-btn w-full bg-rose-500 text-white font-black py-4 rounded-2xl shadow-lg shadow-rose-500/30 hover:bg-rose-600 active:scale-95 transition-all text-[15px] flex justify-center items-center gap-2">
-                    <i class="fa-solid fa-lock text-sm opacity-90"></i> Desbloquear por ${priceText}
+    document.getElementById('subtle-upsell-container').innerHTML = `
+        <div class="mt-8 mb-2">
+            <h3 class="font-extrabold text-slate-900 text-[13px] mb-3 flex items-center justify-center gap-2">👨‍🍳 ¿No sabes cómo mezclar los ingredientes?</h3>
+            <div class="flex justify-center">
+                <button onclick="openNutriChefUpsellModal()" class="bg-rose-50 border border-rose-200 text-rose-700 font-extrabold py-3 px-6 rounded-[1rem] hover:bg-rose-100 transition-all shadow-sm active:scale-95 text-[13px] flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-[11px] opacity-80"></i> Desbloquear 50 Recetas por ${priceText}
                 </button>
             </div>
         </div>
     `;
+
+    renderHealthStatus();
+    renderBadges();
+    renderTrackerUI();
+    renderProfileCard();
 }
 
 function renderProfileCard() {
@@ -1044,17 +1065,41 @@ function renderProfileCard() {
 }
 
 // =========================================================
-// INTEGRACIÓN DEL BOT (UPSELL NUTRICHEF)
+// INTEGRACIÓN DEL BOT Y UPSELL NUTRICHEF (MODAL)
 // =========================================================
-function openNutriChefUpsell() {
-    const session = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
-    const phone = session.phone || '';
+function openNutriChefUpsellModal() {
+    const sessionInfo = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
+    const isPeru = (sessionInfo.phone || '').startsWith('51');
+    const priceText = isPeru ? 'S/ 17' : '$4.99 USD';
+    
+    document.getElementById('upsell-price').innerText = priceText;
+    
+    const modal = document.getElementById('modal-upsell');
+    modal.classList.remove('hidden'); 
+    modal.classList.add('flex');
+    setTimeout(() => { 
+        document.getElementById('upsell-content').classList.remove('translate-y-full'); 
+    }, 10);
+}
+
+function closeUpsellModal() {
+    document.getElementById('upsell-content').classList.add('translate-y-full');
+    setTimeout(() => { 
+        const modal = document.getElementById('modal-upsell'); 
+        modal.classList.add('hidden'); 
+        modal.classList.remove('flex'); 
+    }, 300);
+}
+
+function confirmNutriChefUpsell() {
+    const sessionInfo = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
+    const phone = sessionInfo.phone || '';
     const isPeru = phone.startsWith('51');
     const priceText = isPeru ? 'S/ 17' : '$4.99 USD';
     const numeroEmpresa = "51932335202";
     const phoneText = phone ? `\n\n👤 Mi cuenta es: +${phone}` : '';
-    // Envía el tag para que el bot detecte dinámicamente
-    const msg = `Hola Soporte 👋\n\nQuiero desbloquear el recetario *NutriChef Vital* por ${priceText}.${phoneText}\n💳 ¿Me dan los pasos para pagar?\n\n[ID: nutrichef]`;
+    
+    const msg = `Hola Soporte 👋\n\nQuiero desbloquear el eBook *NutriChef Vital* por ${priceText}.${phoneText}\n💳 ¿Me dan los pasos para pagar?\n\n[ID: nutrichef]`;
     window.open(`https://wa.me/${numeroEmpresa}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 

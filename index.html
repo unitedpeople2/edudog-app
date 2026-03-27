@@ -16,7 +16,7 @@
         #screen-login { background-color: #f8fafc; }
         
         /* PANTALLA DASHBOARD / HUB */
-        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; overflow-x: hidden; background-color: #f8fafc; padding-bottom: 2rem; }
+        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; overflow-x: hidden; background-color: #f8fafc; }
         .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { display: none; }
@@ -129,7 +129,7 @@
                 </button>
             </div>
 
-            <div class="flex-1 px-5 py-6 space-y-7">
+            <div class="flex-1 px-5 pt-6 pb-4 space-y-7">
                 
                 <div id="welcome-card" class="rounded-[2.25rem] p-6 text-white animate-shimmer-vip relative overflow-hidden shadow-2xl shadow-slate-950/20">
                     <div class="relative z-10">
@@ -156,7 +156,7 @@
                     <div id="ebooks-container" class="space-y-4"></div>
                 </div>
 
-                <div class="mt-10 pt-10 pb-6 border-t border-slate-200/60 flex flex-col items-center justify-center text-center opacity-90">
+                <div class="pt-6 pb-8 border-t border-slate-200/60 flex flex-col items-center justify-center text-center opacity-90">
                     <div class="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white text-xl mb-3 shadow-lg">
                         <i class="fa-solid fa-shield-dog"></i>
                     </div>
@@ -208,7 +208,6 @@
         ];
         
         const ebooksList = [
-            // TEXTO DE NUTRICHEF MEJORADO
             { id: "nutrichef", name: "NutriChef Vital", subtitle: "Recetario Dinámico y Compras", desc: "50 recetas BARF interactivas.", icon: "fa-fire-burner", color: "text-rose-600", bg: "bg-rose-100", price: "4.99", themeBtn: "bg-rose-500 shadow-rose-500/30", benefits: ["50 Recetas Premium (Desayuno, Almuerzo, Cena)", "Modo 'Chef' con temporizadores en pantalla", "Ingredientes adaptados a tu país", "Lista de compras automática para WhatsApp"] },
             
             // NUEVO PRODUCTO "PRÓXIMAMENTE"
@@ -305,7 +304,6 @@
             const ebooksContainer = document.getElementById('ebooks-container');
             ebooksContainer.innerHTML = '';
             ebooksList.forEach(ebook => {
-                // LOGICA PARA "PRÓXIMAMENTE"
                 if (ebook.isUpcoming) {
                     ebooksContainer.innerHTML += `
                     <div class="bg-slate-50 border-slate-200 border-dashed p-5 rounded-3xl border transition-all duration-300 opacity-80">
@@ -318,7 +316,7 @@
                             <i class="fa-solid fa-hourglass-half"></i> Próximamente...
                         </button>
                     </div>`;
-                    return; // saltar el resto del código para este ebook
+                    return; 
                 }
 
                 const owned = currentUser.ebooks.includes(ebook.id);

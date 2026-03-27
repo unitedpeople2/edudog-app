@@ -25,6 +25,14 @@
         @keyframes loader-dots1 { 0% { transform: scale(0); } 100% { transform: scale(1); } }
         @keyframes loader-dots3 { 0% { transform: scale(1); } 100% { transform: scale(0); } }
         @keyframes loader-dots2 { 0% { transform: translate(0, 0); } 100% { transform: translate(24px, 0); } }
+        
+        /* Efecto Latido para Botones de Cross-Selling */
+        @keyframes pulse-btn {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        .pulse-btn-violet { animation: pulse-btn 2.5s ease-in-out infinite; box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.15); }
+        .pulse-btn-rose { animation: pulse-btn 2.5s ease-in-out infinite; box-shadow: 0 4px 6px -1px rgba(244, 63, 94, 0.15); }
     </style>
 </head>
 <body class="antialiased text-slate-900 md:py-8">
@@ -91,11 +99,20 @@
         </section>
 
         <section id="screen-hub" class="screen bg-[#f8fafc]">
-            <div class="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 py-4 flex justify-between items-center z-30">
-                <h2 class="font-extrabold text-slate-900 text-sm">EduDog Pro Hub</h2>
-                <button onclick="logout()" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500"><i class="fa-solid fa-right-from-bracket"></i></button>
+            <div class="sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-200 px-6 py-4 flex justify-between items-center z-30 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-violet-600 to-slate-900 rounded-xl flex items-center justify-center text-white shadow-md">
+                        <i class="fa-solid fa-shield-dog text-[13px]"></i>
+                    </div>
+                    <h2 class="font-black text-slate-900 text-[15px] tracking-tight">EduDog Pro Hub</h2>
+                </div>
+                <button onclick="logout()" class="w-9 h-9 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                </button>
             </div>
-            <div class="flex-1 px-5 py-6 space-y-6">
+
+            <div class="flex-1 px-5 py-6 space-y-7">
+                
                 <div class="bg-slate-900 rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden">
                     <div class="relative z-10">
                         <p class="text-violet-300 text-[10px] font-black uppercase tracking-widest mb-1" id="user-display-phone">+51 000 000 000</p>
@@ -106,8 +123,30 @@
                         </div>
                     </div>
                 </div>
-                <div id="tools-container" class="space-y-4"></div>
-                <div><h3 class="font-extrabold text-slate-900 text-lg mb-4">Biblioteca Interactiva</h3><div id="ebooks-container" class="space-y-4"></div></div>
+
+                <div>
+                    <h3 class="font-extrabold text-slate-900 text-lg mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-dumbbell text-violet-500"></i> Centro de Entrenamiento
+                    </h3>
+                    <div id="tools-container" class="space-y-4"></div>
+                </div>
+
+                <div>
+                    <h3 class="font-extrabold text-slate-900 text-lg mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-book-open text-rose-500"></i> Biblioteca Interactiva
+                    </h3>
+                    <div id="ebooks-container" class="space-y-4"></div>
+                </div>
+
+                <div class="mt-8 pt-8 pb-6 border-t border-slate-200/60 flex flex-col items-center justify-center text-center opacity-90">
+                    <div class="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white text-xl mb-3 shadow-lg">
+                        <i class="fa-solid fa-shield-dog"></i>
+                    </div>
+                    <h4 class="font-black text-slate-800 text-[15px] flex items-center justify-center gap-1.5">
+                        Fundador Hedinson Rojas <i class="fa-solid fa-circle-check text-blue-500 text-sm" title="Verificado"></i>
+                    </h4>
+                    <p class="text-[11px] font-bold text-slate-400 mt-1 tracking-widest uppercase">EduDog Pro Hub • Versión 2.4</p>
+                </div>
             </div>
         </section>
 
@@ -127,7 +166,7 @@
                     <i class="fa-solid fa-circle-check text-emerald-500"></i> ¿Qué incluye tu acceso?
                 </h4>
                 <ul id="upsell-benefits" class="space-y-2.5 mb-8 text-sm text-slate-600 font-medium">
-                    </ul>
+                </ul>
 
                 <div class="space-y-3">
                     <button id="btn-confirm-upsell" class="w-full text-white font-black py-4 rounded-2xl text-[15px] shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2">
@@ -207,7 +246,6 @@
             
             const getPrice = (usd) => currentUser.phone.startsWith('51') ? { text: `S/ ${Math.round(usd * TIPO_CAMBIO)}` } : { text: `$${usd} USD` };
 
-            // Progreso Pro Dinámico
             const purchasedAppsCount = currentUser.apps.filter(appId => appsList.some(a => a.id === appId)).length;
             document.getElementById('apps-count').innerText = `${purchasedAppsCount}/${appsList.length}`;
             const progressPct = (purchasedAppsCount / appsList.length) * 100;
@@ -219,9 +257,9 @@
                 const owned = currentUser.apps.includes(app.id);
                 const priceObj = getPrice(app.price);
                 
-                const cardBg = owned ? "bg-white border-slate-200" : "bg-slate-50 border-slate-100 opacity-90";
-                const iconContainerBg = owned ? app.bg : "bg-slate-100";
-                const iconColor = owned ? app.color : "text-slate-400";
+                const cardBg = owned ? "bg-white border-slate-200" : "bg-slate-50/50 border-slate-100";
+                const iconContainerBg = owned ? app.bg : "bg-slate-200/50";
+                const iconColor = owned ? app.color : "text-slate-400 grayscale";
                 const titleColor = owned ? "text-slate-900" : "text-slate-600";
                 const descColor = owned ? "text-slate-500" : "text-slate-400";
 
@@ -233,8 +271,8 @@
                         </div>
                         <p class="text-xs ${descColor} mb-4 ml-1">${app.desc}</p>
                         ${owned ? `<button onclick="openApp('${app.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Abrir App</button>` : 
-                        `<button onclick="openUpsellModal('${app.id}', 'herramienta')" class="w-full bg-violet-100 text-violet-800 py-3 rounded-xl font-bold border border-violet-200 shadow-inner active:scale-95 transition-transform flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-lock text-sm"></i> Desbloquear por ${priceObj.text}
+                        `<button onclick="openUpsellModal('${app.id}', 'herramienta')" class="pulse-btn-violet w-full bg-violet-50 text-violet-700 py-3 rounded-xl font-extrabold border border-violet-200 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-lock text-sm opacity-80"></i> Desbloquear por ${priceObj.text}
                         </button>`}
                     </div>`;
             });
@@ -245,9 +283,9 @@
                 const owned = currentUser.ebooks.includes(ebook.id);
                 const priceObj = getPrice(ebook.price);
                 
-                const cardBg = owned ? "bg-white border-slate-200" : "bg-slate-50 border-slate-100 opacity-90";
-                const iconContainerBg = owned ? ebook.bg : "bg-slate-100";
-                const iconColor = owned ? ebook.color : "text-slate-400";
+                const cardBg = owned ? "bg-white border-slate-200" : "bg-slate-50/50 border-slate-100";
+                const iconContainerBg = owned ? ebook.bg : "bg-slate-200/50";
+                const iconColor = owned ? ebook.color : "text-slate-400 grayscale";
                 const titleColor = owned ? "text-slate-900" : "text-slate-600";
                 const descColor = owned ? "text-slate-500" : "text-slate-400";
 
@@ -259,8 +297,8 @@
                         </div>
                         <p class="text-xs ${descColor} mb-4 ml-1">${ebook.desc}</p>
                         ${owned ? `<button onclick="openApp('${ebook.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Abrir Recetario</button>` : 
-                        `<button onclick="openUpsellModal('${ebook.id}', 'eBook')" class="w-full bg-rose-100 text-rose-800 py-3 rounded-xl font-bold border border-rose-200 shadow-inner active:scale-95 transition-transform flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-lock text-sm"></i> Desbloquear por ${priceObj.text}
+                        `<button onclick="openUpsellModal('${ebook.id}', 'eBook')" class="pulse-btn-rose w-full bg-rose-50 text-rose-700 py-3 rounded-xl font-extrabold border border-rose-200 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-lock text-sm opacity-80"></i> Desbloquear por ${priceObj.text}
                         </button>`}
                     </div>`;
             });
@@ -291,7 +329,6 @@
             const modal = document.getElementById('modal-upsell'); modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { document.getElementById('upsell-content').classList.remove('translate-y-full'); }, 10);
             
-            // Pasamos el ID del item a la función openUpsell
             btnConfirm.onclick = () => { openUpsell(item.id, item.name, isPeru ? Math.round(item.price * TIPO_CAMBIO) : item.price, isPeru ? 'PEN' : 'USD', type); };
         }
 
@@ -306,7 +343,6 @@
             const itemTypeLabel = type === 'eBook' ? 'el eBook' : 'la herramienta';
             const priceText = currency === 'PEN' ? `S/ ${itemPrice}` : `$${itemPrice} USD`;
             
-            // Agregamos [ID: nutrican] al final del mensaje
             const msg = `Hola Soporte 👋\n\nQuiero desbloquear ${itemTypeLabel} *${itemName}* por ${priceText}.\n\n👤 Mi cuenta es: +${currentUser.phone}\n💳 ¿Me dan los pasos para pagar?\n\n[ID: ${itemId}]`;
             window.open(`https://wa.me/51932335202?text=${encodeURIComponent(msg)}`, '_blank');
         }

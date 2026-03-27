@@ -11,7 +11,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; }
         .app-container { max-width: 420px; margin: 0 auto; height: 100vh; min-height: 100vh; position: relative; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column; }
-        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; overflow-x: hidden; background-color: #f8fafc; }
+        
+        /* PANTALLA LOGIN */
+        #screen-login { background-color: #f8fafc; }
+        
+        /* PANTALLA DASHBOARD / HUB */
+        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; overflow-x: hidden; background-color: #f8fafc; padding-bottom: 2rem; }
         .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { display: none; }
@@ -33,6 +38,20 @@
         }
         .pulse-btn-violet { animation: pulse-btn 2.5s ease-in-out infinite; box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.15); }
         .pulse-btn-rose { animation: pulse-btn 2.5s ease-in-out infinite; box-shadow: 0 4px 6px -1px rgba(244, 63, 94, 0.15); }
+
+        /* ULTRA-MEJORA: Animación Shimmer (Brillo Metálico) para Tarjeta VIP */
+        @keyframes shimmer-vip {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .animate-shimmer-vip {
+            background: linear-gradient(110deg, #1e293b, 45%, #475569, 55%, #1e293b);
+            background-size: 200% 100%;
+            animation: shimmer-vip 6s infinite linear;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+
     </style>
 </head>
 <body class="antialiased text-slate-900 md:py-8">
@@ -98,51 +117,51 @@
             </div>
         </section>
 
-        <section id="screen-hub" class="screen bg-[#f8fafc]">
-            <div class="sticky top-0 bg-white/90 backdrop-blur-xl border-b border-slate-200 px-6 py-4 flex justify-between items-center z-30 shadow-sm">
+        <section id="screen-hub" class="screen">
+            <div class="sticky top-0 bg-white/50 backdrop-blur-2xl border-b border-white/20 px-6 py-3.5 flex justify-between items-center z-30 shadow-sm shadow-slate-950/5">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-gradient-to-br from-violet-600 to-slate-900 rounded-xl flex items-center justify-center text-white shadow-md">
+                    <div class="w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-md">
                         <i class="fa-solid fa-shield-dog text-[13px]"></i>
                     </div>
                     <h2 class="font-black text-slate-900 text-[15px] tracking-tight">EduDog Pro Hub</h2>
                 </div>
-                <button onclick="logout()" class="w-9 h-9 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors">
-                    <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                <button onclick="logout()" class="p-2.5 text-slate-500 hover:text-slate-900 transition-colors rounded-xl hover:bg-slate-100">
+                    <i class="fa-solid fa-right-from-bracket text-[15px]"></i>
                 </button>
             </div>
 
             <div class="flex-1 px-5 py-6 space-y-7">
                 
-                <div class="bg-slate-900 rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden">
+                <div id="welcome-card" class="rounded-[2.25rem] p-6 text-white animate-shimmer-vip relative overflow-hidden shadow-2xl shadow-slate-950/20">
                     <div class="relative z-10">
-                        <p class="text-violet-300 text-[10px] font-black uppercase tracking-widest mb-1" id="user-display-phone">+51 000 000 000</p>
+                        <p class="text-violet-200 text-[10px] font-black uppercase tracking-widest mb-1" id="user-display-phone">+51 000 000 000</p>
                         <h3 class="text-xl font-black tracking-tight leading-tight"><span id="display-dog-name">Tu Peludo</span> 🐾</h3>
-                        <div class="mt-4 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-                            <div class="flex justify-between items-center text-xs font-bold mb-2"><span class="text-slate-200">Progreso Pro</span><span id="apps-count" class="text-white">1/1</span></div>
-                            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"><div id="progress-bar" class="bg-amber-400 h-full rounded-full" style="width: 100%"></div></div>
+                        <div class="mt-4 bg-white/5 p-4 rounded-2xl backdrop-blur-sm border border-white/5 shadow-inner">
+                            <div class="flex justify-between items-center text-xs font-bold mb-2"><span class="text-violet-200">Progreso Pro</span><span id="apps-count" class="text-white">1/2</span></div>
+                            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"><div id="progress-bar" class="bg-amber-400 h-full rounded-full transition-all duration-700" style="width: 50%"></div></div>
                         </div>
                     </div>
                 </div>
 
-                <div>
+                <div id="centro-entrenamiento">
                     <h3 class="font-extrabold text-slate-900 text-lg mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-dumbbell text-violet-500"></i> Centro de Entrenamiento
                     </h3>
                     <div id="tools-container" class="space-y-4"></div>
                 </div>
 
-                <div>
+                <div id="biblioteca-interactiva">
                     <h3 class="font-extrabold text-slate-900 text-lg mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-book-open text-rose-500"></i> Biblioteca Interactiva
                     </h3>
                     <div id="ebooks-container" class="space-y-4"></div>
                 </div>
 
-                <div class="mt-8 pt-8 pb-6 border-t border-slate-200/60 flex flex-col items-center justify-center text-center opacity-90">
+                <div class="mt-10 pt-10 pb-6 border-t border-slate-200/60 flex flex-col items-center justify-center text-center opacity-90">
                     <div class="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white text-xl mb-3 shadow-lg">
                         <i class="fa-solid fa-shield-dog"></i>
                     </div>
-                    <h4 class="font-black text-slate-800 text-[15px] flex items-center justify-center gap-1.5">
+                    <h4 class="font-black text-slate-800 text-[15px] flex items-center justify-center gap-1.5 relative left-1">
                         Fundador Hedinson Rojas <i class="fa-solid fa-circle-check text-blue-500 text-sm" title="Verificado"></i>
                     </h4>
                     <p class="text-[11px] font-bold text-slate-400 mt-1 tracking-widest uppercase">EduDog Pro Hub • Versión 2.4</p>
@@ -153,7 +172,7 @@
         <div id="modal-upsell" class="hidden absolute inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end transition-all">
             <div class="bg-white rounded-t-[2.5rem] p-8 transform translate-y-full transition-transform duration-300" id="upsell-content">
                 <div class="flex items-center gap-4 mb-6">
-                    <div id="upsell-icon-container" class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner">
+                    <div id="upsell-icon-container" class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner transition-colors">
                         <i id="upsell-icon" class="fa-solid fa-star"></i>
                     </div>
                     <div>
@@ -165,7 +184,7 @@
                 <h4 class="font-black text-sm text-slate-800 mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-circle-check text-emerald-500"></i> ¿Qué incluye tu acceso?
                 </h4>
-                <ul id="upsell-benefits" class="space-y-2.5 mb-8 text-sm text-slate-600 font-medium">
+                <ul id="upsell-benefits" class="space-y-2.5 mb-8 text-sm text-slate-600 font-medium text-left pl-1">
                 </ul>
 
                 <div class="space-y-3">
@@ -202,7 +221,15 @@
 
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = message;
+            const icon = document.getElementById('toast-icon');
+            toast.getElementById('toast-msg').innerText = message;
+            if(type === 'error'){
+                toast.classList.replace('bg-slate-900', 'bg-rose-600');
+                icon.className = 'fa-solid fa-circle-xmark text-white text-lg';
+            } else {
+                toast.classList.replace('bg-rose-600', 'bg-slate-900');
+                icon.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
+            }
             toast.classList.remove('-translate-y-24', 'opacity-0');
             toast.classList.add('translate-y-0', 'opacity-100');
             setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('-translate-y-24', 'opacity-0'); }, 3000);
@@ -246,9 +273,10 @@
             
             const getPrice = (usd) => currentUser.phone.startsWith('51') ? { text: `S/ ${Math.round(usd * TIPO_CAMBIO)}` } : { text: `$${usd} USD` };
 
-            const purchasedAppsCount = currentUser.apps.filter(appId => appsList.some(a => a.id === appId)).length;
-            document.getElementById('apps-count').innerText = `${purchasedAppsCount}/${appsList.length}`;
-            const progressPct = (purchasedAppsCount / appsList.length) * 100;
+            const totalToolsCount = appsList.length + ebooksList.length;
+            const purchasedToolsCount = (currentUser.apps.filter(appId => appsList.some(a => a.id === appId)).length) + (currentUser.ebooks.filter(ebookId => ebooksList.some(e => e.id === ebookId)).length);
+            document.getElementById('apps-count').innerText = `${purchasedToolsCount}/${totalToolsCount}`;
+            const progressPct = (purchasedToolsCount / totalToolsCount) * 100;
             document.getElementById('progress-bar').style.width = `${progressPct}%`;
 
             const appsContainer = document.getElementById('tools-container');
@@ -256,20 +284,14 @@
             appsList.forEach(app => {
                 const owned = currentUser.apps.includes(app.id);
                 const priceObj = getPrice(app.price);
-                
-                const cardBg = owned ? "bg-white border-slate-200" : "bg-slate-50/50 border-slate-100";
-                const iconContainerBg = owned ? app.bg : "bg-slate-200/50";
-                const iconColor = owned ? app.color : "text-slate-400 grayscale";
-                const titleColor = owned ? "text-slate-900" : "text-slate-600";
-                const descColor = owned ? "text-slate-500" : "text-slate-400";
-
+                const cardBg = owned ? "bg-white border-slate-200 shadow-sm" : "bg-white/50 border-slate-100";
                 appsContainer.innerHTML += `
-                    <div class="${cardBg} p-5 rounded-3xl border shadow-sm transition-all duration-300">
+                    <div class="${cardBg} p-5 rounded-3xl border transition-all duration-300">
                         <div class="flex items-center gap-3 mb-2">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center ${iconContainerBg} ${iconColor} transition-colors"><i class="fa-solid ${app.icon}"></i></div>
-                            <h4 class="font-extrabold ${titleColor}">${app.name}</h4>
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center ${owned ? app.bg : "bg-slate-200/50"} ${owned ? app.color : "text-slate-400 grayscale"} transition-colors"><i class="fa-solid ${app.icon}"></i></div>
+                            <h4 class="font-extrabold ${owned ? "text-slate-900" : "text-slate-600"}">${app.name}</h4>
                         </div>
-                        <p class="text-xs ${descColor} mb-4 ml-1">${app.desc}</p>
+                        <p class="text-xs ${owned ? "text-slate-500" : "text-slate-400"} mb-4 ml-1">${app.desc}</p>
                         ${owned ? `<button onclick="openApp('${app.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Abrir App</button>` : 
                         `<button onclick="openUpsellModal('${app.id}', 'herramienta')" class="pulse-btn-violet w-full bg-violet-50 text-violet-700 py-3 rounded-xl font-extrabold border border-violet-200 active:scale-95 transition-transform flex items-center justify-center gap-2">
                             <i class="fa-solid fa-lock text-sm opacity-80"></i> Desbloquear por ${priceObj.text}
@@ -282,20 +304,14 @@
             ebooksList.forEach(ebook => {
                 const owned = currentUser.ebooks.includes(ebook.id);
                 const priceObj = getPrice(ebook.price);
-                
-                const cardBg = owned ? "bg-white border-slate-200" : "bg-slate-50/50 border-slate-100";
-                const iconContainerBg = owned ? ebook.bg : "bg-slate-200/50";
-                const iconColor = owned ? ebook.color : "text-slate-400 grayscale";
-                const titleColor = owned ? "text-slate-900" : "text-slate-600";
-                const descColor = owned ? "text-slate-500" : "text-slate-400";
-
+                const cardBg = owned ? "bg-white border-slate-200 shadow-sm" : "bg-white/50 border-slate-100";
                 ebooksContainer.innerHTML += `
-                    <div class="${cardBg} p-5 rounded-3xl border shadow-sm transition-all duration-300">
+                    <div class="${cardBg} p-5 rounded-3xl border transition-all duration-300">
                         <div class="flex items-center gap-3 mb-2">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center ${iconContainerBg} ${iconColor} transition-colors"><i class="fa-solid ${ebook.icon}"></i></div>
-                            <h4 class="font-extrabold ${titleColor}">${ebook.name}</h4>
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center ${owned ? ebook.bg : "bg-slate-200/50"} ${owned ? ebook.color : "text-slate-400 grayscale"} transition-colors"><i class="fa-solid ${ebook.icon}"></i></div>
+                            <h4 class="font-extrabold ${owned ? "text-slate-900" : "text-slate-600"}">${ebook.name}</h4>
                         </div>
-                        <p class="text-xs ${descColor} mb-4 ml-1">${ebook.desc}</p>
+                        <p class="text-xs ${owned ? "text-slate-500" : "text-slate-400"} mb-4 ml-1">${ebook.desc}</p>
                         ${owned ? `<button onclick="openApp('${ebook.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Abrir Recetario</button>` : 
                         `<button onclick="openUpsellModal('${ebook.id}', 'eBook')" class="pulse-btn-rose w-full bg-rose-50 text-rose-700 py-3 rounded-xl font-extrabold border border-rose-200 active:scale-95 transition-transform flex items-center justify-center gap-2">
                             <i class="fa-solid fa-lock text-sm opacity-80"></i> Desbloquear por ${priceObj.text}
@@ -315,7 +331,7 @@
             const priceText = isPeru ? `S/ ${Math.round(item.price * TIPO_CAMBIO)}` : `$${item.price} USD`;
 
             document.getElementById('upsell-icon').className = `fa-solid ${item.icon} ${item.color}`;
-            document.getElementById('upsell-icon-container').className = `w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner ${item.bg}`;
+            document.getElementById('upsell-icon-container').className = `w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner transition-colors ${item.bg}`;
             document.getElementById('upsell-title').innerText = item.name;
             document.getElementById('upsell-subtitle').innerText = item.subtitle;
             document.getElementById('upsell-price').innerText = priceText;
@@ -324,7 +340,7 @@
             btnConfirm.className = `w-full text-white font-black py-4 rounded-2xl text-[15px] shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 ${item.themeBtn}`;
 
             const ul = document.getElementById('upsell-benefits'); ul.innerHTML = '';
-            item.benefits.forEach(b => { ul.innerHTML += `<li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs"></i> <span>${b}</span></li>`; });
+            item.benefits.forEach(b => { ul.innerHTML += `<li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs shrink-0"></i> <span>${b}</span></li>`; });
 
             const modal = document.getElementById('modal-upsell'); modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { document.getElementById('upsell-content').classList.remove('translate-y-full'); }, 10);

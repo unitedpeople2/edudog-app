@@ -49,6 +49,56 @@
         }
         .pulse-card { animation: pulse-soft 3s ease-in-out infinite; cursor: pointer; }
 
+        /* ========================================================= */
+        /* LA MAGIA: DEGRADADO LÍQUIDO ÁMBAR (Estilo Mentecan 3D)    */
+        /* ========================================================= */
+        .amber-gradient { 
+            background: linear-gradient(160deg, #9a3412 0%, #b45309 30%, #d97706 60%, #f59e0b 100%); 
+            position: relative; overflow: hidden; 
+        }
+        .amber-gradient::before {
+            content: ''; position: absolute; top: -30%; left: -40%; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(252, 211, 77, 0.35) 0%, rgba(252, 211, 77, 0) 70%);
+            border-radius: 50%; z-index: 1; transform: scale(1.4);
+        }
+        .amber-gradient::after {
+            content: ''; position: absolute; bottom: -30%; right: -40%; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(253, 230, 138, 0.25) 0%, rgba(253, 230, 138, 0) 70%);
+            border-radius: 50%; z-index: 1; transform: scale(1.2);
+        }
+        .amber-gradient > * { position: relative; z-index: 10; }
+
+        /* HEADER DE CRISTAL ÁMBAR */
+        .amber-glass-gradient {
+            background: linear-gradient(160deg, rgba(154, 52, 18, 0.85) 0%, rgba(180, 83, 9, 0.85) 30%, rgba(217, 119, 6, 0.85) 60%, rgba(245, 158, 11, 0.85) 100%);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            position: relative; overflow: hidden;
+        }
+        .amber-glass-gradient::before {
+            content: ''; position: absolute; top: -30%; left: -40%; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(252, 211, 77, 0.3) 0%, rgba(252, 211, 77, 0) 70%);
+            border-radius: 50%; z-index: 1; transform: scale(1.4);
+        }
+        .amber-glass-gradient::after {
+            content: ''; position: absolute; bottom: -30%; right: -40%; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(253, 230, 138, 0.2) 0%, rgba(253, 230, 138, 0) 70%);
+            border-radius: 50%; z-index: 1; transform: scale(1.2);
+        }
+        .amber-glass-gradient > * { position: relative; z-index: 10; }
+
+        /* TARJETA VIP BLACK (Perfil del perro) */
+        @keyframes shimmer-vip {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .animate-shimmer-vip {
+            background: linear-gradient(110deg, #1e293b, 45%, #475569, 55%, #1e293b);
+            background-size: 200% 100%;
+            animation: shimmer-vip 6s infinite linear;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -75,20 +125,20 @@
 
 <div class="app-container md:rounded-[2.5rem] md:border-[6px] md:border-slate-900 relative">
 
-    <div class="sticky top-0 bg-amber-500 text-white border-b border-amber-600 px-4 py-4 flex items-center justify-between z-30 shadow-md shrink-0">
+    <div class="sticky top-0 amber-glass-gradient text-white border-b border-amber-500/30 px-5 py-4 flex items-center justify-between z-30 shadow-md shrink-0">
         <div class="flex items-center">
-            <button onclick="smartBack()" id="btn-back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-amber-400 transition-colors mr-2" style="display: none;">
-                <i class="fa-solid fa-arrow-left"></i>
+            <button onclick="smartBack()" id="btn-back" class="p-2 flex items-center justify-center rounded-xl hover:bg-white/20 transition-colors mr-1" style="display: none;">
+                <i class="fa-solid fa-arrow-left text-[15px]"></i>
             </button>
             <div>
                 <h2 class="font-extrabold text-white text-sm leading-tight flex items-center gap-2">
                     <i class="fa-solid fa-bowl-food"></i> NutriCan Vital
                 </h2>
-                <p class="text-[10px] font-semibold text-amber-100 uppercase tracking-wider" id="header-subtitle">Inicializando...</p>
+                <p class="text-[10px] font-bold text-amber-100 uppercase tracking-wider" id="header-subtitle">Inicializando...</p>
             </div>
         </div>
-        <a href="index.html" class="w-10 h-10 flex items-center justify-center rounded-full bg-amber-600 hover:bg-amber-700 transition-colors shadow-inner text-sm">
-            <i class="fa-solid fa-house"></i>
+        <a href="index.html" class="p-2 text-white hover:text-amber-50 transition-colors rounded-xl hover:bg-white/20 flex items-center justify-center">
+            <i class="fa-solid fa-house text-[15px]"></i>
         </a>
     </div>
 
@@ -101,8 +151,8 @@
             <p class="text-slate-500 text-sm font-medium leading-relaxed">Vemos que <span class="dog-name-display font-bold text-amber-600">tu peludo</span> ya tiene un plan de transición en marcha.</p>
         </div>
         <div class="screen-cta space-y-3">
-            <button onclick="loadSavedPlan()" class="w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all text-lg flex items-center justify-center gap-2">
-                Continuar mi Racha <i class="fa-solid fa-fire"></i>
+            <button onclick="loadSavedPlan()" class="w-full amber-gradient text-white font-black py-4 rounded-2xl shadow-lg shadow-amber-600/30 active:scale-95 transition-all text-lg flex items-center justify-center gap-2">
+                <span>Continuar mi Racha</span> <i class="fa-solid fa-fire"></i>
             </button>
             <button onclick="forceNewPlan()" class="w-full bg-white text-slate-500 border-2 border-slate-200 font-bold py-3.5 rounded-2xl hover:bg-slate-50 transition-all text-sm">
                 <i class="fa-solid fa-rotate-right mr-1"></i> Crear un plan nuevo
@@ -199,7 +249,7 @@
             </div>
         </div>
         <div class="screen-cta">
-            <button onclick="calculateDiet()" class="w-full bg-amber-50 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all text-lg" style="background-color: #f59e0b;">Crear Plan Definitivo</button>
+            <button onclick="calculateDiet()" class="w-full amber-gradient text-white font-black py-4 rounded-2xl shadow-lg shadow-amber-600/30 active:scale-95 transition-all text-lg"><span>Crear Plan Definitivo</span></button>
         </div>
     </section>
 
@@ -236,12 +286,12 @@
 
             <div>
                 <div class="flex justify-between items-end mb-1">
-                    <p class="text-[11px] font-black text-amber-500 uppercase tracking-widest">Ración Diaria Total</p>
+                    <p class="text-[11px] font-black text-amber-600 uppercase tracking-widest">Ración Diaria Total</p>
                     <div class="flex gap-2">
                         <button onclick="copiarReceta()" class="text-[10px] font-bold text-slate-600 bg-slate-200 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-slate-300 transition-colors cursor-pointer shadow-sm">
                             <i class="fa-solid fa-copy"></i> Copiar
                         </button>
-                        <button onclick="openTipsModal()" class="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-amber-200 transition-colors cursor-pointer">
+                        <button onclick="openTipsModal()" class="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-amber-200 transition-colors cursor-pointer">
                             <i class="fa-solid fa-lightbulb"></i> Tips de Oro
                         </button>
                     </div>
@@ -257,17 +307,19 @@
                 <div id="subtle-upsell-container"></div>
             </div>
 
-            <div id="dog-profile-card" class="bg-white rounded-2xl border border-amber-100 shadow-sm px-4 py-3 flex items-center gap-3">
-                <div class="w-10 h-10 bg-amber-100 text-amber-500 rounded-xl flex items-center justify-center text-lg shrink-0">
-                    <i class="fa-solid fa-dog"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="font-extrabold text-slate-900 text-sm leading-none mb-0.5 truncate"><span class="dog-name-display">Tu peludo</span></p>
-                    <p class="text-[11px] text-slate-500 font-semibold truncate" id="profile-details">Cargando perfil...</p>
-                </div>
-                <div class="text-right shrink-0">
-                    <p class="text-[10px] font-black text-amber-600 uppercase tracking-wide">Plan</p>
-                    <p class="text-[11px] font-extrabold text-slate-700" id="profile-plan-days">14 días</p>
+            <div id="dog-profile-card" class="animate-shimmer-vip rounded-2xl px-4 py-3 flex items-center gap-3 text-white relative overflow-hidden shadow-lg shadow-slate-900/10">
+                <div class="relative z-10 flex items-center gap-3 w-full">
+                    <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-lg shrink-0 border border-white/10 shadow-inner">
+                        <i class="fa-solid fa-dog text-amber-400"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-extrabold text-white text-sm leading-none mb-0.5 truncate"><span class="dog-name-display">Tu peludo</span></p>
+                        <p class="text-[11px] text-slate-300 font-semibold truncate" id="profile-details">Cargando perfil...</p>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <p class="text-[10px] font-black text-amber-400 uppercase tracking-wide">Plan</p>
+                        <p class="text-[11px] font-extrabold text-white" id="profile-plan-days">14 días</p>
+                    </div>
                 </div>
             </div>
 
@@ -312,8 +364,8 @@
         <div class="screen-scroll relative z-20 p-6 pb-10 flex flex-col items-center">
             
             <div class="bounce-in mt-8 mb-6">
-                <div class="w-32 h-32 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-6xl shadow-2xl shadow-amber-500/40 mx-auto">
-                    🏆
+                <div class="w-32 h-32 amber-gradient rounded-full flex items-center justify-center text-6xl shadow-2xl shadow-amber-500/40 mx-auto text-white">
+                    <span>🏆</span>
                 </div>
             </div>
 
@@ -355,18 +407,18 @@
             </div>
 
             <div class="w-full bg-amber-50 border border-amber-200 rounded-[1.5rem] p-5 mb-5">
-                <h3 class="font-extrabold text-slate-900 text-sm mb-3 flex items-center gap-2"><i class="fa-solid fa-forward-step text-amber-500"></i> ¿Qué sigue ahora?</h3>
+                <h3 class="font-extrabold text-slate-900 text-sm mb-3 flex items-center gap-2"><i class="fa-solid fa-forward-step text-amber-600"></i> ¿Qué sigue ahora?</h3>
                 <div class="space-y-2.5">
                     <div class="flex gap-3 items-start">
-                        <div class="w-5 h-5 rounded-full bg-amber-200 text-amber-700 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">1</div>
+                        <div class="w-5 h-5 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">1</div>
                         <p class="text-xs text-slate-600 font-medium">Mantén la <b class="text-slate-800">misma ración diaria</b>. Tu perro ya está adaptado.</p>
                     </div>
                     <div class="flex gap-3 items-start">
-                        <div class="w-5 h-5 rounded-full bg-amber-200 text-amber-700 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">2</div>
+                        <div class="w-5 h-5 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">2</div>
                         <p class="text-xs text-slate-600 font-medium">Rota proteínas semanalmente: pollo → pavo → res. Variedad = salud.</p>
                     </div>
                     <div class="flex gap-3 items-start">
-                        <div class="w-5 h-5 rounded-full bg-amber-200 text-amber-700 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">3</div>
+                        <div class="w-5 h-5 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">3</div>
                         <p class="text-xs text-slate-600 font-medium">Vísceras máx 15% del total. Nunca más hígado en exceso.</p>
                     </div>
                 </div>
@@ -392,7 +444,7 @@
                 </div>
             </div>
             <div class="p-6 shrink-0 bg-white border-t border-slate-50 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
-                <button onclick="closeIngredientModal()" class="w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-md hover:bg-amber-600 active:scale-95 transition-all text-[15px]">¡Entendido!</button>
+                <button onclick="closeIngredientModal()" class="w-full amber-gradient text-white font-black py-4 rounded-2xl shadow-md active:scale-95 transition-all text-[15px]"><span>¡Entendido!</span></button>
             </div>
         </div>
     </div>
@@ -497,7 +549,7 @@
             </div>
 
             <div class="p-6 shrink-0 bg-white border-t border-slate-50 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
-                <button onclick="closeTipsModal()" class="w-full bg-amber-500 text-white font-bold py-4 rounded-2xl hover:bg-amber-600 transition-colors">¡Entendido!</button>
+                <button onclick="closeTipsModal()" class="w-full amber-gradient text-white font-bold py-4 rounded-2xl transition-colors"><span>¡Entendido!</span></button>
             </div>
         </div>
     </div>
@@ -550,9 +602,6 @@
 </div>
 
 <script>
-// =========================================================
-// TEXTOS DE LOS MODALES DE INGREDIENTES
-// =========================================================
 const ingredientInfo = {
     'huesos': {
         title: 'Huesos Carnosos 🦴',
@@ -576,9 +625,6 @@ const ingredientInfo = {
     }
 };
 
-// =========================================================
-// ESTADO GLOBAL
-// =========================================================
 let dogName = "tu peludo";
 let currentScreen = 'screen-welcome';
 let planData = { 
@@ -589,16 +635,12 @@ let planData = {
     startDate: null
 };
 
-// Estructura de trackerData mejorada con historial real por día
 let trackerData = { days: {} };
 let pendingDayToMark = -1;
 let pendingAppetite = null;
 let pendingPoop = null;
 let dayToUndo = -1;
 
-// =========================================================
-// TEXTOS DE TRANSICIÓN
-// =========================================================
 const transitionTexts = {
     14: [ 
         "100% Dieta blanda cocida (Pollo y zapallo). Cero crudo.",
@@ -637,9 +679,6 @@ const transitionTexts = {
     ]
 };
 
-// =========================================================
-// RESPUESTAS INTELIGENTES SEGÚN SÍNTOMAS
-// =========================================================
 function getSmartAdvice(appetite, poop, dayIndex) {
     if (poop === 'good') {
         if (appetite === 'great') {
@@ -703,9 +742,6 @@ function getSmartAdvice(appetite, poop, dayIndex) {
     };
 }
 
-// =========================================================
-// HELPER DE FECHAS
-// =========================================================
 function formatDate(dateStr) {
     if (!dateStr) return '';
     const parts = dateStr.split('-');
@@ -735,9 +771,6 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// =========================================================
-// INICIALIZACIÓN
-// =========================================================
 document.addEventListener('DOMContentLoaded', () => {
     const savedName = localStorage.getItem('currentDogName'); 
     if (savedName && savedName !== "undefined" && savedName.trim() !== "") dogName = savedName;
@@ -769,9 +802,6 @@ function updateAllDogNames() {
     document.querySelectorAll('.dog-name-display').forEach(span => { span.innerText = dogName; });
 }
 
-// =========================================================
-// NAVEGACIÓN
-// =========================================================
 function smartBack() {
     if (currentScreen === 'screen-diet') showScreen('screen-goal', 'Paso 1 de 3');
     else if (currentScreen === 'screen-params') showScreen('screen-diet', 'Paso 2 de 3');
@@ -812,9 +842,6 @@ function forceNewPlan() {
     showScreen('screen-goal', 'Paso 1 de 3');
 }
 
-// =========================================================
-// CÁLCULO
-// =========================================================
 function calculateDiet() {
     const weight = parseFloat(document.getElementById('dogWeight').value);
     const age = document.getElementById('dogAge').value;
@@ -851,9 +878,6 @@ function calculateDiet() {
     }, 2500);
 }
 
-// =========================================================
-// COPIAR RECETA CON EMOJIS
-// =========================================================
 function copiarReceta() {
     const text = `🐾 *Plan Nutricional para ${dogName}* 🐾\n\n` +
                  `⚖️ *Ración Diaria Total:* ${planData.totalGrams}g\n\n` +
@@ -871,9 +895,6 @@ function copiarReceta() {
     });
 }
 
-// =========================================================
-// MÓDULO 1: ESTADO ACTUAL PREMIUM
-// =========================================================
 function renderHealthStatus() {
     const completedCount = Object.keys(trackerData.days).length;
     const panel = document.getElementById('health-status-panel');
@@ -931,9 +952,6 @@ function renderHealthStatus() {
     }
 }
 
-// =========================================================
-// MÓDULO 2: LOGROS E INSIGNIAS
-// =========================================================
 function renderBadges() {
     const completedDays = Object.keys(trackerData.days).length;
     const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
@@ -961,9 +979,6 @@ function renderBadges() {
     document.getElementById('badges-container').innerHTML = html;
 }
 
-// =========================================================
-// DASHBOARD GENERAL (CON ANIMACIONES Y MODALES)
-// =========================================================
 function renderDashboard() {
     const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
     const completedCount = Object.keys(trackerData.days).length;
@@ -977,12 +992,12 @@ function renderDashboard() {
     document.getElementById('total-grams').innerText = planData.totalGrams;
     
     document.getElementById('ingredients-list').innerHTML = `
-        <div onclick="openIngredientModal('huesos')" class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-amber-200 pulse-card">
+        <div onclick="openIngredientModal('huesos')" class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-sky-200 pulse-card">
             <div class="flex items-center gap-3">
-                <div class="w-3.5 h-3.5 rounded-full bg-amber-500 shadow-sm"></div>
+                <div class="w-3.5 h-3.5 rounded-full bg-sky-500 shadow-sm"></div>
                 <div>
                     <p class="font-extrabold text-slate-800 text-sm leading-tight">Huesos Carnosos</p>
-                    <p class="text-[9px] font-black text-amber-500 mt-0.5 uppercase tracking-wide"><i class="fa-solid fa-hand-pointer"></i> Toca para ver opciones</p>
+                    <p class="text-[9px] font-black text-sky-500 mt-0.5 uppercase tracking-wide"><i class="fa-solid fa-hand-pointer"></i> Toca para ver opciones</p>
                 </div>
             </div>
             <span class="font-black text-slate-900 text-lg">${planData.gramosHuesos}g</span>
@@ -1029,7 +1044,6 @@ function renderDashboard() {
             <div class="text-right bg-white px-3 py-1.5 rounded-xl border border-amber-100 shadow-sm"><span class="block font-black text-slate-900 text-xl leading-none">${gramosPorToma}g</span><span class="text-[9px] font-bold text-slate-400 uppercase">por comida</span></div>
         </div>`;
 
-    // RENDERIZAR UPSELL SUTIL DEBAJO DE LOS CUENCOS
     const sessionInfo = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
     const isPeru = (sessionInfo.phone || '').startsWith('51');
     const priceText = isPeru ? 'S/ 17' : '$4.99 USD';
@@ -1064,9 +1078,6 @@ function renderProfileCard() {
     if (planDaysEl) planDaysEl.textContent = `${totalDays} días`;
 }
 
-// =========================================================
-// INTEGRACIÓN DEL BOT Y UPSELL NUTRICHEF (MODAL)
-// =========================================================
 function openNutriChefUpsellModal() {
     const sessionInfo = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
     const isPeru = (sessionInfo.phone || '').startsWith('51');
@@ -1103,9 +1114,6 @@ function confirmNutriChefUpsell() {
     window.open(`https://wa.me/${numeroEmpresa}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-// =========================================================
-// MODAL DE INGREDIENTES EDUCATIVO
-// =========================================================
 function openIngredientModal(type) {
     const data = ingredientInfo[type];
     if(!data) return;
@@ -1131,9 +1139,6 @@ function closeIngredientModal() {
     }, 300);
 }
 
-// =========================================================
-// TRACKER UI
-// =========================================================
 function renderTrackerUI() {
     const container = document.getElementById('tracker-container');
     const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
@@ -1208,9 +1213,6 @@ function renderTrackerUI() {
     }
 }
 
-// =========================================================
-// MODAL TRACKER
-// =========================================================
 function openTracker(dayIndex) {
     pendingDayToMark = dayIndex;
     pendingAppetite = null;
@@ -1285,9 +1287,6 @@ function closeTrackerModal() {
     }, 300);
 }
 
-// =========================================================
-// PANTALLA DE VICTORIA
-// =========================================================
 function renderVictoryScreen(totalDays) {
     const days = trackerData.days;
     let goodDays = 0, adaptDays = 0;
@@ -1333,9 +1332,6 @@ function launchConfetti() {
     }
 }
 
-// =========================================================
-// DESHACER
-// =========================================================
 function openUndo(dayIndex) {
     dayToUndo = dayIndex;
     const modal = document.getElementById('modal-undo');
@@ -1361,9 +1357,6 @@ function confirmUndo() {
     setTimeout(() => { renderDashboard(); }, 300);
 }
 
-// =========================================================
-// RESET
-// =========================================================
 function resetApp() {
     const modal = document.getElementById('modal-reset');
     modal.classList.remove('hidden'); modal.classList.add('flex');
@@ -1389,9 +1382,6 @@ function confirmResetApp() {
     setTimeout(() => { showScreen('screen-goal', 'Paso 1 de 3'); }, 300);
 }
 
-// =========================================================
-// TIPS MODAL
-// =========================================================
 function openTipsModal() {
     const modal = document.getElementById('modal-tips');
     modal.classList.remove('hidden'); modal.classList.add('flex');

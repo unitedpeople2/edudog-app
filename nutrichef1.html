@@ -22,49 +22,46 @@
         .screen {
             display: none; flex: 1; flex-direction: column;
             animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow-y: auto; overflow-x: hidden; background-color: #fcf8f8; /* Tono muy sutilmente cálido */
+            overflow-y: auto; overflow-x: hidden; background-color: #f8fafc;
         }
         .screen.active { display: flex; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* =========================================
-           EL SECRETO: LIQUID GRADIENT "NUTRICHEF"
-           Tonos: Borgoña oscuro -> Rubí -> Rosa Fuego
-           ========================================= */
+        /* Estética Premium NutriChef Vital - Degradado Rubí/Fuego */
         .chef-gradient { 
-            background: linear-gradient(160deg, #2e0814 0%, #5e0d25 30%, #be123c 60%, #e11d48 100%); 
+            background: linear-gradient(160deg, #4c0519 0%, #881337 30%, #e11d48 60%, #f43f5e 100%); 
             position: relative; overflow: hidden; 
         }
         .chef-gradient::before {
             content: ''; position: absolute; top: -30%; left: -40%; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(225, 29, 72, 0.55) 0%, rgba(225, 29, 72, 0) 70%);
+            background: radial-gradient(circle, rgba(244, 63, 94, 0.5) 0%, rgba(244, 63, 94, 0) 70%);
             border-radius: 50%; z-index: 1; transform: scale(1.4);
         }
         .chef-gradient::after {
             content: ''; position: absolute; bottom: -30%; right: -40%; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(251, 113, 133, 0.4) 0%, rgba(225, 29, 72, 0) 70%);
+            background: radial-gradient(circle, rgba(244, 63, 94, 0.4) 0%, rgba(244, 63, 94, 0) 70%);
             border-radius: 50%; z-index: 1; transform: scale(1.2);
         }
 
-        /* Pestañas (Ingredientes / Preparación) */
+        /* Pestañas Adaptadas */
         .tab-btn { padding-bottom: 0.75rem; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: 800; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .tab-btn.active { border-color: #e11d48; color: #be123c; }
-        .sticky-tabs { position: sticky; top: 0; background-color: #fcf8f8; z-index: 30; }
+        .sticky-tabs { position: sticky; top: 0; background-color: #f8fafc; z-index: 30; }
 
-        /* REPRODUCTOR Y TIMER (Adaptado a Fuego/Rubí) */
+        /* REPRODUCTOR Y TIMER ADAPTADO (Borgoña/Rubí) */
         .blob-container {
             position: relative; width: 160px; height: 160px; 
             margin: 15px auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .blob-shape {
             position: absolute; inset: 0;
-            background: rgba(225, 29, 72, 0.05); border: 1.5px solid rgba(225, 29, 72, 0.15);
+            background: rgba(225, 29, 72, 0.08); border: 1.5px solid rgba(225, 29, 72, 0.15);
             border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transition: all 1s ease-in-out; z-index: 1;
         }
         .active-session .blob-shape {
             animation: breathe 4s ease-in-out infinite;
-            background: rgba(225, 29, 72, 0.12); border-color: #e11d48;
+            background: rgba(225, 29, 72, 0.15); border-color: #e11d48;
         }
         @keyframes breathe {
             0%, 100% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: scale(1); }
@@ -74,8 +71,8 @@
         .action-trigger { position: relative; z-index: 10; margin-top: 8px; width: 45px; height: 45px; background: #be123c; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 12px -2px rgba(190, 18, 60, 0.3); cursor: pointer; transition: all 0.2s; }
         .action-trigger:active { transform: scale(0.95); box-shadow: 0 4px 6px -1px rgba(190, 18, 60, 0.2); }
 
-        /* Tags e Iconos */
-        .tag { background: #fff1f2; color: #9f1239; font-size: 10px; font-weight: 800; padding: 5px 12px; border-radius: 20px; text-transform: uppercase; display: flex; align-items: center; gap: 5px; border: 1px solid #ffe4e6; }
+        /* Tags e Iconos Adaptados */
+        .tag { background: #fff1f2; color: #be123c; font-size: 10px; font-weight: 800; padding: 5px 12px; border-radius: 20px; text-transform: uppercase; display: flex; align-items: center; gap: 5px; border: 1px solid #ffe4e6; }
         .step-badge { width: 24px; height: 24px; border-radius: 50%; background: #be123c; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; flex-shrink: 0; }
         
         .day-item.failed { border-color: #fdba74 !important; background: #fff7ed !important; }
@@ -117,17 +114,17 @@
         <div class="px-6 py-6 space-y-6">
             <div class="chef-gradient rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden">
                 <div class="relative z-10">
-                    <p class="text-rose-200 text-[9px] font-black uppercase tracking-widest mb-1.5 opacity-90">Cocinando para</p>
+                    <p class="text-rose-200 text-[9px] font-black uppercase tracking-widest mb-1.5 opacity-80">Recetario activo para</p>
                     <h3 class="text-3xl font-black tracking-tighter" id="hub-dog-name">Cargando...</h3>
 
-                    <div class="mt-8 bg-black/15 p-4 rounded-3xl border border-white/10">
-                        <div class="flex justify-between text-[9px] font-black uppercase mb-1.5 tracking-wider"><span class="opacity-80">Recetas Dominadas</span><span id="hub-progress-text" class="text-rose-100">0 platos</span></div>
+                    <div class="mt-8 bg-black/15 p-4 rounded-3xl border border-white/5">
+                        <div class="flex justify-between text-[9px] font-black uppercase mb-1.5 tracking-wider"><span class="opacity-70">Progreso global</span><span id="hub-progress-text" class="text-rose-100">0 platos</span></div>
                         <div class="w-full bg-white/15 rounded-full h-2 overflow-hidden"><div id="hub-progress-bar" class="bg-white h-full transition-all duration-1000 shadow-inner" style="width:0%"></div></div>
                     </div>
                 </div>
             </div>
             
-            <h3 class="font-black text-slate-900 text-base mb-2 mt-4 flex items-center gap-2"><i class="fa-solid fa-utensils text-rose-600"></i> Menús Especializados</h3>
+            <h3 class="font-black text-slate-900 text-base mb-2 mt-4 flex items-center gap-2">Menús de 7 Días</h3>
             <div id="challenges-container" class="space-y-4"></div>
         </div>
     </section>
@@ -139,8 +136,8 @@
             
             <div class="bg-gradient-to-br from-rose-50 to-pink-100/50 rounded-[1.5rem] p-5 border border-rose-100 shadow-sm relative overflow-hidden mb-4">
                 <div class="absolute -right-4 -top-4 text-rose-500/10 text-6xl"><i class="fa-solid fa-heart-pulse"></i></div>
-                <p class="text-[9px] font-black uppercase text-rose-600 tracking-widest mb-1.5 relative z-10">Beneficio de este menú</p>
-                <p class="text-xs font-bold text-rose-950 leading-relaxed relative z-10" id="challenge-intro-text">Cargando logros...</p>
+                <p class="text-[9px] font-black uppercase text-rose-600 tracking-widest mb-1.5 relative z-10">Beneficio del Menú</p>
+                <p class="text-xs font-bold text-rose-900 leading-relaxed relative z-10" id="challenge-intro-text">Cargando beneficios...</p>
             </div>
         </div>
         
@@ -165,6 +162,9 @@
 </div>
 
 <script>
+// =============================================
+// VARIABLES GLOBALES Y SEGURIDAD
+// =============================================
 let audioPlayer = null; 
 
 const sanitizeHTML = (str) => {
@@ -184,22 +184,23 @@ try {
     const savedData = localStorage.getItem(`nutriChef_tracker_${dogName}`);
     if (savedData) trackerData = JSON.parse(savedData);
 } catch (e) {
+    console.error("Error leyendo datos, se reiniciará el progreso.", e);
     trackerData = {};
 }
 
 // =============================================
-// CONTENIDO NUTRICHEF (Recetas)
+// CONTENIDO NUTRICHEF PREMIUM
 // =============================================
-const RECIPES_DATA = [
+const CHALLENGES = [
     {
-        id: 'semana-transicion', name: 'Semana de Transición Master', icon: '🥩', totalDays: 7, desc: 'Paso a paso de croquetas a comida real',
+        id: 'semana-transicion', name: 'Semana de Transición BARF', icon: '🥩', totalDays: 7, desc: 'Paso a paso de croquetas a comida real',
         introAchieve: 'En estos 7 días guiaremos su sistema digestivo sin diarreas ni problemas. Adaptaremos su estómago para absorber el 100% de los nutrientes naturales.',
         lessons: [
             { 
-                day: 1, title: 'Pollo Suave & Calabaza', semanaLabel: 'Fase 1: Asentamiento', duracion: '15 min', nivel: 'Básico', categoria: 'Digestión', icon: 'fa-drumstick-bite', 
+                day: 1, title: 'Pollo Suave & Calabaza', semanaLabel: 'Fase 1: Asentamiento', duracion: '15 min', nivel: 'Fácil', categoria: 'Digestión', icon: 'fa-drumstick-bite', 
                 teoria: { 
                     audioSeconds: 30, 
-                    audioUrl: "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/MenteCan%2FNomuerdas-1.mp3?alt=media&token=8ee71daa-b72a-484a-ac4e-355791da006d", // Audio placeholder
+                    audioUrl: "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/MenteCan%2FNomuerdas-1.mp3?alt=media&token=8ee71daa-b72a-484a-ac4e-355791da006d", 
                     intro: "La Compra del Chef 🛒", 
                     cuerpo: "Hoy iniciamos con la proteína más noble. El objetivo no es llenarlo, sino presentarle comida real a su flora intestinal. La calabaza actuará como un protector gástrico natural.", 
                     puntosClave: ["Pechuga de Pollo (Sin hueso, sin piel) - 60% de la porción", "Calabaza o Zapallo fresco - 30% de la porción", "Zanahoria rallada muy fina - 10% de la porción", "Regla de oro: Todo estrictamente cocido hoy."] 
@@ -211,7 +212,7 @@ const RECIPES_DATA = [
                 tips: ["Guarda el caldo de la cocción del pollo sin sal. Servirá para hidratar sus comidas futuras."], error: { titulo: "El error de la impaciencia", desc: "Servir la comida caliente. Los perros comen más rápido si está tibio, pero si quema, rechazarán el plato por días." }, resumen: "Un estómago feliz hoy, es un perro sano mañana." 
             },
             { 
-                day: 2, title: 'Ternera & Manzana', semanaLabel: 'Fase 1: Asentamiento', duracion: '12 min', nivel: 'Básico', categoria: 'Hierro', icon: 'fa-cow', 
+                day: 2, title: 'Ternera & Manzana', semanaLabel: 'Fase 1: Asentamiento', duracion: '12 min', nivel: 'Fácil', categoria: 'Hierro', icon: 'fa-cow', 
                 teoria: { 
                     audioSeconds: 25, 
                     audioUrl: "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/MenteCan%2FNomuerdas-2.mp3?alt=media&token=9544e478-7772-460d-9962-e8ef4d87a648", 
@@ -253,10 +254,10 @@ const RECIPES_DATA = [
                     { titulo: 'Inspección táctil', desc: 'Pasa tus dedos por todo el filete de pescado crudo. Saca cualquier espina con pinzas. Es el paso más importante.', emoji: '🔍', icon: 'fa-magnifying-glass' }, 
                     { titulo: 'Cocción rápida', desc: 'Al vapor por 6-8 minutos. El pescado se hace rapidísimo. Desmenúzalo con el tenedor.', emoji: '🐟', icon: 'fa-fish' }, 
                     { titulo: 'La base de Avena', desc: 'Hidrata la avena con agua caliente o el caldo de pescado por 10 minutos. Mezcla todo.', emoji: '🌾', icon: 'fa-wheat-awn' }]}, 
-                tips: ["Si huele mucho, puedes echarle unas gotitas de limón al pescado crudo antes de cocinarlo."], error: { titulo: "Pescado frito o enlatado en aceite", desc: "El aceite de las latas de atún humano les causa diarrea severa. Si usas lata, que sea en agua y baja en sodio." }, resumen: "El secreto de un pelaje de exhibición está en el Omega 3." 
+                tips: ["Si huele mucho, puedes echarle unas gotitas de limón al pescado crudo antes de cocinarlo."], error: { titulo: "Pescado frito o enlatado", desc: "El aceite de las latas de atún humano les causa diarrea severa. Si usas lata, que sea en agua y baja en sodio." }, resumen: "El secreto de un pelaje de exhibición está en el Omega 3." 
             },
             { 
-                day: 5, title: 'Corazón & Antioxidantes', semanaLabel: 'Fase 3: Nutrición Pro', duracion: '15 min', nivel: 'Avanzado', categoria: 'Taurina', icon: 'fa-heart', 
+                day: 5, title: 'Corazón & Antioxidantes', semanaLabel: 'Fase 3: Nutrición Pro', duracion: '15 min', nivel: 'Avanzado', categoria: 'Taurina', icon: 'fa-heart-pulse', 
                 teoria: { 
                     audioSeconds: 25, 
                     audioUrl: "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/MenteCan%2FNomuerdas-5.mp3?alt=media&token=9df28241-0a70-4bd4-9141-362a7114f6d2", 
@@ -286,7 +287,7 @@ const RECIPES_DATA = [
                 tips: ["Puedes deshidratar tiritas de hígado en el horno a fuego muy bajo para hacer premios secos caseros."], error: { titulo: "Sobredosis de Vitamina A", desc: "Dar una comida compuesta 100% de hígado. Intoxicarás a tu perro. Máximo 5-10% de su plato." }, resumen: "Pequeñas dosis de superalimentos hacen la diferencia." 
             },
             { 
-                day: 7, title: 'Plato MasterChef BARF', semanaLabel: 'Fase 4: El Chef Crudo', duracion: '10 min', nivel: 'Experto', categoria: 'Graduación', icon: 'fa-crown', 
+                day: 7, title: 'Plato MasterChef BARF', semanaLabel: 'Fase 4: El Chef Crudo', duracion: '10 min', nivel: 'Avanzado', categoria: 'Graduación', icon: 'fa-crown', 
                 teoria: { 
                     audioSeconds: 30, 
                     audioUrl: "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/MenteCan%2FNomuerdas-7.mp3?alt=media&token=c85d08a8-84e9-4cc0-a387-f29913f82548", 
@@ -305,7 +306,7 @@ const RECIPES_DATA = [
 ];
 
 // =============================================
-// LÓGICA CORE (Adaptada UI NutriChef)
+// LÓGICA CORE
 // =============================================
 document.addEventListener('DOMContentLoaded', () => { renderHub(); showScreen('screen-hub'); });
 
@@ -317,7 +318,7 @@ function renderHub() {
     let totalGlobalDays = 0;
     let totalPassedDays = 0;
     
-    RECIPES_DATA.forEach(ch => {
+    CHALLENGES.forEach(ch => {
         const chTracker = trackerData[ch.id] || {};
         const passedCount = Object.values(chTracker).filter(t => t.passed).length;
         const pct = Math.round((passedCount / ch.totalDays) * 100);
@@ -330,7 +331,7 @@ function renderHub() {
                 <div class="w-14 h-14 chef-gradient rounded-2xl flex items-center justify-center text-2xl text-white shadow-lg shadow-rose-200">${ch.icon}</div>
                 <div class="flex-1">
                     <h4 class="font-black text-slate-800 text-sm leading-tight">${ch.name}</h4>
-                    <p class="text-[9px] text-slate-400 font-bold tracking-tight uppercase mt-0.5 tracking-wider">${passedCount}/${ch.totalDays} Recetas</p>
+                    <p class="text-[9px] text-slate-400 font-bold tracking-tight uppercase mt-0.5 tracking-wider">${passedCount}/${ch.totalDays} Platos completados</p>
                     <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden shadow-inner"><div class="chef-gradient h-full transition-all duration-700" style="width:${pct}%"></div></div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-slate-200"></i>
@@ -343,7 +344,7 @@ function renderHub() {
 }
 
 function openChallenge(id) {
-    currentChallenge = RECIPES_DATA.find(c => c.id === id);
+    currentChallenge = CHALLENGES.find(c => c.id === id);
     document.getElementById('challenge-screen-title').innerText = currentChallenge.name;
     document.getElementById('challenge-intro-text').innerText = currentChallenge.introAchieve;
     renderDays();
@@ -368,13 +369,12 @@ function renderDays() {
 
         const statusIcon = isLocked ? 'fa-lock' : (isFailed ? 'fa-rotate-left' : (lesson ? lesson.icon : 'fa-circle'));
 
-        // Cambio a paleta cálida (Rose para éxito, Orange para reintento)
         container.innerHTML += `
-            <div onclick="${!isLocked ? `openLesson(${i})` : ''}" class="day-item bg-white rounded-3xl p-4 flex items-center gap-4 border-2 ${isPassed ? 'border-rose-200 bg-rose-50/40' : isFailed ? 'failed' : isLocked ? 'opacity-40 border-slate-50 cursor-not-allowed' : 'border-rose-300 bg-rose-100/30 cursor-pointer active:scale-95 transition-transform shadow-sm'}">
+            <div onclick="${!isLocked ? `openLesson(${i})` : ''}" class="day-item bg-white rounded-3xl p-4 flex items-center gap-4 border-2 ${isPassed ? 'border-rose-100 bg-rose-50/20' : isFailed ? 'failed' : isLocked ? 'opacity-40 border-slate-50 cursor-not-allowed' : 'border-rose-200 bg-rose-50/40 cursor-pointer active:scale-95 transition-transform shadow-sm'}">
                 <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm ${isPassed ? 'chef-gradient text-white shadow-md' : isFailed ? 'bg-orange-500 text-white shadow-md' : 'bg-white text-slate-400'}">${i}</div>
                 <div class="flex-1">
                     <h4 class="font-black text-slate-800 text-xs">${lesson ? lesson.title : `Día ${i}`}</h4>
-                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-wider mt-0.5">${isPassed ? '¡Plato Terminado!' : isFailed ? 'No lo comió - Reintento' : isLocked ? 'Bloqueado' : 'Cocinar ahora'}</p>
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-wider mt-0.5">${isPassed ? '¡Plato Terminado!' : isFailed ? 'Requiere reintento' : isLocked ? 'Bloqueado' : 'Cocinar ahora'}</p>
                 </div>
                 <i class="fa-solid ${statusIcon} status-icon ${isPassed ? 'text-rose-600' : isFailed ? 'text-orange-500' : isLocked ? 'text-slate-300' : 'text-slate-200'}"></i>
             </div>`;
@@ -398,7 +398,7 @@ function renderLessonContent(lesson) {
     const isPassed = chTracker[currentLessonDay] && chTracker[currentLessonDay].passed;
 
     let html = `
-        <div class="flex border-b border-slate-200/50 mb-6 sticky-tabs pt-2 pb-2 shadow-sm rounded-t-3xl px-1">
+        <div class="flex border-b border-slate-100 mb-6 sticky-tabs pt-2 pb-2 shadow-sm rounded-t-3xl px-1">
             <button onclick="switchTab('teoria')" class="flex-1 tab-btn ${currentTab === 'teoria' ? 'active' : ''}">INGREDIENTES</button>
             <button onclick="switchTab('practica')" class="flex-1 tab-btn ${currentTab === 'practica' ? 'active' : ''}">MODO CHEF</button>
         </div>
@@ -416,28 +416,25 @@ function renderLessonContent(lesson) {
                     <div onclick="toggleAudio(${lesson.teoria.audioSeconds})" class="action-trigger mx-auto" id="audio-play-btn"><i class="fa-solid fa-play"></i></div>
                 </div>
             </div>
-            <div class="text-center"><p class="text-[9px] font-black text-rose-800/50 uppercase tracking-widest mt-1 mb-6">Nota del Chef</p></div>
-            
             <div class="flex flex-wrap gap-2 justify-center mb-6">
                 <span class="tag"><i class="fa-solid fa-clock text-rose-600"></i> ${lesson.duracion}</span>
                 <span class="tag"><i class="fa-solid fa-fire text-orange-500"></i> ${lesson.nivel}</span>
-                <span class="tag"><i class="fa-solid fa-notes-medical text-emerald-500"></i> ${lesson.categoria}</span>
+                <span class="tag"><i class="fa-solid fa-heart-pulse text-rose-500"></i> ${lesson.categoria}</span>
             </div>
             <div class="space-y-4">
-                <h3 class="font-black text-slate-900 text-xl tracking-tight leading-tight text-center flex items-center justify-center gap-2"><i class="fa-solid fa-basket-shopping text-rose-600"></i> ${replace(lesson.teoria.intro)}</h3>
+                <h3 class="font-black text-slate-900 text-xl tracking-tight leading-tight text-center">${replace(lesson.teoria.intro)}</h3>
                 <p class="text-slate-500 text-sm leading-relaxed text-center px-2">${replace(lesson.teoria.cuerpo)}</p>
-                <div class="space-y-2.5 mt-6 bg-white p-5 rounded-3xl border border-rose-100 shadow-sm">
-                    <h4 class="font-black text-xs text-rose-900 uppercase tracking-wider mb-3">Cantidades Sugeridas</h4>
-                    ${lesson.teoria.puntosClave.map(p => `<p class="text-[13px] font-bold text-slate-700 flex items-start gap-3 border-b border-slate-50 pb-2"><i class="fa-solid fa-check mt-1 text-rose-500"></i> ${replace(p)}</p>`).join('')}
+                <div class="space-y-2.5 mt-6">
+                    ${lesson.teoria.puntosClave.map(p => `<p class="text-xs font-bold text-slate-700 flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><i class="fa-solid fa-circle-check text-rose-600"></i> ${replace(p)}</p>`).join('')}
                 </div>
-                <button onclick="switchTab('practica')" class="w-full chef-gradient text-white font-black py-5 rounded-3xl mt-8 shadow-xl shadow-rose-200 active:scale-95 transition-all flex items-center justify-center gap-3">¡Todo listo! A cocinar <i class="fa-solid fa-fire-burner text-sm"></i></button>
+                <button onclick="switchTab('practica')" class="w-full chef-gradient text-white font-black py-5 rounded-3xl mt-8 shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">¡Todo listo! A cocinar <i class="fa-solid fa-fire-burner text-xs"></i></button>
             </div>`;
     } else {
         let timerMins = Math.floor(lesson.practica.timerSeconds / 60);
         let timerSecs = lesson.practica.timerSeconds % 60;
         
         html += `
-            <div class="text-center"><p class="text-[9px] font-black text-rose-400 uppercase tracking-wider mt-2">Temporizador de Preparación</p></div>
+            <div class="text-center"><p class="text-[9px] font-black text-slate-400 uppercase tracking-wider mt-2">Temporizador de preparación</p></div>
             <div class="blob-container" id="timer-container">
                 <div class="blob-shape"></div>
                 <div class="blob-content text-center">
@@ -445,39 +442,37 @@ function renderLessonContent(lesson) {
                     <div onclick="toggleTimer(${lesson.practica.timerSeconds})" class="action-trigger mx-auto" id="timer-play-btn"><i class="fa-solid fa-play"></i></div>
                 </div>
             </div>
-            <div class="space-y-3.5 mt-4">
-                <h3 class="font-black text-slate-900 text-sm mb-3 ml-2 flex items-center gap-2"><i class="fa-solid fa-list-ol text-rose-600"></i> Paso a Paso:</h3>
+            <div class="space-y-3.5">
+                <h3 class="font-black text-slate-900 text-sm mb-2 ml-2 flex items-center gap-2"><i class="fa-solid fa-list-ol text-rose-600"></i> Paso a paso:</h3>
                 ${lesson.practica.pasos.map((p, i) => `
-                    <div class="bg-white rounded-3xl border border-slate-100 p-5 flex gap-4 shadow-sm relative overflow-hidden">
-                        <div class="absolute right-0 top-0 bottom-0 w-1 bg-rose-100"></div>
+                    <div class="bg-white rounded-3xl border border-slate-100 p-5 flex gap-4 shadow-sm">
                         <div class="step-badge">${i+1}</div>
                         <div>
-                            <h4 class="font-black text-slate-900 text-[13px] flex items-center gap-2">${p.emoji} ${p.titulo}</h4>
-                            <p class="text-[12px] text-slate-500 leading-relaxed mt-1.5">${replace(p.desc)}</p>
+                            <h4 class="font-black text-slate-900 text-xs flex items-center gap-2">${p.emoji} ${p.titulo}</h4>
+                            <p class="text-[11px] text-slate-500 leading-relaxed mt-1">${replace(p.desc)}</p>
                         </div>
                     </div>`).join('')}
                 
-                <div class="mt-8 px-2 space-y-4 pt-4 border-t border-slate-200">
-                    <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-wider ml-1">Secretos de Cocina</h3>
+                <div class="mt-8 px-2 space-y-4 pt-4 border-t border-slate-100">
+                    <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-wider ml-1">Secretos del Chef</h3>
                     <div class="space-y-2.5">
-                        ${lesson.tips.map(t => `<div class="bg-rose-50/80 border-l-4 border-rose-400 p-4 rounded-r-2xl text-[12px] font-semibold text-rose-900 shadow-sm">${replace(t)}</div>`).join('')}
+                        ${lesson.tips.map(t => `<div class="bg-rose-50/50 border-l-4 border-rose-400 p-4 rounded-r-2xl text-[11px] font-semibold text-rose-900">${replace(t)}</div>`).join('')}
                     </div>
-                    <div class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-2xl shadow-sm">
-                        <h4 class="font-black text-orange-800 text-[10px] uppercase mb-1 tracking-wider"><i class="fa-solid fa-triangle-exclamation"></i> ${lesson.error.titulo}</h4>
-                        <p class="text-[12px] text-orange-700 font-medium">${replace(lesson.error.desc)}</p>
+                    <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-2xl">
+                        <h4 class="font-black text-orange-800 text-[10px] uppercase mb-1 tracking-wider">${lesson.error.titulo}</h4>
+                        <p class="text-[11px] text-orange-700 font-medium">${replace(lesson.error.desc)}</p>
                     </div>
                 </div>
             </div>
-            <div class="chef-gradient p-6 rounded-3xl mt-10 shadow-xl shadow-rose-200 text-white relative overflow-hidden">
-                <i class="fa-solid fa-quote-right absolute -right-2 -bottom-2 text-6xl opacity-10"></i>
-                <span class="text-[9px] font-black uppercase text-rose-200 block mb-1.5 tracking-wider">El objetivo de hoy</span>
-                <p class="text-sm font-bold leading-snug relative z-10">"${replace(lesson.resumen)}"</p>
+            <div class="bg-rose-50 border-l-4 border-rose-400 p-6 rounded-r-3xl mt-10 shadow-sm border border-rose-100">
+                <span class="text-[9px] font-black uppercase text-rose-700 block mb-1.5 tracking-wider">El objetivo de hoy</span>
+                <p class="text-xs font-bold italic text-rose-950 leading-snug">"${replace(lesson.resumen)}"</p>
             </div>
         `;
         if (isPassed) {
-            html += `<button onclick="showScreen('screen-challenge')" class="w-full border-2 border-rose-200 bg-white text-rose-700 font-black py-5 rounded-3xl mt-10 shadow-sm flex items-center justify-center gap-3 active:scale-95 transition-transform"><i class="fa-solid fa-arrow-left text-xs"></i> Volver al menú</button>`;
+            html += `<button onclick="showScreen('screen-challenge')" class="w-full chef-gradient text-white font-black py-5 rounded-3xl mt-10 shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform"><i class="fa-solid fa-rotate-left text-xs"></i> Volver al listado</button>`;
         } else {
-            html += `<button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black py-5 rounded-3xl mt-10 shadow-2xl shadow-slate-900/30 active:scale-95 transition-all tracking-tight flex items-center justify-center gap-2"><i class="fa-solid fa-bell-concierge"></i> SERVIR PLATO</button>`;
+            html += `<button onclick="openCompleteModal()" class="w-full bg-slate-900 text-white font-black py-5 rounded-3xl mt-10 shadow-2xl active:scale-95 transition-all tracking-tight flex justify-center items-center gap-2"><i class="fa-solid fa-bell-concierge"></i> SERVIR PLATO</button>`;
         }
     }
     container.innerHTML = html;
@@ -485,7 +480,9 @@ function renderLessonContent(lesson) {
 
 function switchTab(tab) {
     currentTab = tab; 
+    
     if(audioPlayer) { audioPlayer.pause(); audioPlayer.currentTime = 0; }
+
     if(audioInterval) clearInterval(audioInterval); if(timerInterval) clearInterval(timerInterval);
     audioInterval = null; timerInterval = null; currentAudioTime = 0; currentTimerTime = 0;
     renderLessonContent(currentChallenge.lessons.find(l => l.day === currentLessonDay));
@@ -538,13 +535,14 @@ function toggleTimer(total) {
         container.classList.add('active-session'); btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; 
         timerInterval = setInterval(() => { 
             currentTimerTime--; let mins = Math.floor(currentTimerTime / 60); let secs = currentTimerTime % 60; display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`; 
-            if (currentTimerTime <= 0) { clearInterval(timerInterval); timerInterval = null; currentTimerTime = 0; container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; showToast("¡Tiempo cumplido Chef!"); } 
+            if (currentTimerTime <= 0) { clearInterval(timerInterval); timerInterval = null; currentTimerTime = 0; container.classList.remove('active-session'); btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>'; showToast("¡Tiempo de preparación listo!"); } 
         }, 1000); 
     }
 }
 
 function showScreen(id) {
     if(audioPlayer) { audioPlayer.pause(); audioPlayer.currentTime = 0; }
+
     if(audioInterval) clearInterval(audioInterval); if(timerInterval) clearInterval(timerInterval);
     audioInterval = null; timerInterval = null;
 
@@ -578,7 +576,7 @@ function saveDay(result) {
     localStorage.setItem(`nutriChef_tracker_${dogName}`, JSON.stringify(trackerData));
     
     closeModal();
-    showToast(passed ? `¡Menú dominado!` : `Guardado para reintento`);
+    showToast(passed ? `¡Plato dominado!` : `Guardado para reintento`);
     renderHub(); renderDays(); showScreen('screen-challenge');
 }
 

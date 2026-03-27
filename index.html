@@ -39,7 +39,7 @@
         .pulse-btn-violet { animation: pulse-btn 2.5s ease-in-out infinite; box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.15); }
         .pulse-btn-rose { animation: pulse-btn 2.5s ease-in-out infinite; box-shadow: 0 4px 6px -1px rgba(244, 63, 94, 0.15); }
 
-        /* ULTRA-MEJORA: Animación Shimmer (Brillo Metálico) para Tarjeta VIP */
+        /* Animación Shimmer para Tarjeta VIP */
         @keyframes shimmer-vip {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
@@ -51,7 +51,6 @@
             border: 1px solid #334155;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
         }
-
     </style>
 </head>
 <body class="antialiased text-slate-900 md:py-8">
@@ -164,7 +163,7 @@
                     <h4 class="font-black text-slate-800 text-[15px] flex items-center justify-center gap-1.5 relative left-1">
                         Fundador Hedinson Rojas <i class="fa-solid fa-circle-check text-blue-500 text-sm" title="Verificado"></i>
                     </h4>
-                    <p class="text-[11px] font-bold text-slate-400 mt-1 tracking-widest uppercase">EduDog Pro Hub • Versión 2.4</p>
+                    <p class="text-[11px] font-bold text-slate-400 mt-1 tracking-widest uppercase">EduDog Pro Hub • Versión 2.5</p>
                 </div>
             </div>
         </section>
@@ -209,7 +208,11 @@
         ];
         
         const ebooksList = [
-            { id: "nutrichef", name: "NutriChef Vital", subtitle: "Recetario Dinámico y Compras", desc: "Recetario dinámico interactivo.", icon: "fa-fire-burner", color: "text-rose-600", bg: "bg-rose-100", price: "4.99", themeBtn: "bg-rose-500 shadow-rose-500/30", benefits: ["50 Recetas Premium (Desayuno, Almuerzo, Cena)", "Modo 'Chef' con temporizadores en pantalla", "Ingredientes adaptados a tu país", "Lista de compras automática para WhatsApp"] }
+            // TEXTO DE NUTRICHEF MEJORADO
+            { id: "nutrichef", name: "NutriChef Vital", subtitle: "Recetario Dinámico y Compras", desc: "50 recetas BARF interactivas.", icon: "fa-fire-burner", color: "text-rose-600", bg: "bg-rose-100", price: "4.99", themeBtn: "bg-rose-500 shadow-rose-500/30", benefits: ["50 Recetas Premium (Desayuno, Almuerzo, Cena)", "Modo 'Chef' con temporizadores en pantalla", "Ingredientes adaptados a tu país", "Lista de compras automática para WhatsApp"] },
+            
+            // NUEVO PRODUCTO "PRÓXIMAMENTE"
+            { id: "snackcan", name: "SnackCan Vital", subtitle: "Repostería Perruna", desc: "50 recetas de postres y premios sanos.", icon: "fa-cookie-bite", color: "text-orange-500", bg: "bg-orange-100", price: "0", themeBtn: "", benefits: [], isUpcoming: true }
         ];
         
         let currentUser = null;
@@ -222,7 +225,7 @@
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             const icon = document.getElementById('toast-icon');
-            toast.getElementById('toast-msg').innerText = message;
+            document.getElementById('toast-msg').innerText = message;
             if(type === 'error'){
                 toast.classList.replace('bg-slate-900', 'bg-rose-600');
                 icon.className = 'fa-solid fa-circle-xmark text-white text-lg';
@@ -273,7 +276,7 @@
             
             const getPrice = (usd) => currentUser.phone.startsWith('51') ? { text: `S/ ${Math.round(usd * TIPO_CAMBIO)}` } : { text: `$${usd} USD` };
 
-            const totalToolsCount = appsList.length + ebooksList.length;
+            const totalToolsCount = appsList.length + ebooksList.filter(e => !e.isUpcoming).length;
             const purchasedToolsCount = (currentUser.apps.filter(appId => appsList.some(a => a.id === appId)).length) + (currentUser.ebooks.filter(ebookId => ebooksList.some(e => e.id === ebookId)).length);
             document.getElementById('apps-count').innerText = `${purchasedToolsCount}/${totalToolsCount}`;
             const progressPct = (purchasedToolsCount / totalToolsCount) * 100;
@@ -302,6 +305,22 @@
             const ebooksContainer = document.getElementById('ebooks-container');
             ebooksContainer.innerHTML = '';
             ebooksList.forEach(ebook => {
+                // LOGICA PARA "PRÓXIMAMENTE"
+                if (ebook.isUpcoming) {
+                    ebooksContainer.innerHTML += `
+                    <div class="bg-slate-50 border-slate-200 border-dashed p-5 rounded-3xl border transition-all duration-300 opacity-80">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-200 text-slate-400"><i class="fa-solid ${ebook.icon}"></i></div>
+                            <h4 class="font-extrabold text-slate-500">${ebook.name}</h4>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4 ml-1">${ebook.desc}</p>
+                        <button disabled class="w-full bg-slate-200 text-slate-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 cursor-not-allowed">
+                            <i class="fa-solid fa-hourglass-half"></i> Próximamente...
+                        </button>
+                    </div>`;
+                    return; // saltar el resto del código para este ebook
+                }
+
                 const owned = currentUser.ebooks.includes(ebook.id);
                 const priceObj = getPrice(ebook.price);
                 const cardBg = owned ? "bg-white border-slate-200 shadow-sm" : "bg-white/50 border-slate-100";

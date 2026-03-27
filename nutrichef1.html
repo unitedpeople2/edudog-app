@@ -163,7 +163,7 @@
             </div>
 
             <div class="space-y-3 mt-auto">
-                <button onclick="openPlanner()" class="w-full chef-gradient text-white font-black py-4.5 rounded-2xl shadow-xl shadow-rose-200 active:scale-95 transition-all text-[15px] flex items-center justify-center gap-2">
+                <button onclick="openPlanner()" class="w-full chef-gradient text-white font-black py-4 rounded-2xl shadow-xl shadow-rose-200 active:scale-95 transition-all text-[15px] flex items-center justify-center gap-2">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Armar Menú de Hoy
                 </button>
                 <button onclick="openFreeLobby()" class="w-full bg-white text-slate-500 border-2 border-slate-200 font-bold py-4 rounded-2xl hover:bg-slate-50 transition-all text-[15px] active:scale-95">
@@ -203,7 +203,7 @@
             <div class="px-5 space-y-4" id="recipe-list"></div>
         </section>
 
-        <section id="screen-daily-plan" class="screen pb-32 relative">
+        <section id="screen-daily-plan" class="screen pb-6 relative">
             <div class="p-6">
                 <div class="flex justify-between items-start mb-6">
                     <div>
@@ -215,7 +215,7 @@
                     </div>
                 </div>
 
-                <button onclick="randomizeMenu()" class="w-full bg-white text-slate-700 font-black py-3.5 rounded-2xl mb-8 border-2 border-slate-200 hover:border-slate-300 flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
+                <button onclick="randomizeMenu()" class="w-full bg-white text-slate-700 font-black py-4 rounded-2xl mb-8 border-2 border-slate-200 hover:border-slate-300 flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
                     <i class="fa-solid fa-shuffle text-rose-500"></i> Armar Menú Aleatorio
                 </button>
 
@@ -225,12 +225,12 @@
                     <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[10px] shrink-0"><i class="fa-solid fa-plus"></i></div>
                     Añadir un Snack Extra
                 </button>
-            </div>
-            
-            <div class="fixed bottom-6 left-0 right-0 px-6 z-40 max-w-[420px] mx-auto">
-                <button onclick="generateWhatsAppList()" class="w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-black py-4 rounded-2xl shadow-xl shadow-emerald-500/30 active:scale-95 transition-all text-[15px] flex items-center justify-center gap-3">
-                    <i class="fa-brands fa-whatsapp text-xl drop-shadow"></i> Generar Lista de Compra
-                </button>
+                
+                <div class="mt-8 mb-2">
+                    <button onclick="generateWhatsAppList()" class="w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-black py-4 rounded-[1.5rem] shadow-xl shadow-emerald-500/30 active:scale-95 transition-all text-[15px] flex items-center justify-center gap-3">
+                        <i class="fa-brands fa-whatsapp text-xl drop-shadow"></i> Generar Lista de Compra
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -276,7 +276,7 @@
                     <textarea id="recipe-notes" onchange="saveNotes()" placeholder="Ej. A mi peludo le gusta más si le agrego un chorrito de agua tibia..." class="w-full bg-transparent text-sm text-slate-700 outline-none resize-none placeholder-slate-400 font-medium" rows="3"></textarea>
                 </div>
 
-                <button onclick="startChefMode()" class="w-full bg-slate-900 text-white font-black py-4.5 rounded-2xl shadow-xl shadow-slate-900/20 active:scale-95 transition-all text-[15px] flex items-center justify-center gap-3 mt-auto mb-6">
+                <button onclick="startChefMode()" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-xl shadow-slate-900/20 active:scale-95 transition-all text-[15px] flex items-center justify-center gap-3 mt-auto mb-6">
                     <i class="fa-solid fa-fire-burner"></i> Iniciar Modo Chef
                 </button>
             </div>
@@ -342,7 +342,8 @@
                     </div>
                     <h3 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">¡Plato Terminado!</h3>
                     <p class="text-sm text-slate-500 font-medium mb-8 leading-relaxed">Has preparado <span id="success-recipe-name" class="font-black text-slate-800"></span>. ¡<span class="dog-name-display font-black text-emerald-600"></span> estará feliz!</p>
-                    <button onclick="closeSuccessModal()" class="w-full bg-slate-900 text-white font-black py-4.5 rounded-2xl text-[15px] shadow-xl shadow-slate-900/20 active:scale-95 transition-all">¡Excelente!</button>
+                    
+                    <button onclick="closeSuccessModal()" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl text-[15px] shadow-xl shadow-slate-900/20 active:scale-95 transition-all">¡Excelente!</button>
                 </div>
             </div>
         </div>
@@ -354,7 +355,8 @@
                 </div>
                 <h3 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">¡Tiempo Cumplido!</h3>
                 <p class="text-sm text-slate-500 font-medium mb-8">El paso actual de cocción ha terminado.</p>
-                <button onclick="closeTimerDoneModal()" class="w-full chef-gradient text-white font-black py-4.5 rounded-2xl text-[15px] shadow-xl shadow-rose-200 active:scale-95 transition-all">Continuar Preparación</button>
+                
+                <button onclick="closeTimerDoneModal()" class="w-full chef-gradient text-white font-black py-5 rounded-2xl text-[15px] shadow-xl shadow-rose-200 active:scale-95 transition-all">Continuar Preparación</button>
             </div>
         </div>
 

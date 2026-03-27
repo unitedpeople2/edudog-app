@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NutriChef Vital - El Recetario Dinámico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; -webkit-user-select: none; user-select: none; }
+        .app-container { max-width: 420px; margin: 0 auto; height: 100vh; height: 100dvh; position: relative; background: #ffffff; overflow: hidden; display: flex; flex-direction: column; }
+        
+        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; overflow-x: hidden; background-color: #f8fafc; }
+        .screen.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        ::-webkit-scrollbar { display: none; }
+
+        /* DEGRADADO LÍQUIDO ROSE 3D (Estilo Mentecan) */
+        .rose-gradient { 
+            background: linear-gradient(160deg, #881337 0%, #be123c 30%, #e11d48 60%, #f43f5e 100%); 
+            position: relative; overflow: hidden; 
+        }
+        .rose-gradient::before {
+            content: ''; position: absolute; top: -30%; left: -40%; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(251, 113, 133, 0.35) 0%, rgba(251, 113, 133, 0) 70%);
+            border-radius: 50%; z-index: 1; transform: scale(1.4);
+        }
+        .rose-gradient::after {
+            content: ''; position: absolute; bottom: -30%; right: -40%; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(253, 164, 175, 0.25) 0%, rgba(253, 164, 175, 0) 70%);
+            border-radius: 50%; z-index: 1; transform: scale(1.2);
+        }
+        .rose-gradient > * { position: relative; z-index: 10; }
+
+        /* HEADER CRISTAL ROSE GLASSMORPHISM */
+        .rose-glass-gradient {
+            background: linear-gradient(160deg, rgba(136, 19, 55, 0.85) 0%, rgba(190, 18, 60, 0.85) 30%, rgba(225, 29, 72, 0.85) 60%, rgba(244, 63, 94, 0.85) 100%);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            position: relative; overflow: hidden;
+        }
+        .rose-glass-gradient::before {
+            content: ''; position: absolute; top: -30%; left: -40%; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(251, 113, 133, 0.3) 0%, rgba(251, 113, 133, 0) 70%);
+            border-radius: 50%; z-index: 1; transform: scale(1.4);
+        }
+        .rose-glass-gradient > * { position: relative; z-index: 10; }
+
+        .category-btn.active { background-color: #f43f5e !important; color: white !important; border-color: #e11d48 !important; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3); }
+        .recipe-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .recipe-card:active { transform: scale(0.97); }
+        
+        .timer-active { animation: pulseBg 2s infinite; }
+        @keyframes pulseBg { 0%, 100% { background-color: #e11d48; } 50% { background-color: #fb7185; } }
+    </style>
+</head>
+<body>
+
+<div class="app-container md:rounded-[2.5rem] md:border-[8px] md:border-slate-900 shadow-2xl">
+
+    <div class="sticky top-0 rose-glass-gradient text-white px-5 py-4 flex items-center justify-between z-50 shadow-md shrink-0">
+        <div class="flex items-center">
+            <button onclick="smartBack()" id="btn-header-back" class="p-2 flex items-center justify-center rounded-xl hover:bg-white/20 transition-colors mr-1" style="display:none;">
+                <i class="fa-solid fa-chevron-left text-[15px]"></i>
+            </button>
+            <div>
+                <h2 class="font-black text-white text-[15px] leading-tight flex items-center gap-2">
+                    <i class="fa-solid fa-fire-burner"></i> NutriChef Vital
+                </h2>
+                <p class="text-[10px] font-bold text-rose-100 uppercase tracking-widest">50 Recetas Dinámicas</p>
+            </div>
+        </div>
+        <a href="index.html" class="p-2 text-white hover:bg-white/20 transition-colors rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-house text-[15px]"></i>
+        </a>
+    </div>
+
+    <section id="screen-onboarding" class="screen p-6 flex-col justify-center">
+        <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 text-center">
+            <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center text-[#f43f5e] text-4xl mx-auto mb-6 shadow-inner">👨‍🍳</div>
+            <h2 class="text-2xl font-black text-slate-900 mb-2">¡Prepara el Menú!</h2>
+            <p class="text-slate-500 text-sm mb-8 font-medium">Calcularemos las 50 recetas según los datos de <span class="dog-name-display font-bold text-rose-600"></span>.</p>
+            
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-1 block">Peso Actual (KG)</label>
+                    <input type="number" id="onboard-weight" placeholder="Ej. 15" class="w-full bg-slate-50 text-slate-900 rounded-2xl py-4 px-6 border border-slate-200 outline-none font-bold text-lg focus:border-rose-500 transition-all">
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-1 block">Etapa de Vida</label>
+                    <select id="onboard-age" class="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-2xl py-4 px-5 outline-none font-bold cursor-pointer">
+                        <option value="adulto">Adulto (1 a 7 años)</option>
+                        <option value="cachorro">Cachorro (-1 año)</option>
+                        <option value="senior">Senior (+7 años)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="saveInitialData()" class="w-full rose-gradient text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all mt-8">
+                <span>Comenzar a Cocinar</span> <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </section>
+
+    <section id="screen-lobby" class="screen active">
+        <div class="px-6 pt-6 pb-4">
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Recetario BARF</h2>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">50 Preparaciones Premium</p>
+        </div>
+
+        <div class="px-6 mb-6">
+            <div class="flex gap-2 overflow-x-auto pb-2 hide-scroll">
+                <button onclick="filterRecipes('todos')" class="category-btn active shrink-0 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-sm font-bold transition-all">Todas</button>
+                <button onclick="filterRecipes('desayuno')" class="category-btn shrink-0 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-sm font-bold transition-all">Desayunos</button>
+                <button onclick="filterRecipes('almuerzo')" class="category-btn shrink-0 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-sm font-bold transition-all">Almuerzos</button>
+                <button onclick="filterRecipes('snack')" class="category-btn shrink-0 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-sm font-bold transition-all">Premios</button>
+            </div>
+        </div>
+
+        <div id="recipe-list" class="px-6 space-y-4 pb-10">
+            </div>
+    </section>
+
+    <section id="screen-recipe-detail" class="screen">
+        <div id="recipe-detail-content"></div>
+    </section>
+
+    <section id="screen-chef" class="screen bg-slate-900 text-white">
+        <div class="p-8 flex flex-col h-full">
+            <div class="flex justify-between items-center mb-10">
+                <div class="bg-white/10 px-4 py-2 rounded-full border border-white/5">
+                    <span class="text-[10px] font-black text-rose-400 tracking-widest uppercase" id="chef-step-label">PASO 1</span>
+                </div>
+                <button onclick="showScreen('screen-recipe-detail')" class="text-white/50 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="flex-1 flex flex-col justify-center text-center">
+                <div id="chef-icon" class="text-7xl mb-8">🥘</div>
+                <h3 id="chef-instruction" class="text-2xl font-black leading-tight px-4">Instrucción cargando...</h3>
+                
+                <div id="chef-timer-box" class="hidden mt-12">
+                    <button onclick="toggleChefTimer()" id="btn-chef-timer" class="w-44 h-44 rounded-full border-4 border-white/5 bg-white/5 mx-auto flex flex-col items-center justify-center transition-all active:scale-95">
+                        <span class="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-1">Click para iniciar</span>
+                        <span id="chef-timer-display" class="text-5xl font-black tracking-tighter">05:00</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-auto pt-10 grid grid-cols-4 gap-3">
+                <button onclick="prevStep()" class="bg-white/10 h-16 rounded-2xl flex items-center justify-center text-white"><i class="fa-solid fa-chevron-left"></i></button>
+                <button onclick="nextStep()" class="col-span-3 rose-gradient h-16 rounded-2xl font-black text-lg shadow-lg shadow-rose-600/20 active:scale-95 transition-all">
+                    <span>Siguiente Paso</span> <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+// =============================================
+// BASE DE DATOS DE RECETAS (MUESTRA DE LAS 50)
+// =============================================
+const RECIPES = [
+    { id: 1, title: "Bowl Energético de Pollo", cat: "desayuno", icon: "🍗", time: "10 min", level: "Fácil", kcal: 320, 
+      desc: "Ideal para empezar el día con proteínas de alta digestibilidad.",
+      ing: [
+          { n: "Pollo picado (Músculo)", p: 0.35, unit: "g" },
+          { n: "Cuellos de pollo triturados", p: 0.40, unit: "g" },
+          { n: "Hígado de pollo", p: 0.05, unit: "g" },
+          { n: "Mix de vísceras (Bazo/Riñón)", p: 0.10, unit: "g" },
+          { n: "Puré de Zapallo y Espinaca", p: 0.10, unit: "g" }
+      ],
+      steps: [
+          { i: "Prepara el área de trabajo y limpia los ingredientes.", t: 0, icon: "🧽" },
+          { i: "Mezcla el pollo con el puré de vegetales hasta que sea homogéneo.", t: 0, icon: "🥣" },
+          { i: "Asegúrate de triturar bien los huesos carnosos si tu perro es pequeño.", t: 0, icon: "🔨" },
+          { i: "Sirve a temperatura ambiente. No calentar.", t: 0, icon: "🐕" }
+      ]
+    },
+    { id: 2, title: "Festín de Res y Arándanos", cat: "almuerzo", icon: "🥩", time: "15 min", level: "Medio", kcal: 450, 
+      desc: "Una explosión de antioxidantes y hierro para una flora fuerte.",
+      ing: [
+          { n: "Carne de res magra", p: 0.35, unit: "g" },
+          { n: "Carcasa de pollo (Hueso)", p: 0.40, unit: "g" },
+          { n: "Hígado de res", p: 0.05, unit: "g" },
+          { n: "Arándanos frescos picados", p: 0.05, unit: "g" },
+          { n: "Zanahoria rallada", p: 0.15, unit: "g" }
+      ],
+      steps: [
+          { i: "Trocea la carne de res en cubos pequeños según el tamaño de su boca.", t: 0, icon: "🔪" },
+          { i: "Licúa la zanahoria con los arándanos para mejorar la absorción.", t: 0, icon: "🌪️" },
+          { i: "Mezcla todo en el bowl y añade una pizca de aceite de coco.", t: 0, icon: "🥣" }
+      ]
+    },
+    { id: 3, title: "Gomitas de Caldo de Huesos", cat: "snack", icon: "🦴", time: "2h", level: "Fácil", kcal: 50, 
+      desc: "El snack definitivo para las articulaciones.",
+      ing: [
+          { n: "Huesos de rodilla de res", p: 1, unit: "kg" },
+          { n: "Vinagre de manzana", p: 2, unit: "cdas" },
+          { n: "Agua filtrada", p: 2, unit: "L" }
+      ],
+      steps: [
+          { i: "Coloca los huesos en una olla con agua y vinagre.", t: 0, icon: "🍲" },
+          { i: "Cocina a fuego muy lento por un tiempo prolongado.", t: 300, icon: "⏳" },
+          { i: "Cuela y vierte en moldes. Deja enfriar en la nevera.", t: 0, icon: "🧊" }
+      ]
+    }
+];
+
+// =============================================
+// LÓGICA DE ESTADO Y UI
+// =============================================
+let currentDogName = localStorage.getItem('currentDogName') || "tu peludo";
+let dogData = JSON.parse(localStorage.getItem('nutriChefData')) || null;
+let activeRecipe = null;
+let chefStep = 0;
+let chefTimer = null;
+let chefTimeLeft = 0;
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateDogNames();
+    if (!dogData) {
+        showScreen('screen-onboarding');
+    } else {
+        renderLobby();
+    }
+});
+
+function updateDogNames() {
+    document.querySelectorAll('.dog-name-display').forEach(el => el.innerText = currentDogName);
+}
+
+function saveInitialData() {
+    const weight = document.getElementById('onboard-weight').value;
+    const age = document.getElementById('onboard-age').value;
+    if (!weight) return alert("Ingresa el peso para calcular las porciones.");
+    
+    // Cálculo simplificado: 2.5% del peso en gramos
+    const totalGrams = Math.round(weight * 0.025 * 1000);
+    dogData = { weight, age, totalGrams, gramsPerMeal: Math.round(totalGrams / 2) };
+    localStorage.setItem('nutriChefData', JSON.stringify(dogData));
+    
+    renderLobby();
+    showScreen('screen-lobby');
+}
+
+function renderLobby(filter = 'todos') {
+    const list = document.getElementById('recipe-list');
+    list.innerHTML = '';
+    
+    const filtered = filter === 'todos' ? RECIPES : RECIPES.filter(r => r.cat === filter);
+    
+    filtered.forEach(r => {
+        list.innerHTML += `
+            <div onclick="openRecipe(${r.id})" class="recipe-card bg-white rounded-3xl p-4 flex gap-4 border border-slate-100 shadow-sm relative overflow-hidden">
+                <div class="w-16 h-16 rounded-2xl bg-rose-50 flex items-center justify-center text-3xl shrink-0">${r.icon}</div>
+                <div class="flex-1">
+                    <h4 class="font-black text-slate-800 text-sm">${r.title}</h4>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">${r.cat} • ${r.time}</p>
+                    <div class="flex gap-2 mt-2">
+                        <span class="text-[9px] bg-slate-100 px-2 py-0.5 rounded-md font-bold text-slate-500">${r.level}</span>
+                        <span class="text-[9px] bg-emerald-50 px-2 py-0.5 rounded-md font-bold text-emerald-600">${r.kcal} kcal</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-200 self-center"></i>
+            </div>
+        `;
+    });
+}
+
+function filterRecipes(cat) {
+    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    renderLobby(cat);
+}
+
+function openRecipe(id) {
+    activeRecipe = RECIPES.find(r => r.id === id);
+    const content = document.getElementById('recipe-detail-content');
+    
+    const ingredientsHtml = activeRecipe.ing.map(i => {
+        const amount = Math.round(dogData.gramsPerMeal * i.p);
+        return `
+            <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <span class="text-xs font-bold text-slate-600">${i.n}</span>
+                <span class="text-xs font-black text-rose-600">${amount}${i.unit}</span>
+            </div>
+        `;
+    }).join('');
+
+    content.innerHTML = `
+        <div class="relative h-48 rose-gradient flex items-center justify-center text-white">
+            <div class="text-7xl drop-shadow-2xl">${activeRecipe.icon}</div>
+        </div>
+        <div class="px-6 -mt-8 relative z-10">
+            <div class="bg-white rounded-[2rem] p-6 shadow-xl border border-slate-50">
+                <h3 class="text-xl font-black text-slate-900">${activeRecipe.title}</h3>
+                <p class="text-xs text-slate-500 font-medium mt-2 leading-relaxed">${activeRecipe.desc}</p>
+                
+                <div class="mt-6">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Medidas para esta ración:</h4>
+                    <div class="space-y-2">${ingredientsHtml}</div>
+                </div>
+
+                <button onclick="startChefMode()" class="w-full rose-gradient text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all mt-8 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i> <span>Entrar al Modo Chef</span>
+                </button>
+            </div>
+        </div>
+    `;
+    showScreen('screen-recipe-detail');
+}
+
+// =============================================
+// MODO CHEF LÓGICA
+// =============================================
+function startChefMode() {
+    chefStep = 0;
+    updateChefUI();
+    showScreen('screen-chef');
+}
+
+function updateChefUI() {
+    const step = activeRecipe.steps[chefStep];
+    document.getElementById('chef-step-label').innerText = `PASO ${chefStep + 1} DE ${activeRecipe.steps.length}`;
+    document.getElementById('chef-icon').innerText = step.icon;
+    document.getElementById('chef-instruction').innerText = step.i;
+    
+    const timerBox = document.getElementById('chef-timer-box');
+    if (step.t > 0) {
+        timerBox.classList.remove('hidden');
+        chefTimeLeft = step.t;
+        updateTimerDisplay();
+    } else {
+        timerBox.classList.add('hidden');
+    }
+}
+
+function nextStep() {
+    if (chefStep < activeRecipe.steps.length - 1) {
+        chefStep++;
+        updateChefUI();
+    } else {
+        alert("¡Receta terminada! ¡Buen provecho para " + currentDogName + "!");
+        showScreen('screen-lobby');
+    }
+}
+
+function prevStep() {
+    if (chefStep > 0) {
+        chefStep--;
+        updateChefUI();
+    }
+}
+
+function toggleChefTimer() {
+    const btn = document.getElementById('btn-chef-timer');
+    if (chefTimer) {
+        clearInterval(chefTimer);
+        chefTimer = null;
+        btn.classList.remove('timer-active');
+    } else {
+        btn.classList.add('timer-active');
+        chefTimer = setInterval(() => {
+            chefTimeLeft--;
+            updateTimerDisplay();
+            if (chefTimeLeft <= 0) {
+                clearInterval(chefTimer);
+                chefTimer = null;
+                btn.classList.remove('timer-active');
+                alert("¡Tiempo cumplido!");
+            }
+        }, 1000);
+    }
+}
+
+function updateTimerDisplay() {
+    const mins = Math.floor(chefTimeLeft / 60);
+    const secs = chefTimeLeft % 60;
+    document.getElementById('chef-timer-display').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// =============================================
+// NAVEGACIÓN SMART
+// =============================================
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById(id).scrollTo(0, 0);
+    
+    const backBtn = document.getElementById('btn-header-back');
+    if (id === 'screen-lobby' || id === 'screen-onboarding') {
+        backBtn.style.display = 'none';
+    } else {
+        backBtn.style.display = 'flex';
+    }
+}
+
+function smartBack() {
+    const active = document.querySelector('.screen.active').id;
+    if (active === 'screen-recipe-detail') showScreen('screen-lobby');
+    if (active === 'screen-chef') showScreen('screen-recipe-detail');
+}
+
+</script>
+</body>
+</html>

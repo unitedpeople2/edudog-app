@@ -11,12 +11,11 @@
         
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; margin: 0; padding: 0; }
         
-        /* Uso de 100dvh para evitar el micro-scroll en móviles */
         .app-container { 
             max-width: 420px; 
             margin: 0 auto; 
-            height: 100vh; /* Fallback */
-            height: 100dvh; /* Mobile fix */
+            height: 100vh; 
+            height: 100dvh; 
             position: relative; 
             background: #ffffff; 
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); 
@@ -31,7 +30,6 @@
         .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Scrollbar estilizada */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 99px; }
@@ -40,27 +38,25 @@
         .magic-loader { border: 4px solid #f3f3f3; border-top: 4px solid #f59e0b; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         
-        /* Premium UI Elements */
         .day-locked .content-blur { filter: blur(4px); opacity: 0.6; user-select: none; pointer-events: none; transition: all 0.3s ease; }
         .day-ready { cursor: pointer; border-color: #f59e0b !important; background-color: #fffbeb !important; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.1), 0 2px 4px -1px rgba(245, 158, 11, 0.06); }
         .day-completed { background-color: #ffffff; border-color: #10b981; cursor: pointer; }
         .day-completed:hover { background-color: #f0fdf4; }
 
-        /* Hide scrollbar for badges */
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+            50% { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); border-color: #fcd34d; }
+        }
+        .pulse-card { animation: pulse-soft 3s ease-in-out infinite; cursor: pointer; }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Pantalla victoria */
         @keyframes confettiFall {
             0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
-        .confetti-piece {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            animation: confettiFall linear forwards;
-        }
+        .confetti-piece { position: absolute; width: 10px; height: 10px; animation: confettiFall linear forwards; }
         @keyframes bounce-in {
             0% { transform: scale(0.3); opacity: 0; }
             50% { transform: scale(1.1); }
@@ -71,6 +67,11 @@
     </style>
 </head>
 <body class="antialiased text-slate-900 md:py-8">
+
+<div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-full shadow-2xl z-[100] transform -translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 font-semibold text-sm pointer-events-none w-max max-w-[90%]">
+    <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+    <span id="toast-msg">Mensaje</span>
+</div>
 
 <div class="app-container md:rounded-[2.5rem] md:border-[6px] md:border-slate-900 relative">
 
@@ -236,9 +237,14 @@
             <div>
                 <div class="flex justify-between items-end mb-1">
                     <p class="text-[11px] font-black text-amber-500 uppercase tracking-widest">Ración Diaria Total</p>
-                    <button onclick="openTipsModal()" class="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-amber-200 transition-colors cursor-pointer">
-                        <i class="fa-solid fa-lightbulb"></i> Tips de Oro
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="copiarReceta()" class="text-[10px] font-bold text-slate-600 bg-slate-200 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-slate-300 transition-colors cursor-pointer shadow-sm">
+                            <i class="fa-solid fa-copy"></i> Copiar
+                        </button>
+                        <button onclick="openTipsModal()" class="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-amber-200 transition-colors cursor-pointer">
+                            <i class="fa-solid fa-lightbulb"></i> Tips de Oro
+                        </button>
+                    </div>
                 </div>
                 <div class="flex items-baseline gap-2 mb-4">
                     <h2 class="text-4xl font-black text-slate-900 tracking-tight" id="total-grams">0</h2>
@@ -247,6 +253,8 @@
                 
                 <div id="ingredients-list" class="space-y-3"></div>
                 <div id="meal-division" class="mt-4"></div>
+                
+                <div id="subtle-upsell-container"></div>
             </div>
 
             <div id="dog-profile-card" class="bg-white rounded-2xl border border-amber-100 shadow-sm px-4 py-3 flex items-center gap-3">
@@ -266,7 +274,7 @@
             <div>
                 <h3 class="font-extrabold text-slate-900 text-sm mb-3 uppercase tracking-widest flex items-center gap-2">Tus Insignias 🏅</h3>
                 <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar" id="badges-container">
-                    </div>
+                </div>
             </div>
 
             <div>
@@ -285,6 +293,7 @@
                 </div>
 
                 <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col divide-y divide-slate-100" id="tracker-container"></div>
+                
             </div>
 
             <div class="space-y-3 mt-8">
@@ -340,7 +349,7 @@
                         <p class="text-[11px] text-slate-300">Recetario adaptado para mantener la dieta</p>
                     </div>
                 </div>
-                <button onclick="openNutriChefUpsell()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl text-sm text-center transition-all active:scale-95">
+                <button onclick="openNutriChefUpsellModal()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl text-sm text-center transition-all active:scale-95">
                     Desbloquear Recetario de Mantenimiento 🍳
                 </button>
             </div>
@@ -368,6 +377,25 @@
             </button>
         </div>
     </section>
+
+    <div id="modal-ingredient" class="hidden absolute inset-0 z-[60] bg-slate-900/80 backdrop-blur-sm flex-col justify-end">
+        <div id="modal-ingredient-content" class="bg-white rounded-t-[2.5rem] shadow-2xl transform translate-y-full transition-transform duration-300 w-full flex flex-col" style="max-height:85dvh;">
+            <div class="flex justify-between items-center p-6 shrink-0 border-b border-slate-50">
+                <h3 class="text-xl font-black text-slate-900" id="ingredient-title">Título</h3>
+                <button onclick="closeIngredientModal()" class="text-slate-400 hover:text-slate-600 text-2xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="px-6 py-4 overflow-y-auto flex-1 text-left space-y-4">
+                <p class="text-sm text-slate-600 font-medium leading-relaxed" id="ingredient-concept">Concepto</p>
+                <div class="bg-amber-50 border border-amber-100 rounded-xl p-5 shadow-inner mt-2">
+                    <h4 class="font-bold text-amber-800 text-[11px] mb-3 uppercase tracking-widest"><i class="fa-solid fa-cart-shopping"></i> Opciones Sugeridas:</h4>
+                    <p class="text-[13px] text-slate-700 leading-relaxed font-bold" id="ingredient-options">Opciones</p>
+                </div>
+            </div>
+            <div class="p-6 shrink-0 bg-white border-t border-slate-50 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+                <button onclick="closeIngredientModal()" class="w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-md hover:bg-amber-600 active:scale-95 transition-all text-[15px]">¡Entendido!</button>
+            </div>
+        </div>
+    </div>
 
     <div id="modal-tracker" class="hidden absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex-col justify-end">
         <div id="modal-tracker-content" class="bg-white rounded-t-[2.5rem] shadow-2xl transform translate-y-full transition-transform duration-300 w-full flex flex-col" style="max-height:88dvh;">
@@ -486,7 +514,68 @@
         </div>
     </div>
 
-</div><script>
+    <div id="modal-upsell" class="hidden absolute inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end transition-all">
+        <div class="bg-white rounded-t-[2.5rem] p-8 transform translate-y-full transition-transform duration-300" id="upsell-content">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner transition-colors bg-rose-100 text-rose-600">
+                    <i class="fa-solid fa-fire-burner"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-black text-slate-900 leading-tight">NutriChef Vital</h3>
+                    <p class="text-xs font-bold text-slate-400 mt-1">Recetario Dinámico y Compras</p>
+                </div>
+            </div>
+            
+            <h4 class="font-black text-sm text-slate-800 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-emerald-500"></i> ¿Qué incluye tu acceso?
+            </h4>
+            <ul class="space-y-2.5 mb-8 text-sm text-slate-600 font-medium text-left pl-1">
+                <li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs shrink-0"></i> <span>50 Recetas Premium (Desayuno, Almuerzo, Cena)</span></li>
+                <li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs shrink-0"></i> <span>Modo 'Chef' con temporizadores en pantalla</span></li>
+                <li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs shrink-0"></i> <span>Ingredientes adaptados a tu país</span></li>
+                <li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs shrink-0"></i> <span>Lista de compras automática para WhatsApp</span></li>
+            </ul>
+
+            <div class="space-y-3">
+                <button onclick="confirmNutriChefUpsell()" class="w-full text-white font-black py-4 rounded-2xl text-[15px] shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 bg-rose-500 hover:bg-rose-600 shadow-rose-500/30">
+                    Desbloquear por <span id="upsell-price">S/ 17</span>
+                </button>
+                <button onclick="closeUpsellModal()" class="w-full text-slate-400 font-bold py-3 text-sm active:scale-95 transition-transform hover:text-slate-600">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// =========================================================
+// TEXTOS DE LOS MODALES DE INGREDIENTES
+// =========================================================
+const ingredientInfo = {
+    'huesos': {
+        title: 'Huesos Carnosos 🦴',
+        concept: 'Son huesos blandos recubiertos de carne. Aportan el calcio necesario y limpian los dientes de tu perrito de forma natural. <br><br><b class="text-rose-600">⚠️ Regla de Oro:</b> ¡NUNCA se dan cocidos! Siempre crudos para que no se astillen.',
+        options: 'Cuellos de pollo, alitas de pollo (sin puntas), rabadilla blanda, carcasas (huacales) de pollo, muslos, cuellos de pavo, cuellos de pato, codorniz entera, costillas de cerdo carnosas, rabo de res.'
+    },
+    'carne': {
+        title: 'Carne Magra (Músculo) 🥩',
+        concept: 'Es la principal fuente de proteína y energía para tu peludo. Básicamente, es cualquier corte de carne sin el hueso.',
+        options: 'Pechuga de pollo, pierna o muslo deshuesado, corazón de res (cuenta como músculo), corazón de pollo, sangrecita, carne de cerdo magra, pulpa de res, carne molida baja en grasa, carne de pavo, pescado azul (bonito o jurel sin espinas), carne de cordero.'
+    },
+    'visceras': {
+        title: 'Vísceras Mix 🩸',
+        concept: 'Son las "vitaminas" naturales de la dieta BARF. Deben darse en pequeñas cantidades. Recuerda que la mitad de esta ración (5%) debe ser obligatoriamente hígado.',
+        options: 'Hígado de pollo, hígado de res, riñón de res o cerdo, bazo, sesos, criadillas, pulmón (bofe), mollejas.<br><br><span class="text-[11px] text-slate-500 font-medium">Tip: Si no le gusta la textura, puedes licuarlas con un poco de agua o mezclarlas con la carne molida.</span>'
+    },
+    'vegetales': {
+        title: 'Vegetales y Frutas 🥦',
+        concept: 'Aportan fibra, vitaminas y antioxidantes. Los perros no mastican como nosotros, así que para que puedan absorber sus nutrientes, debes darlos licuados en puré o ligeramente cocidos/al vapor.',
+        options: 'Zanahoria, zapallo (calabaza), brócoli, espinaca, zucchini (calabacín), vainitas, manzana (siempre sin semillas), pera, plátano, arándanos, sandía, papaya.'
+    }
+};
+
 // =========================================================
 // ESTADO GLOBAL
 // =========================================================
@@ -501,10 +590,7 @@ let planData = {
 };
 
 // Estructura de trackerData mejorada con historial real por día
-let trackerData = {
-    days: {}
-};
-
+let trackerData = { days: {} };
 let pendingDayToMark = -1;
 let pendingAppetite = null;
 let pendingPoop = null;
@@ -558,7 +644,7 @@ function getSmartAdvice(appetite, poop, dayIndex) {
     if (poop === 'good') {
         if (appetite === 'great') {
             return {
-                icon: '<div class="bg-emerald-100 text-emerald-600"><i class="fa-solid fa-circle-check"></i></div>',
+                icon: '<div class="w-full h-full rounded-full flex items-center justify-center text-3xl bg-emerald-100 text-emerald-600"><i class="fa-solid fa-circle-check"></i></div>',
                 title: '¡Día perfecto! 🎉',
                 html: `
                     <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
@@ -568,7 +654,7 @@ function getSmartAdvice(appetite, poop, dayIndex) {
             };
         } else {
             return {
-                icon: '<div class="bg-emerald-100 text-emerald-600"><i class="fa-solid fa-circle-check"></i></div>',
+                icon: '<div class="w-full h-full rounded-full flex items-center justify-center text-3xl bg-emerald-100 text-emerald-600"><i class="fa-solid fa-circle-check"></i></div>',
                 title: 'Digestión estable 👍',
                 html: `
                     <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
@@ -581,7 +667,7 @@ function getSmartAdvice(appetite, poop, dayIndex) {
 
     if (poop === 'soft') {
         return {
-            icon: '<div class="bg-amber-100 text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i></div>',
+            icon: '<div class="w-full h-full rounded-full flex items-center justify-center text-3xl bg-amber-100 text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i></div>',
             title: 'Ajustemos el ritmo 🟡',
             html: `
                 <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 space-y-2">
@@ -596,7 +682,7 @@ function getSmartAdvice(appetite, poop, dayIndex) {
 
     if (poop === 'diarrhea') {
         return {
-            icon: '<div class="bg-rose-100 text-rose-600"><i class="fa-solid fa-circle-exclamation"></i></div>',
+            icon: '<div class="w-full h-full rounded-full flex items-center justify-center text-3xl bg-rose-100 text-rose-600"><i class="fa-solid fa-circle-exclamation"></i></div>',
             title: 'Pausemos y observamos 🔴',
             html: `
                 <div class="bg-rose-50 border border-rose-100 rounded-xl p-3 space-y-2">
@@ -611,14 +697,14 @@ function getSmartAdvice(appetite, poop, dayIndex) {
     }
 
     return {
-        icon: '<div class="bg-blue-100 text-blue-600"><i class="fa-solid fa-stethoscope"></i></div>',
+        icon: '<div class="w-full h-full rounded-full flex items-center justify-center text-3xl bg-blue-100 text-blue-600"><i class="fa-solid fa-stethoscope"></i></div>',
         title: 'Registro guardado',
         html: '<p class="text-xs text-slate-600">Día registrado correctamente. Sigue el plan con confianza.</p>'
     };
 }
 
 // =========================================================
-// HELPER DE FECHAS (Solo para estampar finalización)
+// HELPER DE FECHAS
 // =========================================================
 function formatDate(dateStr) {
     if (!dateStr) return '';
@@ -635,6 +721,18 @@ function getTodayStr() {
     const m = String(now.getMonth() + 1).padStart(2, '0');
     const d = String(now.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
+}
+
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-msg').innerText = message;
+    document.getElementById('toast-icon').className = type === 'error' ? 'fa-solid fa-circle-xmark text-rose-400 text-lg' : 'fa-solid fa-circle-check text-emerald-400 text-lg';
+    toast.classList.remove('-translate-y-24', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+    setTimeout(() => { 
+        toast.classList.remove('translate-y-0', 'opacity-100'); 
+        toast.classList.add('-translate-y-24', 'opacity-0'); 
+    }, 3000);
 }
 
 // =========================================================
@@ -754,6 +852,26 @@ function calculateDiet() {
 }
 
 // =========================================================
+// COPIAR RECETA CON EMOJIS
+// =========================================================
+function copiarReceta() {
+    const text = `🐾 *Plan Nutricional para ${dogName}* 🐾\n\n` +
+                 `⚖️ *Ración Diaria Total:* ${planData.totalGrams}g\n\n` +
+                 `🦴 *Huesos Carnosos (40%):* ${planData.gramosHuesos}g\n` +
+                 `🥩 *Carne Magra (35%):* ${planData.gramosCarne}g\n` +
+                 `🩸 *Vísceras Mix (15%):* ${planData.gramosVisceras}g\n` +
+                 `🥦 *Vegetales en Puré (10%):* ${planData.gramosVerduras}g\n\n` +
+                 `💡 *Tip:* Sirve a temperatura ambiente. ¡Nunca cocines los huesos!\n\n` +
+                 `📱 _Calculado con NutriCan Vital_`;
+                 
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('¡Receta copiada lista para compartir! 📋');
+    }).catch(err => {
+        console.error('Error al copiar: ', err);
+    });
+}
+
+// =========================================================
 // MÓDULO 1: ESTADO ACTUAL PREMIUM
 // =========================================================
 function renderHealthStatus() {
@@ -844,7 +962,7 @@ function renderBadges() {
 }
 
 // =========================================================
-// DASHBOARD GENERAL
+// DASHBOARD GENERAL (CON ANIMACIONES Y MODALES)
 // =========================================================
 function renderDashboard() {
     const totalDays = (planData.dietPlanType === 'croquetas') ? 14 : (planData.dietPlanType === 'mixto') ? 10 : 5;
@@ -859,31 +977,43 @@ function renderDashboard() {
     document.getElementById('total-grams').innerText = planData.totalGrams;
     
     document.getElementById('ingredients-list').innerHTML = `
-        <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-amber-200">
+        <div onclick="openIngredientModal('huesos')" class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-amber-200 pulse-card">
             <div class="flex items-center gap-3">
                 <div class="w-3.5 h-3.5 rounded-full bg-amber-500 shadow-sm"></div>
-                <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Huesos Carnosos</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Cuello de pollo, rabadilla blanda</p></div>
+                <div>
+                    <p class="font-extrabold text-slate-800 text-sm leading-tight">Huesos Carnosos</p>
+                    <p class="text-[9px] font-black text-amber-500 mt-0.5 uppercase tracking-wide"><i class="fa-solid fa-hand-pointer"></i> Toca para ver opciones</p>
+                </div>
             </div>
             <span class="font-black text-slate-900 text-lg">${planData.gramosHuesos}g</span>
         </div>
-        <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-rose-200">
+        <div onclick="openIngredientModal('carne')" class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-rose-200 pulse-card">
             <div class="flex items-center gap-3">
                 <div class="w-3.5 h-3.5 rounded-full bg-rose-500 shadow-sm"></div>
-                <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Carne Magra</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Pechuga, corazón, pavita</p></div>
+                <div>
+                    <p class="font-extrabold text-slate-800 text-sm leading-tight">Carne Magra</p>
+                    <p class="text-[9px] font-black text-rose-500 mt-0.5 uppercase tracking-wide"><i class="fa-solid fa-hand-pointer"></i> Toca para ver opciones</p>
+                </div>
             </div>
             <span class="font-black text-slate-900 text-lg">${planData.gramosCarne}g</span>
         </div>
-        <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-purple-200">
+        <div onclick="openIngredientModal('visceras')" class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-purple-200 pulse-card">
             <div class="flex items-center gap-3">
                 <div class="w-3.5 h-3.5 rounded-full bg-purple-500 shadow-sm"></div>
-                <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Vísceras Mix</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Hígado (5%), sangrecita, riñón</p></div>
+                <div>
+                    <p class="font-extrabold text-slate-800 text-sm leading-tight">Vísceras Mix</p>
+                    <p class="text-[9px] font-black text-purple-500 mt-0.5 uppercase tracking-wide"><i class="fa-solid fa-hand-pointer"></i> Toca para ver opciones</p>
+                </div>
             </div>
             <span class="font-black text-slate-900 text-lg">${planData.gramosVisceras}g</span>
         </div>
-        <div class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-emerald-200">
+        <div onclick="openIngredientModal('vegetales')" class="bg-white rounded-[1.25rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:border-emerald-200 pulse-card">
             <div class="flex items-center gap-3">
                 <div class="w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-sm"></div>
-                <div><p class="font-extrabold text-slate-800 text-sm leading-tight">Vegetales (Puré)</p><p class="text-[10px] font-medium text-slate-400 mt-0.5">Zapallo, zanahoria hervida</p></div>
+                <div>
+                    <p class="font-extrabold text-slate-800 text-sm leading-tight">Vegetales (Puré)</p>
+                    <p class="text-[9px] font-black text-emerald-500 mt-0.5 uppercase tracking-wide"><i class="fa-solid fa-hand-pointer"></i> Toca para ver opciones</p>
+                </div>
             </div>
             <span class="font-black text-slate-900 text-lg">${planData.gramosVerduras}g</span>
         </div>
@@ -898,6 +1028,22 @@ function renderDashboard() {
             <div><span class="block text-[10px] font-black text-amber-600 mb-0.5">¿CÓMO DIVIDIRLO?</span><span class="block font-bold text-slate-800 text-sm">${textoTomas}</span></div>
             <div class="text-right bg-white px-3 py-1.5 rounded-xl border border-amber-100 shadow-sm"><span class="block font-black text-slate-900 text-xl leading-none">${gramosPorToma}g</span><span class="text-[9px] font-bold text-slate-400 uppercase">por comida</span></div>
         </div>`;
+
+    // RENDERIZAR UPSELL SUTIL DEBAJO DE LOS CUENCOS
+    const sessionInfo = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
+    const isPeru = (sessionInfo.phone || '').startsWith('51');
+    const priceText = isPeru ? 'S/ 17' : '$4.99 USD';
+    
+    document.getElementById('subtle-upsell-container').innerHTML = `
+        <div class="mt-8 mb-2">
+            <h3 class="font-extrabold text-slate-900 text-[13px] mb-3 flex items-center justify-center gap-2">👨‍🍳 ¿No sabes cómo mezclar los ingredientes?</h3>
+            <div class="flex justify-center">
+                <button onclick="openNutriChefUpsellModal()" class="bg-rose-50 border border-rose-200 text-rose-700 font-extrabold py-3 px-6 rounded-[1rem] hover:bg-rose-100 transition-all shadow-sm active:scale-95 text-[13px] flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-[11px] opacity-80"></i> Desbloquear 50 Recetas por ${priceText}
+                </button>
+            </div>
+        </div>
+    `;
 
     renderHealthStatus();
     renderBadges();
@@ -918,17 +1064,75 @@ function renderProfileCard() {
     if (planDaysEl) planDaysEl.textContent = `${totalDays} días`;
 }
 
-function openNutriChefUpsell() {
-    const session = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
-    const phone = session.phone || '';
+// =========================================================
+// INTEGRACIÓN DEL BOT Y UPSELL NUTRICHEF (MODAL)
+// =========================================================
+function openNutriChefUpsellModal() {
+    const sessionInfo = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
+    const isPeru = (sessionInfo.phone || '').startsWith('51');
+    const priceText = isPeru ? 'S/ 17' : '$4.99 USD';
+    
+    document.getElementById('upsell-price').innerText = priceText;
+    
+    const modal = document.getElementById('modal-upsell');
+    modal.classList.remove('hidden'); 
+    modal.classList.add('flex');
+    setTimeout(() => { 
+        document.getElementById('upsell-content').classList.remove('translate-y-full'); 
+    }, 10);
+}
+
+function closeUpsellModal() {
+    document.getElementById('upsell-content').classList.add('translate-y-full');
+    setTimeout(() => { 
+        const modal = document.getElementById('modal-upsell'); 
+        modal.classList.add('hidden'); 
+        modal.classList.remove('flex'); 
+    }, 300);
+}
+
+function confirmNutriChefUpsell() {
+    const sessionInfo = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
+    const phone = sessionInfo.phone || '';
+    const isPeru = phone.startsWith('51');
+    const priceText = isPeru ? 'S/ 17' : '$4.99 USD';
     const numeroEmpresa = "51932335202";
     const phoneText = phone ? `\n\n👤 Mi cuenta es: +${phone}` : '';
-    const msg = `Hola Soporte 👋\n\nQuiero desbloquear la herramienta *NutriChef Vital* por $4.99 USD.${phoneText}\n💳 ¿Me dan los pasos para pagar?`;
+    
+    const msg = `Hola Soporte 👋\n\nQuiero desbloquear el eBook *NutriChef Vital* por ${priceText}.${phoneText}\n💳 ¿Me dan los pasos para pagar?\n\n[ID: nutrichef]`;
     window.open(`https://wa.me/${numeroEmpresa}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 // =========================================================
-// TRACKER UI (FECHAS CORREGIDAS)
+// MODAL DE INGREDIENTES EDUCATIVO
+// =========================================================
+function openIngredientModal(type) {
+    const data = ingredientInfo[type];
+    if(!data) return;
+    
+    document.getElementById('ingredient-title').innerHTML = data.title;
+    document.getElementById('ingredient-concept').innerHTML = data.concept;
+    document.getElementById('ingredient-options').innerHTML = data.options;
+    
+    const modal = document.getElementById('modal-ingredient');
+    modal.classList.remove('hidden'); 
+    modal.classList.add('flex');
+    setTimeout(() => { 
+        document.getElementById('modal-ingredient-content').classList.remove('translate-y-full'); 
+    }, 10);
+}
+
+function closeIngredientModal() {
+    document.getElementById('modal-ingredient-content').classList.add('translate-y-full');
+    setTimeout(() => { 
+        const modal = document.getElementById('modal-ingredient');
+        modal.classList.add('hidden'); 
+        modal.classList.remove('flex'); 
+    }, 300);
+}
+
+// =========================================================
+// TRACKER UI
 // =========================================================
 function renderTrackerUI() {
     const container = document.getElementById('tracker-container');
@@ -957,7 +1161,6 @@ function renderTrackerUI() {
             else if (dayRecord.poop === 'soft') poopBadge = '<span class="text-[10px] ml-1">🟡</span>';
             else if (dayRecord.poop === 'diarrhea') poopBadge = '<span class="text-[10px] ml-1">🔴</span>';
 
-            // SELLO DE FECHA SÓLO EN DÍAS COMPLETADOS
             if(dayRecord.date) {
                 dateLabel = `<span class="text-[10px] text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded-md border border-slate-200 shadow-sm"><i class="fa-solid fa-calendar-check mr-1 text-emerald-500"></i>${formatDate(dayRecord.date)}</span>`;
             }

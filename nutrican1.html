@@ -11,12 +11,11 @@
         
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; margin: 0; padding: 0; }
         
-        /* Uso de 100dvh para evitar el micro-scroll en móviles */
         .app-container { 
             max-width: 420px; 
             margin: 0 auto; 
-            height: 100vh; /* Fallback */
-            height: 100dvh; /* Mobile fix */
+            height: 100vh; 
+            height: 100dvh; 
             position: relative; 
             background: #ffffff; 
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); 
@@ -31,7 +30,6 @@
         .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Scrollbar estilizada */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 99px; }
@@ -40,37 +38,33 @@
         .magic-loader { border: 4px solid #f3f3f3; border-top: 4px solid #f59e0b; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         
-        /* Premium UI Elements */
         .day-locked .content-blur { filter: blur(4px); opacity: 0.6; user-select: none; pointer-events: none; transition: all 0.3s ease; }
         .day-ready { cursor: pointer; border-color: #f59e0b !important; background-color: #fffbeb !important; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.1), 0 2px 4px -1px rgba(245, 158, 11, 0.06); }
         .day-completed { background-color: #ffffff; border-color: #10b981; cursor: pointer; }
         .day-completed:hover { background-color: #f0fdf4; }
 
-        /* Efecto de Latido (Pulse) para ingredientes */
+        /* Animación LATIDO de las tarjetas de ingredientes */
         @keyframes pulse-soft {
             0%, 100% { transform: scale(1); box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-            50% { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+            50% { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); border-color: #fcd34d; }
         }
-        .pulse-card {
-            animation: pulse-soft 3s ease-in-out infinite;
-            cursor: pointer;
-        }
+        .pulse-card { animation: pulse-soft 3s ease-in-out infinite; cursor: pointer; }
 
-        /* Hide scrollbar for badges */
+        /* Animación LATIDO INTENSO para el Botón de Venta (Efecto Imán) */
+        @keyframes pulse-btn {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 6px -1px rgba(244, 63, 94, 0.2); }
+            50% { transform: scale(1.03); box-shadow: 0 12px 20px -3px rgba(244, 63, 94, 0.4); }
+        }
+        .pulse-btn { animation: pulse-btn 2s ease-in-out infinite; }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Pantalla victoria */
         @keyframes confettiFall {
             0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
-        .confetti-piece {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            animation: confettiFall linear forwards;
-        }
+        .confetti-piece { position: absolute; width: 10px; height: 10px; animation: confettiFall linear forwards; }
         @keyframes bounce-in {
             0% { transform: scale(0.3); opacity: 0; }
             50% { transform: scale(1.1); }
@@ -286,7 +280,7 @@
             <div>
                 <h3 class="font-extrabold text-slate-900 text-sm mb-3 uppercase tracking-widest flex items-center gap-2">Tus Insignias 🏅</h3>
                 <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar" id="badges-container">
-                    </div>
+                </div>
             </div>
 
             <div>
@@ -306,9 +300,8 @@
 
                 <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col divide-y divide-slate-100" id="tracker-container"></div>
                 
-                <button onclick="openNutriChefUpsell()" class="w-full mt-5 bg-rose-50 border border-rose-200 text-rose-700 font-extrabold py-4 rounded-2xl hover:bg-rose-100 transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95 text-sm">
-                    💡 Potencia este plan con el Recetario Premium
-                </button>
+                <div id="cross-sell-container"></div>
+
             </div>
 
             <div class="space-y-3 mt-8">
@@ -364,7 +357,7 @@
                         <p class="text-[11px] text-slate-300">Recetario adaptado para mantener la dieta</p>
                     </div>
                 </div>
-                <button onclick="openNutriChefUpsell()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl text-sm text-center transition-all active:scale-95">
+                <button onclick="openNutriChefUpsell()" class="pulse-btn w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl text-sm text-center transition-all active:scale-95">
                     Desbloquear Recetario de Mantenimiento 🍳
                 </button>
             </div>
@@ -401,13 +394,13 @@
             </div>
             <div class="px-6 py-4 overflow-y-auto flex-1 text-left space-y-4">
                 <p class="text-sm text-slate-600 font-medium leading-relaxed" id="ingredient-concept">Concepto</p>
-                <div class="bg-amber-50 border border-amber-100 rounded-xl p-5 shadow-inner">
+                <div class="bg-amber-50 border border-amber-100 rounded-xl p-5 shadow-inner mt-2">
                     <h4 class="font-bold text-amber-800 text-[11px] mb-3 uppercase tracking-widest"><i class="fa-solid fa-cart-shopping"></i> Opciones Sugeridas:</h4>
                     <p class="text-[13px] text-slate-700 leading-relaxed font-bold" id="ingredient-options">Opciones</p>
                 </div>
             </div>
-            <div class="p-6 shrink-0 bg-white border-t border-slate-50">
-                <button onclick="closeIngredientModal()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-slate-800 transition-colors">¡Entendido!</button>
+            <div class="p-6 shrink-0 bg-white border-t border-slate-50 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+                <button onclick="closeIngredientModal()" class="w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-md hover:bg-amber-600 active:scale-95 transition-all text-[15px]">¡Entendido!</button>
             </div>
         </div>
     </div>
@@ -529,7 +522,9 @@
         </div>
     </div>
 
-</div><script>
+</div>
+
+<script>
 // =========================================================
 // TEXTOS DE LOS MODALES DE INGREDIENTES
 // =========================================================
@@ -570,10 +565,7 @@ let planData = {
 };
 
 // Estructura de trackerData mejorada con historial real por día
-let trackerData = {
-    days: {}
-};
-
+let trackerData = { days: {} };
 let pendingDayToMark = -1;
 let pendingAppetite = null;
 let pendingPoop = null;
@@ -687,7 +679,7 @@ function getSmartAdvice(appetite, poop, dayIndex) {
 }
 
 // =========================================================
-// HELPER DE FECHAS (Solo para estampar finalización)
+// HELPER DE FECHAS
 // =========================================================
 function formatDate(dateStr) {
     if (!dateStr) return '';
@@ -706,9 +698,6 @@ function getTodayStr() {
     return `${y}-${m}-${d}`;
 }
 
-// =========================================================
-// UTILIDAD DE NOTIFICACIÓN TOAST
-// =========================================================
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     document.getElementById('toast-msg').innerText = message;
@@ -1019,6 +1008,26 @@ function renderDashboard() {
     renderBadges();
     renderTrackerUI();
     renderProfileCard();
+
+    // RENDERIZAR CAJITA VIP DE CROSS-SELLING CON PRECIO DINÁMICO
+    const sessionInfo = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
+    const isPeru = (sessionInfo.phone || '').startsWith('51');
+    const priceText = isPeru ? 'S/ 17' : '$4.99 USD';
+    
+    document.getElementById('cross-sell-container').innerHTML = `
+        <div class="mt-6 bg-gradient-to-br from-rose-50 to-orange-50 rounded-[1.5rem] p-6 border border-rose-100 shadow-sm relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-rose-200 rounded-full mix-blend-multiply filter blur-2xl opacity-50"></div>
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-amber-200 rounded-full mix-blend-multiply filter blur-2xl opacity-50"></div>
+            
+            <div class="relative z-10 text-center">
+                <h4 class="font-black text-slate-800 text-[15px] mb-2 leading-tight">💡 Potencia este plan con el Recetario Premium</h4>
+                <p class="text-xs text-slate-600 font-medium mb-5 leading-relaxed">No improvises en la cocina. Aprende a combinar estos ingredientes en 50 recetas exactas paso a paso.</p>
+                <button onclick="openNutriChefUpsell()" class="pulse-btn w-full bg-rose-500 text-white font-black py-4 rounded-2xl shadow-lg shadow-rose-500/30 hover:bg-rose-600 active:scale-95 transition-all text-[15px] flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-lock text-sm opacity-90"></i> Desbloquear por ${priceText}
+                </button>
+            </div>
+        </div>
+    `;
 }
 
 function renderProfileCard() {
@@ -1040,10 +1049,12 @@ function renderProfileCard() {
 function openNutriChefUpsell() {
     const session = JSON.parse(localStorage.getItem('eduDogSession') || '{}');
     const phone = session.phone || '';
+    const isPeru = phone.startsWith('51');
+    const priceText = isPeru ? 'S/ 17' : '$4.99 USD';
     const numeroEmpresa = "51932335202";
     const phoneText = phone ? `\n\n👤 Mi cuenta es: +${phone}` : '';
-    // Envía el tag para que el bot detecte dinámicamente y procese el Order Bump interno
-    const msg = `Hola Soporte 👋\n\nQuiero desbloquear el recetario *NutriChef Vital*.${phoneText}\n💳 ¿Me dan los pasos para pagar?\n\n[ID: nutrichef]`;
+    // Envía el tag para que el bot detecte dinámicamente
+    const msg = `Hola Soporte 👋\n\nQuiero desbloquear el recetario *NutriChef Vital* por ${priceText}.${phoneText}\n💳 ¿Me dan los pasos para pagar?\n\n[ID: nutrichef]`;
     window.open(`https://wa.me/${numeroEmpresa}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 

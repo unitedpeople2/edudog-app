@@ -1,940 +1,389 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta name="facebook-domain-verification" content="s4tbmttewxhmxcv7er5qjphojggb6c" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NutriChef Vital - El Creador Dinámico</title>
+    <title>EduDog Pro - Micro SaaS Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
-        .app-container { max-width: 420px; margin: 0 auto; height: 100vh; height: 100dvh; position: relative; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; }
-        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; background-color: #ffffff; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; }
+        .app-container { max-width: 420px; margin: 0 auto; height: 100vh; min-height: 100vh; position: relative; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* PANTALLA LOGIN */
+        #screen-login { background-color: #f8fafc; }
+        
+        /* PANTALLA DASHBOARD / HUB */
+        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; overflow-x: hidden; background-color: #f8fafc; padding-bottom: 2rem; }
         .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { display: none; }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        .hide-scroll::-webkit-scrollbar { display: none; }
+        .premium-input:focus-within { box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15); border-color: #8b5cf6; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .loader-dots div { animation-timing-function: cubic-bezier(0, 1, 1, 0); }
+        .loader-dots div:nth-child(1) { left: 8px; animation: loader-dots1 0.6s infinite; }
+        .loader-dots div:nth-child(2) { left: 8px; animation: loader-dots2 0.6s infinite; }
+        .loader-dots div:nth-child(3) { left: 32px; animation: loader-dots2 0.6s infinite; }
+        .loader-dots div:nth-child(4) { left: 56px; animation: loader-dots3 0.6s infinite; }
+        @keyframes loader-dots1 { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        @keyframes loader-dots3 { 0% { transform: scale(1); } 100% { transform: scale(0); } }
+        @keyframes loader-dots2 { 0% { transform: translate(0, 0); } 100% { transform: translate(24px, 0); } }
         
-        /* Estilos Activos para los Filtros */
-        .category-btn.active { background-color: #f43f5e !important; color: white !important; border-color: #e11d48 !important; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3); }
-        .category-btn[data-filter="favoritas"].active { background-color: #fef3c7 !important; color: #d97706 !important; border-color: #fde68a !important; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2); }
-        
-        .ingredient-check:checked + div { text-decoration: line-through; color: #94a3b8; }
-        .timer-active { animation: pulseBg 2s infinite; }
-        @keyframes pulseBg { 0%, 100% { background-color: #f43f5e; } 50% { background-color: #fb7185; } }
-        
-        /* Animación para el corazón de favoritos */
-        .heart-beat { animation: heartBeat 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes heartBeat { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        /* Efecto Latido para Botones de Cross-Selling */
+        @keyframes pulse-btn {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        .pulse-btn-violet { animation: pulse-btn 2.5s ease-in-out infinite; box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.15); }
+        .pulse-btn-rose { animation: pulse-btn 2.5s ease-in-out infinite; box-shadow: 0 4px 6px -1px rgba(244, 63, 94, 0.15); }
 
-        /* Barra de progreso chef */
-        .progress-bar { transition: width 0.4s ease; }
+        /* Animación Shimmer para Tarjeta VIP */
+        @keyframes shimmer-vip {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .animate-shimmer-vip {
+            background: linear-gradient(110deg, #1e293b, 45%, #475569, 55%, #1e293b);
+            background-size: 200% 100%;
+            animation: shimmer-vip 6s infinite linear;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
-<body class="antialiased text-slate-900">
+<body class="antialiased text-slate-900 md:py-8">
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-full shadow-2xl z-50 transform -translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 font-semibold text-sm pointer-events-none w-max max-w-[90%]">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-msg">Mensaje</span>
+    </div>
 
     <div class="app-container md:rounded-[2.5rem] md:border-[8px] md:border-slate-900 relative">
-
-        <div class="sticky top-0 bg-[#f43f5e] border-b border-[#e11d48] px-5 py-4 flex items-center justify-between z-30 shadow-sm shrink-0">
-            <div class="flex items-center">
-                <button onclick="smartBack()" id="btn-back" class="w-10 h-10 flex items-center justify-center rounded-xl text-white hover:bg-white/10 transition-colors mr-3" style="display:none;">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </button>
-                <div>
-                    <h2 class="font-extrabold text-white text-sm leading-tight flex items-center gap-2">
-                        <i class="fa-solid fa-utensils text-white"></i> NutriChef Vital
-                    </h2>
-                    <p class="text-[10px] font-bold text-rose-100 uppercase tracking-widest" id="header-subtitle">Planificador Diario</p>
+        <section id="screen-login" class="screen active relative bg-slate-50">
+            <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-violet-600 to-slate-900 rounded-b-[4rem] opacity-100 z-0"></div>
+            <div class="relative z-10 flex flex-col justify-center px-8 pt-20 pb-10 min-h-full">
+                <div class="text-center mb-10">
+                    <div class="w-24 h-24 bg-white/10 backdrop-blur-md rounded-[2.5rem] border border-white/20 flex items-center justify-center mx-auto mb-6 shadow-2xl relative">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-violet-500 to-amber-400 rounded-[2.5rem] opacity-20 animate-pulse"></div>
+                        <i class="fa-solid fa-shield-dog text-[2.75rem] text-white drop-shadow-lg"></i>
+                    </div>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight">EduDog Pro</h1>
+                    <p class="text-violet-200 font-medium mt-2 text-sm">Ecosistema Canino Inteligente</p>
                 </div>
-            </div>
-            <button onclick="goHome()" class="w-10 h-10 flex items-center justify-center rounded-full bg-black/10 text-white shadow-sm hover:bg-black/20 transition-all">
-                <i class="fa-solid fa-house"></i>
-            </button>
-        </div>
-
-        <section id="screen-onboarding" class="screen bg-slate-50 relative p-6 flex-col justify-center">
-            <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 text-center">
-                <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center text-[#f43f5e] text-4xl mx-auto mb-6">
-                    👨‍🍳
-                </div>
-                <h2 class="text-2xl font-black text-slate-900 mb-2">¡Bienvenido a NutriChef!</h2>
-                <p class="text-slate-500 text-sm mb-8 font-medium">Para calcular las porciones exactas de <span class="dog-name-display font-bold text-[#f43f5e]"></span>, necesitamos dos datos rápidos.</p>
-                
-                <div class="space-y-4 text-left">
-                    <div>
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-1 block">Peso Actual (KG)</label>
-                        <div class="relative transition-all rounded-2xl border border-slate-200 focus-within:border-[#f43f5e] focus-within:ring-2 focus-within:ring-rose-100">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400"><i class="fa-solid fa-weight-scale"></i></span>
-                            <input type="number" id="onboard-weight" placeholder="Ej. 15" class="w-full bg-white text-slate-900 rounded-2xl py-4 pl-12 pr-4 outline-none font-bold text-lg">
+                <div class="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 space-y-5">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Tu Celular</label>
+                        <div class="relative group premium-input transition-all rounded-2xl border border-slate-200 flex bg-slate-50/50 overflow-hidden">
+                            <select id="country-code" class="h-full bg-transparent text-slate-600 font-bold pl-3 pr-6 py-4 outline-none appearance-none cursor-pointer text-sm border-r border-slate-200 w-[95px]">
+                                <option value="51">🇵🇪 +51</option>
+                                <option value="52">🇲🇽 +52</option>
+                                <option value="57">🇨🇴 +57</option>
+                                <option value="54">🇦🇷 +54</option>
+                                <option value="1">🇺🇸 +1</option>
+                            </select>
+                            <input type="number" id="login-phone" placeholder="971 337 730" class="flex-1 bg-transparent text-slate-900 py-4 px-4 outline-none font-bold text-lg">
                         </div>
                     </div>
-                    <div>
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-1 block">Etapa de Vida</label>
-                        <select id="onboard-age" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer focus:border-[#f43f5e] focus:ring-2 focus:ring-rose-100">
-                            <option value="adulto" selected>Adulto (1 a 7 años)</option>
-                            <option value="cachorro">Cachorro (Menos de 1 año)</option>
-                            <option value="senior">Senior (+7 años)</option>
-                        </select>
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">PIN Secreto</label>
+                        <div class="relative premium-input rounded-2xl border border-slate-200">
+                            <input type="password" id="login-pin" maxlength="4" placeholder="••••" class="w-full bg-slate-50/50 text-slate-900 rounded-2xl py-4 pl-12 pr-4 outline-none font-black text-2xl tracking-[0.5em]">
+                        </div>
                     </div>
-                </div>
-
-                <button onclick="saveStandalonePlan()" class="w-full bg-[#f43f5e] text-white font-black py-4 rounded-2xl shadow-lg shadow-rose-500/30 active:scale-95 transition-all text-[15px] mt-8">
-                    Calcular Mis Porciones <i class="fa-solid fa-arrow-right ml-2"></i>
-                </button>
-            </div>
-        </section>
-
-        <section id="screen-welcome-sync" class="screen p-8 flex-col justify-center text-center bg-white relative">
-            <div class="w-20 h-20 bg-rose-50 rounded-[1.5rem] flex items-center justify-center text-[#f43f5e] text-3xl mx-auto mb-6">
-                <i class="fa-solid fa-calendar-check"></i>
-            </div>
-            <h2 class="text-slate-900 font-black text-2xl mb-2">¡Plan Sincronizado! <span class="text-emerald-500">🟢</span></h2>
-            <p class="text-slate-500 text-sm mb-10 font-medium">Hemos cargado las metas nutricionales de <span class="dog-name-display font-bold text-[#f43f5e]"></span>.</p>
-            
-            <div class="grid grid-cols-2 gap-4 mb-10">
-                <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] flex flex-col justify-center">
-                    <span class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Meta Diaria</span>
-                    <span class="block font-black text-slate-900 text-2xl" id="sync-total-grams">0g</span>
-                </div>
-                <div class="bg-rose-50 p-5 rounded-3xl border border-rose-100 flex flex-col justify-center">
-                    <span class="block text-[10px] font-bold text-[#f43f5e] opacity-80 uppercase mb-1">Por Ración</span>
-                    <span class="block font-black text-[#f43f5e] text-2xl" id="sync-grams-per-meal">0g</span>
-                </div>
-            </div>
-
-            <div class="space-y-4 mt-auto">
-                <button onclick="openPlanner()" class="w-full bg-[#f43f5e] text-white font-bold py-4 rounded-2xl shadow-lg shadow-rose-500/30 active:scale-95 transition-all text-[15px] flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Armar Menú de Hoy
-                </button>
-                <button onclick="openFreeLobby()" class="w-full bg-rose-50 text-[#f43f5e] font-bold py-4 rounded-2xl hover:bg-rose-100 transition-all text-[15px]">
-                    Catálogo Libre
-                </button>
-            </div>
-        </section>
-
-        <section id="screen-lobby" class="screen bg-slate-50 pb-10">
-            <div class="bg-white px-6 pt-6 pb-6 rounded-b-[2.5rem] shadow-sm mb-4">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Recetario Libre</h2>
-                        <p class="text-sm font-medium text-slate-400">Catálogo completo para <span class="dog-name-display font-bold text-[#f43f5e]"></span></p>
-                    </div>
-                    <div class="bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 flex items-center gap-1.5">
-                        <span id="region-flag" class="text-[10px] font-black text-slate-700">PE</span>
-                        <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ingredientes</span>
-                    </div>
-                </div>
-
-                <div class="relative mb-5">
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-magnifying-glass"></i></span>
-                    <input type="text" id="search-input" oninput="handleSearch()" placeholder="Buscar receta o ingrediente..." class="w-full bg-slate-100 text-slate-700 rounded-2xl py-3 pl-11 pr-4 outline-none font-bold text-sm border border-transparent focus:border-slate-300 transition-all">
-                </div>
-
-                <div class="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2 snap-x hide-scroll">
-                    <button onclick="filterRecipes('todos')" data-filter="todos" class="category-btn active shrink-0 px-5 py-2.5 rounded-[1rem] border border-slate-200 bg-white text-slate-600 text-sm font-bold transition-all shadow-sm">🍲 Todas</button>
-                    <button onclick="filterRecipes('favoritas')" data-filter="favoritas" class="category-btn shrink-0 px-5 py-2.5 rounded-[1rem] border border-amber-200 bg-amber-50 text-amber-600 text-sm font-bold transition-all shadow-sm">⭐ Favoritas</button>
-                    <button onclick="filterRecipes('desayuno')" data-filter="desayuno" class="category-btn shrink-0 px-5 py-2.5 rounded-[1rem] border border-slate-200 bg-white text-slate-600 text-sm font-bold transition-all shadow-sm">🍳 Desayunos</button>
-                    <button onclick="filterRecipes('almuerzo')" data-filter="almuerzo" class="category-btn shrink-0 px-5 py-2.5 rounded-[1rem] border border-slate-200 bg-white text-slate-600 text-sm font-bold transition-all shadow-sm">🥩 Almuerzos</button>
-                    <button onclick="filterRecipes('cena')" data-filter="cena" class="category-btn shrink-0 px-5 py-2.5 rounded-[1rem] border border-slate-200 bg-white text-slate-600 text-sm font-bold transition-all shadow-sm">🌙 Cenas</button>
-                    <button onclick="filterRecipes('snack')" data-filter="snack" class="category-btn shrink-0 px-5 py-2.5 rounded-[1rem] border border-slate-200 bg-white text-slate-600 text-sm font-bold transition-all shadow-sm">🦴 Snacks</button>
-                </div>
-            </div>
-
-            <div class="p-4 space-y-4" id="recipe-list"></div>
-        </section>
-
-        <section id="screen-daily-plan" class="screen bg-slate-50 pb-32 relative">
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h2 class="text-2xl font-black text-slate-900">Menú de Hoy</h2>
-                        <p class="text-sm font-medium text-slate-500" id="plan-total-info"></p>
-                    </div>
-                    <div class="w-12 h-12 bg-[#f43f5e] text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-rose-200 shrink-0">
-                        <i class="fa-solid fa-scale-balanced text-sm"></i>
-                    </div>
-                </div>
-
-                <button onclick="randomizeMenu()" class="w-full bg-indigo-50 text-indigo-600 font-bold py-3 rounded-xl mb-6 border border-indigo-100 flex items-center justify-center gap-2 active:scale-95 transition-all">
-                    <i class="fa-solid fa-shuffle"></i> Armar Menú Aleatorio
-                </button>
-
-                <div id="meals-container" class="space-y-8"></div>
-                
-                <button onclick="openFreeLobby()" class="w-full bg-transparent text-slate-500 border-2 border-dashed border-slate-200 hover:border-slate-300 font-bold py-4 rounded-[1.5rem] mt-8 flex justify-center items-center gap-3 transition-all hover:bg-slate-50 active:scale-95">
-                    <div class="w-5 h-5 rounded-full bg-[#f43f5e] text-white flex items-center justify-center text-[10px] shrink-0 shadow-sm"><i class="fa-solid fa-plus"></i></div>
-                    Añadir un Snack Extra
-                </button>
-            </div>
-            
-            <div class="fixed bottom-6 left-0 right-0 px-6 z-40 max-w-md mx-auto">
-                <button onclick="generateWhatsAppList()" class="w-full bg-[#25D366] text-white font-black py-4 rounded-[1.5rem] shadow-[0_10px_25px_rgba(37,211,102,0.4)] active:scale-95 transition-all text-[15px] flex items-center justify-center gap-3 border border-emerald-400">
-                    <i class="fa-brands fa-whatsapp text-xl"></i> Lista de Supermercado
-                </button>
-            </div>
-        </section>
-
-        <section id="screen-recipe" class="screen bg-white">
-            <div id="recipe-header-img" class="w-full h-56 bg-slate-100 relative flex items-center justify-center text-7xl shadow-inner shrink-0"></div>
-            <div class="p-6 -mt-10 bg-white rounded-t-[3rem] relative z-10 flex-1 border-t border-slate-50 flex flex-col">
-                <div class="flex justify-between items-center mb-4">
-                    <span id="recipe-tag" class="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg"></span>
-                    <span class="text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                        <i class="fa-regular fa-clock mr-1 text-[#f43f5e]"></i> <span id="recipe-time"></span>
-                    </span>
-                </div>
-                
-                <div class="flex justify-between items-start mb-6 gap-2">
-                    <h2 id="recipe-title" class="text-2xl font-black text-slate-900 leading-tight"></h2>
-                    <button id="btn-recipe-fav" onclick="toggleFavoriteFromRecipe(event)" class="w-10 h-10 shrink-0 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-100 mt-1">
-                        <i id="recipe-fav-icon" class="fa-regular fa-heart text-xl text-slate-300"></i>
+                    <button onclick="handleLoginButton()" id="btn-login" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl active:scale-95 transition-all text-[15px] relative overflow-hidden">
+                        <span id="btn-text">Ingresar a mi cuenta</span>
+                        <div id="btn-loader" class="hidden absolute inset-0 bg-slate-900 flex items-center justify-center"><div class="loader-dots relative w-20 h-5"><div></div><div></div><div></div><div></div></div></div>
                     </button>
                 </div>
-                
-                <div id="size-selector-container" class="mb-8">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 text-center">Porciones para <span class="dog-name-display text-[#f43f5e]"></span></p>
-                    <div class="bg-slate-100 p-1.5 rounded-[1.25rem] flex relative shadow-inner border border-slate-200/50">
-                        <button onclick="updatePortions('small')" id="btn-size-small" class="flex-1 py-2.5 rounded-xl font-bold text-xs transition-all text-slate-500 hover:text-slate-700">Pequeño</button>
-                        <button onclick="updatePortions('medium')" id="btn-size-medium" class="flex-1 py-2.5 rounded-xl font-bold text-xs transition-all bg-[#f43f5e] text-white shadow-md shadow-rose-200">Mediano</button>
-                        <button onclick="updatePortions('large')" id="btn-size-large" class="flex-1 py-2.5 rounded-xl font-bold text-xs transition-all text-slate-500 hover:text-slate-700">Grande</button>
+            </div>
+        </section>
+
+        <section id="screen-welcome" class="screen relative bg-slate-50">
+            <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-violet-600 to-slate-900 rounded-b-[4rem] z-0"></div>
+            <div class="relative z-10 flex flex-col justify-center px-8 pt-20 pb-10 min-h-full">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-extrabold text-white">¡Bienvenido! 🎉</h2>
+                    <p class="text-violet-200 mt-2 text-sm">Personalicemos tu experiencia</p>
+                </div>
+                <div class="bg-white p-6 rounded-[2rem] shadow-xl space-y-5">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">¿Cómo se llama tu peludo?</label>
+                        <input type="text" id="welcome-dog-name" placeholder="Ej. Firulais" class="w-full bg-slate-50/50 text-slate-900 rounded-2xl py-4 px-4 border border-slate-200 outline-none font-bold text-lg">
                     </div>
+                    <button onclick="saveWelcomeName()" id="btn-welcome" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl active:scale-95 transition-all">Comenzar Entrenamiento</button>
                 </div>
+            </div>
+        </section>
 
-                <div id="sync-alert" class="hidden bg-emerald-50 border border-emerald-100 p-4 rounded-[1.5rem] mb-8 flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-2xl bg-white text-emerald-500 flex items-center justify-center shrink-0 shadow-sm"><i class="fa-solid fa-check-double"></i></div>
-                    <p class="text-xs font-bold text-emerald-800 leading-snug">Ración exacta de <span id="sync-recipe-grams" class="underline"></span>g sincronizada.</p>
+        <section id="screen-hub" class="screen">
+            <div class="sticky top-0 bg-white/50 backdrop-blur-2xl border-b border-white/20 px-6 py-3.5 flex justify-between items-center z-30 shadow-sm shadow-slate-950/5">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-md">
+                        <i class="fa-solid fa-shield-dog text-[13px]"></i>
+                    </div>
+                    <h2 class="font-black text-slate-900 text-[15px] tracking-tight">EduDog Pro Hub</h2>
                 </div>
-
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-black text-slate-900 flex items-center gap-2"><i class="fa-solid fa-basket-shopping text-[#f43f5e]"></i> Lista de Compra</h3>
-                </div>
-                <div id="ingredients-checklist" class="space-y-3 mb-8"></div>
-
-                <div class="mb-8 bg-amber-50/50 border border-amber-100 rounded-[1.5rem] p-4">
-                    <h3 class="font-black text-slate-800 text-sm mb-2 flex items-center gap-2"><i class="fa-regular fa-note-sticky text-amber-500"></i> Mis Apuntes</h3>
-                    <textarea id="recipe-notes" onchange="saveNotes()" placeholder="Ej. A mi peludo le gusta más si le agrego un chorrito de agua tibia..." class="w-full bg-transparent text-sm text-slate-700 outline-none resize-none placeholder-slate-400 font-medium" rows="3"></textarea>
-                </div>
-
-                <button onclick="startChefMode()" class="w-full bg-slate-900 text-white font-black py-5 rounded-[1.5rem] shadow-xl shadow-slate-900/20 hover:bg-slate-800 active:scale-95 transition-all text-lg flex items-center justify-center gap-3 mt-auto mb-6">
-                    👨‍🍳 Iniciar Preparación
+                <button onclick="logout()" class="p-2.5 text-slate-500 hover:text-slate-900 transition-colors rounded-xl hover:bg-slate-100">
+                    <i class="fa-solid fa-right-from-bracket text-[15px]"></i>
                 </button>
             </div>
+
+            <div class="flex-1 px-5 py-6 space-y-7">
+                
+                <div id="welcome-card" class="rounded-[2.25rem] p-6 text-white animate-shimmer-vip relative overflow-hidden shadow-2xl shadow-slate-950/20">
+                    <div class="relative z-10">
+                        <p class="text-violet-200 text-[10px] font-black uppercase tracking-widest mb-1" id="user-display-phone">+51 000 000 000</p>
+                        <h3 class="text-xl font-black tracking-tight leading-tight"><span id="display-dog-name">Tu Peludo</span> 🐾</h3>
+                        <div class="mt-4 bg-white/5 p-4 rounded-2xl backdrop-blur-sm border border-white/5 shadow-inner">
+                            <div class="flex justify-between items-center text-xs font-bold mb-2"><span class="text-violet-200">Progreso Pro</span><span id="apps-count" class="text-white">1/2</span></div>
+                            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"><div id="progress-bar" class="bg-amber-400 h-full rounded-full transition-all duration-700" style="width: 50%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="centro-entrenamiento">
+                    <h3 class="font-extrabold text-slate-900 text-lg mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-dumbbell text-violet-500"></i> Centro de Entrenamiento
+                    </h3>
+                    <div id="tools-container" class="space-y-4"></div>
+                </div>
+
+                <div id="biblioteca-interactiva">
+                    <h3 class="font-extrabold text-slate-900 text-lg mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-book-open text-rose-500"></i> Biblioteca Interactiva
+                    </h3>
+                    <div id="ebooks-container" class="space-y-4"></div>
+                </div>
+
+                <div class="mt-10 pt-10 pb-6 border-t border-slate-200/60 flex flex-col items-center justify-center text-center opacity-90">
+                    <div class="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white text-xl mb-3 shadow-lg">
+                        <i class="fa-solid fa-shield-dog"></i>
+                    </div>
+                    <h4 class="font-black text-slate-800 text-[15px] flex items-center justify-center gap-1.5 relative left-1">
+                        Fundador Hedinson Rojas <i class="fa-solid fa-circle-check text-blue-500 text-sm" title="Verificado"></i>
+                    </h4>
+                    <p class="text-[11px] font-bold text-slate-400 mt-1 tracking-widest uppercase">EduDog Pro Hub • Versión 2.5</p>
+                </div>
+            </div>
         </section>
 
-        <section id="screen-chef" class="screen bg-slate-900 text-white relative">
-            <div class="absolute top-0 left-0 right-0 h-1.5 bg-slate-800 z-50">
-                <div id="chef-progress-bar" class="h-full bg-[#f43f5e] progress-bar" style="width: 0%"></div>
-            </div>
-
-            <div class="p-8 flex flex-col h-full justify-center text-center pt-16">
-                <div class="absolute top-8 left-8 right-8 flex justify-between items-center z-40">
-                    <div class="bg-white/10 px-4 py-2 rounded-full border border-white/5">
-                        <span class="text-xs font-black text-[#f43f5e] tracking-widest uppercase" id="step-counter"></span>
+        <div id="modal-upsell" class="hidden absolute inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end transition-all">
+            <div class="bg-white rounded-t-[2.5rem] p-8 transform translate-y-full transition-transform duration-300" id="upsell-content">
+                <div class="flex items-center gap-4 mb-6">
+                    <div id="upsell-icon-container" class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner transition-colors">
+                        <i id="upsell-icon" class="fa-solid fa-star"></i>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="toggleChefIngredients()" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white/70 hover:text-white transition-all shadow-sm">
-                            <i class="fa-solid fa-list-ul"></i>
-                        </button>
-                        <button onclick="exitChefMode()" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white/50 hover:text-white transition-all shadow-sm">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                    <div>
+                        <h3 id="upsell-title" class="text-xl font-black text-slate-900 leading-tight">Nombre App</h3>
+                        <p id="upsell-subtitle" class="text-xs font-bold text-slate-400 mt-1">Subtítulo</p>
                     </div>
                 </div>
+                
+                <h4 class="font-black text-sm text-slate-800 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i> ¿Qué incluye tu acceso?
+                </h4>
+                <ul id="upsell-benefits" class="space-y-2.5 mb-8 text-sm text-slate-600 font-medium text-left pl-1">
+                </ul>
 
-                <div class="my-auto z-10">
-                    <div id="chef-icon" class="text-7xl mb-8 drop-shadow-lg"></div>
-                    <h2 id="chef-instruction" class="text-2xl font-black leading-tight mb-10 px-4 text-slate-50"></h2>
-                    
-                    <div id="chef-timer-container" class="hidden">
-                        <button id="btn-timer" onclick="toggleTimer()" class="w-48 h-48 rounded-full border-[6px] border-white/5 bg-white/5 flex flex-col items-center justify-center mx-auto transition-all active:scale-90 relative overflow-hidden">
-                            <span class="text-[10px] font-bold text-[#f43f5e] uppercase tracking-widest mb-1">Click para iniciar</span>
-                            <span id="timer-display" class="text-5xl font-black tracking-tighter">00:00</span>
-                        </button>
-                    </div>
+                <div class="space-y-3">
+                    <button id="btn-confirm-upsell" class="w-full text-white font-black py-4 rounded-2xl text-[15px] shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2">
+                        Desbloquear por <span id="upsell-price">S/ 0</span>
+                    </button>
+                    <button onclick="closeUpsellModal()" class="w-full text-slate-400 font-bold py-3 text-sm active:scale-95 transition-transform">
+                        Cancelar
+                    </button>
                 </div>
-
-                <div class="mt-auto grid grid-cols-4 gap-3 z-10 pb-6">
-                    <button onclick="prevChefStep()" id="btn-chef-prev" class="bg-white/10 h-16 rounded-[1.25rem] flex items-center justify-center text-white disabled:opacity-20 transition-all"><i class="fa-solid fa-chevron-left"></i></button>
-                    <button onclick="nextChefStep()" id="btn-chef-next" class="col-span-3 bg-[#f43f5e] h-16 rounded-[1.25rem] font-black text-lg shadow-lg shadow-rose-500/20 active:scale-95 transition-all">Siguiente Paso <i class="fa-solid fa-arrow-right ml-2 text-sm"></i></button>
-                </div>
-            </div>
-
-            <div id="chef-ingredients-panel" class="absolute inset-x-0 bottom-0 bg-white text-slate-900 rounded-t-[2.5rem] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] transform translate-y-full transition-transform duration-300 z-50 flex flex-col" style="max-height: 70dvh;">
-                <div class="flex justify-between items-center mb-4 shrink-0">
-                    <h3 class="font-black text-lg">Ingredientes</h3>
-                    <button onclick="toggleChefIngredients()" class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full text-slate-500"><i class="fa-solid fa-chevron-down"></i></button>
-                </div>
-                <div id="chef-ingredients-list" class="overflow-y-auto space-y-2 flex-1 pb-4"></div>
-            </div>
-            <div id="chef-overlay" onclick="toggleChefIngredients()" class="absolute inset-0 bg-slate-900/60 z-40 hidden opacity-0 transition-opacity"></div>
-        </section>
-
-        <div id="modal-success" class="hidden fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex-col justify-center px-8 text-center">
-            <div class="bg-white rounded-[3rem] p-10 transform scale-95 transition-transform duration-500" id="success-content">
-                <div class="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-3xl flex items-center justify-center text-5xl mx-auto mb-6 shadow-inner rotate-6">
-                    <i class="fa-solid fa-face-laugh-beam"></i>
-                </div>
-                <h3 class="text-2xl font-black text-slate-900 mb-2">¡Plato Terminado! 🎉</h3>
-                <p class="text-sm text-slate-500 font-medium mb-8 leading-relaxed">Has preparado <span id="success-recipe-name" class="font-bold text-slate-800"></span>. ¡<span class="dog-name-display font-bold text-[#f43f5e]"></span> estará feliz!</p>
-                <button onclick="closeSuccessModal()" class="w-full bg-emerald-500 text-white font-black py-5 rounded-2xl text-lg shadow-xl shadow-emerald-500/20 active:scale-95 transition-all">Continuar</button>
             </div>
         </div>
-
-        <div id="modal-timer-done" class="hidden fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex-col justify-center px-8 text-center">
-            <div class="bg-white rounded-[3rem] p-8 transform scale-95 transition-transform duration-300" id="timer-done-content">
-                <div class="w-20 h-20 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 animate-bounce">
-                    <i class="fa-solid fa-bell"></i>
-                </div>
-                <h3 class="text-2xl font-black text-slate-900 mb-2">¡Tiempo Cumplido!</h3>
-                <p class="text-sm text-slate-500 font-medium mb-8">El paso actual ha terminado.</p>
-                <button onclick="closeTimerDoneModal()" class="w-full bg-[#f43f5e] text-white font-black py-4 rounded-2xl text-lg shadow-xl shadow-rose-500/20 active:scale-95 transition-all">Continuar Preparación</button>
-            </div>
-        </div>
-
     </div>
 
     <script>
-        let dogName = "tu peludo";
-        let countryCode = "51"; 
-        let currentScreen = 'screen-lobby';
-        let activeRecipe = null;
-        let activeSizeMultiplier = 1; 
-        let currentStepIndex = 0;
-        let nutriCanPlan = null;
-        let syncGramsPerMeal = 0;
-        let isSyncMode = false;
-        let timerSeconds = 0;
-        let timerInterval = null;
-        let isTimerRunning = false;
-        let wakeLock = null;
+        const API_URL = "https://bot-cursos-digitales-500394828639.southamerica-west1.run.app";
+        const TIPO_CAMBIO = 3.50; 
         
-        let favoriteRecipes = [];
-        let selectedDailyMeals = {}; 
-
-        const dictionary = {
-            "camote": { "51": "Camote", "54": "Batata", "52": "Camote", "34": "Boniato" },
-            "zapallo": { "51": "Zapallo", "54": "Calabaza", "52": "Calabaza", "34": "Calabaza" },
-            "arvejas": { "51": "Arvejas", "54": "Arvejas", "52": "Chícharos", "34": "Guisantes" },
-            "fresa": { "51": "Fresa", "54": "Frutilla", "52": "Fresa", "34": "Fresa" },
-            "cerdo": { "51": "Lomo de Cerdo", "54": "Lomo de Chancho", "52": "Lomo de Cerdo" },
-            "higado": { "51": "Hígado", "54": "Hígado", "52": "Hígado" }
-        };
-
-        function tr(word) {
-            const lowerWord = word.toLowerCase();
-            return (dictionary[lowerWord] && dictionary[lowerWord][countryCode]) ? dictionary[lowerWord][countryCode] : word;
-        }
-
-        function translateText(text) {
-            if(!text) return "";
-            return text.replace(/\[\[(.*?)\]\]/gi, (match, word) => tr(word));
-        }
-
-        // --- BASE DE DATOS DE 50 RECETAS ---
-        const recipes = [
-            // DESAYUNOS (1-12)
-            { id: 1, title: "Despertar de Pollo y [[Zapallo]]", category: "desayuno", tagText: "💰 Económico", tagColors: "bg-emerald-100 text-emerald-700", time: "10 min", icon: "🍗", ingredients: [{ baseGrams: 70, name: "Pechuga de pollo", type: "prot" }, { baseGrams: 30, name: "[[Zapallo]]", type: "veg" }], steps: [ { icon: "🔪", text: "Pica el pollo y el zapallo finamente." }, { icon: "🔥", text: "Hierve todo sin sal hasta ablandar.", timer: 600 }, { icon: "🌡️", text: "Deja enfriar a temperatura ambiente." }, { icon: "🥣", text: "Haz un puré suave y sirve." } ] },
-            { id: 2, title: "Power Bowl de Sangrecita", category: "desayuno", tagText: "💪 Hierro Plus", tagColors: "bg-rose-100 text-rose-700", time: "5 min", icon: "🍎", ingredients: [{ baseGrams: 60, name: "Sangrecita de pollo", type: "prot" }, { baseGrams: 20, name: "Manzana picada", type: "veg" }, { baseGrams: 20, name: "Zanahoria rallada", type: "veg" }], steps: [ { icon: "🔪", text: "Pica la manzana sin semillas y ralla la zanahoria." }, { icon: "🍳", text: "Asegúrate que la sangrecita esté cocida.", timer: 300 }, { icon: "🌡️", text: "Enfría si fue cocinada recién." }, { icon: "🥣", text: "Mezcla la sangrecita con la fruta fresca." } ] },
-            { id: 3, title: "Omelet de Pavo y Espinaca", category: "desayuno", tagText: "🥚 Proteico", tagColors: "bg-amber-100 text-amber-700", time: "8 min", icon: "🍳", ingredients: [{ baseGrams: 70, name: "Pavo picado crudo", type: "prot" }, { baseGrams: 30, name: "Espinaca", type: "veg" }, { baseGrams: 1, name: "Huevo", noScale: true, type: "prot" }], steps: [ { icon: "🔪", text: "Pica el pavo y la espinaca." }, { icon: "🍳", text: "Cocina el pavo en sartén sin aceite, añade espinaca y huevo.", timer: 480 }, { icon: "🌡️", text: "Deja que se enfríe completamente." }, { icon: "🥣", text: "Córtalo en bocados pequeños." } ] },
-            { id: 4, title: "Avena Perruna con Plátano", category: "desayuno", tagText: "🌾 Fibra", tagColors: "bg-blue-100 text-blue-700", time: "12 min", icon: "🥣", ingredients: [{ baseGrams: 50, name: "Avena", type: "veg" }, { baseGrams: 30, name: "Plátano maduro", type: "veg" }, { baseGrams: 20, name: "Yogur natural", type: "prot" }], steps: [ { icon: "🔥", text: "Cocina avena en agua hasta que espese.", timer: 480 }, { icon: "🌡️", text: "Deja reposar hasta enfriar." }, { icon: "🥣", text: "Haz puré de plátano." }, { icon: "🥄", text: "Mezcla todo y decora con yogur." } ] },
-            { id: 5, title: "[[Higado]] al Vapor con Brócoli", category: "desayuno", tagText: "💰 Barato", tagColors: "bg-emerald-100 text-emerald-700", time: "10 min", icon: "🥩", ingredients: [{ baseGrams: 60, name: "[[Higado]] de pollo", type: "prot" }, { baseGrams: 40, name: "Brócoli", type: "veg" }], steps: [ { icon: "🔪", text: "Corta el brócoli y el hígado crudo." }, { icon: "🔥", text: "Cocina al vapor.", timer: 600 }, { icon: "🌡️", text: "Deja enfriar totalmente." }, { icon: "🥣", text: "Mezcla y sirve." } ] },
-            { id: 6, title: "Tortilla Rápida de Atún", category: "desayuno", tagText: "🐟 Omega", tagColors: "bg-cyan-100 text-cyan-700", time: "5 min", icon: "🍳", ingredients: [{ baseGrams: 80, name: "Atún al agua", type: "prot" }, { baseGrams: 1, name: "Huevo", noScale: true, type: "prot" }, { baseGrams: 10, name: "Avena", type: "veg" }], steps: [ { icon: "🚰", text: "Enjuaga muy bien el atún para quitar el sodio." }, { icon: "🥣", text: "Mezcla con el huevo y la avena." }, { icon: "🍳", text: "Haz una tortilla en sartén antiadherente.", timer: 180 }, { icon: "🌡️", text: "Enfría y sirve en trozos." } ] },
-            { id: 7, title: "Revuelto de Pollo y Zanahoria", category: "desayuno", tagText: "🥚 Básico", tagColors: "bg-amber-100 text-amber-700", time: "8 min", icon: "🥕", ingredients: [{ baseGrams: 60, name: "Pollo molido", type: "prot" }, { baseGrams: 30, name: "Zanahoria rallada", type: "veg" }, { baseGrams: 1, name: "Huevo", noScale: true, type: "prot" }], steps: [ { icon: "🍳", text: "Cocina el pollo molido en sartén sin aceite.", timer: 300 }, { icon: "🥕", text: "Añade la zanahoria y el huevo y revuelve.", timer: 120 }, { icon: "🌡️", text: "Espera a que enfríe." }, { icon: "🥣", text: "Sirve en su plato." } ] },
-            { id: 8, title: "Desayuno de Mollejitas", category: "desayuno", tagText: "💰 Ahorro", tagColors: "bg-emerald-100 text-emerald-700", time: "15 min", icon: "🍗", ingredients: [{ baseGrams: 70, name: "Mollejas de pollo", type: "prot" }, { baseGrams: 30, name: "[[Camote]]", type: "veg" }], steps: [ { icon: "🔪", text: "Lava y corta las mollejas." }, { icon: "🔥", text: "Hierve junto con el camote.", timer: 900 }, { icon: "🌡️", text: "Escurre y enfría." }, { icon: "🥣", text: "Mezcla todo." } ] },
-            { id: 9, title: "Puré de Manzana con [[Cerdo]]", category: "desayuno", tagText: "🥓 Suave", tagColors: "bg-indigo-100 text-indigo-700", time: "15 min", icon: "🍎", ingredients: [{ baseGrams: 70, name: "[[Cerdo]] magro", type: "prot" }, { baseGrams: 30, name: "Manzana", type: "veg" }], steps: [ { icon: "🔪", text: "Pica el cerdo y la manzana sin semillas." }, { icon: "🔥", text: "Cocina bien el cerdo hervido.", timer: 900 }, { icon: "🔥", text: "Hierve la manzana aparte hasta hacerla puré.", timer: 300 }, { icon: "🥣", text: "Mezcla el cerdo frío con el puré." } ] },
-            { id: 10, title: "Huevos Cocidos con Espinaca", category: "desayuno", tagText: "🥚 Rápido", tagColors: "bg-amber-100 text-amber-700", time: "10 min", icon: "🥚", ingredients: [{ baseGrams: 2, name: "Huevo", noScale: true, type: "prot" }, { baseGrams: 30, name: "Espinaca", type: "veg" }, { baseGrams: 15, name: "Avena", type: "veg" }], steps: [ { icon: "🔥", text: "Hierve los huevos hasta que estén duros.", timer: 600 }, { icon: "🔪", text: "Pica la espinaca cruda muy fina." }, { icon: "🥚", text: "Pela los huevos y pícalos." }, { icon: "🥣", text: "Mezcla con espinaca y avena remojada." } ] },
-            { id: 11, title: "Avena con Sangrecita", category: "desayuno", tagText: "💪 Energía", tagColors: "bg-rose-100 text-rose-700", time: "8 min", icon: "🥣", ingredients: [{ baseGrams: 60, name: "Sangrecita", type: "prot" }, { baseGrams: 40, name: "Avena", type: "veg" }], steps: [ { icon: "🔥", text: "Cocina la avena en agua.", timer: 480 }, { icon: "🍳", text: "Desmenuza la sangrecita cocida." }, { icon: "🌡️", text: "Enfría la avena." }, { icon: "🥣", text: "Mezcla y sirve." } ] },
-            { id: 12, title: "Pavita con Vainitas", category: "desayuno", tagText: "🌟 Ligero", tagColors: "bg-blue-100 text-blue-700", time: "12 min", icon: "🥒", ingredients: [{ baseGrams: 70, name: "Pavita", type: "prot" }, { baseGrams: 30, name: "Vainitas", type: "veg" }], steps: [ { icon: "🔪", text: "Pica la pavita y las vainitas." }, { icon: "🔥", text: "Hierve todo junto.", timer: 600 }, { icon: "🌡️", text: "Escurre y enfría." }, { icon: "🥣", text: "Sirve." } ] },
-
-            // ALMUERZOS (13-24)
-            { id: 13, title: "Guiso de Pollo y [[Arvejas]]", category: "almuerzo", tagText: "💰 Económico", tagColors: "bg-emerald-100 text-emerald-700", time: "15 min", icon: "🍲", ingredients: [{ baseGrams: 70, name: "Pollo", type: "prot" }, { baseGrams: 15, name: "[[Arvejas]]", type: "veg" }, { baseGrams: 15, name: "Zanahoria", type: "veg" }], steps: [ { icon: "🔪", text: "Pica pollo y zanahoria." }, { icon: "🔥", text: "Hierve pollo y zanahoria 12 min.", timer: 720 }, { icon: "🥘", text: "Añade arvejas al final.", timer: 180 }, { icon: "🌡️", text: "Enfría y sirve con caldo." } ] },
-            { id: 14, title: "[[Cerdo]] a la Jardinera", category: "almuerzo", tagText: "🍗 Hipoalergénico", tagColors: "bg-indigo-100 text-indigo-700", time: "18 min", icon: "🥓", ingredients: [{ baseGrams: 75, name: "[[Cerdo]] magro", type: "prot" }, { baseGrams: 25, name: "Zapallito italiano", type: "veg" }], steps: [ { icon: "🔪", text: "Corta cerdo y zapallito." }, { icon: "🔥", text: "Cocina bien el cerdo.", timer: 900 }, { icon: "🥦", text: "Añade el zapallito al final.", timer: 180 }, { icon: "🌡️", text: "Escurre y enfría." } ] },
-            { id: 15, title: "Lomo de Res y [[Camote]]", category: "almuerzo", tagText: "🌟 Premium", tagColors: "bg-amber-100 text-amber-700", time: "15 min", icon: "🥩", ingredients: [{ baseGrams: 80, name: "Res magra", type: "prot" }, { baseGrams: 20, name: "[[Camote]]", type: "veg" }], steps: [ { icon: "🔪", text: "Pela y corta camote y res." }, { icon: "🔥", text: "Hierve el camote.", timer: 900 }, { icon: "🍳", text: "Sella la res sin aceite.", timer: 180 }, { icon: "🥣", text: "Haz puré y sirve con carne." } ] },
-            { id: 16, title: "Pescado y Arroz Integral", category: "almuerzo", tagText: "🐟 Omega 3", tagColors: "bg-cyan-100 text-cyan-700", time: "20 min", icon: "🐠", ingredients: [{ baseGrams: 70, name: "Pescado blanco", type: "prot" }, { baseGrams: 30, name: "Arroz integral", type: "veg" }], steps: [ { icon: "🔪", text: "Revisa bien que no tenga espinas." }, { icon: "🔥", text: "Cocina el arroz muy blando.", timer: 1200 }, { icon: "🐟", text: "Cocina pescado al vapor.", timer: 480 }, { icon: "🥣", text: "Desmenuza y mezcla frío." } ] },
-            { id: 17, title: "Corazón de Res con Vainitas", category: "almuerzo", tagText: "💰 Ahorro", tagColors: "bg-emerald-100 text-emerald-700", time: "12 min", icon: "❤️", ingredients: [{ baseGrams: 80, name: "Corazón de res", type: "prot" }, { baseGrams: 20, name: "Vainitas", type: "veg" }], steps: [ { icon: "🔪", text: "Limpia la grasa del corazón y pica." }, { icon: "🔥", text: "Hierve todo.", timer: 600 }, { icon: "🌡️", text: "Enfría." }, { icon: "🥣", text: "Sirve." } ] },
-            { id: 18, title: "Mix de Menudencias", category: "almuerzo", tagText: "🍖 Nutritivo", tagColors: "bg-amber-100 text-amber-700", time: "15 min", icon: "🍲", ingredients: [{ baseGrams: 35, name: "[[Higado]]", type: "prot" }, { baseGrams: 35, name: "Mollejas", type: "prot" }, { baseGrams: 30, name: "[[Zapallo]]", type: "veg" }], steps: [ { icon: "🔪", text: "Limpia menudencias." }, { icon: "🔥", text: "Hierve mollejas y zapallo.", timer: 900 }, { icon: "🔥", text: "Agrega hígado al final.", timer: 180 }, { icon: "🥣", text: "Enfría y haz puré rústico." } ] },
-            { id: 19, title: "Pavo con Arroz y Brócoli", category: "almuerzo", tagText: "🌟 Ligero", tagColors: "bg-blue-100 text-blue-700", time: "20 min", icon: "🥦", ingredients: [{ baseGrams: 70, name: "Pavo", type: "prot" }, { baseGrams: 20, name: "Arroz integral", type: "veg" }, { baseGrams: 10, name: "Brócoli", type: "veg" }], steps: [ { icon: "🔥", text: "Hierve el arroz.", timer: 1200 }, { icon: "🔥", text: "Cocina pavo y brócoli.", timer: 600 }, { icon: "🌡️", text: "Enfría todo." }, { icon: "🥣", text: "Mezcla bien." } ] },
-            { id: 20, title: "Albóndigas al Horno", category: "almuerzo", tagText: "🥓 Sabroso", tagColors: "bg-indigo-100 text-indigo-700", time: "20 min", icon: "🧆", ingredients: [{ baseGrams: 70, name: "Cerdo molido", type: "prot" }, { baseGrams: 15, name: "Avena", type: "veg" }, { baseGrams: 15, name: "Zanahoria rallada", type: "veg" }], steps: [ { icon: "🥣", text: "Amasa ingredientes." }, { icon: "👐", text: "Forma bolitas pequeñas." }, { icon: "🔥", text: "Hornea a 180°C.", timer: 900 }, { icon: "🌡️", text: "Enfría muy bien por dentro." } ] },
-            { id: 21, title: "Pastel de Sangrecita", category: "almuerzo", tagText: "💪 Hierro", tagColors: "bg-rose-100 text-rose-700", time: "10 min", icon: "🥧", ingredients: [{ baseGrams: 60, name: "Sangrecita", type: "prot" }, { baseGrams: 40, name: "[[Camote]]", type: "veg" }], steps: [ { icon: "🔥", text: "Hierve camote.", timer: 900 }, { icon: "🥣", text: "Haz puré de camote." }, { icon: "🥩", text: "Integra sangrecita cocida." }, { icon: "🥄", text: "Sirve tibio/frío." } ] },
-            { id: 22, title: "Lomo Falso con Espinaca", category: "almuerzo", tagText: "💰 Ahorro", tagColors: "bg-emerald-100 text-emerald-700", time: "15 min", icon: "🥩", ingredients: [{ baseGrams: 70, name: "Corazón de res", type: "prot" }, { baseGrams: 15, name: "Espinaca", type: "veg" }, { baseGrams: 15, name: "Arroz", type: "veg" }], steps: [ { icon: "🔥", text: "Cocina arroz.", timer: 900 }, { icon: "🔥", text: "Sella corazón picado en sartén.", timer: 300 }, { icon: "🌿", text: "Añade espinaca al final." }, { icon: "🥣", text: "Mezcla y enfría." } ] },
-            { id: 23, title: "Pescado Vapor Arvejas", category: "almuerzo", tagText: "🐟 Omega", tagColors: "bg-cyan-100 text-cyan-700", time: "12 min", icon: "🐠", ingredients: [{ baseGrams: 70, name: "Pescado", type: "prot" }, { baseGrams: 15, name: "[[Arvejas]]", type: "veg" }, { baseGrams: 15, name: "[[Camote]]", type: "veg" }], steps: [ { icon: "🔪", text: "Revisa espinas." }, { icon: "🔥", text: "Vaporiza camote y arvejas.", timer: 600 }, { icon: "🐟", text: "Agrega pescado.", timer: 300 }, { icon: "🥣", text: "Desmenuza y sirve." } ] },
-            { id: 24, title: "Pollo y Zapallo Macre", category: "almuerzo", tagText: "🩺 Digestivo", tagColors: "bg-blue-100 text-blue-700", time: "12 min", icon: "🍗", ingredients: [{ baseGrams: 70, name: "Pollo", type: "prot" }, { baseGrams: 30, name: "Zapallo macre", type: "veg" }], steps: [ { icon: "🔪", text: "Pica ingredientes." }, { icon: "🔥", text: "Hierve hasta que zapallo sea puré.", timer: 720 }, { icon: "🌡️", text: "Enfría en su propio jugo." }, { icon: "🥣", text: "Sirve jugoso." } ] },
-
-            // CENAS (25-36)
-            { id: 25, title: "Sopita Ligera de Pollo", category: "cena", tagText: "🩺 Digestivo", tagColors: "bg-blue-100 text-blue-700", time: "10 min", icon: "🍵", ingredients: [{ baseGrams: 70, name: "Pollo", type: "prot" }, { baseGrams: 30, name: "[[Zapallo]]", type: "veg" }], steps: [ { icon: "🔪", text: "Cocina y deshilacha el pollo finamente." }, { icon: "🍵", text: "Calienta caldo de pollo natural (sin sal).", timer: 180 }, { icon: "🌡️", text: "Comprueba que esté apenas tibio." }, { icon: "🥣", text: "Sirve pollo con caldo." } ] },
-            { id: 26, title: "Pavo al Natural con Apio", category: "cena", tagText: "🌟 Ligero", tagColors: "bg-amber-100 text-amber-700", time: "8 min", icon: "🥒", ingredients: [{ baseGrams: 80, name: "Pavo", type: "prot" }, { baseGrams: 20, name: "Apio", type: "veg" }], steps: [ { icon: "🔪", text: "Pica carne y apio muy fino." }, { icon: "🔥", text: "Cocina pavo al vapor.", timer: 480 }, { icon: "🌡️", text: "Deja enfriar." }, { icon: "🥣", text: "Mezcla con apio crudo." } ] },
-            { id: 27, title: "Pescado con Espárragos", category: "cena", tagText: "🐟 Premium", tagColors: "bg-cyan-100 text-cyan-700", time: "15 min", icon: "🍣", ingredients: [{ baseGrams: 70, name: "Pescado blanco", type: "prot" }, { baseGrams: 30, name: "Espárragos", type: "veg" }], steps: [ { icon: "🔪", text: "Corta tallos duros y revisa espinas." }, { icon: "🔥", text: "Cocina al vapor.", timer: 600 }, { icon: "🌡️", text: "Enfría totalmente." }, { icon: "🥣", text: "Desmenuza bien." } ] },
-            { id: 28, title: "Mollejitas con [[Camote]]", category: "cena", tagText: "💰 Ahorro", tagColors: "bg-emerald-100 text-emerald-700", time: "12 min", icon: "🍗", ingredients: [{ baseGrams: 60, name: "Mollejas de pollo", type: "prot" }, { baseGrams: 40, name: "[[Camote]]", type: "veg" }], steps: [ { icon: "🔪", text: "Lava y corta mollejas." }, { icon: "🔥", text: "Hierve todo.", timer: 900 }, { icon: "🌡️", text: "Enfría." }, { icon: "🥣", text: "Puré de camote rústico." } ] },
-            { id: 29, title: "Queso Cottage y Pera", category: "cena", tagText: "🩺 Sin Cocción", tagColors: "bg-purple-100 text-purple-700", time: "3 min", icon: "🧀", ingredients: [{ baseGrams: 60, name: "Queso cottage", type: "prot" }, { baseGrams: 40, name: "Pera", type: "veg" }], steps: [ { icon: "🔪", text: "Pera sin semillas, finamente picada." }, { icon: "⚖️", text: "Mide el queso." }, { icon: "🥣", text: "Mezcla." }, { icon: "🐶", text: "Sirve directo." } ] },
-            { id: 30, title: "Caldo Vital de Pechuga", category: "cena", tagText: "🍵 Hidratante", tagColors: "bg-blue-100 text-blue-700", time: "10 min", icon: "🥣", ingredients: [{ baseGrams: 80, name: "Pollo", type: "prot" }, { baseGrams: 20, name: "Zanahoria", type: "veg" }], steps: [ { icon: "🔪", text: "Pica pollo y zanahoria." }, { icon: "🔥", text: "Hierve en abundante agua.", timer: 600 }, { icon: "🌡️", text: "Espera a que esté tibio." }, { icon: "🥣", text: "Sirve muy jugoso." } ] },
-            { id: 31, title: "Tortillita Suave de Pollo", category: "cena", tagText: "🥚 Suave", tagColors: "bg-amber-100 text-amber-700", time: "5 min", icon: "🍳", ingredients: [{ baseGrams: 60, name: "Pollo molido", type: "prot" }, { baseGrams: 1, name: "Huevo", noScale: true, type: "prot" }], steps: [ { icon: "🥣", text: "Bate el huevo con el pollo crudo." }, { icon: "🍳", text: "Sartén sin aceite, fuego bajo.", timer: 240 }, { icon: "🌡️", text: "Enfría." }, { icon: "🔪", text: "Corta en dados." } ] },
-            { id: 32, title: "Cerdo con Manzana", category: "cena", tagText: "🥓 Digestivo", tagColors: "bg-indigo-100 text-indigo-700", time: "15 min", icon: "🍎", ingredients: [{ baseGrams: 70, name: "[[Cerdo]] magro", type: "prot" }, { baseGrams: 30, name: "Manzana", type: "veg" }], steps: [ { icon: "🔪", text: "Manzana sin semillas." }, { icon: "🔥", text: "Hierve cerdo bien cocido.", timer: 900 }, { icon: "🔥", text: "Ablanda manzana.", timer: 300 }, { icon: "🥣", text: "Mezcla y enfría." } ] },
-            { id: 33, title: "Bazo con Zapallo", category: "cena", tagText: "💰 Muy Barato", tagColors: "bg-emerald-100 text-emerald-700", time: "12 min", icon: "🥩", ingredients: [{ baseGrams: 60, name: "Bazo de res", type: "prot" }, { baseGrams: 40, name: "[[Zapallo]]", type: "veg" }], steps: [ { icon: "🔪", text: "Limpia y pica el bazo." }, { icon: "🔥", text: "Hierve todo.", timer: 600 }, { icon: "🌡️", text: "Enfría." }, { icon: "🥣", text: "Puré oscuro y rico." } ] },
-            { id: 34, title: "Pescado Suave Brócoli", category: "cena", tagText: "🐟 Omega", tagColors: "bg-cyan-100 text-cyan-700", time: "10 min", icon: "🐠", ingredients: [{ baseGrams: 70, name: "Merluza/Tilapia", type: "prot" }, { baseGrams: 30, name: "Brócoli", type: "veg" }], steps: [ { icon: "🔪", text: "Revisión 100% libre de espinas." }, { icon: "🔥", text: "Vaporiza pescado y arbolitos.", timer: 480 }, { icon: "🌡️", text: "Enfría." }, { icon: "🥣", text: "Desmenuza todo." } ] },
-            { id: 35, title: "Paté Casero", category: "cena", tagText: "🍗 Delicia", tagColors: "bg-orange-100 text-orange-700", time: "8 min", icon: "🥫", ingredients: [{ baseGrams: 60, name: "[[Higado]]", type: "prot" }, { baseGrams: 40, name: "Caldo de huesos", type: "prot" }], steps: [ { icon: "🔥", text: "Hierve el hígado.", timer: 300 }, { icon: "🌪️", text: "Licúa con el caldo natural." }, { icon: "🌡️", text: "Enfría en refrigerador un ratito." }, { icon: "🥣", text: "Sirve tipo mousse." } ] },
-            { id: 36, title: "Huevos con Arroz", category: "cena", tagText: "🥚 Básico", tagColors: "bg-amber-100 text-amber-700", time: "10 min", icon: "🍚", ingredients: [{ baseGrams: 2, name: "Huevo", noScale: true, type: "prot" }, { baseGrams: 30, name: "Arroz integral", type: "veg" }], steps: [ { icon: "🔥", text: "Arroz muy hervido.", timer: 900 }, { icon: "🍳", text: "Revuelve huevos en sartén seca.", timer: 120 }, { icon: "🌡️", text: "Enfría." }, { icon: "🥣", text: "Mezcla." } ] },
-
-            // SNACKS (37-50)
-            { id: 37, title: "Helado de [[Fresa]]", category: "snack", tagText: "🧊 Refrescante", tagColors: "bg-rose-100 text-rose-700", time: "5 min", icon: "🍦", ingredients: [{ baseGrams: 50, name: "Yogur natural", type: "prot" }, { baseGrams: 50, name: "[[Fresa]]", type: "veg" }], steps: [ { icon: "🔪", text: "Lava y retira hojitas." }, { icon: "🌪️", text: "Licúa." }, { icon: "❄️", text: "Congela en moldes." }, { icon: "🍦", text: "Sirve." } ] },
-            { id: 38, title: "Chips de [[Camote]]", category: "snack", tagText: "💰 Muy Barato", tagColors: "bg-emerald-100 text-emerald-700", time: "30 min", icon: "🍠", ingredients: [{ baseGrams: 100, name: "[[Camote]]", type: "veg" }], steps: [ { icon: "🔪", text: "Lava y corta muy fino." }, { icon: "🔥", text: "Hornea a 120°C.", timer: 1800 }, { icon: "🌡️", text: "Enfría al aire." }, { icon: "🦴", text: "Guarda en frasco." } ] },
-            { id: 39, title: "Queso y Manzana", category: "snack", tagText: "🧀 Entrenamiento", tagColors: "bg-amber-100 text-amber-700", time: "5 min", icon: "🎲", ingredients: [{ baseGrams: 50, name: "Queso fresco", type: "prot" }, { baseGrams: 50, name: "Manzana", type: "veg" }], steps: [ { icon: "🔪", text: "Manzana sin semillas." }, { icon: "⚖️", text: "Corta cubos pequeños iguales." }, { icon: "🥣", text: "Mezcla." }, { icon: "🎲", text: "Usa de premio." } ] },
-            { id: 40, title: "Gomitas de Caldo", category: "snack", tagText: "🦴 Articulaciones", tagColors: "bg-blue-100 text-blue-700", time: "10 min", icon: "🍬", ingredients: [{ baseGrams: 100, name: "Caldo de huesos", type: "prot" }], steps: [ { icon: "🥣", text: "Toma caldo tibio sin sal." }, { icon: "🌡️", text: "Disuelve colapez sin grumos." }, { icon: "❄️", text: "Refrigera en moldes." }, { icon: "🍬", text: "Sirve gomitas." } ] },
-            { id: 41, title: "Galletas de Pollo", category: "snack", tagText: "🍪 Caseras", tagColors: "bg-orange-100 text-orange-700", time: "25 min", icon: "🍪", ingredients: [{ baseGrams: 50, name: "Avena", type: "veg" }, { baseGrams: 50, name: "Pollo molido", type: "prot" }], steps: [ { icon: "🔪", text: "Haz harina de avena licuada." }, { icon: "🥣", text: "Mezcla con pollo y agua." }, { icon: "🔥", text: "Hornea bolitas a 180°C.", timer: 900 }, { icon: "🌡️", text: "Enfría bien." } ] },
-            { id: 42, title: "Helado Plátano Maní", category: "snack", tagText: "🧊 Cremoso", tagColors: "bg-rose-100 text-rose-700", time: "5 min", icon: "🥜", ingredients: [{ baseGrams: 50, name: "Plátano maduro", type: "veg" }, { baseGrams: 20, name: "Mantequilla maní natural", type: "prot" }], steps: [ { icon: "🔪", text: "Pela plátano." }, { icon: "🌪️", text: "Licúa con maní (sin xilitol)." }, { icon: "❄️", text: "Congela en moldes o lickmat." }, { icon: "🍦", text: "Premio duradero." } ] },
-            { id: 43, title: "Zanahoria Cruda", category: "snack", tagText: "🦷 Dental", tagColors: "bg-emerald-100 text-emerald-700", time: "2 min", icon: "🥕", ingredients: [{ baseGrams: 50, name: "Zanahoria cruda", type: "veg" }], steps: [ { icon: "🔪", text: "Pela y corta en bastones." }, { icon: "🦴", text: "Ofrece crudo bajo supervisión." } ] },
-            { id: 44, title: "Cubitos Sangrecita", category: "snack", tagText: "💪 Hierro", tagColors: "bg-rose-100 text-rose-700", time: "10 min", icon: "🩸", ingredients: [{ baseGrams: 100, name: "Sangrecita", type: "prot" }], steps: [ { icon: "🔥", text: "Hierve bien la sangrecita." }, { icon: "🔪", text: "Corta en dados precisos." }, { icon: "🎲", text: "Premio de altísimo valor." } ] },
-            { id: 45, title: "Tiras Pollo Seco", category: "snack", tagText: "🍗 Jerky", tagColors: "bg-amber-100 text-amber-700", time: "60 min", icon: "🥓", ingredients: [{ baseGrams: 150, name: "Pechuga cruda", type: "prot" }], steps: [ { icon: "🔪", text: "Láminas súper finas." }, { icon: "🔥", text: "Horno a 100°C con puerta entreabierta.", timer: 3600 }, { icon: "🌡️", text: "Secar completamente." } ] },
-            { id: 46, title: "Helado Zapallo", category: "snack", tagText: "🧊 Refrescante", tagColors: "bg-rose-100 text-rose-700", time: "5 min", icon: "🎃", ingredients: [{ baseGrams: 50, name: "Puré de zapallo", type: "veg" }, { baseGrams: 50, name: "Yogur", type: "prot" }], steps: [ { icon: "🥣", text: "Mezcla puré frío con yogur." }, { icon: "❄️", text: "Congela." }, { icon: "🍦", text: "Delicia gástrica." } ] },
-            { id: 47, title: "Galletas Hígado", category: "snack", tagText: "🍪 Entrenamiento", tagColors: "bg-orange-100 text-orange-700", time: "25 min", icon: "🧆", ingredients: [{ baseGrams: 50, name: "[[Higado]] licuado", type: "prot" }, { baseGrams: 50, name: "Avena", type: "veg" }], steps: [ { icon: "🥣", text: "Haz pasta." }, { icon: "🔥", text: "Hornea finamente.", timer: 900 }, { icon: "🌡️", text: "Enfría y parte en trocitos." } ] },
-            { id: 48, title: "Manzana Yogur", category: "snack", tagText: "🍎 Crujiente", tagColors: "bg-indigo-100 text-indigo-700", time: "5 min", icon: "🍏", ingredients: [{ baseGrams: 50, name: "Manzana", type: "veg" }, { baseGrams: 20, name: "Yogur", type: "prot" }], steps: [ { icon: "🔪", text: "Láminas sin semillas." }, { icon: "🥣", text: "Baña en yogur." }, { icon: "❄️", text: "Congela separados." } ] },
-            { id: 49, title: "Trozos Huevo Duro", category: "snack", tagText: "🥚 Super Premio", tagColors: "bg-amber-100 text-amber-700", time: "10 min", icon: "🥚", ingredients: [{ baseGrams: 2, name: "Huevo", noScale: true, type: "prot" }], steps: [ { icon: "🔥", text: "Huevo duro.", timer: 600 }, { icon: "🔪", text: "Pica pequeño para parque." } ] },
-            { id: 50, title: "Cubos Caldo Hielo", category: "snack", tagText: "🧊 Verano", tagColors: "bg-cyan-100 text-cyan-700", time: "2 min", icon: "🧊", ingredients: [{ baseGrams: 100, name: "Caldo huesos", type: "prot" }], steps: [ { icon: "🚰", text: "Caldo natural a cubiteras." }, { icon: "❄️", text: "Congela." }, { icon: "🐶", text: "Dalo en patio para que lama." } ] }
+        const appsList = [
+            { id: "nutrican", name: "NutriCan Vital", subtitle: "Calculadora de Dieta Natural", desc: "Calculadora exacta de dieta natural.", icon: "fa-bowl-food", color: "text-amber-600", bg: "bg-amber-100", price: "9.99", themeBtn: "bg-amber-500 shadow-amber-500/30", benefits: ["Porciones exactas según peso y edad", "Transición segura sin problemas gástricos", "Monitoreo de digestión diaria", "Acceso de por vida desde tu celular"] },
+            { id: "mentecan", name: "Mentecan Vital", subtitle: "Programa de Psicología y Obediencia", desc: "Programa premium de psicología y obediencia.", icon: "fa-brain", color: "text-emerald-600", bg: "bg-emerald-100", price: "14.99", themeBtn: "bg-emerald-500 shadow-emerald-500/30", benefits: ["Retos prácticos de 7 días", "Audios de psicología canina", "Solución definitiva a mordiscos", "Comandos visuales y de voz efectivos"] }
         ];
+        
+        const ebooksList = [
+            // TEXTO DE NUTRICHEF MEJORADO
+            { id: "nutrichef", name: "NutriChef Vital", subtitle: "Recetario Dinámico y Compras", desc: "50 recetas BARF interactivas.", icon: "fa-fire-burner", color: "text-rose-600", bg: "bg-rose-100", price: "4.99", themeBtn: "bg-rose-500 shadow-rose-500/30", benefits: ["50 Recetas Premium (Desayuno, Almuerzo, Cena)", "Modo 'Chef' con temporizadores en pantalla", "Ingredientes adaptados a tu país", "Lista de compras automática para WhatsApp"] },
+            
+            // NUEVO PRODUCTO "PRÓXIMAMENTE"
+            { id: "snackcan", name: "SnackCan Vital", subtitle: "Repostería Perruna", desc: "50 recetas de postres y premios sanos.", icon: "fa-cookie-bite", color: "text-orange-500", bg: "bg-orange-100", price: "0", themeBtn: "", benefits: [], isUpcoming: true }
+        ];
+        
+        let currentUser = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            const savedName = localStorage.getItem('currentDogName'); 
-            if(savedName && savedName !== "undefined" && savedName.trim() !== "") dogName = savedName;
-            document.querySelectorAll('.dog-name-display').forEach(el => el.innerText = dogName);
-
             const savedSession = localStorage.getItem('eduDogSession');
-            if(savedSession) {
-                const creds = JSON.parse(savedSession);
-                countryCode = creds.phone.startsWith("54") ? "54" : "51";
-            }
-            document.getElementById('region-flag').innerText = countryCode === "54" ? "AR" : "PE";
-            
-            // Cargar favoritas
-            const savedFavs = localStorage.getItem(`nutriChefFavs_${dogName}`);
-            if(savedFavs) favoriteRecipes = JSON.parse(savedFavs);
-
-            const savedPlan = localStorage.getItem(`nutriCanPlan_${dogName}`);
-            if(savedPlan) {
-                nutriCanPlan = JSON.parse(savedPlan);
-                let tomas = nutriCanPlan.etapa === 'cachorro' ? 3 : 2;
-                syncGramsPerMeal = Math.round(nutriCanPlan.totalGrams / tomas);
-                
-                document.getElementById('sync-total-grams').innerText = `${nutriCanPlan.totalGrams}g`;
-                document.getElementById('sync-grams-per-meal').innerText = `${syncGramsPerMeal}g`;
-                showScreen('screen-welcome-sync');
-            } else {
-                showScreen('screen-onboarding');
-            }
+            if(savedSession) { const creds = JSON.parse(savedSession); performLogin(creds.phone, creds.pin, true); }
         });
 
-        // ======================= ONBOARDING =======================
-        function saveStandalonePlan() {
-            const weight = parseFloat(document.getElementById('onboard-weight').value);
-            const age = document.getElementById('onboard-age').value;
-            
-            if(!weight || !age) { alert("Ingresa el peso para continuar."); return; }
-
-            let percentage = (age === 'cachorro') ? 0.08 : (age === 'senior') ? 0.02 : 0.025;
-            let totalGrams = Math.round(weight * percentage * 1000);
-            
-            nutriCanPlan = { totalGrams: totalGrams, etapa: age, isStandalone: true };
-            localStorage.setItem(`nutriCanPlan_${dogName}`, JSON.stringify(nutriCanPlan));
-            
-            let tomas = age === 'cachorro' ? 3 : 2;
-            syncGramsPerMeal = Math.round(totalGrams / tomas);
-
-            document.getElementById('sync-total-grams').innerText = `${totalGrams}g`;
-            document.getElementById('sync-grams-per-meal').innerText = `${syncGramsPerMeal}g`;
-            showScreen('screen-welcome-sync');
-        }
-
-        // ======================= NAVEGACIÓN =======================
-        function goHome() {
-            window.location.href = 'index.html';
-        }
-
-        function openFreeLobby() {
-            renderLobby('todos');
-            showScreen('screen-lobby');
-        }
-
-        function smartBack() {
-            if (currentScreen === 'screen-daily-plan' || currentScreen === 'screen-lobby') {
-                if(nutriCanPlan) showScreen('screen-welcome-sync');
-                else showScreen('screen-onboarding');
-            } else if (currentScreen === 'screen-recipe') {
-                if(isSyncMode) showScreen('screen-daily-plan');
-                else showScreen('screen-lobby');
-            } else if (currentScreen === 'screen-chef') { exitChefMode(); }
-        }
-
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-            currentScreen = screenId;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            const btnBack = document.getElementById('btn-back');
-            btnBack.style.display = (screenId === 'screen-welcome-sync' || screenId === 'screen-onboarding') ? 'none' : 'flex';
-            
-            const subtitle = document.getElementById('header-subtitle');
-            subtitle.innerText = (screenId === 'screen-chef') ? "Modo Preparación" : "Planificador Diario";
-        }
-
-        // ======================= LOBBY & BUSCADOR MEJORADO =======================
-        const normalizeText = (text) => {
-            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        };
-
-        function handleSearch() {
-            const rawQuery = document.getElementById('search-input').value;
-            const query = normalizeText(rawQuery);
-            
-            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector('[data-filter="todos"]').classList.add('active');
-            
-            if(query.length === 0) { renderLobby('todos'); return; }
-
-            const list = document.getElementById('recipe-list');
-            list.innerHTML = '';
-            
-            const filtered = recipes.filter(r => {
-                const textMatch = normalizeText(translateText(r.title)).includes(query);
-                const ingMatch = r.ingredients.some(i => normalizeText(translateText(i.name)).includes(query));
-                return textMatch || ingMatch;
-            });
-
-            if(filtered.length === 0) {
-                list.innerHTML = `<div class="text-center py-10"><p class="text-slate-400 font-bold text-sm">No se encontraron recetas con "${rawQuery}"</p></div>`;
-                return;
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            document.getElementById('toast-msg').innerText = message;
+            if(type === 'error'){
+                toast.classList.replace('bg-slate-900', 'bg-rose-600');
+                icon.className = 'fa-solid fa-circle-xmark text-white text-lg';
+            } else {
+                toast.classList.replace('bg-rose-600', 'bg-slate-900');
+                icon.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
             }
-            renderRecipeCards(filtered, list);
+            toast.classList.remove('-translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('-translate-y-24', 'opacity-0'); }, 3000);
         }
 
-        function filterRecipes(category) {
-            document.getElementById('search-input').value = "";
-            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`[data-filter="${category}"]`).classList.add('active');
-            renderLobby(category);
+        async function handleLoginButton() {
+            const phoneInput = document.getElementById('login-phone').value;
+            const codeInput = document.getElementById('country-code').value;
+            const pinInput = document.getElementById('login-pin').value;
+            if(!phoneInput || !pinInput) { showToast('Completa todos los datos', 'error'); return; }
+            const btnText = document.getElementById('btn-text'); const btnLoader = document.getElementById('btn-loader');
+            btnText.classList.add('opacity-0'); btnLoader.classList.remove('hidden');
+            await performLogin(`${codeInput}${phoneInput}`, pinInput, false);
+            btnText.classList.remove('opacity-0'); btnLoader.classList.add('hidden');
         }
 
-        function renderLobby(filter) {
-            const list = document.getElementById('recipe-list');
-            list.innerHTML = '';
-            
-            let filtered = [];
-            if(filter === 'todos') filtered = recipes;
-            else if(filter === 'favoritas') filtered = recipes.filter(r => favoriteRecipes.includes(r.id));
-            else filtered = recipes.filter(r => r.category === filter);
-            
-            if(filtered.length === 0 && filter === 'favoritas') {
-                list.innerHTML = `<div class="text-center py-10"><i class="fa-regular fa-heart text-4xl text-slate-200 mb-3"></i><p class="text-slate-400 font-bold text-sm">Aún no has guardado favoritas</p></div>`;
-                return;
-            }
-            renderRecipeCards(filtered, list);
-        }
-
-        function renderRecipeCards(recipeArray, container) {
-            recipeArray.forEach(recipe => {
-                const title = translateText(recipe.title);
-                const isFav = favoriteRecipes.includes(recipe.id);
-                const heartClass = isFav ? "fa-solid fa-heart text-rose-500" : "fa-regular fa-heart text-slate-300";
-                
-                container.innerHTML += `
-                    <div onclick="openFreeRecipe(${recipe.id})" class="bg-white rounded-[1.8rem] p-4 shadow-[0_4px_15px_rgb(0,0,0,0.03)] flex gap-4 items-center border border-slate-100 hover:border-rose-200 transition-all cursor-pointer relative">
-                        <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-3xl shrink-0 border border-slate-100 shadow-inner">${recipe.icon}</div>
-                        <div class="flex-1 pr-6">
-                            <span class="${recipe.tagColors} text-[8px] font-black uppercase px-2 py-0.5 rounded mb-1 inline-block">${recipe.tagText}</span>
-                            <h3 class="font-extrabold text-slate-900 leading-tight text-sm">${title}</h3>
-                            <p class="text-[10px] font-bold text-slate-400 mt-1"><i class="fa-regular fa-clock mr-1"></i> ${recipe.time}</p>
-                        </div>
-                        <button onclick="toggleFavorite(event, ${recipe.id})" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 transition-colors">
-                            <i class="${heartClass} text-lg transition-colors"></i>
-                        </button>
-                    </div>
-                `;
-            });
-        }
-
-        function toggleFavorite(event, id) {
-            event.stopPropagation();
-            const btn = event.currentTarget;
-            let icon = btn.querySelector('i');
-            
-            let isFav = false;
-            if(favoriteRecipes.includes(id)) { favoriteRecipes = favoriteRecipes.filter(f => f !== id); } 
-            else { favoriteRecipes.push(id); isFav = true; }
-            localStorage.setItem(`nutriChefFavs_${dogName}`, JSON.stringify(favoriteRecipes));
-            
-            icon.classList.remove('heart-beat');
-            void icon.offsetWidth; 
-            icon.className = isFav ? "fa-solid fa-heart text-rose-500 transition-colors heart-beat" : "fa-regular fa-heart text-slate-300 transition-colors heart-beat";
-
-            if(currentScreen === 'screen-lobby') {
-                const filterBtn = document.querySelector('.category-btn.active');
-                if(filterBtn && filterBtn.dataset.filter === 'favoritas' && !isFav) {
-                    btn.closest('.bg-white').remove();
-                    if(favoriteRecipes.length === 0) renderLobby('favoritas');
-                }
-            }
-        }
-
-        // ======================= PLANNER =======================
-        function randomizeMenu() {
-            const tomas = nutriCanPlan.etapa === 'cachorro' ? 3 : 2;
-            const mealTypes = tomas === 3 ? ['desayuno', 'almuerzo', 'cena'] : ['desayuno', 'cena'];
-            for(let i=0; i<tomas; i++) {
-                const options = recipes.filter(r => r.category === mealTypes[i]);
-                const randRecipe = options[Math.floor(Math.random() * options.length)];
-                selectedDailyMeals[i] = randRecipe.id;
-            }
-            openPlanner();
-        }
-
-        function selectMeal(slotIndex, recipeId) {
-            selectedDailyMeals[slotIndex] = recipeId;
-            openPlanner(); 
-        }
-
-        function openPlanner() {
-            const container = document.getElementById('meals-container');
-            container.innerHTML = '';
-            document.getElementById('plan-total-info').innerHTML = `Basado en <span class="font-bold text-[#f43f5e]">${nutriCanPlan.totalGrams}g diarios</span>`;
-            
-            const tomas = nutriCanPlan.etapa === 'cachorro' ? 3 : 2;
-            const mealTypes = tomas === 3 ? ['desayuno', 'almuerzo', 'cena'] : ['desayuno', 'cena'];
-            const labels = tomas === 3 ? ['Mañana', 'Tarde', 'Noche'] : ['Mañana', 'Noche'];
-            const icons = tomas === 3 ? ['🍳', '🍲', '🌙'] : ['🍳', '🌙'];
-
-            for(let i=0; i<tomas; i++) {
-                const options = recipes.filter(r => r.category === mealTypes[i]);
-                
-                if(!selectedDailyMeals[i]) selectedDailyMeals[i] = options[0].id;
-
-                let cards = '';
-                // Mostrar siempre 5 opciones destacadas en el carrusel
-                const displayOptions = options.slice(0, 5);
-                if(!displayOptions.find(r => r.id === selectedDailyMeals[i])) {
-                    displayOptions.unshift(recipes.find(r => r.id === selectedDailyMeals[i]));
-                }
-
-                displayOptions.forEach(opt => {
-                    const isSelected = selectedDailyMeals[i] === opt.id;
-                    const cardBorder = isSelected ? "border-[3px] border-emerald-500 bg-emerald-50/30 shadow-lg shadow-emerald-500/10" : "border border-slate-100 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)]";
-                    const isFav = favoriteRecipes.includes(opt.id);
-                    const heartClass = isFav ? "fa-solid fa-heart text-rose-500" : "fa-regular fa-heart text-slate-300";
-
-                    const btnHtml = isSelected
-                        ? `<div class="flex gap-2 w-full mt-4">
-                               <div class="flex-1 bg-emerald-100 text-emerald-700 font-black py-3 rounded-xl text-[10px] text-center flex items-center justify-center gap-1 border border-emerald-200"><i class="fa-solid fa-check"></i> Listo</div>
-                               <button onclick="openSyncedRecipe(${opt.id})" class="flex-[1.5] bg-slate-900 text-white font-black py-3 rounded-xl text-xs hover:bg-slate-800 active:scale-95 transition-all shadow-md">👨‍🍳 Cocinar</button>
-                           </div>`
-                        : `<button onclick="selectMeal(${i}, ${opt.id})" class="w-full mt-4 bg-slate-100 text-slate-500 font-bold py-3.5 rounded-2xl text-xs hover:bg-slate-200 active:scale-95 transition-all">Seleccionar</button>`;
-
-                    cards += `
-                        <div class="min-w-[240px] rounded-[2rem] p-5 snap-center flex flex-col justify-between transition-all relative ${cardBorder}">
-                            <button onclick="toggleFavorite(event, ${opt.id})" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 backdrop-blur hover:bg-slate-100 transition-colors border border-slate-100 shadow-sm z-10">
-                                <i class="${heartClass} text-sm transition-colors"></i>
-                            </button>
-                            <div class="flex gap-4 items-center pr-6">
-                                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shrink-0 border border-slate-100 shadow-sm">${opt.icon}</div>
-                                <h4 class="font-extrabold text-slate-900 leading-tight text-sm">${translateText(opt.title)}</h4>
-                            </div>
-                            ${btnHtml}
-                        </div>
-                    `;
-                });
-                
-                container.innerHTML += `
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center px-2">
-                            <h3 class="font-extrabold text-slate-900 text-lg flex items-center gap-2"><span>${icons[i]}</span> Ración ${labels[i]}</h3>
-                            <span class="bg-[#f43f5e] text-white text-[11px] font-black px-3 py-1.5 rounded-full">${syncGramsPerMeal}g</span>
-                        </div>
-                        <div class="flex gap-4 overflow-x-auto pb-4 snap-x hide-scroll px-1">${cards}</div>
-                    </div>
-                `;
-            }
-            showScreen('screen-daily-plan');
-        }
-
-        // ======================= RECIPE VIEW =======================
-        function openFreeRecipe(id) {
-            isSyncMode = false;
-            loadRecipe(id);
-            document.getElementById('size-selector-container').classList.remove('hidden');
-            document.getElementById('sync-alert').classList.add('hidden');
-            updatePortions('medium'); 
-            showScreen('screen-recipe');
-        }
-
-        function openSyncedRecipe(id) {
-            isSyncMode = true;
-            loadRecipe(id);
-            document.getElementById('size-selector-container').classList.add('hidden');
-            document.getElementById('sync-alert').classList.remove('hidden');
-            document.getElementById('sync-recipe-grams').innerText = syncGramsPerMeal;
-            let totalBase = 0;
-            activeRecipe.ingredients.forEach(ing => { if(!ing.noScale) totalBase += ing.baseGrams; });
-            activeSizeMultiplier = syncGramsPerMeal / totalBase;
-            renderIngredients();
-            showScreen('screen-recipe');
-        }
-
-        function loadRecipe(id) {
-            activeRecipe = recipes.find(r => r.id === id);
-            document.getElementById('recipe-header-img').innerText = activeRecipe.icon;
-            document.getElementById('recipe-title').innerText = translateText(activeRecipe.title);
-            document.getElementById('recipe-tag').innerText = activeRecipe.tagText;
-            document.getElementById('recipe-tag').className = `text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg ${activeRecipe.tagColors}`;
-            document.getElementById('recipe-time').innerText = activeRecipe.time;
-            
-            const isFav = favoriteRecipes.includes(activeRecipe.id);
-            document.getElementById('recipe-fav-icon').className = isFav ? "fa-solid fa-heart text-xl text-rose-500 heart-beat" : "fa-regular fa-heart text-xl text-slate-300 heart-beat";
-            
-            loadNotes();
-        }
-
-        function toggleFavoriteFromRecipe(event) {
-            if(!activeRecipe) return;
-            let id = activeRecipe.id;
-            let isFav = false;
-            if(favoriteRecipes.includes(id)) { favoriteRecipes = favoriteRecipes.filter(f => f !== id); } 
-            else { favoriteRecipes.push(id); isFav = true; }
-            localStorage.setItem(`nutriChefFavs_${dogName}`, JSON.stringify(favoriteRecipes));
-            
-            const iconEl = document.getElementById('recipe-fav-icon');
-            iconEl.classList.remove('heart-beat');
-            void iconEl.offsetWidth; 
-            iconEl.className = isFav ? "fa-solid fa-heart text-xl text-rose-500 heart-beat" : "fa-regular fa-heart text-xl text-slate-300 heart-beat";
-        }
-
-        function updatePortions(size) {
-            activeSizeMultiplier = (size === 'small') ? 0.5 : (size === 'large') ? 2 : 1;
-            ['small', 'medium', 'large'].forEach(s => {
-                const b = document.getElementById(`btn-size-${s}`);
-                b.className = (s === size) ? "flex-1 py-2.5 rounded-xl font-bold text-xs transition-all bg-[#f43f5e] text-white shadow-md shadow-rose-200" : "flex-1 py-2.5 rounded-xl font-bold text-xs transition-all text-slate-500 hover:text-slate-700 hover:bg-slate-200/50";
-            });
-            renderIngredients();
-        }
-
-        function renderIngredients() {
-            const container = document.getElementById('ingredients-checklist');
-            const chefList = document.getElementById('chef-ingredients-list');
-            container.innerHTML = '';
-            chefList.innerHTML = '';
-            
-            const typeIcons = { prot: '🥩', veg: '🥦', bone: '🦴' };
-            const grouped = {};
-            activeRecipe.ingredients.forEach(ing => {
-                if(!grouped[ing.type]) grouped[ing.type] = [];
-                grouped[ing.type].push(ing);
-            });
-            
-            Object.keys(grouped).forEach(type => {
-                const colorClass = type === 'prot' ? 'text-red-700 bg-red-100' : (type === 'veg' ? 'text-emerald-700 bg-emerald-100' : 'text-amber-700 bg-amber-100');
-                container.innerHTML += `<div class="text-[10px] font-black uppercase tracking-widest ${colorClass} px-3 py-1.5 rounded-lg inline-block mb-1 mt-2">${typeIcons[type]}</div>`;
-                
-                grouped[type].forEach(ing => {
-                    const finalGrams = ing.noScale ? ing.baseGrams : Math.round(ing.baseGrams * activeSizeMultiplier);
-                    const qtyStr = (ing.noScale && ing.baseGrams < 10) ? `${finalGrams} unid.` : `${finalGrams}g`;
-                    const ingName = translateText(ing.name);
-                    
-                    container.innerHTML += `
-                        <label class="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 cursor-pointer active:scale-95 transition-all">
-                            <input type="checkbox" class="ingredient-check w-5 h-5 accent-emerald-600 rounded-lg shrink-0">
-                            <div class="ml-3 flex-1 flex justify-between text-sm font-bold text-slate-700">
-                                <span class="pr-2">${ingName}</span>
-                                <span class="text-[#f43f5e] shrink-0">${qtyStr}</span>
-                            </div>
-                        </label>`;
-                    
-                    // Llenar mini lista para Chef Mode
-                    chefList.innerHTML += `
-                        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                            <span class="text-sm font-bold text-slate-600">${typeIcons[type]} ${ingName}</span>
-                            <span class="text-sm font-black text-[#f43f5e]">${qtyStr}</span>
-                        </div>`;
-                });
-            });
-        }
-
-        // ======================= NOTAS PERSONALES =======================
-        function loadNotes() {
-            const notesEl = document.getElementById('recipe-notes');
-            const savedNote = localStorage.getItem(`nutriChefNote_${dogName}_${activeRecipe.id}`);
-            notesEl.value = savedNote ? savedNote : '';
-        }
-
-        function saveNotes() {
-            const notesVal = document.getElementById('recipe-notes').value;
-            localStorage.setItem(`nutriChefNote_${dogName}_${activeRecipe.id}`, notesVal);
-        }
-
-        // ======================= CHEF MODE =======================
-        async function requestWakeLock() {
+        async function performLogin(phone, pin, isAutoLoad = false) {
             try {
-                if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
-            } catch (err) { console.log("Wake Lock no soportado."); }
-        }
-        function releaseWakeLock() {
-            if (wakeLock !== null) { wakeLock.release(); wakeLock = null; }
-        }
-
-        function startChefMode() {
-            currentStepIndex = 0;
-            requestWakeLock();
-            renderChefStep();
-            showScreen('screen-chef');
+                const response = await fetch(`${API_URL}/api/hub/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telefono: phone, pin: pin }) });
+                const data = await response.json();
+                if (response.ok && data.status === 'ok') {
+                    currentUser = { phone, pin, dogName: data.dogName, apps: data.apps || [], ebooks: data.ebooks || [] };
+                    localStorage.setItem('eduDogSession', JSON.stringify(currentUser));
+                    if (currentUser.dogName) { renderHub(); showScreen('screen-hub'); } else { showScreen('screen-welcome'); }
+                } else if (!isAutoLoad) { showToast('Acceso denegado', 'error'); }
+            } catch (e) { if(!isAutoLoad) showToast('Error de servidor', 'error'); }
         }
 
-        function exitChefMode() { 
-            stopTimer(); 
-            releaseWakeLock();
-            showScreen('screen-recipe'); 
+        async function saveWelcomeName() {
+            const name = document.getElementById('welcome-dog-name').value;
+            if(!name) { showToast('Ingresa un nombre', 'error'); return; }
+            try {
+                const response = await fetch(`${API_URL}/api/hub/perfil`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telefono: currentUser.phone, pin: currentUser.pin, dogName: name }) });
+                if (response.ok) { currentUser.dogName = name; localStorage.setItem('eduDogSession', JSON.stringify(currentUser)); renderHub(); showScreen('screen-hub'); } else { showToast('Error al guardar', 'error'); }
+            } catch (e) { showToast('Error de conexión', 'error'); }
         }
 
-        function renderChefStep() {
-            const step = activeRecipe.steps[currentStepIndex];
-            const totalSteps = activeRecipe.steps.length;
+        function renderHub() {
+            document.getElementById('user-display-phone').innerText = `+${currentUser.phone}`;
+            document.getElementById('display-dog-name').innerText = `Entrenamiento de ${currentUser.dogName}`;
             
-            // Actualizar barra de progreso
-            const progressPercent = ((currentStepIndex) / (totalSteps - 1)) * 100;
-            document.getElementById('chef-progress-bar').style.width = `${progressPercent === 0 ? 5 : progressPercent}%`;
+            const getPrice = (usd) => currentUser.phone.startsWith('51') ? { text: `S/ ${Math.round(usd * TIPO_CAMBIO)}` } : { text: `$${usd} USD` };
 
-            document.getElementById('step-counter').innerText = `Paso ${currentStepIndex + 1} de ${totalSteps}`;
-            document.getElementById('chef-icon').innerText = step.icon;
-            document.getElementById('chef-instruction').innerText = translateText(step.text);
-            stopTimer();
+            const totalToolsCount = appsList.length + ebooksList.filter(e => !e.isUpcoming).length;
+            const purchasedToolsCount = (currentUser.apps.filter(appId => appsList.some(a => a.id === appId)).length) + (currentUser.ebooks.filter(ebookId => ebooksList.some(e => e.id === ebookId)).length);
+            document.getElementById('apps-count').innerText = `${purchasedToolsCount}/${totalToolsCount}`;
+            const progressPct = (purchasedToolsCount / totalToolsCount) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPct}%`;
+
+            const appsContainer = document.getElementById('tools-container');
+            appsContainer.innerHTML = '';
+            appsList.forEach(app => {
+                const owned = currentUser.apps.includes(app.id);
+                const priceObj = getPrice(app.price);
+                const cardBg = owned ? "bg-white border-slate-200 shadow-sm" : "bg-white/50 border-slate-100";
+                appsContainer.innerHTML += `
+                    <div class="${cardBg} p-5 rounded-3xl border transition-all duration-300">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center ${owned ? app.bg : "bg-slate-200/50"} ${owned ? app.color : "text-slate-400 grayscale"} transition-colors"><i class="fa-solid ${app.icon}"></i></div>
+                            <h4 class="font-extrabold ${owned ? "text-slate-900" : "text-slate-600"}">${app.name}</h4>
+                        </div>
+                        <p class="text-xs ${owned ? "text-slate-500" : "text-slate-400"} mb-4 ml-1">${app.desc}</p>
+                        ${owned ? `<button onclick="openApp('${app.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Abrir App</button>` : 
+                        `<button onclick="openUpsellModal('${app.id}', 'herramienta')" class="pulse-btn-violet w-full bg-violet-50 text-violet-700 py-3 rounded-xl font-extrabold border border-violet-200 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-lock text-sm opacity-80"></i> Desbloquear por ${priceObj.text}
+                        </button>`}
+                    </div>`;
+            });
+
+            const ebooksContainer = document.getElementById('ebooks-container');
+            ebooksContainer.innerHTML = '';
+            ebooksList.forEach(ebook => {
+                // LOGICA PARA "PRÓXIMAMENTE"
+                if (ebook.isUpcoming) {
+                    ebooksContainer.innerHTML += `
+                    <div class="bg-slate-50 border-slate-200 border-dashed p-5 rounded-3xl border transition-all duration-300 opacity-80">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-200 text-slate-400"><i class="fa-solid ${ebook.icon}"></i></div>
+                            <h4 class="font-extrabold text-slate-500">${ebook.name}</h4>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4 ml-1">${ebook.desc}</p>
+                        <button disabled class="w-full bg-slate-200 text-slate-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 cursor-not-allowed">
+                            <i class="fa-solid fa-hourglass-half"></i> Próximamente...
+                        </button>
+                    </div>`;
+                    return; // saltar el resto del código para este ebook
+                }
+
+                const owned = currentUser.ebooks.includes(ebook.id);
+                const priceObj = getPrice(ebook.price);
+                const cardBg = owned ? "bg-white border-slate-200 shadow-sm" : "bg-white/50 border-slate-100";
+                ebooksContainer.innerHTML += `
+                    <div class="${cardBg} p-5 rounded-3xl border transition-all duration-300">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center ${owned ? ebook.bg : "bg-slate-200/50"} ${owned ? ebook.color : "text-slate-400 grayscale"} transition-colors"><i class="fa-solid ${ebook.icon}"></i></div>
+                            <h4 class="font-extrabold ${owned ? "text-slate-900" : "text-slate-600"}">${ebook.name}</h4>
+                        </div>
+                        <p class="text-xs ${owned ? "text-slate-500" : "text-slate-400"} mb-4 ml-1">${ebook.desc}</p>
+                        ${owned ? `<button onclick="openApp('${ebook.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Abrir Recetario</button>` : 
+                        `<button onclick="openUpsellModal('${ebook.id}', 'eBook')" class="pulse-btn-rose w-full bg-rose-50 text-rose-700 py-3 rounded-xl font-extrabold border border-rose-200 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-lock text-sm opacity-80"></i> Desbloquear por ${priceObj.text}
+                        </button>`}
+                    </div>`;
+            });
+        }
+
+        let pendingUpsellItem = null;
+
+        function openUpsellModal(id, type) {
+            const item = type === 'herramienta' ? appsList.find(a => a.id === id) : ebooksList.find(e => e.id === id);
+            if(!item) return;
+
+            pendingUpsellItem = { item: item, type: type };
+            const isPeru = currentUser.phone.startsWith('51');
+            const priceText = isPeru ? `S/ ${Math.round(item.price * TIPO_CAMBIO)}` : `$${item.price} USD`;
+
+            document.getElementById('upsell-icon').className = `fa-solid ${item.icon} ${item.color}`;
+            document.getElementById('upsell-icon-container').className = `w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner transition-colors ${item.bg}`;
+            document.getElementById('upsell-title').innerText = item.name;
+            document.getElementById('upsell-subtitle').innerText = item.subtitle;
+            document.getElementById('upsell-price').innerText = priceText;
             
-            const timerEl = document.getElementById('chef-timer-container');
-            if(step.timer) {
-                timerEl.classList.remove('hidden');
-                timerSeconds = step.timer;
-                updateTimerDisplay();
-            } else { timerEl.classList.add('hidden'); }
+            const btnConfirm = document.getElementById('btn-confirm-upsell');
+            btnConfirm.className = `w-full text-white font-black py-4 rounded-2xl text-[15px] shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 ${item.themeBtn}`;
+
+            const ul = document.getElementById('upsell-benefits'); ul.innerHTML = '';
+            item.benefits.forEach(b => { ul.innerHTML += `<li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs shrink-0"></i> <span>${b}</span></li>`; });
+
+            const modal = document.getElementById('modal-upsell'); modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { document.getElementById('upsell-content').classList.remove('translate-y-full'); }, 10);
             
-            const btnNext = document.getElementById('btn-chef-next');
-            document.getElementById('btn-chef-prev').disabled = currentStepIndex === 0;
-            if(currentStepIndex === totalSteps - 1) {
-                btnNext.innerHTML = '¡Terminar Plato! 🎉';
-                btnNext.className = "col-span-3 bg-emerald-500 h-16 rounded-[1.25rem] font-black text-lg active:scale-95 transition-all shadow-lg shadow-emerald-500/20";
-                btnNext.onclick = showSuccessModal;
-            } else {
-                btnNext.innerHTML = 'Siguiente Paso <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>';
-                btnNext.className = "col-span-3 bg-[#f43f5e] h-16 rounded-[1.25rem] font-black text-lg active:scale-95 transition-all shadow-lg shadow-rose-500/20";
-                btnNext.onclick = nextChefStep;
-            }
+            btnConfirm.onclick = () => { openUpsell(item.id, item.name, isPeru ? Math.round(item.price * TIPO_CAMBIO) : item.price, isPeru ? 'PEN' : 'USD', type); };
         }
 
-        function nextChefStep() { currentStepIndex++; renderChefStep(); }
-        function prevChefStep() { currentStepIndex--; renderChefStep(); }
-
-        function toggleChefIngredients() {
-            const panel = document.getElementById('chef-ingredients-panel');
-            const overlay = document.getElementById('chef-overlay');
-            if(panel.classList.contains('translate-y-full')) {
-                overlay.classList.remove('hidden');
-                setTimeout(() => { overlay.classList.remove('opacity-0'); panel.classList.remove('translate-y-full'); }, 10);
-            } else {
-                panel.classList.add('translate-y-full');
-                overlay.classList.add('opacity-0');
-                setTimeout(() => { overlay.classList.add('hidden'); }, 300);
-            }
+        function closeUpsellModal() {
+            document.getElementById('upsell-content').classList.add('translate-y-full');
+            setTimeout(() => { const modal = document.getElementById('modal-upsell'); modal.classList.add('hidden'); modal.classList.remove('flex'); pendingUpsellItem = null; }, 300);
         }
 
-        function toggleTimer() {
-            const btn = document.getElementById('btn-timer');
-            if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.classList.remove('timer-active'); } 
-            else { 
-                if (timerSeconds > 0) { 
-                    isTimerRunning = true; btn.classList.add('timer-active'); 
-                    timerInterval = setInterval(() => { 
-                        timerSeconds--; updateTimerDisplay(); 
-                        if (timerSeconds <= 0) { 
-                            stopTimer(); 
-                            if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                            showTimerDoneModal(); 
-                        } 
-                    }, 1000); 
-                } 
-            }
-        }
+        function openApp(id) { localStorage.setItem('currentDogName', currentUser.dogName); window.location.href = `${id}.html`; }
 
-        function stopTimer() { clearInterval(timerInterval); isTimerRunning = false; if(document.getElementById('btn-timer')) document.getElementById('btn-timer').classList.remove('timer-active'); }
-
-        function updateTimerDisplay() {
-            const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
-            const s = (timerSeconds % 60).toString().padStart(2, '0');
-            document.getElementById('timer-display').innerText = `${m}:${s}`;
-        }
-
-        function showTimerDoneModal() {
-            const modal = document.getElementById('modal-timer-done');
-            modal.classList.remove('hidden'); modal.classList.add('flex');
-            setTimeout(() => { document.getElementById('timer-done-content').classList.remove('scale-95'); }, 10);
-        }
-
-        function closeTimerDoneModal() {
-            document.getElementById('timer-done-content').classList.add('scale-95');
-            setTimeout(() => {
-                document.getElementById('modal-timer-done').classList.add('hidden');
-                document.getElementById('modal-timer-done').classList.remove('flex');
-            }, 300);
-        }
-
-        function showSuccessModal() {
-            releaseWakeLock();
-            document.getElementById('success-recipe-name').innerText = translateText(activeRecipe.title);
-            const modal = document.getElementById('modal-success');
-            modal.classList.remove('hidden'); modal.classList.add('flex');
-            setTimeout(() => { document.getElementById('success-content').classList.remove('scale-95'); }, 10);
-        }
-
-        function closeSuccessModal() {
-            document.getElementById('success-content').classList.add('scale-95');
-            setTimeout(() => {
-                document.getElementById('modal-success').classList.add('hidden');
-                document.getElementById('modal-success').classList.remove('flex');
-                if(isSyncMode) showScreen('screen-daily-plan');
-                else showScreen('screen-lobby');
-            }, 300);
-        }
-
-        // ======================= WHATSAPP =======================
-        function generateWhatsAppList() {
-            const tomas = nutriCanPlan.etapa === 'cachorro' ? 3 : 2;
-            let missing = false;
-            for(let i=0; i<tomas; i++) { if(!selectedDailyMeals[i]) missing = true; }
-            if(missing) { alert("Por favor, asegúrate de tener un plato seleccionado para cada ración."); return; }
-
-            let aggList = { prot: {}, veg: {}, bone: {} };
+        function openUpsell(itemId, itemName, itemPrice, currency, type) {
+            const itemTypeLabel = type === 'eBook' ? 'el eBook' : 'la herramienta';
+            const priceText = currency === 'PEN' ? `S/ ${itemPrice}` : `$${itemPrice} USD`;
             
-            for(let i=0; i<tomas; i++) {
-                const recipeId = selectedDailyMeals[i];
-                const rec = recipes.find(r => r.id === recipeId);
-                let totalBase = 0;
-                rec.ingredients.forEach(ing => { if(!ing.noScale) totalBase += ing.baseGrams; });
-                const mult = syncGramsPerMeal / totalBase;
-
-                rec.ingredients.forEach(ing => {
-                    const name = translateText(ing.name);
-                    const finalGrams = ing.noScale ? ing.baseGrams : Math.round(ing.baseGrams * mult);
-                    if(aggList[ing.type][name]) aggList[ing.type][name] += finalGrams;
-                    else aggList[ing.type][name] = finalGrams;
-                });
-            }
-
-            let msg = `🛒 *Lista de Compras - NutriChef* 🐶\n*Para el menú de hoy de ${dogName}:*\n\n`;
-            if(Object.keys(aggList.prot).length > 0) {
-                msg += `🥩 *PROTEÍNAS:*\n`;
-                for (const [name, qty] of Object.entries(aggList.prot)) { msg += `• ${qty}${qty>10?'g':' unid.'} de ${name}\n`; }
-                msg += `\n`;
-            }
-            if(Object.keys(aggList.veg).length > 0) {
-                msg += `🥦 *VEGETALES/FIBRA:*\n`;
-                for (const [name, qty] of Object.entries(aggList.veg)) { msg += `• ${qty}g de ${name}\n`; }
-                msg += `\n`;
-            }
-            msg += `*¡Todo listo para cocinar! 👨‍🍳*`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+            const msg = `Hola Soporte 👋\n\nQuiero desbloquear ${itemTypeLabel} *${itemName}* por ${priceText}.\n\n👤 Mi cuenta es: +${currentUser.phone}\n💳 ¿Me dan los pasos para pagar?\n\n[ID: ${itemId}]`;
+            window.open(`https://wa.me/51932335202?text=${encodeURIComponent(msg)}`, '_blank');
         }
+
+        function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
+        function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
 </html>

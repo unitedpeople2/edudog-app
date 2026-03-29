@@ -209,7 +209,7 @@
         async function performLogin(email, pin, isAuto = false) {
             try {
                 // Buscamos al usuario en la colección universal 'usuarios'
-                const doc = await db.collection('usuarios').document(email).get();
+                const doc = await db.collection('usuarios').doc(email).get();
                 
                 if (doc.exists) {
                     const data = doc.data();

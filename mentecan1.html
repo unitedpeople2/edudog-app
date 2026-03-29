@@ -15,23 +15,25 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; }
         
-        /* Layout SaaS: Sidebar en PC / Full screen en móvil [cite: 78, 87] */
+        /* FIX: Layout SaaS Responsivo sin huecos blancos */
         .main-layout { display: flex; height: 100vh; width: 100%; overflow: hidden; }
-        .sidebar { width: 280px; background: #0f172a; color: white; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 50; }
+        .sidebar { width: 280px; background: #0f172a; color: white; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 50; shrink-0: 0; }
         .content-area { flex: 1; overflow-y: auto; background: #f1f5f9; position: relative; }
         
         @media (max-width: 768px) {
             .sidebar { position: fixed; left: 0; height: 100%; transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
-            .content-area { width: 100%; }
         }
 
         .screen { display: none; min-height: 100vh; width: 100%; animation: fadeIn 0.4s ease-out; }
-        .screen.active { display: flex; flex-direction: column; }
+        /* FIX: Quitamos flex-direction column para que Sidebar y Content se alineen en horizontal */
+        .screen.active { display: flex; } 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .app-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e2e8f0; }
+        .app-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e2e8f0; height: 100%; }
         .app-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        
+        .premium-badge { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
     </style>
 </head>
 <body class="antialiased">
@@ -41,20 +43,20 @@
         <span id="toast-msg">Mensaje</span>
     </div>
 
-    <section id="screen-login" class="screen active items-center justify-center bg-slate-50">
+    <section id="screen-login" class="screen active items-center justify-center bg-slate-50 flex-col">
         <div class="w-full max-w-md px-6">
             <div class="text-center mb-10">
                 <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center text-white text-4xl mx-auto mb-4 shadow-xl">
                     <i class="fa-solid fa-globe"></i>
                 </div>
                 <h1 class="text-3xl font-black text-slate-900 tracking-tight">HR Digital</h1>
-                <p class="text-slate-500 font-bold mt-1 uppercase text-[10px] tracking-widest">Plataforma de Herramientas</p>
+                <p class="text-slate-500 font-bold mt-1 uppercase text-[10px] tracking-widest">Plataforma SaaS</p>
             </div>
 
             <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl space-y-5 border border-slate-100">
                 <div class="space-y-1.5">
                     <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">Correo de Compra</label>
-                    <div class="relative rounded-2xl border border-slate-200 bg-slate-50/50 focus-within:border-blue-500 transition-all">
+                    <div class="relative group rounded-2xl border border-slate-200 bg-slate-50/50 focus-within:border-blue-500 transition-all">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-envelope"></i></span>
                         <input type="email" id="login-email" placeholder="tu@correo.com" class="w-full bg-transparent text-slate-900 py-4 pl-12 pr-4 outline-none font-bold text-lg">
                     </div>
@@ -73,37 +75,24 @@
 
                 <button onclick="handleLogin()" id="btn-login" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl active:scale-95 transition-all text-sm shadow-xl flex justify-center items-center gap-2">
                     <span id="btn-text">Ingresar a mi Cuenta</span>
-                    <div id="btn-loader" class="hidden flex gap-1">
-                        <div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce"></div>
-                        <div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                        <div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce [animation-delay:0.4s]"></div>
-                    </div>
                 </button>
             </div>
         </div>
     </section>
 
     <section id="screen-hub" class="screen main-layout">
+        
         <aside class="sidebar" id="sidebar">
             <div class="p-8 border-b border-white/10 flex items-center gap-3">
                 <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xl"><i class="fa-solid fa-globe"></i></div>
-                <div>
-                    <h2 class="font-black text-base leading-none">HR Digital</h2>
-                    <p class="text-[9px] text-blue-400 font-black uppercase mt-1 tracking-widest">SaaS Hub</p>
-                </div>
+                <div><h2 class="font-black text-base leading-none">HR Digital</h2><p class="text-[9px] text-blue-400 font-black uppercase mt-1 tracking-widest">SaaS Hub</p></div>
             </div>
             <nav class="flex-1 p-6 space-y-2">
-                <button class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-lg shadow-blue-600/20">
-                    <i class="fa-solid fa-house-chimney w-5"></i> Mis Accesos
-                </button>
-                <button onclick="window.open('https://wa.me/51932335202', '_blank')" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-white/5 font-bold text-sm">
-                    <i class="fa-solid fa-headset w-5"></i> Soporte VIP
-                </button>
+                <button class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-lg shadow-blue-600/20"><i class="fa-solid fa-house-chimney w-5"></i> Dashboard</button>
+                <button onclick="window.open('https://wa.me/51932335202', '_blank')" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-white/5 font-bold text-sm transition-all"><i class="fa-solid fa-headset w-5"></i> Soporte VIP</button>
             </nav>
             <div class="p-6 border-t border-white/10">
-                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-rose-400 hover:bg-rose-500/10 font-bold text-sm transition-all">
-                    <i class="fa-solid fa-right-from-bracket w-5"></i> Cerrar Sesión [cite: 185]
-                </button>
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-rose-400 hover:bg-rose-500/10 font-bold text-sm transition-all"><i class="fa-solid fa-right-from-bracket w-5"></i> Cerrar Sesión</button>
             </div>
         </aside>
 
@@ -114,23 +103,32 @@
                 <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xs font-bold" id="user-initial">U</div>
             </div>
 
-            <div class="p-6 md:p-10 max-w-7xl mx-auto space-y-10">
-                <header class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <h1 class="text-3xl font-black text-slate-900 tracking-tight">¡Hola, <span id="user-display-name">Miembro</span>! 👋</h1>
-                        <p class="text-slate-500 font-medium mt-1">Estas son las herramientas activas en tu suscripción.</p>
-                    </div>
+            <div class="p-6 md:p-10 max-w-7xl mx-auto space-y-12">
+                <header>
+                    <h1 class="text-3xl font-black text-slate-900 tracking-tight">¡Hola, <span id="user-display-name">Miembro</span>! 👋</h1>
+                    <p class="text-slate-500 font-medium mt-1">Gestiona tus herramientas y explora nuevas soluciones.</p>
                 </header>
 
-                <div id="hub-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div id="skeleton-loader" class="col-span-full py-20 text-center text-slate-400 font-bold animate-pulse">Sincronizando tus herramientas...</div>
+                <div>
+                    <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Mis Herramientas Activas
+                    </h3>
+                    <div id="grid-mis-apps" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        </div>
+                </div>
+
+                <div class="pt-8 border-t border-slate-200">
+                    <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-store text-blue-500"></i> Explorar Más Soluciones
+                    </h3>
+                    <div id="grid-catalogo" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        </div>
                 </div>
             </div>
         </main>
     </section>
 
     <script>
-        // CONFIG [cite: 218, 268]
         const firebaseConfig = {
             apiKey: "AIzaSyCrbqdz-JMZNV0H0zcrHwfDOawE3_ouUNw",
             authDomain: "guias-facil-bot.firebaseapp.com",
@@ -145,35 +143,23 @@
             if (saved) { const creds = JSON.parse(saved); performLogin(creds.email, creds.pin, true); }
         });
 
-        // MEJORA: Visibilidad del PIN
         function togglePinVisibility() {
-            const pinInput = document.getElementById('login-pin');
-            const pinIcon = document.getElementById('pin-icon');
-            if (pinInput.type === 'password') {
-                pinInput.type = 'text';
-                pinIcon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                pinInput.type = 'password';
-                pinIcon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+            const input = document.getElementById('login-pin');
+            const icon = document.getElementById('pin-icon');
+            if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); }
+            else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
         }
 
         async function handleLogin() {
             const email = document.getElementById('login-email').value.trim();
             const pin = document.getElementById('login-pin').value.trim();
-            if(!email || pin.length < 6) return showToast("Ingresa correo y PIN de 6 dígitos", "error");
-
-            const btn = document.getElementById('btn-login');
-            document.getElementById('btn-text').classList.add('hidden');
-            document.getElementById('btn-loader').classList.remove('hidden');
+            if(!email || pin.length < 6) return showToast("Ingresa datos válidos", "error");
             await performLogin(email, pin);
-            document.getElementById('btn-text').classList.remove('hidden');
-            document.getElementById('btn-loader').classList.add('hidden');
         }
 
         async function performLogin(email, pin, isAuto = false) {
             try {
-                // FIX: .doc() en lugar de .document() 
+                // FIX: .doc()
                 const doc = await db.collection('usuarios').doc(email).get();
                 if (doc.exists) {
                     const data = doc.data();
@@ -184,55 +170,65 @@
                         showScreen('screen-hub');
                     } else if(!isAuto) showToast("PIN incorrecto", "error");
                 } else if(!isAuto) showToast("Cuenta no encontrada", "error");
-            } catch (e) { if(!isAuto) showToast("Error de conexión", "error"); }
+            } catch (e) { console.error(e); }
         }
 
-        // RENDER DINÁMICO [cite: 321, 326, 409]
         async function renderHub() {
-            const grid = document.getElementById('hub-grid');
+            const gridMisApps = document.getElementById('grid-mis-apps');
+            const gridCatalogo = document.getElementById('grid-catalogo');
+            
             document.getElementById('user-display-name').innerText = currentUserData.nombre || 'Miembro';
             document.getElementById('user-initial').innerText = (currentUserData.nombre || 'U')[0].toUpperCase();
 
+            // Obtenemos todos los IDs que el usuario YA TIENE desbloqueados
             const myIDs = [...(currentUserData.apps_activas || []), ...(currentUserData.ebooks_activos || [])];
-            if (myIDs.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-10 text-center font-bold text-slate-400">No tienes herramientas activas aún.</div>`;
-                return;
-            }
 
             try {
                 const snap = await db.collection('productos').where('activo', '==', true).get();
-                let html = '';
+                let htmlMisApps = '';
+                let htmlCatalogo = '';
+
                 snap.forEach(doc => {
                     const p = doc.data();
                     const pKeys = [...(p.apps_a_desbloquear || []), ...(p.ebooks_a_desbloquear || [])];
-                    if (pKeys.some(id => myIDs.includes(id))) {
-                        const icon = p.nicho === 'edudog' ? 'fa-shield-dog' : 'fa-gem';
-                        const color = p.nicho === 'edudog' ? 'bg-violet-600' : 'bg-blue-600';
-                        const internalID = p.apps_a_desbloquear[0] || p.ebooks_a_desbloquear[0];
+                    const hasAccess = pKeys.some(id => myIDs.includes(id));
+                    
+                    const icon = p.nicho === 'edudog' ? 'fa-shield-dog' : 'fa-globe';
+                    const color = p.nicho === 'edudog' ? 'bg-violet-600' : 'bg-blue-600';
+                    const internalID = pKeys[0] || 'index';
 
-                        html += `
-                        <div class="app-card bg-white rounded-[2.5rem] p-8 flex flex-col justify-between shadow-sm">
-                            <div>
-                                <div class="w-14 h-14 ${color} rounded-2xl flex items-center justify-center text-white text-2xl mb-6 shadow-lg"><i class="fa-solid ${icon}"></i></div>
-                                <h3 class="text-xl font-black text-slate-900 leading-tight mb-2">${p.nombre_producto}</h3>
-                                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-6">${p.nicho}</p>
+                    // DISEÑO DE TARJETA (Solo visual, sin texto de IA)
+                    const cardHTML = `
+                        <div class="app-card bg-white rounded-[2.5rem] p-8 flex flex-col shadow-sm border border-slate-100">
+                            <div class="w-14 h-14 ${color} rounded-2xl flex items-center justify-center text-white text-2xl mb-6 shadow-lg"><i class="fa-solid ${icon}"></i></div>
+                            <h3 class="text-xl font-black text-slate-900 leading-tight mb-2">${p.nombre_producto}</h3>
+                            <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-6">${p.nicho === 'edudog' ? 'Nicho Mascotas' : 'Nicho Negocios'}</p>
+                            
+                            <div class="mt-auto pt-4">
+                                ${hasAccess ? 
+                                    `<button onclick="window.location.href='${internalID}.html'" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">Abrir Herramienta <i class="fa-solid fa-circle-play"></i></button>` : 
+                                    `<button onclick="window.open('${p.link_hotmart}', '_blank')" class="w-full bg-white text-blue-600 border-2 border-blue-100 font-black py-4 rounded-2xl hover:bg-blue-50 transition-all flex items-center justify-center gap-2">Obtener Acceso <i class="fa-solid fa-lock text-xs opacity-40"></i></button>`
+                                }
                             </div>
-                            <button onclick="window.location.href='${internalID}.html'" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">Abrir Herramienta <i class="fa-solid fa-circle-play"></i></button>
                         </div>`;
-                    }
+
+                    if (hasAccess) htmlMisApps += cardHTML;
+                    else htmlCatalogo += cardHTML;
                 });
-                grid.innerHTML = html;
-            } catch (e) { grid.innerHTML = `<p class="text-rose-500">Error cargando catálogo.</p>`; }
+
+                gridMisApps.innerHTML = htmlMisApps || `<p class="col-span-full text-slate-400 font-bold">No tienes herramientas activas aún.</p>`;
+                gridCatalogo.innerHTML = htmlCatalogo || `<p class="col-span-full text-slate-400 font-bold">Próximamente más herramientas...</p>`;
+
+            } catch (e) { console.error(e); }
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-        function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
+        function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'flex')); document.getElementById(id).classList.add('active'); if(id==='screen-login') document.getElementById(id).classList.add('flex'); }
         function logout() { localStorage.clear(); location.reload(); }
         function showToast(msg, type = 'success') {
             const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg;
             document.getElementById('toast-icon').className = type === 'error' ? 'fa-solid fa-circle-xmark text-rose-400' : 'fa-solid fa-circle-check text-emerald-400';
-            t.classList.remove('-translate-y-24', 'opacity-0');
-            setTimeout(() => t.classList.add('-translate-y-24', 'opacity-0'), 3000);
+            t.classList.remove('-translate-y-24', 'opacity-0'); setTimeout(() => t.classList.add('-translate-y-24', 'opacity-0'), 3000);
         }
     </script>
 </body>

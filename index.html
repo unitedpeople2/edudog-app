@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Digital - Plataforma SaaS</title>
+    <title>HR Digital - Ecosistema de Herramientas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
@@ -16,49 +16,50 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; }
         
         /* Navbar de Cristal */
-        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+        .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
         
         .nav-link.active { color: #2563eb; position: relative; }
         .nav-link.active::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 100%; height: 2px; background: #2563eb; border-radius: 99px; }
 
-        /* Contenedores Inteligentes */
-        .screen { display: none; animation: fadeIn 0.4s ease-out; }
+        /* Transiciones de Pantalla */
+        .screen { display: none; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Tarjetas de Producto */
-        .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); height: 100%; border: 1px solid #e2e8f0; background: white; }
-        .product-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
+        /* Tarjetas de Producto Premium */
+        .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); height: 100%; border: 1px solid #e2e8f0; background: white; cursor: default; }
+        .product-card:hover { transform: translateY(-6px); border-color: #cbd5e1; box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.08), 0 10px 15px -6px rgba(0, 0, 0, 0.04); }
 
-        /* Centrado de lectura para PC */
-        .readable-width { max-width: 900px; margin: 0 auto; }
-        
-        /* Loader */
+        /* Loader Inteligente */
         .loader-dots div { animation: loader-dots 0.6s infinite alternate; }
         @keyframes loader-dots { from { opacity: 0.1; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
+        
+        /* Ocultar scrollbar en elementos horizontales */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="antialiased">
 
     <section id="screen-login" class="fixed inset-0 z-[100] bg-slate-50 flex items-center justify-center p-6">
-        <div class="w-full max-w-md bg-white p-10 rounded-[2.5rem] shadow-2xl border border-slate-100 text-center">
-            <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center text-white text-4xl mx-auto mb-6 shadow-xl"><i class="fa-solid fa-globe"></i></div>
+        <div class="w-full max-w-md bg-white p-10 rounded-[2.5rem] shadow-2xl border border-slate-100 text-center relative overflow-hidden">
+            <div class="w-20 h-20 bg-blue-600 rounded-[1.5rem] flex items-center justify-center text-white text-4xl mx-auto mb-6 shadow-xl shadow-blue-600/20"><i class="fa-solid fa-globe"></i></div>
             <h1 class="text-3xl font-black text-slate-900 mb-2 tracking-tight">HR Digital</h1>
             <p class="text-slate-400 font-bold mb-8 uppercase text-[10px] tracking-widest">Plataforma de Herramientas</p>
             
-            <div class="space-y-4 text-left">
+            <div class="space-y-4 text-left relative z-10">
                 <div>
                     <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">Correo de Acceso</label>
-                    <input type="email" id="login-email" placeholder="tu@correo.com" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-5 outline-none font-bold focus:border-blue-500 transition-all">
+                    <input type="email" id="login-email" placeholder="tu@correo.com" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-5 outline-none font-bold focus:border-blue-500 focus:bg-white transition-all">
                 </div>
                 <div class="relative">
                     <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">PIN Secreto</label>
-                    <input type="password" id="login-pin" maxlength="6" placeholder="••••••" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-5 outline-none font-black text-2xl tracking-[0.5em] focus:border-blue-500 transition-all">
-                    <button onclick="togglePin()" class="absolute right-5 bottom-4 text-slate-400 p-2"><i id="pin-icon" class="fa-solid fa-eye"></i></button>
+                    <input type="password" id="login-pin" maxlength="6" placeholder="••••••" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-5 outline-none font-black text-2xl tracking-[0.5em] focus:border-blue-500 focus:bg-white transition-all">
+                    <button onclick="togglePin()" class="absolute right-5 bottom-4 text-slate-400 p-2 hover:text-slate-600 transition-colors"><i id="pin-icon" class="fa-solid fa-eye"></i></button>
                 </div>
-                <button onclick="handleLogin()" id="btn-login" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 transition-all mt-4 flex items-center justify-center gap-2">
+                <button onclick="handleLogin()" id="btn-login" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 transition-all mt-6 flex items-center justify-center gap-2 hover:bg-slate-800">
                     <span id="btn-text">Ingresar a la Plataforma</span>
-                    <div id="btn-loader" class="hidden flex gap-1"><div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce"></div><div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce [animation-delay:0.2s]"></div></div>
+                    <div id="btn-loader" class="hidden flex gap-1.5"><div class="w-2 h-2 bg-white rounded-full animate-bounce"></div><div class="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:0.2s]"></div><div class="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:0.4s]"></div></div>
                 </button>
             </div>
         </div>
@@ -67,61 +68,61 @@
     <div id="main-interface" class="hidden min-h-screen flex flex-col">
         
         <nav class="sticky top-0 z-50 glass-nav h-16 shrink-0">
-            <div class="max-w-7xl mx-auto px-6 h-full flex justify-between items-center">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8 h-full flex justify-between items-center">
                 <div class="flex items-center gap-8">
                     <div class="flex items-center gap-2 font-black text-xl text-blue-600">
-                        <i class="fa-solid fa-globe"></i> <span>HR Digital</span>
+                        <i class="fa-solid fa-globe"></i> <span class="hidden sm:inline">HR Digital</span>
                     </div>
-                    <div class="hidden md:flex gap-8 text-sm font-black text-slate-400">
-                        <button onclick="showScreen('catalog')" id="nav-catalog" class="nav-link py-2 active">Catálogo</button>
-                        <button onclick="showScreen('dashboard')" id="nav-dashboard" class="nav-link py-2">Mis Herramientas</button>
+                    <div class="hidden md:flex gap-8 text-sm font-black text-slate-400 border-l border-slate-200 pl-8">
+                        <button onclick="showScreen('catalog')" id="nav-catalog" class="nav-link py-2 hover:text-slate-600 transition-colors active">Catálogo</button>
+                        <button onclick="showScreen('dashboard')" id="nav-dashboard" class="nav-link py-2 hover:text-slate-600 transition-colors">Mis Herramientas</button>
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-5">
                     <div class="text-right hidden sm:block">
                         <p id="user-display-name" class="text-xs font-black text-slate-900 leading-none mb-0.5">Usuario</p>
-                        <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Miembro Premium</p>
+                        <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest"><i class="fa-solid fa-circle-check"></i> Activo</p>
                     </div>
                     <button onclick="logout()" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-rose-50 hover:text-rose-500 transition-all"><i class="fa-solid fa-right-from-bracket"></i></button>
                 </div>
             </div>
         </nav>
 
-        <div class="flex-1">
+        <div class="flex-1 w-full max-w-7xl mx-auto">
             
-            <main id="screen-catalog" class="screen active p-6 md:p-12 max-w-7xl mx-auto">
-                <header class="mb-12">
-                    <h1 class="text-4xl font-black text-slate-900 tracking-tight">Ecosistema de Soluciones 🚀</h1>
-                    <p class="text-slate-500 font-medium mt-2">Explora herramientas inteligentes diseñadas para transformar tu día a día.</p>
+            <main id="screen-catalog" class="screen active p-6 md:p-8 lg:py-12">
+                <header class="mb-10 lg:mb-12 text-center md:text-left">
+                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">Ecosistema Premium 🚀</h1>
+                    <p class="text-slate-500 font-medium mt-3 text-sm md:text-base">Explora las herramientas que están transformando rutinas diarias.</p>
                 </header>
-                <div id="grid-catalog" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div id="grid-catalog" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
                     </div>
             </main>
 
-            <main id="screen-dashboard" class="screen p-6 md:p-12 max-w-7xl mx-auto">
-                <header class="mb-12">
-                    <h1 class="text-4xl font-black text-slate-900 tracking-tight">Mis Accesos Activos 🛡️</h1>
-                    <p class="text-slate-500 font-medium mt-2">Bienvenido de nuevo. Estas son tus herramientas desbloqueadas.</p>
+            <main id="screen-dashboard" class="screen p-6 md:p-8 lg:py-12">
+                <header class="mb-10 lg:mb-12 text-center md:text-left">
+                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">Tus Accesos 🛡️</h1>
+                    <p class="text-slate-500 font-medium mt-3 text-sm md:text-base">Bienvenido de nuevo. Aquí tienes todo lo que has desbloqueado.</p>
                 </header>
-                <div id="grid-owned" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div id="grid-owned" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
                     </div>
             </main>
 
-            <main id="screen-product" class="screen p-6 md:p-12">
-                <div class="max-w-5xl mx-auto">
-                    <button onclick="showScreen('catalog')" class="mb-8 font-black text-slate-400 hover:text-blue-600 flex items-center gap-2 transition-all active:translate-x-[-4px]"><i class="fa-solid fa-arrow-left"></i> Volver al Catálogo</button>
-                    <div id="product-detail-view" class="bg-white rounded-[3.5rem] p-8 md:p-16 shadow-2xl border border-slate-100 flex flex-col md:flex-row gap-16 items-center">
+            <main id="screen-product" class="screen p-6 md:p-8 lg:py-12">
+                <div class="max-w-6xl mx-auto">
+                    <button onclick="showScreen('catalog')" class="mb-6 lg:mb-8 font-black text-slate-400 hover:text-slate-700 flex items-center gap-2 transition-all active:translate-x-[-4px]"><i class="fa-solid fa-arrow-left"></i> Volver al Catálogo</button>
+                    <div id="product-detail-view" class="bg-white rounded-[2.5rem] lg:rounded-[3.5rem] p-6 md:p-10 lg:p-14 shadow-2xl border border-slate-100 flex flex-col lg:flex-row gap-10 lg:gap-16 items-center">
                         </div>
                 </div>
             </main>
         </div>
 
-        <nav class="md:hidden sticky bottom-0 z-50 glass-nav h-20 shrink-0 flex items-center justify-around px-6 border-t border-slate-200">
-            <button onclick="showScreen('catalog')" id="mob-nav-catalog" class="flex flex-col items-center gap-1 font-black text-[10px] text-slate-400 nav-link active">
-                <i class="fa-solid fa-store text-xl"></i> Catálogo
+        <nav class="md:hidden sticky bottom-0 z-50 glass-nav h-[72px] shrink-0 flex items-center justify-around px-6 border-t border-slate-200">
+            <button onclick="showScreen('catalog')" id="mob-nav-catalog" class="flex flex-col items-center gap-1 font-black text-[10px] text-slate-400 nav-link active w-full">
+                <i class="fa-solid fa-store text-xl mb-0.5"></i> Catálogo
             </button>
-            <button onclick="showScreen('dashboard')" id="mob-nav-dashboard" class="flex flex-col items-center gap-1 font-black text-[10px] text-slate-400 nav-link">
-                <i class="fa-solid fa-shapes text-xl"></i> Mis Apps
+            <button onclick="showScreen('dashboard')" id="mob-nav-dashboard" class="flex flex-col items-center gap-1 font-black text-[10px] text-slate-400 nav-link w-full">
+                <i class="fa-solid fa-shapes text-xl mb-0.5"></i> Mis Apps
             </button>
         </nav>
     </div>
@@ -169,7 +170,7 @@
             renderCatalog();
         }
 
-        // MOTOR DE RENDERIZADO (GRID PROFESIONAL)
+        // MOTOR DE RENDERIZADO (APP STORE STYLE)
         async function renderCatalog() {
             const gridCat = document.getElementById('grid-catalog');
             const gridOwned = document.getElementById('grid-owned');
@@ -184,21 +185,43 @@
                     const pKeys = [...(p.apps_a_desbloquear || []), ...(p.ebooks_a_desbloquear || [])];
                     const hasAccess = pKeys.some(key => myPerms.includes(key));
                     
-                    const icon = p.nicho === 'edudog' ? 'fa-shield-dog' : 'fa-gem';
-                    const color = p.nicho === 'edudog' ? 'bg-violet-600' : 'bg-blue-600';
                     const label = p.nicho === 'edudog' ? 'Mascotas' : 'Premium';
+                    
+                    // MAGIA: Inyección automática de imágenes si no están en Firebase
+                    let imageUrl = p.imagen_url || "";
+                    if (!imageUrl) {
+                        if (p.nombre_producto.toLowerCase().includes('nutrican')) {
+                            imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriCan.jpg?alt=media&token=417ba8ef-1f85-4011-a497-2cb0c182186d";
+                        } else if (p.nombre_producto.toLowerCase().includes('nutrichef')) {
+                            imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriChef.jpg?alt=media&token=e66b0f8f-ad5d-442a-b751-e22d7d90929f";
+                        }
+                    }
 
+                    // Construimos la sección de la imagen
+                    const imageSection = imageUrl 
+                        ? `<img src="${imageUrl}" alt="${p.nombre_producto}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">`
+                        : `<div class="w-full h-full flex flex-col items-center justify-center bg-slate-100 text-slate-300"><i class="fa-solid fa-image text-4xl mb-2"></i><span class="text-[9px] font-black uppercase tracking-widest">Sin Portada</span></div>`;
+
+                    // Diseño de la Tarjeta Vitrina
                     const cardHTML = `
-                        <div class="product-card rounded-[2.5rem] p-8 flex flex-col">
-                            <div class="w-14 h-14 ${color} rounded-2xl flex items-center justify-center text-white text-2xl mb-6 shadow-lg shadow-blue-600/10"><i class="fa-solid ${icon}"></i></div>
-                            <h3 class="text-xl font-black text-slate-900 leading-tight mb-2">${p.nombre_producto}</h3>
-                            <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-8">${label}</p>
+                        <div class="product-card group rounded-[2rem] flex flex-col overflow-hidden relative">
+                            ${hasAccess ? `<div class="absolute top-4 right-4 z-20 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-md"><i class="fa-solid fa-check mr-1"></i> Tuya</div>` : ''}
                             
-                            <div class="mt-auto">
-                                ${hasAccess ? 
-                                    `<button onclick="window.location.href='${pKeys[0]}.html'" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-blue-600 transition-all active:scale-95 flex items-center justify-center gap-2">Abrir App <i class="fa-solid fa-circle-play"></i></button>` : 
-                                    `<button onclick="viewProductDetails('${p.id}')" class="w-full bg-blue-50 text-blue-600 border-2 border-blue-100 font-black py-4 rounded-2xl hover:bg-blue-100 transition-all flex items-center justify-center gap-2">Ver Detalles <i class="fa-solid fa-lock text-xs opacity-40"></i></button>`
-                                }
+                            <div class="w-full aspect-square relative overflow-hidden bg-slate-50 border-b border-slate-100">
+                                ${imageSection}
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            </div>
+                            
+                            <div class="p-6 md:p-7 flex flex-col flex-1 bg-white">
+                                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1.5">${label}</p>
+                                <h3 class="text-lg md:text-xl font-black text-slate-900 leading-tight mb-6">${p.nombre_producto}</h3>
+                                
+                                <div class="mt-auto">
+                                    ${hasAccess ? 
+                                        `<button onclick="window.location.href='${pKeys[0]}.html'" class="w-full bg-slate-900 text-white font-black py-4 rounded-xl shadow-lg hover:bg-slate-800 hover:shadow-slate-900/20 transition-all active:scale-95 flex items-center justify-center gap-2">Abrir App <i class="fa-solid fa-arrow-right"></i></button>` : 
+                                        `<button onclick="viewProductDetails('${p.id}')" class="w-full bg-blue-50 text-blue-600 border border-blue-100 font-bold py-4 rounded-xl hover:bg-blue-100 hover:border-blue-200 transition-all flex items-center justify-center gap-2 active:scale-95">Ver Detalles <i class="fa-solid fa-lock text-[10px] opacity-50"></i></button>`
+                                    }
+                                </div>
                             </div>
                         </div>`;
 
@@ -207,31 +230,59 @@
                 });
 
                 gridCat.innerHTML = htmlCat;
-                gridOwned.innerHTML = htmlOwned || `<div class="col-span-full py-20 text-center text-slate-400 font-bold">Aún no tienes herramientas compradas.</div>`;
+                gridOwned.innerHTML = htmlOwned || `
+                    <div class="col-span-full py-20 text-center flex flex-col items-center">
+                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 text-3xl mb-4"><i class="fa-solid fa-box-open"></i></div>
+                        <h3 class="text-xl font-black text-slate-900 mb-2">Aún no tienes herramientas</h3>
+                        <p class="text-slate-500 font-medium">Explora el catálogo y transforma tu rutina.</p>
+                        <button onclick="showScreen('catalog')" class="mt-6 font-bold text-blue-600 bg-blue-50 px-6 py-3 rounded-xl hover:bg-blue-100 transition-colors">Ir al Catálogo</button>
+                    </div>`;
 
             } catch (e) { console.error(e); }
         }
 
-        // PÁGINA DE VENTAS INTERNA (MANTENER CENTRADO)
+        // PÁGINA DE VENTAS INTERNA (CON IMAGEN GRANDE)
         async function viewProductDetails(productId) {
             const doc = await db.collection('productos').doc(productId).get();
             const p = doc.data();
-            const colorClass = p.nicho === 'edudog' ? 'text-violet-600' : 'text-blue-600';
+            
+            // Reusamos la magia de inyección para la página de ventas
+            let imageUrl = p.imagen_url || "";
+            if (!imageUrl) {
+                if (p.nombre_producto.toLowerCase().includes('nutrican')) imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriCan.jpg?alt=media&token=417ba8ef-1f85-4011-a497-2cb0c182186d";
+                else if (p.nombre_producto.toLowerCase().includes('nutrichef')) imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriChef.jpg?alt=media&token=e66b0f8f-ad5d-442a-b751-e22d7d90929f";
+            }
+
+            // Si hay imagen, la mostramos espectacular; si no, el ícono gigante
+            const rightSideVisual = imageUrl
+                ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-[2rem] lg:rounded-[3rem] shadow-2xl border border-slate-100" alt="${p.nombre_producto}">`
+                : `<div class="text-[10rem] text-slate-200"><i class="fa-solid fa-box"></i></div>`;
+
+            // Ojo al inyectar el correo del usuario para Hotmart
+            const userEmail = userData?.email || '';
+            const hotmartLinkConCorreo = userEmail ? `${p.link_hotmart}?email=${encodeURIComponent(userEmail)}` : p.link_hotmart;
 
             document.getElementById('product-detail-view').innerHTML = `
-                <div class="flex-1">
-                    <span class="bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">Oferta Activa</span>
-                    <h2 class="text-5xl font-black text-slate-900 tracking-tighter mt-6 mb-4 leading-tight">${p.nombre_producto}</h2>
-                    <div class="space-y-4 mb-12">
-                        ${(p.texto_cierre_ventas || '').split('✅').filter(t=>t.trim()).map(t => `<p class="flex items-start gap-3 font-bold text-slate-600 leading-relaxed"><i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i> ${t.trim()}</p>`).join('')}
+                <div class="flex-1 order-2 lg:order-1">
+                    <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-sm"><i class="fa-solid fa-bolt mr-1"></i> Oferta Especial</span>
+                    <h2 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mt-6 mb-6 leading-[1.1]">${p.nombre_producto}</h2>
+                    
+                    <div class="space-y-4 mb-10">
+                        ${(p.texto_cierre_ventas || '').split('✅').filter(t=>t.trim()).map(t => `<p class="flex items-start gap-3 font-medium text-slate-600 leading-relaxed text-sm md:text-base"><i class="fa-solid fa-circle-check text-emerald-500 mt-1 shrink-0"></i> ${t.trim()}</p>`).join('')}
                     </div>
-                    <div class="flex flex-col sm:flex-row items-center gap-6 pt-6 border-t border-slate-100">
-                        <div class="text-4xl font-black text-slate-900 tracking-tight">$${p.precio_oferta} USD <span class="text-sm text-slate-400 line-through ml-2 opacity-50">$97</span></div>
-                        <button onclick="window.open('${p.link_hotmart}', '_blank')" class="w-full sm:w-auto bg-blue-600 text-white font-black px-12 py-5 rounded-[1.5rem] shadow-2xl shadow-blue-600/30 active:scale-95 transition-all text-lg hover:bg-blue-700">Adquirir Ahora</button>
+                    
+                    <div class="flex flex-col sm:flex-row items-center gap-4 md:gap-6 pt-8 border-t border-slate-100">
+                        <div class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight shrink-0 flex items-end gap-2">
+                            $${p.precio_oferta} <span class="text-sm font-bold text-slate-400 mb-1 line-through opacity-70">$97 USD</span>
+                        </div>
+                        <button onclick="window.open('${hotmartLinkConCorreo}', '_blank')" class="w-full bg-blue-600 text-white font-black px-8 py-4 md:py-5 rounded-[1.5rem] shadow-xl shadow-blue-600/20 active:scale-95 transition-all md:text-lg hover:bg-blue-700 flex justify-center items-center gap-2">
+                            Desbloquear Ahora <i class="fa-solid fa-arrow-right"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="hidden lg:flex flex-1 items-center justify-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200 aspect-square">
-                    <div class="text-[10rem] ${colorClass} opacity-10"><i class="fa-solid ${p.nicho==='edudog'?'fa-shield-dog':'fa-gem'}"></i></div>
+                
+                <div class="flex-1 w-full lg:w-auto flex items-center justify-center aspect-square relative order-1 lg:order-2 mb-6 lg:mb-0">
+                    ${rightSideVisual}
                 </div>`;
             
             showScreen('product');
@@ -248,7 +299,7 @@
                 document.getElementById(`nav-${id}`)?.classList.add('active');
                 document.getElementById(`mob-nav-${id}`)?.classList.add('active');
             }
-            window.scrollTo(0,0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function togglePin() { const i = document.getElementById('login-pin'); i.type = i.type==='password'?'text':'password'; }

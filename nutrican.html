@@ -9,332 +9,351 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; margin: 0; padding: 0; }
         
-        /* Control de Pantallas */
-        .screen { display: none; min-height: calc(100vh - 64px); animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .screen.active { display: flex; flex-direction: column; }
+        /* 1. MODO CELULAR (TUS REGLAS ORIGINALES INTACTAS) */
+        .app-container { 
+            max-width: 420px; margin: 0 auto; height: 100vh; height: 100dvh; position: relative; 
+            background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; 
+        }
+        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden; background-color: #f8fafc; }
+        .screen-scroll { flex: 1; overflow-y: auto; }
+        .screen-cta { flex-shrink: 0; padding: 10px 24px 14px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-top: 1px solid #f1f5f9; }
+        .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Modificadores de scroll */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #fbd38d; border-radius: 99px; }
-        ::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* 2. MODO PC (LA MAGIA RESPONSIVA) */
+        @media (min-width: 1024px) {
+            body { background-color: #f8fafc; }
+            .app-container { 
+                max-width: 100%; height: auto; min-height: 100vh; border: none !important; border-radius: 0 !important; 
+                box-shadow: none; background: transparent; overflow: visible; display: block;
+            }
+            .screen { min-height: calc(100vh - 64px); overflow: visible; }
+            .screen-scroll { overflow-y: visible; flex: none; }
+            .screen-cta { position: static; background: transparent; border: none; backdrop-filter: none; padding: 0; }
+        }
 
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d97706; }
         .premium-input:focus-within { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15); border-color: #f59e0b; }
         .magic-loader { border: 4px solid #f3f3f3; border-top: 4px solid #f59e0b; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         
         .day-locked .content-blur { filter: blur(4px); opacity: 0.6; user-select: none; pointer-events: none; transition: all 0.3s ease; }
-        .day-ready { cursor: pointer; border-color: #f59e0b !important; background-color: #fffbeb !important; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.1); }
-        .day-completed { background-color: #ffffff; border-color: #10b981; cursor: pointer; transition: all 0.2s; }
+        .day-ready { cursor: pointer; border-color: #f59e0b !important; background-color: #fffbeb !important; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.1), 0 2px 4px -1px rgba(245, 158, 11, 0.06); }
+        .day-completed { background-color: #ffffff; border-color: #10b981; cursor: pointer; }
         .day-completed:hover { background-color: #f0fdf4; }
 
-        @keyframes pulse-soft {
-            0%, 100% { transform: scale(1); box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-            50% { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); border-color: #fcd34d; }
-        }
+        @keyframes pulse-soft { 0%, 100% { transform: scale(1); box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); } 50% { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); border-color: #fcd34d; } }
         .pulse-card { animation: pulse-soft 3s ease-in-out infinite; cursor: pointer; }
 
-        /* Estética Ámbar */
+        /* DEGRADADO ORIGINAL INTACTO */
         .amber-gradient { background: linear-gradient(160deg, #9a3412 0%, #b45309 30%, #d97706 60%, #f59e0b 100%); position: relative; overflow: hidden; }
         .amber-gradient::before { content: ''; position: absolute; top: -30%; left: -40%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(252, 211, 77, 0.35) 0%, rgba(252, 211, 77, 0) 70%); border-radius: 50%; z-index: 1; transform: scale(1.4); }
         .amber-gradient::after { content: ''; position: absolute; bottom: -30%; right: -40%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(253, 230, 138, 0.25) 0%, rgba(253, 230, 138, 0) 70%); border-radius: 50%; z-index: 1; transform: scale(1.2); }
         .amber-gradient > * { position: relative; z-index: 10; }
 
-        /* VIP Card Shimmer */
+        .amber-glass-gradient { background: linear-gradient(160deg, rgba(154, 52, 18, 0.85) 0%, rgba(180, 83, 9, 0.85) 30%, rgba(217, 119, 6, 0.85) 60%, rgba(245, 158, 11, 0.85) 100%); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); position: relative; overflow: hidden; }
+        .amber-glass-gradient::before { content: ''; position: absolute; top: -30%; left: -40%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(252, 211, 77, 0.3) 0%, rgba(252, 211, 77, 0) 70%); border-radius: 50%; z-index: 1; transform: scale(1.4); }
+        .amber-glass-gradient::after { content: ''; position: absolute; bottom: -30%; right: -40%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(253, 230, 138, 0.2) 0%, rgba(253, 230, 138, 0) 70%); border-radius: 50%; z-index: 1; transform: scale(1.2); }
+        .amber-glass-gradient > * { position: relative; z-index: 10; }
+
         @keyframes shimmer-vip { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-        .animate-shimmer-vip { background: linear-gradient(110deg, #1e293b, 45%, #475569, 55%, #1e293b); background-size: 200% 100%; animation: shimmer-vip 6s infinite linear; border: 1px solid #334155; }
+        .animate-shimmer-vip { background: linear-gradient(110deg, #1e293b, 45%, #475569, 55%, #1e293b); background-size: 200% 100%; animation: shimmer-vip 6s infinite linear; border: 1px solid #334155; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1); }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         @keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
         .confetti-piece { position: absolute; width: 10px; height: 10px; animation: confettiFall linear forwards; }
         @keyframes bounce-in { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.1); } 70% { transform: scale(0.9); } 100% { transform: scale(1); opacity: 1; } }
         .bounce-in { animation: bounce-in 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
         
-        /* Glass Navbar Universal */
-        .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+        /* Glass Navbar Desktop */
+        .desktop-glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
     </style>
 </head>
-<body class="antialiased text-slate-900">
+<body class="antialiased text-slate-900 md:py-8 lg:py-0">
 
-<div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl z-[100] transform -translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 font-bold text-sm pointer-events-none w-max max-w-[90%]">
+<div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-full shadow-2xl z-[100] transform -translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 font-semibold text-sm pointer-events-none w-max max-w-[90%]">
     <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
     <span id="toast-msg">Mensaje</span>
 </div>
 
-<nav class="sticky top-0 z-50 glass-nav h-16 shrink-0">
-    <div class="max-w-7xl mx-auto px-4 md:px-8 h-full flex justify-between items-center">
-        <div class="flex items-center gap-6">
-            <button onclick="smartBack()" id="btn-back" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-amber-100 hover:text-amber-600 transition-all" style="display:none;">
-                <i class="fa-solid fa-arrow-left"></i>
+<div class="app-container md:rounded-[2.5rem] md:border-[6px] md:border-slate-900 relative">
+
+    <div class="sticky top-0 amber-glass-gradient text-white border-b border-amber-500/30 px-5 py-4 flex items-center justify-between z-30 shadow-md shrink-0 lg:hidden">
+        <div class="flex items-center">
+            <button onclick="smartBack()" id="btn-back-mob" class="p-2 flex items-center justify-center rounded-xl hover:bg-white/20 transition-colors mr-1" style="display: none;">
+                <i class="fa-solid fa-arrow-left text-[15px]"></i>
             </button>
-            <div class="flex items-center gap-2 font-black text-lg md:text-xl text-amber-500">
-                <i class="fa-solid fa-bowl-food"></i> <span class="hidden sm:inline">NutriCan Vital</span>
-            </div>
-            <div class="hidden md:flex gap-6 text-sm font-bold text-slate-400 ml-4 border-l border-slate-200 pl-6">
-                <a href="index.html" class="hover:text-amber-500 transition-colors"><i class="fa-solid fa-store mr-1"></i> Catálogo</a>
-                <a href="index.html" class="hover:text-amber-500 transition-colors"><i class="fa-solid fa-shapes mr-1"></i> Mis Herramientas</a>
+            <div>
+                <h2 class="font-extrabold text-white text-sm leading-tight flex items-center gap-2">
+                    <i class="fa-solid fa-bowl-food"></i> NutriCan Vital
+                </h2>
+                <p class="text-[10px] font-bold text-amber-100 uppercase tracking-wider" id="header-subtitle-mob">Inicializando...</p>
             </div>
         </div>
-        <div class="flex items-center gap-3">
-            <div class="text-right hidden sm:block">
-                <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest" id="header-subtitle">Inicializando...</p>
+        <a href="index.html" class="p-2 text-white hover:text-amber-50 transition-colors rounded-xl hover:bg-white/20 flex items-center justify-center">
+            <i class="fa-solid fa-house text-[15px]"></i>
+        </a>
+    </div>
+
+    <nav class="hidden lg:flex sticky top-0 z-50 desktop-glass-nav h-16 shrink-0">
+        <div class="max-w-7xl mx-auto px-8 h-full w-full flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <button onclick="smartBack()" id="btn-back-desk" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-amber-100 hover:text-amber-600 transition-all" style="display:none;">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div class="flex items-center gap-2 font-black text-xl text-amber-500">
+                    <i class="fa-solid fa-bowl-food"></i> <span>NutriCan Vital</span>
+                </div>
+                <div class="flex gap-6 text-sm font-bold text-slate-400 ml-4 border-l border-slate-200 pl-6">
+                    <a href="index.html" class="hover:text-amber-500 transition-colors"><i class="fa-solid fa-store mr-1"></i> Catálogo</a>
+                    <a href="index.html" class="hover:text-amber-500 transition-colors"><i class="fa-solid fa-shapes mr-1"></i> Mis Herramientas</a>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest" id="header-subtitle-desk">Inicializando...</p>
                 <p class="dog-name-display text-xs font-extrabold text-slate-900 leading-none">Tu peludo</p>
             </div>
-            <a href="index.html" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all sm:hidden">
-                <i class="fa-solid fa-house"></i>
-            </a>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<section id="screen-welcome" class="screen justify-center items-center py-10 px-4">
-    <div class="bg-white max-w-lg w-full rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden text-center">
-        <div class="p-8 md:p-12">
-            <div class="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 text-5xl mx-auto mb-6 shadow-inner">
-                <i class="fa-solid fa-dog"></i>
+    <section id="screen-welcome" class="screen relative lg:items-center lg:justify-center lg:py-12 lg:bg-slate-50">
+        <div class="w-full h-full flex flex-col lg:h-auto lg:max-w-lg lg:bg-white lg:rounded-[2.5rem] lg:shadow-xl lg:border lg:border-slate-100 lg:overflow-hidden">
+            <div class="screen-scroll flex flex-col justify-center items-center text-center p-6 lg:p-10">
+                <div class="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 text-5xl mx-auto mb-6 shadow-inner">
+                    <i class="fa-solid fa-dog"></i>
+                </div>
+                <h2 class="text-slate-800 font-black text-2xl lg:text-3xl mb-3 tracking-tight">¡Hola de nuevo!</h2>
+                <p class="text-slate-500 text-sm font-medium leading-relaxed mb-4">Vemos que <span class="dog-name-display font-bold text-amber-600">tu peludo</span> ya tiene un plan de transición en marcha.</p>
             </div>
-            <h2 class="text-slate-900 font-black text-3xl mb-3 tracking-tight">¡Hola de nuevo!</h2>
-            <p class="text-slate-500 text-base font-medium leading-relaxed mb-8">Vemos que <span class="dog-name-display font-bold text-amber-600">tu peludo</span> ya tiene un plan de transición en marcha.</p>
-            
-            <div class="space-y-3">
+            <div class="screen-cta space-y-3 lg:bg-slate-50 lg:p-8 lg:border-t lg:border-slate-100">
                 <button onclick="loadSavedPlan()" class="w-full amber-gradient text-white font-black py-4 rounded-2xl shadow-lg shadow-amber-600/30 active:scale-95 transition-all text-lg flex items-center justify-center gap-2">
                     <span>Continuar mi Racha</span> <i class="fa-solid fa-fire"></i>
                 </button>
-                <button onclick="forceNewPlan()" class="w-full bg-white text-slate-500 border-2 border-slate-100 font-bold py-3.5 rounded-2xl hover:bg-slate-50 transition-all text-sm">
+                <button onclick="forceNewPlan()" class="w-full bg-white lg:bg-transparent text-slate-500 border-2 border-slate-200 font-bold py-3.5 rounded-2xl hover:bg-slate-50 transition-all text-sm">
                     <i class="fa-solid fa-rotate-right mr-1"></i> Crear un plan nuevo
                 </button>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section id="screen-goal" class="screen justify-center items-center py-10 px-4">
-    <div class="bg-white max-w-lg w-full rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden flex flex-col">
-        <div class="p-8 md:p-10 flex-1">
-            <h2 class="text-slate-900 font-black text-2xl md:text-3xl mb-2 tracking-tight">Objetivo Principal 🎯</h2>
-            <p class="text-slate-500 text-sm mb-8 font-medium">¿Qué queremos lograr principalmente con la salud de <span class="dog-name-display font-bold text-amber-600"></span>?</p>
-            <div class="space-y-4">
-                <label class="flex items-start p-5 bg-white border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group shadow-sm">
-                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="digestion" checked class="w-5 h-5 accent-amber-500"></div>
-                    <div class="ml-4"><span class="block font-extrabold text-slate-800 text-[15px]">Mejorar su Digestión</span><span class="block text-xs text-slate-500 mt-1">Adiós gases, diarreas o heces muy blandas.</span></div>
-                </label>
-                <label class="flex items-start p-5 bg-white border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group shadow-sm">
-                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="alergias" class="w-5 h-5 accent-amber-500"></div>
-                    <div class="ml-4"><span class="block font-extrabold text-slate-800 text-[15px]">Pelo brillante y Cero Alergias</span><span class="block text-xs text-slate-500 mt-1">Dejar de rascarse y detener la caída del pelo.</span></div>
-                </label>
-                <label class="flex items-start p-5 bg-white border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group shadow-sm">
-                    <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="peso" class="w-5 h-5 accent-amber-500"></div>
-                    <div class="ml-4"><span class="block font-extrabold text-slate-800 text-[15px]">Llegar a su Peso Ideal</span><span class="block text-xs text-slate-500 mt-1">Bajar o subir de peso de forma sana.</span></div>
-                </label>
-            </div>
-        </div>
-        <div class="bg-slate-50 p-6 md:px-10 border-t border-slate-100 shrink-0">
-            <button onclick="nextToDiet()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-slate-800 active:scale-95 transition-all text-lg">Continuar <i class="fa-solid fa-arrow-right ml-2 text-sm"></i></button>
-        </div>
-    </div>
-</section>
-
-<section id="screen-diet" class="screen justify-center items-center py-10 px-4">
-    <div class="bg-white max-w-lg w-full rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden flex flex-col">
-        <div class="p-8 md:p-10 flex-1">
-            <h2 class="text-slate-900 font-black text-2xl md:text-3xl mb-2 tracking-tight">Diagnóstico Digestivo 🔬</h2>
-            <p class="text-slate-500 text-sm mb-8 font-medium">¿Qué come <span class="dog-name-display font-bold text-amber-600"></span> actualmente?</p>
-            <div class="space-y-4">
-                <label class="flex items-start p-5 bg-white border-2 border-slate-100 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group shadow-sm transition-all hover:border-amber-200">
-                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="croquetas" checked class="w-5 h-5 accent-amber-500"></div>
-                    <div class="ml-4 w-full">
-                        <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800 text-[15px]">100% Croquetas</span><span class="text-[9px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded-md uppercase font-black">Plan 14 Días</span></div>
-                        <span class="block text-xs text-slate-500 mt-1">Necesita una transición lenta por su pH estomacal.</span>
-                    </div>
-                </label>
-                <label class="flex items-start p-5 bg-white border-2 border-slate-100 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group shadow-sm transition-all hover:border-amber-200">
-                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="mixto" class="w-5 h-5 accent-amber-500"></div>
-                    <div class="ml-4 w-full">
-                        <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800 text-[15px]">Mixto (Croquetas+Casero)</span><span class="text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md uppercase font-black">Plan 10 Días</span></div>
-                        <span class="block text-xs text-slate-500 mt-1">Ya digiere comida real. Transición media.</span>
-                    </div>
-                </label>
-                <label class="flex items-start p-5 bg-white border-2 border-slate-100 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group shadow-sm transition-all hover:border-amber-200">
-                    <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="cocido" class="w-5 h-5 accent-amber-500"></div>
-                    <div class="ml-4 w-full">
-                        <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800 text-[15px]">100% Casero Cocido</span><span class="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md uppercase font-black">Plan 5 Días</span></div>
-                        <span class="block text-xs text-slate-500 mt-1">Flora fuerte. Solo adaptaremos al crudo (BARF).</span>
-                    </div>
-                </label>
-            </div>
-        </div>
-        <div class="bg-slate-50 p-6 md:px-10 border-t border-slate-100 shrink-0">
-            <button onclick="nextToParams()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-slate-800 active:scale-95 transition-all text-lg">Continuar <i class="fa-solid fa-arrow-right ml-2 text-sm"></i></button>
-        </div>
-    </div>
-</section>
-
-<section id="screen-params" class="screen justify-center items-center py-10 px-4">
-    <div class="bg-white max-w-lg w-full rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden flex flex-col">
-        <div class="p-8 md:p-10 flex-1">
-            <h2 class="text-slate-900 font-black text-2xl md:text-3xl mb-6 tracking-tight">Perfil Físico ⚖️</h2>
-            <div class="space-y-5">
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">Peso Actual (KG)</label>
-                    <div class="relative premium-input transition-all rounded-2xl border border-slate-200 bg-slate-50 focus-within:bg-white">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400"><i class="fa-solid fa-weight-scale"></i></span>
-                        <input type="number" id="dogWeight" placeholder="Ej. 15" class="w-full bg-transparent text-slate-900 py-4 pl-12 pr-4 outline-none font-bold text-lg">
-                    </div>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">Condición Corporal</label>
-                    <select id="dogCondition" class="w-full bg-slate-50 focus:bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input transition-all">
-                        <option value="" disabled selected>Selecciona una opción</option>
-                        <option value="ideal">Peso Ideal (Cintura visible)</option>
-                        <option value="flaco">Delgado (Se le ven las costillas)</option>
-                        <option value="gordo">Gordito (Sobrepeso / Sin cintura)</option>
-                    </select>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">Etapa de Vida</label>
-                    <select id="dogAge" class="w-full bg-slate-50 focus:bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input transition-all">
-                        <option value="" disabled selected>Selecciona una opción</option>
-                        <option value="adulto">Adulto (1 a 7 años)</option>
-                        <option value="cachorro">Cachorro (Menos de 1 año)</option>
-                        <option value="senior">Senior (+7 años)</option>
-                    </select>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">Nivel de Actividad</label>
-                    <select id="dogActivity" class="w-full bg-slate-50 focus:bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input transition-all">
-                        <option value="" disabled selected>Selecciona una opción</option>
-                        <option value="normal">Normal (1 paseo diario)</option>
-                        <option value="baja">Baja (Perezoso / Sedentario)</option>
-                        <option value="alta">Alta (Muy activo / Deportivo)</option>
-                    </select>
+    <section id="screen-goal" class="screen relative lg:items-center lg:justify-center lg:py-12 lg:bg-slate-50">
+        <div class="w-full h-full flex flex-col lg:h-auto lg:max-w-lg lg:bg-white lg:rounded-[2.5rem] lg:shadow-xl lg:border lg:border-slate-100 lg:overflow-hidden">
+            <div class="screen-scroll p-6 lg:p-10">
+                <h2 class="text-slate-800 font-black text-xl lg:text-3xl mb-2 tracking-tight">Objetivo Principal 🎯</h2>
+                <p class="text-slate-500 text-sm mb-6 font-medium">¿Qué queremos lograr principalmente con la salud de <span class="dog-name-display font-bold text-amber-600">tu peludo</span>?</p>
+                <div class="space-y-3">
+                    <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                        <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="digestion" checked class="w-5 h-5 accent-amber-500"></div>
+                        <div class="ml-4"><span class="block font-extrabold text-slate-800">Mejorar su Digestión</span><span class="block text-xs text-slate-500 font-medium">Adiós gases, diarreas o heces muy blandas.</span></div>
+                    </label>
+                    <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                        <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="alergias" class="w-5 h-5 accent-amber-500"></div>
+                        <div class="ml-4"><span class="block font-extrabold text-slate-800">Pelo brillante y Cero Alergias</span><span class="block text-xs text-slate-500 font-medium">Dejar de rascarse y detener la caída del pelo.</span></div>
+                    </label>
+                    <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group">
+                        <div class="pt-1 flex-shrink-0"><input type="radio" name="healthGoal" value="peso" class="w-5 h-5 accent-amber-500"></div>
+                        <div class="ml-4"><span class="block font-extrabold text-slate-800">Llegar a su Peso Ideal</span><span class="block text-xs text-slate-500 font-medium">Bajar o subir de peso de forma sana.</span></div>
+                    </label>
                 </div>
             </div>
-        </div>
-        <div class="bg-slate-50 p-6 md:px-10 border-t border-slate-100 shrink-0">
-            <button onclick="calculateDiet()" class="w-full amber-gradient text-white font-black py-5 rounded-2xl shadow-xl shadow-amber-600/30 active:scale-95 transition-all text-lg"><span>Crear Plan Definitivo</span> <i class="fa-solid fa-wand-magic-sparkles ml-1"></i></button>
-        </div>
-    </div>
-</section>
-
-<section id="screen-loading" class="screen justify-center items-center p-6 text-center">
-    <div class="magic-loader mb-6 mx-auto"></div>
-    <h3 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Generando Fórmula...</h3>
-    <p id="loading-text" class="text-sm text-amber-600 font-bold tracking-wide uppercase">Analizando metabolismo de <span class="dog-name-display"></span></p>
-</section>
-
-<section id="screen-dashboard" class="screen pb-12">
-    <div class="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-10 w-full">
-        
-        <div class="mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
-            <div>
-                <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Panel Nutricional 📊</h1>
-                <p class="text-slate-500 font-medium mt-2 text-sm md:text-base">Monitorea y ajusta la ración exacta de <span class="dog-name-display font-bold text-amber-600"></span>.</p>
+            <div class="screen-cta lg:bg-slate-50 lg:p-8 lg:border-t lg:border-slate-100">
+                <button onclick="nextToDiet()" class="w-full bg-slate-900 text-white font-bold lg:font-black py-4 rounded-2xl shadow-lg hover:bg-slate-800 active:scale-95 transition-all lg:text-lg">Continuar <i class="fa-solid fa-arrow-right ml-2 text-xs"></i></button>
             </div>
-            <button onclick="openTipsModal()" class="text-xs font-black text-amber-700 bg-amber-100 px-4 py-2.5 rounded-xl flex items-center gap-2 hover:bg-amber-200 transition-colors shadow-sm self-start md:self-auto">
-                <i class="fa-solid fa-lightbulb text-amber-500"></i> Tips de Oro BARF
-            </button>
         </div>
+    </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+    <section id="screen-diet" class="screen relative lg:items-center lg:justify-center lg:py-12 lg:bg-slate-50">
+        <div class="w-full h-full flex flex-col lg:h-auto lg:max-w-lg lg:bg-white lg:rounded-[2.5rem] lg:shadow-xl lg:border lg:border-slate-100 lg:overflow-hidden">
+            <div class="screen-scroll p-6 lg:p-10">
+                <h2 class="text-slate-800 font-black text-xl lg:text-3xl mb-2 tracking-tight">Diagnóstico Digestivo 🔬</h2>
+                <p class="text-slate-500 text-sm mb-6 font-medium">¿Qué come <span class="dog-name-display font-bold text-amber-600">tu peludo</span> actualmente?</p>
+                <div class="space-y-3">
+                    <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group hover:border-amber-200 transition-all">
+                        <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="croquetas" checked class="w-5 h-5 accent-amber-500"></div>
+                        <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">100% Croquetas</span><span class="text-[9px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded uppercase font-black">Plan 14 Días</span></div><span class="block text-xs text-slate-500">Necesita una transición lenta por su pH estomacal.</span></div>
+                    </label>
+                    <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group hover:border-amber-200 transition-all">
+                        <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="mixto" class="w-5 h-5 accent-amber-500"></div>
+                        <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">Mixto (Croquetas+Casero)</span><span class="text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded uppercase font-black">Plan 10 Días</span></div><span class="block text-xs text-slate-500">Ya digiere algo de comida real. Transición media.</span></div>
+                    </label>
+                    <label class="flex items-start p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 group hover:border-amber-200 transition-all">
+                        <div class="pt-1 flex-shrink-0"><input type="radio" name="currentDiet" value="cocido" class="w-5 h-5 accent-amber-500"></div>
+                        <div class="ml-4 w-full"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-slate-800">100% Casero Cocido</span><span class="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded uppercase font-black">Plan 5 Días</span></div><span class="block text-xs text-slate-500">Flora fuerte. Solo adaptaremos al modelo BARF crudo.</span></div>
+                    </label>
+                </div>
+            </div>
+            <div class="screen-cta lg:bg-slate-50 lg:p-8 lg:border-t lg:border-slate-100">
+                <button onclick="nextToParams()" class="w-full bg-slate-900 text-white font-bold lg:font-black py-4 rounded-2xl hover:bg-slate-800 active:scale-95 transition-all lg:text-lg">Continuar <i class="fa-solid fa-arrow-right ml-2 text-xs"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <section id="screen-params" class="screen relative lg:items-center lg:justify-center lg:py-12 lg:bg-slate-50">
+        <div class="w-full h-full flex flex-col lg:h-auto lg:max-w-lg lg:bg-white lg:rounded-[2.5rem] lg:shadow-xl lg:border lg:border-slate-100 lg:overflow-hidden">
+            <div class="screen-scroll p-6 lg:p-10">
+                <h2 class="text-slate-800 font-black text-xl lg:text-3xl mb-6 tracking-tight">Perfil Físico ⚖️</h2>
+                <div class="space-y-5">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Peso Actual (KG)</label>
+                        <div class="relative premium-input transition-all rounded-2xl border border-slate-200">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400"><i class="fa-solid fa-weight-scale"></i></span>
+                            <input type="number" id="dogWeight" placeholder="Ej. 15" class="w-full bg-white text-slate-900 rounded-2xl py-4 pl-12 pr-4 outline-none font-bold text-lg">
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Condición Corporal</label>
+                        <select id="dogCondition" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input transition-all">
+                            <option value="" disabled selected>Selecciona una opción</option>
+                            <option value="ideal">Peso Ideal (Cintura visible)</option>
+                            <option value="flaco">Delgado (Se le ven las costillas)</option>
+                            <option value="gordo">Gordito (Sobrepeso / Sin cintura)</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Etapa de Vida</label>
+                        <select id="dogAge" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input transition-all">
+                            <option value="" disabled selected>Selecciona una opción</option>
+                            <option value="adulto">Adulto (1 a 7 años)</option>
+                            <option value="cachorro">Cachorro (Menos de 1 año)</option>
+                            <option value="senior">Senior (+7 años)</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Nivel de Actividad</label>
+                        <select id="dogActivity" class="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-4 px-4 outline-none font-bold cursor-pointer premium-input transition-all">
+                            <option value="" disabled selected>Selecciona una opción</option>
+                            <option value="normal">Normal (1 paseo diario)</option>
+                            <option value="baja">Baja (Perezoso / Sedentario)</option>
+                            <option value="alta">Alta (Muy activo / Deportivo)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-cta lg:bg-slate-50 lg:p-8 lg:border-t lg:border-slate-100">
+                <button onclick="calculateDiet()" class="w-full amber-gradient text-white font-black py-4 lg:py-5 rounded-2xl shadow-lg shadow-amber-600/30 active:scale-95 transition-all text-lg"><span>Crear Plan Definitivo</span></button>
+            </div>
+        </div>
+    </section>
+
+    <section id="screen-loading" class="screen flex-col justify-center items-center p-6 text-center lg:min-h-[600px]">
+        <div class="magic-loader mb-6 mx-auto"></div>
+        <h3 class="text-xl lg:text-3xl font-black text-slate-800 mb-2 tracking-tight">Generando Fórmula...</h3>
+        <p id="loading-text" class="text-sm lg:text-base text-amber-600 font-bold tracking-wide">Analizando metabolismo...</p>
+    </section>
+
+    <section id="screen-dashboard" class="screen bg-slate-50 lg:bg-transparent lg:py-8">
+        <div class="screen-scroll p-6 pb-10 space-y-6 lg:space-y-0 lg:p-0 lg:overflow-visible lg:max-w-7xl lg:mx-auto lg:w-full flex flex-col lg:grid lg:grid-cols-12 lg:gap-8">
             
-            <div class="lg:col-span-3 flex flex-col gap-6">
-                <div id="dog-profile-card" class="animate-shimmer-vip rounded-3xl p-5 text-white relative overflow-hidden shadow-xl shadow-slate-900/10">
-                    <div class="relative z-10">
-                        <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-xl shrink-0 border border-white/20 shadow-inner mb-4">
+            <div class="hidden lg:flex col-span-12 justify-between items-end mb-2">
+                <div>
+                    <h1 class="text-4xl font-black text-slate-900 tracking-tight">Panel Nutricional 📊</h1>
+                    <p class="text-slate-500 font-medium mt-2">Monitorea y ajusta la ración exacta de <span class="dog-name-display font-bold text-amber-600"></span>.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-6 order-1 lg:order-none lg:col-span-3">
+                <div id="dog-profile-card" class="animate-shimmer-vip rounded-2xl p-4 md:p-5 flex lg:flex-col items-center lg:items-start gap-3 text-white relative overflow-hidden shadow-lg shadow-slate-900/10">
+                    <div class="relative z-10 flex lg:flex-col items-center lg:items-start gap-3 w-full">
+                        <div class="w-10 h-10 lg:w-14 lg:h-14 bg-white/10 rounded-xl flex items-center justify-center text-lg lg:text-2xl shrink-0 border border-white/10 shadow-inner lg:mb-2">
                             <i class="fa-solid fa-dog text-amber-400"></i>
                         </div>
-                        <p class="font-black text-white text-xl leading-tight mb-1 truncate"><span class="dog-name-display">Tu peludo</span></p>
-                        <p class="text-xs text-slate-300 font-semibold mb-4" id="profile-details">Cargando perfil...</p>
-                        <div class="bg-black/20 p-3 rounded-xl border border-white/5 backdrop-blur-sm flex justify-between items-center">
-                            <span class="text-[10px] font-black text-amber-400 uppercase tracking-widest">Duración</span>
-                            <span class="text-xs font-black text-white" id="profile-plan-days">14 días</span>
+                        <div class="flex-1 min-w-0 lg:w-full">
+                            <p class="font-extrabold lg:font-black text-white text-sm lg:text-xl leading-none mb-0.5 lg:mb-2 truncate"><span class="dog-name-display">Tu peludo</span></p>
+                            <p class="text-[11px] lg:text-xs text-slate-300 font-semibold truncate lg:whitespace-normal" id="profile-details">Cargando perfil...</p>
+                        </div>
+                        <div class="text-right lg:text-left shrink-0 lg:w-full lg:mt-4 lg:bg-black/20 lg:p-3 lg:rounded-xl lg:border lg:border-white/5 lg:flex lg:justify-between lg:items-center">
+                            <p class="text-[10px] font-black text-amber-400 uppercase tracking-wide">Plan</p>
+                            <p class="text-[11px] lg:text-xs font-extrabold text-white" id="profile-plan-days">14 días</p>
                         </div>
                     </div>
                 </div>
 
-                <div id="health-status-panel" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300">
-                    <div class="bg-slate-900 px-5 py-4 flex justify-between items-center">
-                        <h3 class="text-white font-black text-sm flex items-center gap-2"><i class="fa-solid fa-heart-pulse text-rose-500"></i> Monitor de Salud</h3>
+                <div id="health-status-panel" class="bg-white rounded-[1.5rem] border border-slate-200 shadow-sm overflow-hidden transition-all duration-300">
+                    <div class="bg-slate-900 px-4 py-3 flex justify-between items-center">
+                        <h3 class="text-white font-extrabold text-sm flex items-center gap-2"><i class="fa-solid fa-heart-pulse text-rose-500"></i> Estado Actual</h3>
                         <span id="risk-badge" class="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md transition-all">...</span>
                     </div>
-                    <div class="p-5 grid grid-cols-2 gap-4 divide-x divide-slate-100">
+                    <div class="p-4 grid grid-cols-2 gap-4 divide-x divide-slate-100">
                         <div class="text-center">
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Digestión</p>
-                            <div id="status-digestion-icon" class="text-3xl mb-1">...</div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Digestión</p>
+                            <div id="status-digestion-icon" class="text-2xl lg:text-3xl mb-1">...</div>
                             <p id="status-digestion-text" class="text-xs font-black text-slate-800">Cargando</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Apetito</p>
-                            <div id="status-appetite-icon" class="text-3xl mb-1">...</div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Apetito</p>
+                            <div id="status-appetite-icon" class="text-2xl lg:text-3xl mb-1">...</div>
                             <p id="status-appetite-text" class="text-xs font-black text-slate-800">Cargando</p>
                         </div>
                     </div>
-                    <div class="bg-slate-50 p-5 border-t border-slate-100">
+                    <div class="bg-slate-50 px-4 py-3 border-t border-slate-100">
                         <p id="status-advice-text" class="text-xs text-slate-600 font-medium leading-relaxed">...</p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
-                    <h3 class="font-black text-slate-900 text-xs mb-4 uppercase tracking-widest flex items-center gap-2">Insignias 🏅</h3>
-                    <div class="grid grid-cols-2 gap-3" id="badges-container">
+                <div class="lg:bg-white lg:rounded-3xl lg:p-5 lg:border lg:border-slate-200 lg:shadow-sm">
+                    <h3 class="font-extrabold text-slate-900 text-sm mb-3 uppercase tracking-widest flex items-center gap-2">Tus Insignias 🏅</h3>
+                    <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar lg:grid lg:grid-cols-2" id="badges-container">
                         </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-5 flex flex-col gap-6">
-                <div class="bg-white rounded-[2.5rem] p-6 md:p-8 border border-slate-200 shadow-md relative overflow-hidden">
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-amber-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-                    
-                    <div class="relative z-10 flex justify-between items-end mb-2">
-                        <p class="text-[11px] font-black text-amber-600 uppercase tracking-widest">Ración Diaria Exacta</p>
-                        <button onclick="copiarReceta()" class="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl flex items-center gap-1.5 hover:bg-slate-200 hover:text-slate-800 transition-all active:scale-95">
-                            <i class="fa-solid fa-copy"></i> Copiar Texto
-                        </button>
-                    </div>
-                    <div class="relative z-10 flex items-baseline gap-2 mb-6 border-b border-slate-100 pb-6">
-                        <h2 class="text-5xl md:text-6xl font-black text-slate-900 tracking-tighter" id="total-grams">0</h2>
-                        <span class="text-slate-500 font-bold text-lg">g/día</span>
-                    </div>
-                    
-                    <div id="ingredients-list" class="space-y-3 relative z-10">
+            <div class="flex flex-col gap-6 order-2 lg:order-none lg:col-span-5 lg:bg-white lg:p-8 lg:rounded-[2.5rem] lg:border lg:border-slate-200 lg:shadow-md">
+                <div>
+                    <div class="flex justify-between items-end mb-1">
+                        <p class="text-[11px] font-black text-amber-600 uppercase tracking-widest">Ración Diaria Total</p>
+                        <div class="flex gap-2">
+                            <button onclick="copiarReceta()" class="text-[10px] font-bold text-slate-600 bg-slate-200 lg:bg-slate-100 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-slate-300 transition-colors cursor-pointer shadow-sm">
+                                <i class="fa-solid fa-copy"></i> Copiar
+                            </button>
+                            <button onclick="openTipsModal()" class="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-amber-200 transition-colors cursor-pointer">
+                                <i class="fa-solid fa-lightbulb"></i> Tips de Oro
+                            </button>
                         </div>
-                    <div id="meal-division" class="mt-6 relative z-10">
-                        </div>
+                    </div>
+                    <div class="flex items-baseline gap-2 mb-4 lg:mb-8 lg:border-b lg:border-slate-100 lg:pb-6">
+                        <h2 class="text-4xl lg:text-6xl font-black text-slate-900 tracking-tight" id="total-grams">0</h2>
+                        <span class="text-slate-500 font-bold lg:text-xl">gramos/día</span>
+                    </div>
+                    
+                    <div id="ingredients-list" class="space-y-3"></div>
+                    <div id="meal-division" class="mt-4 lg:mt-8"></div>
+                    <div id="subtle-upsell-container"></div>
                 </div>
-
-                <div id="subtle-upsell-container"></div>
             </div>
 
-            <div class="lg:col-span-4 flex flex-col gap-6">
-                <div class="bg-white rounded-[2.5rem] p-6 md:p-8 border border-slate-200 shadow-sm flex flex-col h-full">
-                    <h3 class="font-black text-slate-900 text-xl mb-6 flex justify-between items-center">
-                        Racha de Transición <i class="fa-solid fa-fire text-amber-500 text-2xl drop-shadow-sm"></i>
+            <div class="flex flex-col gap-6 order-3 lg:order-none lg:col-span-4">
+                <div class="lg:bg-white lg:p-8 lg:rounded-[2.5rem] lg:border lg:border-slate-200 lg:shadow-sm lg:h-full lg:flex lg:flex-col">
+                    <h3 class="font-extrabold text-slate-900 text-lg lg:text-xl mb-4 lg:mb-6 px-1 lg:px-0 flex justify-between items-center">
+                        Mi Racha <i class="fa-solid fa-fire text-amber-500 lg:text-2xl drop-shadow-sm"></i>
                     </h3>
                     
-                    <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 mb-6">
-                        <div class="flex justify-between text-xs font-black mb-3">
+                    <div class="bg-white lg:bg-slate-50 rounded-3xl lg:rounded-2xl p-5 border border-slate-200 lg:border-slate-100 shadow-sm lg:shadow-inner mb-4 lg:mb-6">
+                        <div class="flex justify-between text-xs font-bold mb-2">
                             <span class="text-amber-600" id="progress-text">0% Completado</span>
-                            <span class="text-slate-400">Progreso</span>
+                            <span class="text-slate-400 hidden lg:inline">Progreso</span>
+                            <span class="text-slate-400 lg:hidden"><i class="fa-solid fa-shield-dog"></i> Flora fortaleciéndose</span>
                         </div>
-                        <div class="w-full bg-slate-200 rounded-full h-3 shadow-inner overflow-hidden">
-                            <div id="progress-bar" class="amber-gradient h-3 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                        <div class="w-full bg-slate-100 lg:bg-slate-200 rounded-full h-3 shadow-inner overflow-hidden">
+                            <div id="progress-bar" class="bg-amber-500 lg:amber-gradient h-3 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
                         </div>
                     </div>
 
-                    <div class="flex-1 overflow-y-auto pr-2 space-y-3 no-scrollbar max-h-[500px]" id="tracker-container">
-                        </div>
+                    <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col divide-y divide-slate-100 lg:flex-1 lg:overflow-y-auto lg:no-scrollbar lg:max-h-[450px]" id="tracker-container"></div>
                 </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="resetApp()" class="w-full bg-white text-rose-500 font-bold py-4 rounded-2xl text-xs hover:bg-rose-50 border border-rose-200 transition-all shadow-sm">
-                        <i class="fa-solid fa-rotate-right mr-1"></i> Borrar Plan
+                
+                <div class="space-y-3 lg:grid lg:grid-cols-2 lg:space-y-0 lg:gap-4 mt-2 lg:mt-0">
+                    <button onclick="resetApp()" class="w-full bg-white text-rose-500 font-bold py-3.5 lg:py-4 rounded-xl lg:rounded-2xl text-xs hover:bg-rose-50 border border-rose-200 transition-all shadow-sm">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> <span class="lg:hidden">Recalcular datos de <span class="dog-name-display"></span></span><span class="hidden lg:inline">Borrar Plan</span>
                     </button>
-                    <a href="index.html" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl text-xs hover:bg-slate-800 transition-all shadow-sm text-center flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-store"></i> Ver Catálogo
+                    <a href="index.html" class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-md hover:bg-slate-800 transition-all text-center text-xs">
+                        <i class="fa-solid fa-arrow-left lg:hidden"></i><i class="fa-solid fa-store hidden lg:inline"></i> <span class="lg:hidden">Volver al Hub</span><span class="hidden lg:inline">Catálogo</span>
                     </a>
                 </div>
             </div>
@@ -343,254 +362,235 @@
     </div>
 </section>
 
-<section id="screen-victory" class="screen bg-slate-50 relative justify-center">
+<section id="screen-victory" class="screen bg-slate-50 relative lg:items-center lg:justify-center lg:py-12">
     <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden z-10"></div>
-    <div class="relative z-20 p-6 flex flex-col items-center justify-center min-h-[calc(100vh-64px)] max-w-xl mx-auto w-full">
+    <div class="screen-scroll relative z-20 p-6 pb-10 flex flex-col items-center lg:bg-white lg:max-w-2xl lg:w-full lg:rounded-[3rem] lg:shadow-2xl lg:border lg:border-slate-100 lg:p-12 lg:h-auto">
         
-        <div class="bg-white p-8 md:p-12 rounded-[3rem] shadow-2xl border border-slate-100 text-center w-full">
-            <div class="bounce-in mb-6">
-                <div class="w-28 h-28 amber-gradient rounded-[2rem] flex items-center justify-center text-5xl shadow-2xl shadow-amber-500/40 mx-auto text-white rotate-3">
-                    <span>🏆</span>
+        <div class="bounce-in mt-8 lg:mt-0 mb-6">
+            <div class="w-32 h-32 lg:w-36 lg:h-36 amber-gradient rounded-full lg:rounded-[2.5rem] flex items-center justify-center text-6xl shadow-2xl shadow-amber-500/40 mx-auto text-white lg:rotate-3">
+                <span>🏆</span>
+            </div>
+        </div>
+
+        <h2 class="text-3xl lg:text-4xl font-black text-slate-900 text-center mb-2 tracking-tight">¡Transición Completa!</h2>
+        <p class="text-slate-500 font-medium text-center text-sm lg:text-base mb-8 leading-relaxed">
+            <span class="dog-name-display font-bold text-amber-600"></span> completó con éxito su adaptación a la alimentación natural. 🎉
+        </p>
+
+        <div class="w-full bg-white lg:bg-slate-50 rounded-[1.5rem] border border-slate-200 lg:border-slate-100 shadow-sm p-5 mb-5 space-y-3">
+            <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-widest text-center lg:text-left">Resumen del Plan</h3>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
+                    <p class="text-2xl font-black text-emerald-600" id="victory-total-days">0</p>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase mt-0.5">Días</p>
+                </div>
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-center">
+                    <p class="text-2xl font-black text-blue-600" id="victory-good-days">0</p>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase mt-0.5">Buenos</p>
+                </div>
+                <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 text-center">
+                    <p class="text-2xl font-black text-amber-600" id="victory-adapt-days">0</p>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase mt-0.5">Adapta.</p>
                 </div>
             </div>
+            <p class="text-xs text-slate-500 font-medium leading-relaxed pt-1 lg:pt-3 text-center lg:text-left" id="victory-summary-text"></p>
+        </div>
 
-            <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-3 tracking-tight">¡Misión Cumplida!</h2>
-            <p class="text-slate-500 font-medium text-sm md:text-base mb-8 leading-relaxed">
-                <span class="dog-name-display font-bold text-amber-600"></span> completó con éxito su adaptación a la alimentación natural. 🎉
-            </p>
-
-            <div class="bg-slate-50 rounded-2xl border border-slate-100 p-5 mb-8">
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="text-center">
-                        <p class="text-2xl font-black text-emerald-600" id="victory-total-days">0</p>
-                        <p class="text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">Días</p>
-                    </div>
-                    <div class="text-center border-x border-slate-200">
-                        <p class="text-2xl font-black text-blue-600" id="victory-good-days">0</p>
-                        <p class="text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">Buenos</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-2xl font-black text-amber-600" id="victory-adapt-days">0</p>
-                        <p class="text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">Adapta.</p>
-                    </div>
+        <div class="w-full bg-slate-900 rounded-[1.5rem] lg:rounded-3xl p-5 lg:p-6 mb-5 text-white text-left">
+            <div class="flex items-center gap-3 lg:gap-4 mb-3 lg:mb-4">
+                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-rose-500 rounded-xl flex items-center justify-center text-lg lg:text-xl shrink-0 shadow-lg shadow-rose-500/20">🍳</div>
+                <div>
+                    <p class="font-extrabold lg:font-black text-sm lg:text-base">NutriChef Vital</p>
+                    <p class="text-[11px] lg:text-xs text-slate-300 lg:text-slate-400 font-medium">Recetario adaptado para mantener la dieta</p>
                 </div>
-                <p class="text-xs text-slate-600 font-medium leading-relaxed pt-4 mt-4 border-t border-slate-200" id="victory-summary-text"></p>
             </div>
-
-            <div class="w-full bg-slate-900 rounded-3xl p-6 mb-6 text-white text-left">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="w-12 h-12 bg-rose-500 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-lg shadow-rose-500/20">🍳</div>
-                    <div>
-                        <p class="font-black text-base">NutriChef Vital</p>
-                        <p class="text-xs text-slate-400 font-medium mt-0.5">Mantenimiento y Variedad</p>
-                    </div>
-                </div>
-                <button onclick="openNutriChefUpsellModal()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-black py-4 rounded-2xl text-sm text-center transition-all active:scale-95 shadow-md">
-                    Desbloquear 50 Recetas BARF 🥩
-                </button>
-            </div>
-
-            <button onclick="resetApp()" class="w-full bg-white text-slate-400 font-bold py-4 rounded-2xl text-xs border-2 border-slate-100 hover:bg-slate-50 transition-all hover:text-slate-600">
-                <i class="fa-solid fa-rotate-right mr-1"></i> Iniciar nuevo plan de cero
+            <button onclick="openNutriChefUpsellModal()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold lg:font-black py-3 lg:py-4 rounded-xl lg:rounded-2xl text-sm text-center transition-all active:scale-95 shadow-md">
+                Desbloquear Recetario de Mantenimiento 🍳
             </button>
         </div>
+
+        <div class="w-full bg-amber-50 border border-amber-200 rounded-[1.5rem] p-5 mb-5 lg:hidden">
+            <h3 class="font-extrabold text-slate-900 text-sm mb-3 flex items-center gap-2"><i class="fa-solid fa-forward-step text-amber-600"></i> ¿Qué sigue ahora?</h3>
+            <div class="space-y-2.5">
+                <div class="flex gap-3 items-start"><div class="w-5 h-5 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">1</div><p class="text-xs text-slate-600 font-medium">Mantén la <b class="text-slate-800">misma ración diaria</b>.</p></div>
+                <div class="flex gap-3 items-start"><div class="w-5 h-5 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">2</div><p class="text-xs text-slate-600 font-medium">Rota proteínas semanalmente.</p></div>
+                <div class="flex gap-3 items-start"><div class="w-5 h-5 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">3</div><p class="text-xs text-slate-600 font-medium">Vísceras máx 15% del total.</p></div>
+            </div>
+        </div>
+
+        <button onclick="resetApp()" class="w-full bg-white text-slate-400 font-bold py-3 lg:py-4 rounded-xl lg:rounded-2xl text-xs border border-slate-200 hover:bg-slate-50 transition-all hover:text-slate-600">
+            <i class="fa-solid fa-rotate-right mr-1"></i> Iniciar nuevo plan
+        </button>
     </div>
 </section>
 
-<div id="modal-ingredient" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end sm:justify-center p-0 sm:p-6">
-    <div id="modal-ingredient-content" class="bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl transform translate-y-full sm:translate-y-0 sm:scale-95 transition-transform duration-300 w-full sm:max-w-md sm:mx-auto flex flex-col" style="max-height:85vh;">
+<div id="modal-ingredient" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end lg:justify-center lg:items-center lg:p-6 transition-all">
+    <div id="modal-ingredient-content" class="bg-white rounded-t-[2.5rem] lg:rounded-[2.5rem] shadow-2xl transform translate-y-full lg:translate-y-0 lg:scale-95 transition-transform duration-300 w-full lg:max-w-md flex flex-col" style="max-height:85dvh;">
         <div class="flex justify-between items-center p-6 shrink-0 border-b border-slate-50">
-            <h3 class="text-xl font-black text-slate-900 tracking-tight" id="ingredient-title">Título</h3>
-            <button onclick="closeIngredientModal()" class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-xl font-black text-slate-900" id="ingredient-title">Título</h3>
+            <button onclick="closeIngredientModal()" class="text-slate-400 hover:text-slate-600 text-2xl transition-colors lg:w-8 lg:h-8 lg:flex lg:items-center lg:justify-center lg:bg-slate-100 lg:rounded-full lg:text-base"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="px-6 py-4 overflow-y-auto flex-1 text-left space-y-4 custom-scrollbar">
+        <div class="px-6 py-4 overflow-y-auto flex-1 text-left space-y-4">
             <p class="text-sm text-slate-600 font-medium leading-relaxed" id="ingredient-concept">Concepto</p>
-            <div class="bg-amber-50 border border-amber-100 rounded-2xl p-5 shadow-inner mt-4">
-                <h4 class="font-black text-amber-800 text-[10px] mb-3 uppercase tracking-widest"><i class="fa-solid fa-cart-shopping mr-1"></i> Sugerencias:</h4>
-                <p class="text-sm text-slate-700 leading-relaxed font-bold" id="ingredient-options">Opciones</p>
+            <div class="bg-amber-50 border border-amber-100 rounded-xl lg:rounded-2xl p-5 shadow-inner mt-2 lg:mt-4">
+                <h4 class="font-bold text-amber-800 text-[11px] mb-3 uppercase tracking-widest"><i class="fa-solid fa-cart-shopping"></i> Sugerencias:</h4>
+                <p class="text-[13px] text-slate-700 leading-relaxed font-bold" id="ingredient-options">Opciones</p>
             </div>
         </div>
-        <div class="p-6 shrink-0 border-t border-slate-100">
-            <button onclick="closeIngredientModal()" class="w-full amber-gradient text-white font-black py-4 rounded-2xl shadow-xl shadow-amber-600/20 active:scale-95 transition-all text-[15px]">¡Entendido!</button>
+        <div class="p-6 shrink-0 bg-white border-t border-slate-50 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] lg:shadow-none">
+            <button onclick="closeIngredientModal()" class="w-full amber-gradient text-white font-black py-4 rounded-2xl shadow-md lg:shadow-xl lg:shadow-amber-600/20 active:scale-95 transition-all text-[15px]"><span>¡Entendido!</span></button>
         </div>
     </div>
 </div>
 
-<div id="modal-tracker" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end sm:justify-center p-0 sm:p-6">
-    <div id="modal-tracker-content" class="bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl transform translate-y-full sm:translate-y-0 sm:scale-95 transition-transform duration-300 w-full sm:max-w-md sm:mx-auto flex flex-col" style="max-height:90vh;">
+<div id="modal-tracker" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end lg:justify-center lg:items-center lg:p-6 transition-all">
+    <div id="modal-tracker-content" class="bg-white rounded-t-[2.5rem] lg:rounded-[2.5rem] shadow-2xl transform translate-y-full lg:translate-y-0 lg:scale-95 transition-transform duration-300 w-full lg:max-w-md flex flex-col" style="max-height:88dvh;">
         
-        <div id="tracker-step-appetite" class="flex-1 overflow-y-auto p-8 pb-6">
-            <div class="w-20 h-20 bg-blue-50 text-blue-500 rounded-[1.5rem] flex items-center justify-center text-4xl mx-auto mb-6 shadow-inner border border-blue-100 rotate-3"><i class="fa-solid fa-bowl-food"></i></div>
-            <h3 class="text-2xl font-black text-slate-900 mb-2 text-center tracking-tight">¿Cómo comió hoy?</h3>
-            <p class="text-sm text-slate-500 font-medium mb-8 text-center">Nivel de apetito de <span class="dog-name-display font-bold text-slate-700"></span></p>
-            <div class="space-y-3">
-                <button onclick="selectAppetite('great')" class="w-full bg-emerald-50 text-emerald-700 border-2 border-emerald-100 font-bold p-4 rounded-2xl text-left hover:bg-emerald-100 hover:border-emerald-200 transition-all active:scale-95 flex items-center gap-3"><span class="text-2xl">🤤</span> ¡Devoró todo!</button>
-                <button onclick="selectAppetite('good')" class="w-full bg-slate-50 text-slate-700 border-2 border-slate-100 font-bold p-4 rounded-2xl text-left hover:bg-slate-100 hover:border-slate-200 transition-all active:scale-95 flex items-center gap-3"><span class="text-2xl">🙂</span> Comió normal</button>
-                <button onclick="selectAppetite('low')" class="w-full bg-rose-50 text-rose-700 border-2 border-rose-100 font-bold p-4 rounded-2xl text-left hover:bg-rose-100 hover:border-rose-200 transition-all active:scale-95 flex items-center gap-3"><span class="text-2xl">🤨</span> Dejó un poco</button>
+        <div id="tracker-step-appetite" class="flex-1 overflow-y-auto p-8 pb-4 lg:pb-8">
+            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-blue-100 lg:bg-blue-50 text-blue-500 rounded-full lg:rounded-[1.5rem] flex items-center justify-center text-3xl lg:text-4xl mx-auto mb-4 lg:mb-6 lg:border lg:border-blue-100 lg:shadow-inner lg:rotate-3"><i class="fa-solid fa-bowl-food"></i></div>
+            <h3 class="text-xl lg:text-2xl font-black text-slate-900 mb-2 lg:text-center lg:tracking-tight">¿Cómo comió hoy?</h3>
+            <p class="text-sm text-slate-500 font-medium mb-6 lg:mb-8 lg:text-center">Apetito de <span class="dog-name-display font-bold text-slate-700"></span></p>
+            <div class="space-y-3 pb-4 lg:pb-0">
+                <button onclick="selectAppetite('great')" class="w-full bg-emerald-50 text-emerald-700 border border-emerald-200 lg:border-2 lg:border-emerald-100 font-bold p-4 rounded-2xl text-left hover:bg-emerald-100 transition-all active:scale-95 lg:flex lg:items-center lg:gap-3"><span class="hidden lg:inline text-2xl">🤤</span> 🤤 ¡Devoró todo!</button>
+                <button onclick="selectAppetite('good')" class="w-full bg-slate-50 text-slate-700 border border-slate-200 lg:border-2 lg:border-slate-100 font-bold p-4 rounded-2xl text-left hover:bg-slate-100 transition-all active:scale-95 lg:flex lg:items-center lg:gap-3"><span class="hidden lg:inline text-2xl">🙂</span> 🙂 Comió normal</button>
+                <button onclick="selectAppetite('low')" class="w-full bg-rose-50 text-rose-700 border border-rose-200 lg:border-2 lg:border-rose-100 font-bold p-4 rounded-2xl text-left hover:bg-rose-100 transition-all active:scale-95 lg:flex lg:items-center lg:gap-3"><span class="hidden lg:inline text-2xl">🤨</span> 🤨 Dejó un poco</button>
             </div>
         </div>
 
-        <div id="tracker-step-poop" class="hidden flex-1 overflow-y-auto p-8 pb-6">
-            <div class="w-20 h-20 bg-amber-50 text-amber-600 rounded-[1.5rem] flex items-center justify-center text-4xl mx-auto mb-6 shadow-inner border border-amber-100 -rotate-3"><i class="fa-solid fa-poop"></i></div>
-            <h3 class="text-2xl font-black text-slate-900 mb-2 text-center tracking-tight">Estado de las heces</h3>
-            <p class="text-sm text-slate-500 font-medium mb-8 text-center">Vital para vigilar su digestión.</p>
-            <div class="space-y-3">
-                <button onclick="selectPoop('good')" class="w-full bg-white text-slate-700 border-2 border-slate-100 font-bold p-4 rounded-2xl text-left hover:border-emerald-300 hover:bg-emerald-50 transition-all active:scale-95 flex items-center gap-3"><span class="text-xl">🟢</span> Perfectas (Firmes)</button>
-                <button onclick="selectPoop('soft')" class="w-full bg-white text-slate-700 border-2 border-slate-100 font-bold p-4 rounded-2xl text-left hover:border-amber-300 hover:bg-amber-50 transition-all active:scale-95 flex items-center gap-3"><span class="text-xl">🟡</span> Blandas (Como puré)</button>
-                <button onclick="selectPoop('diarrhea')" class="w-full bg-white text-slate-700 border-2 border-slate-100 font-bold p-4 rounded-2xl text-left hover:border-rose-300 hover:bg-rose-50 transition-all active:scale-95 flex items-center gap-3"><span class="text-xl">🔴</span> Diarrea (Líquidas)</button>
+        <div id="tracker-step-poop" class="hidden flex-1 overflow-y-auto p-8 pb-4 lg:pb-8">
+            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-amber-100 lg:bg-amber-50 text-amber-600 rounded-full lg:rounded-[1.5rem] flex items-center justify-center text-3xl lg:text-4xl mx-auto mb-4 lg:mb-6 lg:border lg:border-amber-100 lg:shadow-inner lg:-rotate-3"><i class="fa-solid fa-poop"></i></div>
+            <h3 class="text-xl lg:text-2xl font-black text-slate-900 mb-2 lg:text-center lg:tracking-tight">¿Cómo estuvieron sus heces?</h3>
+            <p class="text-sm text-slate-500 font-medium mb-6 lg:mb-8 lg:text-center">Vigila su digestión.</p>
+            <div class="space-y-3 pb-4 lg:pb-0">
+                <button onclick="selectPoop('good')" class="w-full bg-emerald-50 lg:bg-white text-emerald-700 lg:text-slate-700 border border-emerald-200 lg:border-2 lg:border-slate-100 font-bold p-4 rounded-2xl text-left hover:bg-emerald-50 lg:hover:border-emerald-300 transition-all active:scale-95">🟢 Perfectas (Firmes)</button>
+                <button onclick="selectPoop('soft')" class="w-full bg-amber-50 lg:bg-white text-amber-700 lg:text-slate-700 border border-amber-200 lg:border-2 lg:border-slate-100 font-bold p-4 rounded-2xl text-left hover:bg-amber-50 lg:hover:border-amber-300 transition-all active:scale-95">🟡 Blandas (Puré)</button>
+                <button onclick="selectPoop('diarrhea')" class="w-full bg-rose-50 lg:bg-white text-rose-700 lg:text-slate-700 border border-rose-200 lg:border-2 lg:border-slate-100 font-bold p-4 rounded-2xl text-left hover:bg-rose-50 lg:hover:border-rose-300 transition-all active:scale-95">🔴 Diarrea (Líquidas)</button>
             </div>
         </div>
 
         <div id="tracker-step-message" class="hidden flex-col flex-1 overflow-hidden">
-            <div class="overflow-y-auto p-8 pb-6 flex-1 text-center">
-                <div id="advice-icon" class="w-20 h-20 rounded-[1.5rem] flex items-center justify-center text-4xl mx-auto mb-6 shadow-inner border"></div>
-                <h3 class="text-2xl font-black text-slate-900 mb-4 tracking-tight" id="advice-title">Diagnóstico</h3>
-                <div id="advice-body" class="text-sm text-slate-600 font-medium leading-relaxed text-left space-y-3"></div>
+            <div class="overflow-y-auto p-8 pb-4 lg:pb-6 flex-1 lg:text-center">
+                <div id="advice-icon" class="w-16 h-16 lg:w-20 lg:h-20 rounded-full lg:rounded-[1.5rem] flex items-center justify-center text-3xl lg:text-4xl mx-auto mb-4 lg:mb-6 lg:shadow-inner lg:border"></div>
+                <h3 class="text-xl lg:text-2xl font-black text-slate-900 mb-2 lg:mb-4 lg:tracking-tight" id="advice-title">Diagnóstico</h3>
+                <div id="advice-body" class="text-sm text-slate-600 font-medium leading-relaxed text-left space-y-2 lg:space-y-3"></div>
             </div>
-            <div class="px-8 pt-4 pb-6 border-t border-slate-100 bg-white shrink-0">
-                <button onclick="closeTrackerAndSave()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-xl active:scale-95 transition-all text-[15px]">¡Entendido, guardar!</button>
+            <div class="px-8 pt-3 lg:pt-4 pb-5 lg:pb-6 border-t border-slate-100 bg-white shrink-0">
+                <button onclick="closeTrackerAndSave()" class="w-full bg-slate-900 text-white font-bold lg:font-black py-4 rounded-2xl lg:shadow-xl lg:active:scale-95 transition-all lg:text-[15px]">¡Entendido, sigo la racha!</button>
             </div>
         </div>
         
-        <div class="px-8 pb-6 shrink-0 bg-white" id="btn-cancel-wrapper">
-            <button onclick="closeTrackerModal()" id="btn-close-tracker" class="w-full text-slate-400 font-bold text-sm py-3 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">Cancelar registro</button>
+        <div class="px-8 pb-5 lg:pb-6 shrink-0 bg-white" id="btn-cancel-wrapper">
+            <button onclick="closeTrackerModal()" id="btn-close-tracker" class="w-full text-slate-400 font-bold text-sm py-2 lg:py-3 hover:text-slate-600 lg:hover:bg-slate-50 lg:rounded-xl transition-colors">Cancelar</button>
         </div>
     </div>
 </div>
 
-<div id="modal-undo" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-center items-center p-6">
-    <div id="modal-undo-content" class="bg-white rounded-[2.5rem] w-full max-w-sm p-8 text-center shadow-2xl transform scale-95 transition-transform duration-300">
-        <div class="w-20 h-20 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 border border-slate-100"><i class="fa-solid fa-rotate-left"></i></div>
-        <h3 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">¿Marcaste por error?</h3>
-        <p class="text-sm text-slate-500 font-medium mb-8 leading-relaxed">Este día ya fue completado. ¿Deseas deshacer el registro y volver a evaluar?</p>
+<div id="modal-undo" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6 lg:items-center">
+    <div id="modal-undo-content" class="bg-white rounded-[2rem] lg:rounded-[2.5rem] p-8 lg:max-w-sm lg:w-full text-center shadow-2xl transform scale-95 transition-transform duration-300">
+        <div class="w-16 h-16 lg:w-20 lg:h-20 bg-slate-100 lg:bg-slate-50 text-slate-500 lg:text-slate-400 rounded-full flex items-center justify-center text-2xl lg:text-3xl mx-auto mb-4 lg:mb-6 lg:border lg:border-slate-100"><i class="fa-solid fa-rotate-left"></i></div>
+        <h3 class="text-xl lg:text-2xl font-black text-slate-900 mb-2 lg:tracking-tight">¿Marcaste por error?</h3>
+        <p class="text-sm text-slate-500 font-medium mb-6 lg:mb-8 lg:leading-relaxed">Día completado con éxito. ¿Deseas deshacer este registro?</p>
         <div class="flex gap-3">
-            <button onclick="closeUndoModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-4 rounded-2xl hover:bg-slate-200 transition-colors">Mantener</button>
-            <button onclick="confirmUndo()" class="w-full bg-rose-50 text-rose-600 font-bold py-4 rounded-2xl border border-rose-200 hover:bg-rose-100 transition-colors">Deshacer</button>
+            <button onclick="closeUndoModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-3.5 lg:py-4 rounded-xl lg:rounded-2xl hover:bg-slate-200 transition-colors">Mantener</button>
+            <button onclick="confirmUndo()" class="w-full bg-rose-50 text-rose-600 font-bold py-3.5 lg:py-4 rounded-xl lg:rounded-2xl border border-rose-200 hover:bg-rose-100 transition-colors">Sí, deshacer</button>
         </div>
     </div>
 </div>
 
-<div id="modal-tips" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end sm:justify-center p-0 sm:p-6">
-    <div id="modal-tips-content" class="bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl transform translate-y-full sm:translate-y-0 sm:scale-95 transition-transform duration-300 w-full sm:max-w-lg sm:mx-auto flex flex-col overflow-hidden" style="max-height: 85vh;">
-        <div class="flex justify-between items-center p-6 md:p-8 shrink-0 border-b border-slate-50">
-            <h3 class="text-2xl font-black text-slate-900 tracking-tight">Secretos Vitales 💡</h3>
-            <button onclick="closeTipsModal()" class="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+<div id="modal-tips" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end lg:justify-center px-6 py-6 lg:items-center">
+    <div id="modal-tips-content" class="bg-white rounded-[2.5rem] shadow-2xl transform lg:translate-y-0 scale-95 transition-transform duration-300 w-full lg:max-w-lg flex flex-col overflow-hidden" style="max-height: 85vh;">
+        <div class="flex justify-between items-center p-6 lg:p-8 shrink-0 border-b border-slate-50">
+            <h3 class="text-xl lg:text-2xl font-black text-slate-900 lg:tracking-tight">Secretos Vitales 💡</h3>
+            <button onclick="closeTipsModal()" class="text-slate-400 hover:text-slate-600 text-2xl transition-colors lg:w-10 lg:h-10 lg:flex lg:items-center lg:justify-center lg:bg-slate-100 lg:rounded-full lg:text-base"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="p-6 md:p-8 overflow-y-auto flex-1 no-scrollbar">
-            <div class="space-y-6 text-left">
-                <div class="flex gap-5 bg-rose-50/50 p-4 rounded-2xl border border-rose-100/50">
-                    <div class="w-10 h-10 rounded-[1rem] bg-rose-100 text-rose-500 flex items-center justify-center shrink-0 text-lg"><i class="fa-solid fa-fire-burner"></i></div>
-                    <p class="text-xs text-slate-600 font-medium leading-relaxed"><b class="text-slate-900 block mb-1 text-sm">¡Nunca cocines huesos!</b> Los huesos cocidos se astillan y son mortales. Siempre deben ser crudos y carnosos.</p>
+        <div class="px-6 py-4 lg:p-8 overflow-y-auto flex-1 no-scrollbar">
+            <div class="space-y-5 lg:space-y-6 text-left pb-2 lg:pb-0">
+                <div class="flex gap-4 lg:gap-5 lg:bg-rose-50/50 lg:p-4 lg:rounded-2xl lg:border lg:border-rose-100/50">
+                    <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-[1rem] bg-rose-100 text-rose-500 flex items-center justify-center shrink-0 lg:text-lg"><i class="fa-solid fa-fire-burner"></i></div>
+                    <p class="text-xs text-slate-600 lg:font-medium lg:leading-relaxed"><b class="text-slate-900 block mb-1 lg:text-sm">¡Nunca cocines huesos!</b> Los huesos cocidos se astillan y son peligrosos. Siempre crudos.</p>
                 </div>
-                <div class="flex gap-5 p-2">
-                    <div class="w-10 h-10 rounded-[1rem] bg-blue-100 text-blue-500 flex items-center justify-center shrink-0 text-lg"><i class="fa-solid fa-droplet"></i></div>
-                    <p class="text-xs text-slate-600 font-medium leading-relaxed"><b class="text-slate-900 block mb-1 text-sm">Beberá menos agua</b> La comida natural ya lo hidrata un 70% más que las croquetas secas. Es normal.</p>
+                <div class="flex gap-4 lg:gap-5 lg:p-2">
+                    <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-[1rem] bg-blue-100 text-blue-500 flex items-center justify-center shrink-0 lg:text-lg"><i class="fa-solid fa-droplet"></i></div>
+                    <p class="text-xs text-slate-600 lg:font-medium lg:leading-relaxed"><b class="text-slate-900 block mb-1 lg:text-sm">Menos agua, más salud</b> Es normal que beba menos agua. La comida natural lo hidrata un 70% más.</p>
                 </div>
-                <div class="flex gap-5 p-2">
-                    <div class="w-10 h-10 rounded-[1rem] bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 text-lg"><i class="fa-solid fa-temperature-low"></i></div>
-                    <p class="text-xs text-slate-600 font-medium leading-relaxed"><b class="text-slate-900 block mb-1 text-sm">Temperatura ambiente</b> Nunca sirvas la comida fría del refrigerador. Sácala 20 mins antes para que el olor lo atraiga.</p>
+                <div class="flex gap-4 lg:gap-5 lg:p-2">
+                    <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-[1rem] bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 lg:text-lg"><i class="fa-solid fa-temperature-low"></i></div>
+                    <p class="text-xs text-slate-600 lg:font-medium lg:leading-relaxed"><b class="text-slate-900 block mb-1 lg:text-sm">Sirve a temperatura ambiente</b> Nunca frío del refri. Sácalo 20 mins antes para mejorar aceptación.</p>
                 </div>
-                <div class="flex gap-5 bg-purple-50/50 p-4 rounded-2xl border border-purple-100/50">
-                    <div class="w-10 h-10 rounded-[1rem] bg-purple-100 text-purple-500 flex items-center justify-center shrink-0 text-lg"><i class="fa-solid fa-heart"></i></div>
-                    <p class="text-xs text-slate-600 font-medium leading-relaxed"><b class="text-slate-900 block mb-1 text-sm">El hígado es potente</b> No superes el 5% del total. El exceso causa diarrea inmediata por exceso de vitamina A.</p>
-                </div>
-                <div class="flex gap-5 p-2">
-                    <div class="w-10 h-10 rounded-[1rem] bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 text-lg"><i class="fa-solid fa-leaf"></i></div>
-                    <p class="text-xs text-slate-600 font-medium leading-relaxed"><b class="text-slate-900 block mb-1 text-sm">Vegetales procesados</b> No digieren la celulosa cruda. Hierve o haz puré el zapallo, zanahoria y espinaca.</p>
-                </div>
-                <div class="flex gap-5 bg-rose-50/50 p-4 rounded-2xl border border-rose-100/50">
-                    <div class="w-10 h-10 rounded-[1rem] bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 text-lg"><i class="fa-solid fa-ban"></i></div>
-                    <p class="text-xs text-slate-600 font-medium leading-relaxed"><b class="text-slate-900 block mb-1 text-sm">Alimentos Tóxicos</b> Uvas, pasas, cebolla, ajo, chocolate y palta (aguacate) están 100% prohibidos.</p>
+                <div class="flex gap-4 lg:gap-5 lg:bg-purple-50/50 lg:p-4 lg:rounded-2xl lg:border lg:border-purple-100/50">
+                    <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-[1rem] bg-purple-100 text-purple-500 flex items-center justify-center shrink-0 lg:text-lg"><i class="fa-solid fa-heart"></i></div>
+                    <p class="text-xs text-slate-600 lg:font-medium lg:leading-relaxed"><b class="text-slate-900 block mb-1 lg:text-sm">El hígado es potente</b> No superes el 5% del total. El exceso causa diarrea por mucha vitamina A.</p>
                 </div>
             </div>
         </div>
-        <div class="p-6 md:p-8 shrink-0 bg-white border-t border-slate-100">
-            <button onclick="closeTipsModal()" class="w-full amber-gradient text-white font-black py-5 rounded-2xl shadow-xl shadow-amber-600/20 active:scale-95 transition-all text-[15px]">¡Guardar Consejos!</button>
+        <div class="p-6 lg:p-8 shrink-0 bg-white border-t border-slate-50 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] lg:shadow-none">
+            <button onclick="closeTipsModal()" class="w-full amber-gradient text-white font-bold lg:font-black py-4 lg:py-5 rounded-2xl transition-colors lg:shadow-xl lg:shadow-amber-600/20 lg:active:scale-95"><span>¡Entendido!</span></button>
         </div>
     </div>
 </div>
 
-<div id="modal-reset" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-center items-center p-6">
-    <div id="modal-reset-content" class="bg-white rounded-[2.5rem] w-full max-w-sm p-8 text-center shadow-2xl transform scale-95 transition-transform duration-300">
-        <div class="w-20 h-20 bg-rose-50 text-rose-500 rounded-[1.5rem] border border-rose-100 flex items-center justify-center text-4xl mx-auto mb-6"><i class="fa-solid fa-triangle-exclamation"></i></div>
-        <h3 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">¿Borrar Plan?</h3>
-        <p class="text-sm text-slate-500 font-medium mb-8 leading-relaxed">Esto eliminará los cálculos y la racha actual de <span class="dog-name-display font-bold text-slate-700"></span>. No se puede deshacer.</p>
+<div id="modal-reset" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-center px-6 lg:items-center">
+    <div id="modal-reset-content" class="bg-white rounded-[2rem] lg:rounded-[2.5rem] p-8 lg:max-w-sm lg:w-full text-center shadow-2xl transform scale-95 transition-transform duration-300">
+        <div class="w-16 h-16 lg:w-20 lg:h-20 bg-rose-100 lg:bg-rose-50 text-rose-500 rounded-full lg:rounded-[1.5rem] lg:border lg:border-rose-100 flex items-center justify-center text-3xl lg:text-4xl mx-auto mb-4 lg:mb-6"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3 class="text-xl lg:text-2xl font-black text-slate-900 mb-2 lg:tracking-tight">¿Empezar de nuevo?</h3>
+        <p class="text-sm text-slate-500 font-medium mb-6 lg:mb-8 lg:leading-relaxed">Esto borrará el plan y la racha actual de <span class="dog-name-display font-bold text-slate-700"></span>.</p>
         <div class="flex gap-3">
-            <button onclick="closeResetModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-4 rounded-2xl hover:bg-slate-200 transition-colors">Cancelar</button>
-            <button onclick="confirmResetApp()" class="w-full bg-rose-500 text-white font-bold py-4 rounded-2xl hover:bg-rose-600 shadow-lg shadow-rose-500/20 transition-all active:scale-95">Sí, borrar</button>
+            <button onclick="closeResetModal()" class="w-full bg-slate-100 text-slate-600 font-bold py-3.5 lg:py-4 rounded-xl lg:rounded-2xl hover:bg-slate-200 transition-colors">Cancelar</button>
+            <button onclick="confirmResetApp()" class="w-full bg-rose-500 text-white font-bold py-3.5 lg:py-4 rounded-xl lg:rounded-2xl hover:bg-rose-600 lg:shadow-lg lg:shadow-rose-500/20 transition-all active:scale-95">Sí, borrar</button>
         </div>
     </div>
 </div>
 
-<div id="modal-upsell" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end sm:justify-center p-0 sm:p-6 transition-all">
-    <div class="bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 md:p-10 transform translate-y-full sm:translate-y-0 sm:scale-95 transition-transform duration-300 w-full sm:max-w-md sm:mx-auto" id="upsell-content">
-        <div class="flex items-center gap-5 mb-8">
-            <div class="w-20 h-20 rounded-[1.5rem] flex items-center justify-center text-4xl shadow-inner transition-colors bg-rose-50 text-rose-500 border border-rose-100 rotate-3">
+<div id="modal-upsell" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end lg:justify-center lg:items-center p-0 lg:p-6 transition-all">
+    <div class="bg-white rounded-t-[2.5rem] lg:rounded-[2.5rem] p-8 lg:p-10 transform translate-y-full lg:translate-y-0 lg:scale-95 transition-transform duration-300 w-full lg:max-w-md" id="upsell-content">
+        <div class="flex items-center gap-4 lg:gap-5 mb-6 lg:mb-8">
+            <div class="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl lg:rounded-[1.5rem] flex items-center justify-center text-3xl lg:text-4xl shadow-inner transition-colors bg-rose-100 lg:bg-rose-50 text-rose-600 lg:border lg:border-rose-100 lg:rotate-3">
                 <i class="fa-solid fa-fire-burner"></i>
             </div>
             <div>
-                <h3 class="text-2xl font-black text-slate-900 leading-tight tracking-tight">NutriChef Vital</h3>
-                <p class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Recetario Dinámico</p>
+                <h3 class="text-xl lg:text-2xl font-black text-slate-900 leading-tight lg:tracking-tight">NutriChef Vital</h3>
+                <p class="text-xs font-bold text-slate-400 mt-1 lg:uppercase lg:tracking-widest">Recetario Dinámico</p>
             </div>
         </div>
         
-        <h4 class="font-black text-sm text-slate-800 mb-4 flex items-center gap-2">
+        <h4 class="font-black text-sm text-slate-800 mb-3 lg:mb-4 flex items-center gap-2">
             <i class="fa-solid fa-circle-check text-emerald-500"></i> ¿Qué incluye tu acceso?
         </h4>
-        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-8">
-            <ul class="space-y-3 text-sm text-slate-600 font-medium text-left">
-                <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1 text-emerald-500 text-sm shrink-0"></i> <span>50 Recetas Premium (Desayuno, Almuerzo, Cena)</span></li>
-                <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1 text-emerald-500 text-sm shrink-0"></i> <span>Modo 'Chef' con temporizadores en pantalla</span></li>
-                <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1 text-emerald-500 text-sm shrink-0"></i> <span>Lista de compras automática para WhatsApp</span></li>
+        <div class="lg:bg-slate-50 lg:p-5 lg:rounded-2xl lg:border lg:border-slate-100 lg:mb-8">
+            <ul class="space-y-2.5 lg:space-y-3 text-sm text-slate-600 font-medium text-left pl-1 lg:pl-0 mb-8 lg:mb-0">
+                <li class="flex items-start gap-2 lg:gap-3"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs lg:text-sm shrink-0"></i> <span>50 Recetas Premium</span></li>
+                <li class="flex items-start gap-2 lg:gap-3"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs lg:text-sm shrink-0"></i> <span>Modo 'Chef' en pantalla</span></li>
+                <li class="flex items-start gap-2 lg:gap-3"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs lg:text-sm shrink-0"></i> <span>Lista de compras para WhatsApp</span></li>
             </ul>
         </div>
 
         <div class="space-y-3">
-            <button onclick="confirmNutriChefUpsell()" class="w-full text-white font-black py-5 rounded-2xl text-[15px] shadow-xl shadow-rose-500/30 active:scale-95 transition-all flex justify-center items-center gap-2 bg-rose-500 hover:bg-rose-600">
+            <button onclick="confirmNutriChefUpsell()" class="w-full text-white font-black py-4 lg:py-5 rounded-2xl text-[15px] shadow-lg lg:shadow-xl lg:shadow-rose-500/30 active:scale-95 transition-all flex justify-center items-center gap-2 bg-rose-500 hover:bg-rose-600">
                 Desbloquear por <span id="upsell-price">S/ 17</span>
             </button>
-            <button onclick="closeUpsellModal()" class="w-full text-slate-400 font-bold py-4 text-sm active:scale-95 transition-colors hover:text-slate-600 hover:bg-slate-50 rounded-2xl">
-                Cerrar
+            <button onclick="closeUpsellModal()" class="w-full text-slate-400 font-bold py-3 lg:py-4 text-sm active:scale-95 transition-transform hover:text-slate-600 lg:hover:bg-slate-50 lg:rounded-2xl">
+                Cancelar
             </button>
         </div>
     </div>
 </div>
 
+</div>
+
 <script>
 // ==========================================
-// TÚ LÓGICA JAVASCRIPT INTACTA
+// LÓGICA JAVASCRIPT INTACTA
 // ==========================================
 const ingredientInfo = {
-    'huesos': {
-        title: 'Huesos Carnosos 🦴',
-        concept: 'Son huesos blandos recubiertos de carne. Aportan el calcio necesario y limpian los dientes de tu perrito de forma natural. <br><br><b class="text-rose-600">⚠️ Regla de Oro:</b> ¡NUNCA se dan cocidos! Siempre crudos para que no se astillen.',
-        options: 'Cuellos de pollo, alitas de pollo (sin puntas), rabadilla blanda, carcasas (huacales) de pollo, muslos, cuellos de pavo, cuellos de pato, codorniz entera, costillas de cerdo carnosas, rabo de res.'
-    },
-    'carne': {
-        title: 'Carne Magra (Músculo) 🥩',
-        concept: 'Es la principal fuente de proteína y energía para tu peludo. Básicamente, es cualquier corte de carne sin el hueso.',
-        options: 'Pechuga de pollo, pierna o muslo deshuesado, corazón de res (cuenta como músculo), corazón de pollo, sangrecita, carne de cerdo magra, pulpa de res, carne molida baja en grasa, carne de pavo, pescado azul (bonito o jurel sin espinas), carne de cordero.'
-    },
-    'visceras': {
-        title: 'Vísceras Mix 🩸',
-        concept: 'Son las "vitaminas" naturales de la dieta BARF. Deben darse en pequeñas cantidades. Recuerda que la mitad de esta ración (5%) debe ser obligatoriamente hígado.',
-        options: 'Hígado de pollo, hígado de res, riñón de res o cerdo, bazo, sesos, criadillas, pulmón (bofe), mollejas.<br><br><span class="text-[11px] text-slate-500 font-medium">Tip: Si no le gusta la textura, puedes licuarlas con un poco de agua o mezclarlas con la carne molida.</span>'
-    },
-    'vegetales': {
-        title: 'Vegetales y Frutas 🥦',
-        concept: 'Aportan fibra, vitaminas y antioxidantes. Los perros no mastican como nosotros, así que para que puedan absorber sus nutrientes, debes darlos licuados en puré o ligeramente cocidos/al vapor.',
-        options: 'Zanahoria, zapallo (calabaza), brócoli, espinaca, zucchini (calabacín), vainitas, manzana (siempre sin semillas), pera, plátano, arándanos, sandía, papaya.'
-    }
+    'huesos': { title: 'Huesos Carnosos 🦴', concept: 'Son huesos blandos recubiertos de carne. Aportan el calcio necesario y limpian los dientes de tu perrito de forma natural. <br><br><b class="text-rose-600">⚠️ Regla de Oro:</b> ¡NUNCA se dan cocidos! Siempre crudos para que no se astillen.', options: 'Cuellos de pollo, alitas de pollo (sin puntas), rabadilla blanda, carcasas (huacales) de pollo, muslos, cuellos de pavo, cuellos de pato, codorniz entera, costillas de cerdo carnosas, rabo de res.' },
+    'carne': { title: 'Carne Magra (Músculo) 🥩', concept: 'Es la principal fuente de proteína y energía para tu peludo. Básicamente, es cualquier corte de carne sin el hueso.', options: 'Pechuga de pollo, pierna o muslo deshuesado, corazón de res (cuenta como músculo), corazón de pollo, sangrecita, carne de cerdo magra, pulpa de res, carne molida baja en grasa, carne de pavo, pescado azul (bonito o jurel sin espinas), carne de cordero.' },
+    'visceras': { title: 'Vísceras Mix 🩸', concept: 'Son las "vitaminas" naturales de la dieta BARF. Deben darse en pequeñas cantidades. Recuerda que la mitad de esta ración (5%) debe ser obligatoriamente hígado.', options: 'Hígado de pollo, hígado de res, riñón de res o cerdo, bazo, sesos, criadillas, pulmón (bofe), mollejas.<br><br><span class="text-[11px] text-slate-500 font-medium">Tip: Si no le gusta la textura, puedes licuarlas con un poco de agua o mezclarlas con la carne molida.</span>' },
+    'vegetales': { title: 'Vegetales y Frutas 🥦', concept: 'Aportan fibra, vitaminas y antioxidantes. Los perros no mastican como nosotros, así que para que puedan absorber sus nutrientes, debes darlos licuados en puré o ligeramente cocidos/al vapor.', options: 'Zanahoria, zapallo (calabaza), brócoli, espinaca, zucchini (calabacín), vainitas, manzana (siempre sin semillas), pera, plátano, arándanos, sandía, papaya.' }
 };
 
-let dogName = "tu peludo";
-let currentScreen = 'screen-welcome';
+let dogName = "tu peludo"; let currentScreen = 'screen-welcome';
 let planData = { healthGoal: "digestion", dietPlanType: "croquetas", totalGrams: 0, gramosHuesos: 0, gramosCarne: 0, gramosVisceras: 0, gramosVerduras: 0, etapa: "adulto", startDate: null };
-let trackerData = { days: {} };
-let pendingDayToMark = -1;
-let pendingAppetite = null;
-let pendingPoop = null;
-let dayToUndo = -1;
+let trackerData = { days: {} }; let pendingDayToMark = -1; let pendingAppetite = null; let pendingPoop = null; let dayToUndo = -1;
 
 const transitionTexts = {
     14: [ "100% Dieta blanda cocida (Pollo y zapallo). Cero crudo.", "Mantén dieta blanda. Estómago desintoxicándose.", "Último día de dieta blanda exclusiva.", "Agrega 30% de la carne magra cruda a lo cocido.", "Sube a 50% de carne magra cruda. Heces pueden variar.", "75% carne cruda. El estómago se hace ácido.", "100% Carne cruda + vegetales. Adiós a lo cocido.", "Introduce el Hígado crudo en mínima cantidad.", "Sube la porción de hígado al 5%.", "Introduce otras vísceras (riñón, bazo).", "Transición total de vísceras lograda.", "¡El gran paso! Introduce Huesos Carnosos (Cuellos triturados).", "Aumenta ración de huesos. Mastica bajo supervisión.", "¡Transición 100% completada! Felicidades." ],
@@ -600,75 +600,41 @@ const transitionTexts = {
 
 function getSmartAdvice(appetite, poop, dayIndex) {
     if (poop === 'good') {
-        if (appetite === 'great') {
-            return { icon: '<div class="w-full h-full rounded-2xl flex items-center justify-center text-4xl bg-emerald-50 border border-emerald-100 text-emerald-500"><i class="fa-solid fa-circle-check"></i></div>', title: '¡Día perfecto! 🎉', html: '<div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4"><p class="font-bold text-emerald-800 text-xs mb-1">✅ Todo va excelente</p><p class="text-xs text-slate-600 leading-relaxed">Su digestión responde muy bien. Puedes avanzar con confianza al siguiente paso mañana.</p></div>' };
-        } else {
-            return { icon: '<div class="w-full h-full rounded-2xl flex items-center justify-center text-4xl bg-emerald-50 border border-emerald-100 text-emerald-500"><i class="fa-solid fa-circle-check"></i></div>', title: 'Digestión estable 👍', html: '<div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4"><p class="font-bold text-emerald-800 text-xs mb-1">✅ Heces perfectas</p><p class="text-xs text-slate-600 leading-relaxed">Sus heces están bien aunque comió poco. Prueba servir la comida a temperatura ambiente, no fría del refri. Es normal algo de rechazo al inicio.</p></div>' };
-        }
+        if (appetite === 'great') { return { icon: '<div class="w-full h-full rounded-2xl lg:rounded-[1.5rem] flex items-center justify-center text-4xl bg-emerald-50 border border-emerald-100 text-emerald-500"><i class="fa-solid fa-circle-check"></i></div>', title: '¡Día perfecto! 🎉', html: '<div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4"><p class="font-bold text-emerald-800 text-xs mb-1">✅ Todo va excelente</p><p class="text-xs text-slate-600 leading-relaxed">Su digestión responde muy bien. Puedes avanzar con confianza al siguiente paso mañana.</p></div>' }; } 
+        else { return { icon: '<div class="w-full h-full rounded-2xl lg:rounded-[1.5rem] flex items-center justify-center text-4xl bg-emerald-50 border border-emerald-100 text-emerald-500"><i class="fa-solid fa-circle-check"></i></div>', title: 'Digestión estable 👍', html: '<div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4"><p class="font-bold text-emerald-800 text-xs mb-1">✅ Heces perfectas</p><p class="text-xs text-slate-600 leading-relaxed">Sus heces están bien aunque comió poco. Prueba servir la comida a temperatura ambiente, no fría del refri. Es normal algo de rechazo al inicio.</p></div>' }; }
     }
-    if (poop === 'soft') {
-        return { icon: '<div class="w-full h-full rounded-2xl flex items-center justify-center text-4xl bg-amber-50 border border-amber-100 text-amber-500"><i class="fa-solid fa-triangle-exclamation"></i></div>', title: 'Ajustemos el ritmo 🟡', html: '<div class="bg-amber-50 border border-amber-100 rounded-xl p-4 space-y-2"><p class="font-bold text-amber-800 text-xs">🟡 Heces blandas — Recomendaciones:</p><p class="text-xs text-slate-600">• <b>No avances al siguiente paso mañana.</b> Repite este mismo día 24 horas más.</p><p class="text-xs text-slate-600">• Si introdujiste vísceras hoy, reduce la cantidad a la mitad.</p><p class="text-xs text-slate-600">• Agrega una cucharada de puré de zapallo a la ración — regula la digestión.</p></div>' };
-    }
-    if (poop === 'diarrhea') {
-        return { icon: '<div class="w-full h-full rounded-2xl flex items-center justify-center text-4xl bg-rose-50 border border-rose-100 text-rose-500"><i class="fa-solid fa-circle-exclamation"></i></div>', title: 'Pausemos y observamos 🔴', html: '<div class="bg-rose-50 border border-rose-100 rounded-xl p-4 space-y-2"><p class="font-bold text-rose-800 text-xs">🔴 Diarrea — Acciones inmediatas:</p><p class="text-xs text-slate-600">• <b>Vuelve a carne magra cocida + zapallo</b> por 24–48h para estabilizar.</p><p class="text-xs text-slate-600">• <b>Pausa los huesos</b> si los introdujiste hoy.</p><p class="text-xs text-rose-700 font-bold mt-2">⚠️ Si continúa más de 48h, consulta al veterinario urgente.</p></div>' };
-    }
-    return { icon: '<div class="w-full h-full rounded-2xl flex items-center justify-center text-4xl bg-blue-50 border border-blue-100 text-blue-500"><i class="fa-solid fa-stethoscope"></i></div>', title: 'Registro guardado', html: '<p class="text-xs text-slate-600">Día registrado correctamente. Sigue el plan con confianza.</p>' };
+    if (poop === 'soft') { return { icon: '<div class="w-full h-full rounded-2xl lg:rounded-[1.5rem] flex items-center justify-center text-4xl bg-amber-50 border border-amber-100 text-amber-500"><i class="fa-solid fa-triangle-exclamation"></i></div>', title: 'Ajustemos el ritmo 🟡', html: '<div class="bg-amber-50 border border-amber-100 rounded-xl p-4 space-y-2"><p class="font-bold text-amber-800 text-xs">🟡 Heces blandas — Recomendaciones:</p><p class="text-xs text-slate-600">• <b>No avances al siguiente paso mañana.</b> Repite este mismo día 24 horas más.</p><p class="text-xs text-slate-600">• Si introdujiste vísceras hoy, reduce la cantidad a la mitad.</p><p class="text-xs text-slate-600">• Agrega una cucharada de puré de zapallo a la ración — regula la digestión.</p></div>' }; }
+    if (poop === 'diarrhea') { return { icon: '<div class="w-full h-full rounded-2xl lg:rounded-[1.5rem] flex items-center justify-center text-4xl bg-rose-50 border border-rose-100 text-rose-500"><i class="fa-solid fa-circle-exclamation"></i></div>', title: 'Pausemos y observamos 🔴', html: '<div class="bg-rose-50 border border-rose-100 rounded-xl p-4 space-y-2"><p class="font-bold text-rose-800 text-xs">🔴 Diarrea — Acciones inmediatas:</p><p class="text-xs text-slate-600">• <b>Vuelve a carne magra cocida + zapallo</b> por 24–48h para estabilizar.</p><p class="text-xs text-slate-600">• <b>Pausa los huesos</b> si los introdujiste hoy.</p><p class="text-xs text-rose-700 font-bold mt-2">⚠️ Si continúa más de 48h, consulta al veterinario urgente.</p></div>' }; }
+    return { icon: '<div class="w-full h-full rounded-2xl lg:rounded-[1.5rem] flex items-center justify-center text-4xl bg-blue-50 border border-blue-100 text-blue-500"><i class="fa-solid fa-stethoscope"></i></div>', title: 'Registro guardado', html: '<p class="text-xs text-slate-600">Día registrado correctamente. Sigue el plan con confianza.</p>' };
 }
 
-function formatDate(dateStr) {
-    if (!dateStr) return '';
-    const parts = dateStr.split('-');
-    if(parts.length !== 3) return dateStr;
-    const d = new Date(parts[0], parts[1] - 1, parts[2]);
-    const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    return `${d.getDate()} ${months[d.getMonth()]}`;
-}
+function formatDate(dateStr) { if (!dateStr) return ''; const parts = dateStr.split('-'); if(parts.length !== 3) return dateStr; const d = new Date(parts[0], parts[1] - 1, parts[2]); const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; return `${d.getDate()} ${months[d.getMonth()]}`; }
 function getTodayStr() { const now = new Date(); return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`; }
-
-function showToast(message, type = 'success') {
-    const toast = document.getElementById('toast'); document.getElementById('toast-msg').innerText = message;
-    document.getElementById('toast-icon').className = type === 'error' ? 'fa-solid fa-circle-xmark text-rose-400 text-xl' : 'fa-solid fa-circle-check text-emerald-400 text-xl';
-    toast.classList.remove('-translate-y-24', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100');
-    setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('-translate-y-24', 'opacity-0'); }, 3000);
-}
+function showToast(msg, type = 'success') { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; document.getElementById('toast-icon').className = type === 'error' ? 'fa-solid fa-circle-xmark text-rose-400 text-xl' : 'fa-solid fa-circle-check text-emerald-400 text-xl'; t.classList.remove('-translate-y-24', 'opacity-0'); t.classList.add('translate-y-0', 'opacity-100'); setTimeout(() => { t.classList.remove('translate-y-0', 'opacity-100'); t.classList.add('-translate-y-24', 'opacity-0'); }, 3000); }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const savedName = localStorage.getItem('currentDogName'); 
-    if (savedName && savedName !== "undefined" && savedName.trim() !== "") dogName = savedName;
-    updateAllDogNames();
-
-    const savedPlan = localStorage.getItem(`nutriCanPlan_${dogName}`);
-    const savedTracker = localStorage.getItem(`nutriCanTracker_${dogName}`);
-    
+    const savedName = localStorage.getItem('currentDogName'); if (savedName && savedName !== "undefined" && savedName.trim() !== "") dogName = savedName; updateAllDogNames();
+    const savedPlan = localStorage.getItem(`nutriCanPlan_${dogName}`); const savedTracker = localStorage.getItem(`nutriCanTracker_${dogName}`);
     if (savedPlan) {
         planData = JSON.parse(savedPlan);
-        if (savedTracker) {
-            const parsed = JSON.parse(savedTracker);
-            if (parsed.completedDays && !parsed.days) {
-                trackerData = { days: {} }; parsed.completedDays.forEach(i => { trackerData.days[i] = { appetite: 'good', poop: 'good', date: getTodayStr() }; });
-            } else { trackerData = parsed; }
-        }
+        if (savedTracker) { const parsed = JSON.parse(savedTracker); if (parsed.completedDays && !parsed.days) { trackerData = { days: {} }; parsed.completedDays.forEach(i => { trackerData.days[i] = { appetite: 'good', poop: 'good', date: getTodayStr() }; }); } else { trackerData = parsed; } }
         showScreen('screen-welcome', 'Plataforma Activa');
     } else { showScreen('screen-goal', 'Paso 1 de 3'); }
 });
 
 function updateAllDogNames() { document.querySelectorAll('.dog-name-display').forEach(span => { span.innerText = dogName; }); }
-
-function smartBack() {
-    if (currentScreen === 'screen-diet') showScreen('screen-goal', 'Paso 1 de 3');
-    else if (currentScreen === 'screen-params') showScreen('screen-diet', 'Paso 2 de 3');
-}
+function smartBack() { if (currentScreen === 'screen-diet') showScreen('screen-goal', 'Paso 1 de 3'); else if (currentScreen === 'screen-params') showScreen('screen-diet', 'Paso 2 de 3'); }
 
 function showScreen(screenId, subtitleText = "") {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
     currentScreen = screenId;
-    if (subtitleText) document.getElementById('header-subtitle').innerText = subtitleText;
+    if (subtitleText) { document.getElementById('header-subtitle-mob').innerText = subtitleText; document.getElementById('header-subtitle-desk').innerText = subtitleText; }
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    const btnBack = document.getElementById('btn-back');
-    if (['screen-welcome','screen-dashboard','screen-goal','screen-victory'].includes(screenId)) btnBack.style.display = 'none';
-    else btnBack.style.display = 'flex';
+    const bMob = document.getElementById('btn-back-mob'), bDesk = document.getElementById('btn-back-desk');
+    if (['screen-welcome','screen-dashboard','screen-goal','screen-victory'].includes(screenId)) { bMob.style.display = 'none'; bDesk.style.display = 'none'; } 
+    else { bMob.style.display = 'flex'; bDesk.style.display = 'flex'; }
 }
 
 function nextToDiet() { planData.healthGoal = document.querySelector('input[name="healthGoal"]:checked').value; showScreen('screen-diet', 'Paso 2 de 3'); }
@@ -732,7 +698,7 @@ function renderHealthStatus() {
         panel.classList.replace('border-slate-200', 'border-rose-300'); advice.innerText = `⚠️ Atención: El sistema de ${dogName} está resentido. Pausa el avance y evalúa consultar al veterinario si hay decaimiento.`;
     } else if (badPoopCount === 1 || lowAppetiteCount >= 1) {
         riskBadge.className = 'text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-amber-500 text-white'; riskBadge.innerText = 'RIESGO MEDIO';
-        panel.classList.replace('border-slate-200', 'border-amber-300'); advice.innerText = '🟡 En observación: Hay un leve desajuste. No avances al siguiente paso hoy. Mantén la dieta.';
+        panel.classList.replace('border-slate-200', 'border-amber-300'); advice.innerText = '🟡 En observación: Hay un leve desajuste. No avances hoy. Mantén la dieta.';
     } else {
         riskBadge.className = 'text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-emerald-500 text-white'; riskBadge.innerText = 'RIESGO BAJO';
         panel.classList.replace('border-slate-200', 'border-emerald-300'); advice.innerText = `✅ Todo marcha excelente. El metabolismo de ${dogName} se adapta a la perfección.`;
@@ -745,10 +711,8 @@ function renderBadges() {
 
     let html = '';
     badges.forEach(b => {
-        const unlocked = completedDays >= b.req;
-        const opacity = unlocked ? 'opacity-100 shadow-sm' : 'opacity-40 grayscale';
-        const bg = unlocked ? 'bg-amber-50 border-amber-300' : 'bg-slate-50 border-slate-200';
-        html += `<div class="rounded-2xl border ${bg} p-3 flex flex-col items-center justify-center text-center transition-all ${opacity}"><div class="text-3xl mb-1">${b.icon}</div><p class="text-[10px] font-black text-slate-800 leading-tight mb-0.5">${b.title}</p><p class="text-[8px] font-bold text-slate-500 uppercase">${b.desc}</p></div>`;
+        const unlocked = completedDays >= b.req, opacity = unlocked ? 'opacity-100 shadow-sm' : 'opacity-40 grayscale', bg = unlocked ? 'bg-amber-50 border-amber-300' : 'bg-slate-50 border-slate-200';
+        html += `<div class="min-w-[80px] lg:min-w-0 rounded-2xl border ${bg} p-3 flex flex-col items-center justify-center text-center transition-all ${opacity}"><div class="text-3xl mb-1">${b.icon}</div><p class="text-[10px] font-black text-slate-800 leading-tight mb-0.5">${b.title}</p><p class="text-[8px] font-bold text-slate-500 uppercase">${b.desc}</p></div>`;
     });
     document.getElementById('badges-container').innerHTML = html;
 }
@@ -779,7 +743,7 @@ function renderDashboard() {
     let tomas = planData.etapa === 'cachorro' ? 3 : 2, gramosPorToma = Math.round(planData.totalGrams / tomas);
     document.getElementById('meal-division').innerHTML = `
         <div class="bg-amber-50 border border-amber-200 p-5 rounded-2xl flex justify-between items-center shadow-inner">
-            <div><span class="block text-[10px] font-black text-amber-600 mb-0.5 tracking-widest">DIVISION IDEAL</span><span class="block font-bold text-slate-800 text-sm">${planData.etapa === 'cachorro' ? "Desayuno, Almuerzo y Cena" : "Desayuno y Cena"}</span></div>
+            <div><span class="block text-[10px] font-black text-amber-600 mb-0.5 tracking-widest">DIVISIÓN IDEAL</span><span class="block font-bold text-slate-800 text-sm">${planData.etapa === 'cachorro' ? "Desayuno, Almuerzo y Cena" : "Desayuno y Cena"}</span></div>
             <div class="text-right bg-white px-4 py-2 rounded-xl border border-amber-100 shadow-sm"><span class="block font-black text-slate-900 text-2xl leading-none">${gramosPorToma}g</span><span class="text-[9px] font-bold text-slate-400 uppercase">x comida</span></div>
         </div>`;
 
@@ -788,8 +752,8 @@ function renderDashboard() {
         <div class="mt-8 mb-2">
             <div class="flex justify-center">
                 <button onclick="openNutriChefUpsellModal()" class="bg-rose-50 border-2 border-rose-100 text-rose-700 font-extrabold py-4 px-6 rounded-2xl hover:bg-rose-100 transition-all shadow-sm active:scale-95 text-sm flex items-center justify-center gap-3 w-full">
-                    <div class="w-8 h-8 bg-rose-200 text-rose-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-fire-burner"></i></div>
-                    ¿Sin ideas? Desbloquea 50 Recetas BARF <i class="fa-solid fa-lock text-[11px] opacity-50 ml-1"></i>
+                    <div class="w-8 h-8 bg-rose-200 text-rose-600 rounded-full flex items-center justify-center shrink-0"><i class="fa-solid fa-fire-burner"></i></div>
+                    <span>¿Sin ideas? Desbloquea 50 Recetas BARF <i class="fa-solid fa-lock text-[11px] opacity-50 ml-1"></i></span>
                 </button>
             </div>
         </div>`;
@@ -862,17 +826,17 @@ function renderTrackerUI() {
 
         let stateClass = '', iconHtml = '', contentHtml = '', clickAction = '';
         if (isCompleted) {
-            stateClass = 'day-completed border border-slate-200 shadow-sm rounded-2xl mb-3';
+            stateClass = 'day-completed border border-slate-200 shadow-sm rounded-2xl lg:mb-3';
             iconHtml = `<div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-check"></i></div>`;
             contentHtml = `<p class="text-xs text-slate-600 font-medium leading-relaxed mt-1 pr-2">${realText}</p>`;
             clickAction = isLastCompleted ? `onclick="openUndo(${i})"` : '';
         } else if (isReady) {
-            stateClass = 'day-ready border-2 border-amber-400 rounded-2xl mb-3';
+            stateClass = 'day-ready border-2 border-amber-400 rounded-2xl lg:mb-3';
             iconHtml = `<div class="w-10 h-10 rounded-xl bg-amber-100 border border-amber-200 text-amber-600 font-black flex items-center justify-center shrink-0 shadow-sm">${i+1}</div>`;
             contentHtml = `<p class="text-xs text-slate-800 font-bold leading-relaxed mt-1 pr-2">${realText}</p><p class="text-[10px] text-amber-600 font-black mt-2 uppercase tracking-widest"><i class="fa-solid fa-hand-pointer"></i> Evaluar día</p>`;
             clickAction = `onclick="openTracker(${i})"`;
         } else {
-            stateClass = 'day-locked bg-slate-50 border border-slate-100 rounded-2xl mb-3 opacity-70';
+            stateClass = 'day-locked bg-slate-50 border border-slate-100 rounded-2xl lg:mb-3 opacity-70';
             iconHtml = `<div class="w-10 h-10 rounded-xl bg-slate-200 text-slate-400 font-black flex items-center justify-center shrink-0">${i+1}</div>`;
             contentHtml = `<div class="content-blur text-xs text-slate-500 font-medium leading-relaxed mt-1 pr-2">${realText}</div><p class="text-[9px] text-slate-400 font-bold mt-2 uppercase tracking-widest"><i class="fa-solid fa-lock text-slate-300 mr-1"></i> Bloqueado</p>`;
         }
@@ -943,11 +907,11 @@ function launchConfetti() {
         const p = document.createElement('div'); p.className = 'confetti-piece'; p.style.left = Math.random() * 100 + '%'; p.style.top = '-10px'; p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px'; p.style.width = (Math.random() * 8 + 6) + 'px'; p.style.height = (Math.random() * 8 + 6) + 'px'; p.style.animationDuration = (Math.random() * 2 + 2) + 's'; p.style.animationDelay = (Math.random() * 1.5) + 's'; container.appendChild(p);
     }
 }
-function openUndo(i) { dayToUndo = i; const modal = document.getElementById('modal-undo'); modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { document.getElementById('modal-undo-content').classList.remove('scale-95'); document.getElementById('modal-undo-content').classList.add('scale-100'); }, 10); }
-function closeUndoModal() { document.getElementById('modal-undo-content').classList.remove('scale-100'); document.getElementById('modal-undo-content').classList.add('scale-95'); setTimeout(() => { document.getElementById('modal-undo').classList.add('hidden'); document.getElementById('modal-undo').classList.remove('flex'); }, 300); }
+function openUndo(i) { dayToUndo = i; const modal = document.getElementById('modal-undo'); modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { document.getElementById('modal-undo-content').classList.remove('sm:scale-95'); document.getElementById('modal-undo-content').classList.add('sm:scale-100'); }, 10); }
+function closeUndoModal() { document.getElementById('modal-undo-content').classList.remove('sm:scale-100'); document.getElementById('modal-undo-content').classList.add('sm:scale-95'); setTimeout(() => { document.getElementById('modal-undo').classList.add('hidden'); document.getElementById('modal-undo').classList.remove('flex'); }, 300); }
 function confirmUndo() { delete trackerData.days[dayToUndo]; localStorage.setItem(`nutriCanTracker_${dogName}`, JSON.stringify(trackerData)); closeUndoModal(); setTimeout(() => { renderDashboard(); }, 300); }
-function resetApp() { const modal = document.getElementById('modal-reset'); modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { document.getElementById('modal-reset-content').classList.remove('scale-95'); document.getElementById('modal-reset-content').classList.add('scale-100'); }, 10); }
-function closeResetModal() { document.getElementById('modal-reset-content').classList.remove('scale-100'); document.getElementById('modal-reset-content').classList.add('scale-95'); setTimeout(() => { document.getElementById('modal-reset').classList.add('hidden'); document.getElementById('modal-reset').classList.remove('flex'); }, 300); }
+function resetApp() { const modal = document.getElementById('modal-reset'); modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { document.getElementById('modal-reset-content').classList.remove('sm:scale-95'); document.getElementById('modal-reset-content').classList.add('sm:scale-100'); }, 10); }
+function closeResetModal() { document.getElementById('modal-reset-content').classList.remove('sm:scale-100'); document.getElementById('modal-reset-content').classList.add('sm:scale-95'); setTimeout(() => { document.getElementById('modal-reset').classList.add('hidden'); document.getElementById('modal-reset').classList.remove('flex'); }, 300); }
 function confirmResetApp() { closeResetModal(); localStorage.removeItem(`nutriCanPlan_${dogName}`); localStorage.removeItem(`nutriCanTracker_${dogName}`); trackerData = { days: {} }; setTimeout(() => { showScreen('screen-goal', 'Paso 1 de 3'); }, 300); }
 function openTipsModal() { const modal = document.getElementById('modal-tips'); modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { document.getElementById('modal-tips-content').classList.remove('translate-y-full'); document.getElementById('modal-tips-content').classList.remove('sm:scale-95'); document.getElementById('modal-tips-content').classList.add('sm:scale-100'); }, 10); }
 function closeTipsModal() { document.getElementById('modal-tips-content').classList.remove('sm:scale-100'); document.getElementById('modal-tips-content').classList.add('translate-y-full'); document.getElementById('modal-tips-content').classList.add('sm:scale-95'); setTimeout(() => { document.getElementById('modal-tips').classList.add('hidden'); document.getElementById('modal-tips').classList.remove('flex'); }, 300); }

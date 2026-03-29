@@ -1,395 +1,207 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta name="facebook-domain-verification" content="s4tbmttewxhmxcv7er5qjphojggb6c" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduDog Pro - Micro SaaS Hub</title>
+    <title>HR Digital - Ecosistema SaaS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #e2e8f0; }
-        .app-container { max-width: 420px; margin: 0 auto; height: 100vh; min-height: 100vh; position: relative; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; }
         
-        /* PANTALLA LOGIN */
-        #screen-login { background-color: #f8fafc; }
-        
-        /* PANTALLA DASHBOARD / HUB */
-        .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; overflow-x: hidden; background-color: #f8fafc; }
-        .screen.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        ::-webkit-scrollbar { display: none; }
-        .premium-input:focus-within { box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15); border-color: #8b5cf6; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .loader-dots div { animation-timing-function: cubic-bezier(0, 1, 1, 0); }
-        .loader-dots div:nth-child(1) { left: 8px; animation: loader-dots1 0.6s infinite; }
-        .loader-dots div:nth-child(2) { left: 8px; animation: loader-dots2 0.6s infinite; }
-        .loader-dots div:nth-child(3) { left: 32px; animation: loader-dots2 0.6s infinite; }
-        .loader-dots div:nth-child(4) { left: 56px; animation: loader-dots3 0.6s infinite; }
-        @keyframes loader-dots1 { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-        @keyframes loader-dots3 { 0% { transform: scale(1); } 100% { transform: scale(0); } }
-        @keyframes loader-dots2 { 0% { transform: translate(0, 0); } 100% { transform: translate(24px, 0); } }
-        
-        /* Efecto Latido para Botones de Cross-Selling */
-        @keyframes pulse-btn {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
-        .pulse-btn-violet { animation: pulse-btn 2.5s ease-in-out infinite; box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.15); }
-        .pulse-btn-rose { animation: pulse-btn 2.5s ease-in-out infinite; box-shadow: 0 4px 6px -1px rgba(244, 63, 94, 0.15); }
+        .nav-link.active { color: #2563eb; border-bottom: 2px solid #2563eb; }
+        .screen { display: none; min-height: calc(100vh - 64px); animation: fadeIn 0.4s ease-out; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Animación Shimmer para Tarjeta VIP */
-        @keyframes shimmer-vip {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        .animate-shimmer-vip {
-            background: linear-gradient(110deg, #1e293b, 45%, #475569, 55%, #1e293b);
-            background-size: 200% 100%;
-            animation: shimmer-vip 6s infinite linear;
-            border: 1px solid #334155;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-        }
+        .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body class="antialiased text-slate-900 md:py-8">
-    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-full shadow-2xl z-50 transform -translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 font-semibold text-sm pointer-events-none w-max max-w-[90%]">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
-        <span id="toast-msg">Mensaje</span>
-    </div>
+<body class="antialiased">
 
-    <div class="app-container md:rounded-[2.5rem] md:border-[8px] md:border-slate-900 relative">
-        <section id="screen-login" class="screen active relative bg-slate-50">
-            <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-violet-600 to-slate-900 rounded-b-[4rem] opacity-100 z-0"></div>
-            <div class="relative z-10 flex flex-col justify-center px-8 pt-20 pb-10 min-h-full">
-                <div class="text-center mb-10">
-                    <div class="w-24 h-24 bg-white/10 backdrop-blur-md rounded-[2.5rem] border border-white/20 flex items-center justify-center mx-auto mb-6 shadow-2xl relative">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-violet-500 to-amber-400 rounded-[2.5rem] opacity-20 animate-pulse"></div>
-                        <i class="fa-solid fa-shield-dog text-[2.75rem] text-white drop-shadow-lg"></i>
-                    </div>
-                    <h1 class="text-3xl font-extrabold text-white tracking-tight">EduDog Pro</h1>
-                    <p class="text-violet-200 font-medium mt-2 text-sm">Ecosistema Canino Inteligente</p>
+    <section id="screen-login" class="fixed inset-0 z-[100] bg-slate-50 flex items-center justify-center p-6">
+        <div class="w-full max-w-md bg-white p-10 rounded-[2.5rem] shadow-2xl border border-slate-100 text-center">
+            <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center text-white text-4xl mx-auto mb-6 shadow-xl"><i class="fa-solid fa-globe"></i></div>
+            <h1 class="text-3xl font-black text-slate-900 mb-2">HR Digital</h1>
+            <p class="text-slate-500 font-bold mb-8 uppercase text-[10px] tracking-widest">Ingresa a tu ecosistema</p>
+            
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">Correo</label>
+                    <input type="email" id="login-email" placeholder="tu@correo.com" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-5 outline-none font-bold focus:border-blue-500 transition-all">
                 </div>
-                <div class="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 space-y-5">
-                    
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Tu Correo Electrónico</label>
-                        <div class="relative group premium-input transition-all rounded-2xl border border-slate-200 flex bg-slate-50/50 overflow-hidden">
-                            <div class="flex items-center justify-center pl-4 pr-2 text-slate-400">
-                                <i class="fa-solid fa-envelope"></i>
-                            </div>
-                            <input type="email" id="login-email" placeholder="tu@correo.com" class="flex-1 bg-transparent text-slate-900 py-4 px-2 outline-none font-bold text-lg">
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">PIN Secreto</label>
-                        <div class="relative premium-input rounded-2xl border border-slate-200">
-                            <input type="password" id="login-pin" maxlength="6" placeholder="••••••" class="w-full bg-slate-50/50 text-slate-900 rounded-2xl py-4 pl-12 pr-4 outline-none font-black text-2xl tracking-[0.5em]">
-                        </div>
-                    </div>
-                    <button onclick="handleLoginButton()" id="btn-login" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl active:scale-95 transition-all text-[15px] relative overflow-hidden">
-                        <span id="btn-text">Ingresar a mi cuenta</span>
-                        <div id="btn-loader" class="hidden absolute inset-0 bg-slate-900 flex items-center justify-center"><div class="loader-dots relative w-20 h-5"><div></div><div></div><div></div><div></div></div></div>
-                    </button>
+                <div class="relative">
+                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">PIN Secreto</label>
+                    <input type="password" id="login-pin" maxlength="6" placeholder="••••••" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-5 outline-none font-black text-2xl tracking-[0.5em] focus:border-blue-500 transition-all">
+                    <button onclick="togglePin()" class="absolute right-5 bottom-4 text-slate-400"><i id="pin-icon" class="fa-solid fa-eye"></i></button>
                 </div>
-            </div>
-        </section>
-
-        <section id="screen-welcome" class="screen relative bg-slate-50">
-            <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-violet-600 to-slate-900 rounded-b-[4rem] z-0"></div>
-            <div class="relative z-10 flex flex-col justify-center px-8 pt-20 pb-10 min-h-full">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-extrabold text-white">¡Bienvenido! 🎉</h2>
-                    <p class="text-violet-200 mt-2 text-sm">Personalicemos tu experiencia</p>
-                </div>
-                <div class="bg-white p-6 rounded-[2rem] shadow-xl space-y-5">
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">¿Cómo se llama tu peludo?</label>
-                        <input type="text" id="welcome-dog-name" placeholder="Ej. Firulais" class="w-full bg-slate-50/50 text-slate-900 rounded-2xl py-4 px-4 border border-slate-200 outline-none font-bold text-lg">
-                    </div>
-                    <button onclick="saveWelcomeName()" id="btn-welcome" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl active:scale-95 transition-all">Comenzar Entrenamiento</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="screen-hub" class="screen">
-            <div class="sticky top-0 bg-white/50 backdrop-blur-2xl border-b border-white/20 px-6 py-3.5 flex justify-between items-center z-30 shadow-sm shadow-slate-950/5">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-md">
-                        <i class="fa-solid fa-shield-dog text-[13px]"></i>
-                    </div>
-                    <h2 class="font-black text-slate-900 text-[15px] tracking-tight">EduDog Pro Hub</h2>
-                </div>
-                <button onclick="logout()" class="p-2.5 text-slate-500 hover:text-slate-900 transition-colors rounded-xl hover:bg-slate-100">
-                    <i class="fa-solid fa-right-from-bracket text-[15px]"></i>
-                </button>
-            </div>
-
-            <div class="flex-1 px-5 pt-6 pb-4 space-y-7">
-                
-                <div id="welcome-card" class="rounded-[2.25rem] p-6 text-white animate-shimmer-vip relative overflow-hidden shadow-2xl shadow-slate-950/20">
-                    <div class="relative z-10">
-                        <p class="text-violet-200 text-[10px] font-black uppercase tracking-widest mb-1" id="user-display-email">usuario@correo.com</p>
-                        <h3 class="text-xl font-black tracking-tight leading-tight"><span id="display-dog-name">Tu Peludo</span> 🐾</h3>
-                        <div class="mt-4 bg-white/5 p-4 rounded-2xl backdrop-blur-sm border border-white/5 shadow-inner">
-                            <div class="flex justify-between items-center text-xs font-bold mb-2"><span class="text-violet-200">Progreso Pro</span><span id="apps-count" class="text-white">1/2</span></div>
-                            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"><div id="progress-bar" class="bg-amber-400 h-full rounded-full transition-all duration-700" style="width: 50%"></div></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="centro-entrenamiento">
-                    <h3 class="font-extrabold text-slate-900 text-lg mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-dumbbell text-violet-500"></i> Centro de Entrenamiento
-                    </h3>
-                    <div id="tools-container" class="space-y-4"></div>
-                </div>
-
-                <div id="biblioteca-interactiva">
-                    <h3 class="font-extrabold text-slate-900 text-lg mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-book-open text-rose-500"></i> Biblioteca Interactiva
-                    </h3>
-                    <div id="ebooks-container" class="space-y-4"></div>
-                </div>
-
-                <div class="pt-6 pb-8 border-t border-slate-200/60 flex flex-col items-center justify-center text-center opacity-90">
-                    <div class="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white text-xl mb-3 shadow-lg">
-                        <i class="fa-solid fa-shield-dog"></i>
-                    </div>
-                    <h4 class="font-black text-slate-800 text-[15px] flex items-center justify-center gap-1.5 relative left-1">
-                        Fundador Hedinson Rojas <i class="fa-solid fa-circle-check text-blue-500 text-sm" title="Verificado"></i>
-                    </h4>
-                    <p class="text-[11px] font-bold text-slate-400 mt-1 tracking-widest uppercase">EduDog Pro Hub • Versión 2.5</p>
-                </div>
-            </div>
-        </section>
-
-        <div id="modal-upsell" class="hidden absolute inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex-col justify-end transition-all">
-            <div class="bg-white rounded-t-[2.5rem] p-8 transform translate-y-full transition-transform duration-300" id="upsell-content">
-                <div class="flex items-center gap-4 mb-6">
-                    <div id="upsell-icon-container" class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner transition-colors">
-                        <i id="upsell-icon" class="fa-solid fa-star"></i>
-                    </div>
-                    <div>
-                        <h3 id="upsell-title" class="text-xl font-black text-slate-900 leading-tight">Nombre App</h3>
-                        <p id="upsell-subtitle" class="text-xs font-bold text-slate-400 mt-1">Subtítulo</p>
-                    </div>
-                </div>
-                
-                <h4 class="font-black text-sm text-slate-800 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-check text-emerald-500"></i> ¿Qué incluye tu acceso?
-                </h4>
-                <ul id="upsell-benefits" class="space-y-2.5 mb-8 text-sm text-slate-600 font-medium text-left pl-1">
-                </ul>
-
-                <div class="space-y-3">
-                    <button id="btn-confirm-upsell" class="w-full text-white font-black py-4 rounded-2xl text-[15px] shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2">
-                        Desbloquear por <span id="upsell-price">$ 0 USD</span>
-                    </button>
-                    <button onclick="closeUpsellModal()" class="w-full text-slate-400 font-bold py-3 text-sm active:scale-95 transition-transform">
-                        Cancelar
-                    </button>
-                </div>
+                <button onclick="handleLogin()" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 transition-all mt-4">Entrar al Ecosistema</button>
             </div>
         </div>
+    </section>
+
+    <div id="main-interface" class="hidden">
+        <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 h-16">
+            <div class="max-w-7xl mx-auto px-6 h-full flex justify-between items-center">
+                <div class="flex items-center gap-8">
+                    <div class="flex items-center gap-2 font-black text-xl text-blue-600">
+                        <i class="fa-solid fa-globe"></i> <span>HR Digital</span>
+                    </div>
+                    <div class="hidden md:flex gap-6 text-sm font-bold text-slate-500">
+                        <button onclick="showScreen('catalog')" id="nav-catalog" class="nav-link py-5 px-2 active">Catálogo</button>
+                        <button onclick="showScreen('dashboard')" id="nav-dashboard" class="nav-link py-5 px-2">Mis Herramientas</button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:block text-right">
+                        <p id="user-name" class="text-xs font-black text-slate-900 leading-none"></p>
+                        <p class="text-[9px] font-bold text-emerald-500 uppercase">Miembro VIP</p>
+                    </div>
+                    <button onclick="logout()" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-rose-50 hover:text-rose-500 transition-all"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+        </nav>
+
+        <main id="screen-catalog" class="screen active p-6 md:p-12 max-w-7xl mx-auto">
+            <header class="mb-12">
+                <h1 class="text-4xl font-black text-slate-900 tracking-tight">Catálogo de Soluciones 🚀</h1>
+                <p class="text-slate-500 font-medium mt-2">Explora y desbloquea herramientas inteligentes para cada área de tu vida.</p>
+            </header>
+            <div id="grid-catalog" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                </div>
+        </main>
+
+        <main id="screen-dashboard" class="screen p-6 md:p-12 max-w-7xl mx-auto">
+            <header class="mb-12">
+                <h1 class="text-4xl font-black text-slate-900 tracking-tight">Mis Accesos 🛡️</h1>
+                <p class="text-slate-500 font-medium mt-2">Herramientas listas para usar en tu cuenta.</p>
+            </header>
+            <div id="grid-owned" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                </div>
+        </main>
+
+        <main id="screen-product" class="screen p-6 md:p-12 max-w-5xl mx-auto">
+            <button onclick="showScreen('catalog')" class="mb-8 font-bold text-slate-400 hover:text-blue-600 flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Volver al Catálogo</button>
+            <div id="product-detail-view" class="bg-white rounded-[3rem] p-8 md:p-12 shadow-2xl border border-slate-100 flex flex-col md:flex-row gap-12">
+                </div>
+        </main>
     </div>
 
     <script>
-        const API_URL = "https://bot-cursos-digitales-500394828639.southamerica-west1.run.app";
-        const TIPO_CAMBIO = 3.50; 
-        
-        const appsList = [
-            { id: "nutrican", name: "NutriCan Vital", subtitle: "Calculadora de Dieta Natural", desc: "Calculadora exacta de dieta natural.", icon: "fa-bowl-food", color: "text-amber-600", bg: "bg-amber-100", price: "9.99", themeBtn: "bg-amber-500 shadow-amber-500/30", benefits: ["Porciones exactas según peso y edad", "Transición segura sin problemas gástricos", "Monitoreo de digestión diaria", "Acceso de por vida desde tu celular"] },
-            { id: "mentecan", name: "Mentecan Vital", subtitle: "Programa de Psicología y Obediencia", desc: "Programa premium de psicología y obediencia.", icon: "fa-brain", color: "text-emerald-600", bg: "bg-emerald-100", price: "14.99", themeBtn: "bg-emerald-500 shadow-emerald-500/30", benefits: ["Retos prácticos de 7 días", "Audios de psicología canina", "Solución definitiva a mordiscos", "Comandos visuales y de voz efectivos"] }
-        ];
-        
-        const ebooksList = [
-            { id: "nutrichef", name: "NutriChef Vital", subtitle: "Recetario Dinámico y Compras", desc: "50 recetas BARF interactivas.", icon: "fa-fire-burner", color: "text-rose-600", bg: "bg-rose-100", price: "4.99", themeBtn: "bg-rose-500 shadow-rose-500/30", benefits: ["50 Recetas Premium (Desayuno, Almuerzo, Cena)", "Modo 'Chef' con temporizadores en pantalla", "Ingredientes adaptados a tu país", "Lista de compras automática para WhatsApp"] },
-            
-            // NUEVO PRODUCTO "PRÓXIMAMENTE"
-            { id: "snackcan", name: "SnackCan Vital", subtitle: "Repostería Perruna", desc: "50 recetas de postres y premios sanos.", icon: "fa-cookie-bite", color: "text-orange-500", bg: "bg-orange-100", price: "0", themeBtn: "", benefits: [], isUpcoming: true }
-        ];
-        
-        let currentUser = null;
+        // CONFIG FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrbqdz-JMZNV0H0zcrHwfDOawE3_ouUNw",
+            authDomain: "guias-facil-bot.firebaseapp.com",
+            projectId: "guias-facil-bot",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        let userData = null;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedSession = localStorage.getItem('eduDogSession');
-            // CAMBIO: Leemos email en lugar de phone
-            if(savedSession) { const creds = JSON.parse(savedSession); performLogin(creds.email, creds.pin, true); }
-        });
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const icon = document.getElementById('toast-icon');
-            document.getElementById('toast-msg').innerText = message;
-            if(type === 'error'){
-                toast.classList.replace('bg-slate-900', 'bg-rose-600');
-                icon.className = 'fa-solid fa-circle-xmark text-white text-lg';
-            } else {
-                toast.classList.replace('bg-rose-600', 'bg-slate-900');
-                icon.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
-            }
-            toast.classList.remove('-translate-y-24', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-            setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('-translate-y-24', 'opacity-0'); }, 3000);
-        }
-
-        async function handleLoginButton() {
-            // CAMBIO: Tomamos el input de email
-            const emailInput = document.getElementById('login-email').value.trim();
-            const pinInput = document.getElementById('login-pin').value;
-            if(!emailInput || !pinInput) { showToast('Completa todos los datos', 'error'); return; }
-            const btnText = document.getElementById('btn-text'); const btnLoader = document.getElementById('btn-loader');
-            btnText.classList.add('opacity-0'); btnLoader.classList.remove('hidden');
-            await performLogin(emailInput, pinInput, false);
-            btnText.classList.remove('opacity-0'); btnLoader.classList.add('hidden');
-        }
-
-        // CAMBIO: Parámetro phone a email
-        async function performLogin(email, pin, isAutoLoad = false) {
+        // AUTH LOGIC
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const pin = document.getElementById('login-pin').value.trim();
             try {
-                // CAMBIO: Enviamos { email: email } al servidor
-                const response = await fetch(`${API_URL}/api/hub/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, pin: pin }) });
-                const data = await response.json();
-                if (response.ok && data.status === 'ok') {
-                    // CAMBIO: Guardamos email en la sesión
-                    currentUser = { email, pin, dogName: data.dogName, apps: data.apps || [], ebooks: data.ebooks || [] };
-                    localStorage.setItem('eduDogSession', JSON.stringify(currentUser));
-                    if (currentUser.dogName) { renderHub(); showScreen('screen-hub'); } else { showScreen('screen-welcome'); }
-                } else if (!isAutoLoad) { showToast('Acceso denegado', 'error'); }
-            } catch (e) { if(!isAutoLoad) showToast('Error de servidor', 'error'); }
+                const doc = await db.collection('usuarios').doc(email).get();
+                if (doc.exists && String(doc.data().pin) === pin) {
+                    userData = doc.data();
+                    localStorage.setItem('hrSess', JSON.stringify({email, pin}));
+                    initUI();
+                } else { alert("Credenciales incorrectas"); }
+            } catch(e) { console.error(e); }
         }
 
-        async function saveWelcomeName() {
-            const name = document.getElementById('welcome-dog-name').value;
-            if(!name) { showToast('Ingresa un nombre', 'error'); return; }
-            try {
-                // CAMBIO: Enviamos email
-                const response = await fetch(`${API_URL}/api/hub/perfil`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: currentUser.email, pin: currentUser.pin, dogName: name }) });
-                if (response.ok) { currentUser.dogName = name; localStorage.setItem('eduDogSession', JSON.stringify(currentUser)); renderHub(); showScreen('screen-hub'); } else { showToast('Error al guardar', 'error'); }
-            } catch (e) { showToast('Error de conexión', 'error'); }
+        function initUI() {
+            document.getElementById('screen-login').style.display = 'none';
+            document.getElementById('main-interface').classList.remove('hidden');
+            document.getElementById('user-name').innerText = userData.nombre;
+            renderAll();
         }
 
-        function renderHub() {
-            // CAMBIO: Mostramos el email en la tarjeta
-            document.getElementById('user-display-email').innerText = currentUser.email;
-            document.getElementById('display-dog-name').innerText = `Entrenamiento de ${currentUser.dogName}`;
+        // NAVIGATION
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen-${id}`).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            const nav = document.getElementById(`nav-${id}`);
+            if(nav) nav.classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        // RENDER ENGINE
+        async function renderAll() {
+            const myIDs = [...(userData.apps_activas || []), ...(userData.ebooks_activos || [])];
+            const snap = await db.collection('productos').where('activo', '==', true).get();
             
-            // IMPORTANTE: Al no tener el código de país del celular, por defecto lo dejamos en USD.
-            // Si quieres volver a cobrar en soles, tendrás que añadir una lógica nueva (ej. preguntar el país).
-            const getPrice = (usd) => { return { text: `$${usd} USD` }; };
-
-            const totalToolsCount = appsList.length + ebooksList.filter(e => !e.isUpcoming).length;
-            const purchasedToolsCount = (currentUser.apps.filter(appId => appsList.some(a => a.id === appId)).length) + (currentUser.ebooks.filter(ebookId => ebooksList.some(e => e.id === ebookId)).length);
-            document.getElementById('apps-count').innerText = `${purchasedToolsCount}/${totalToolsCount}`;
-            const progressPct = (purchasedToolsCount / totalToolsCount) * 100;
-            document.getElementById('progress-bar').style.width = `${progressPct}%`;
-
-            const appsContainer = document.getElementById('tools-container');
-            appsContainer.innerHTML = '';
-            appsList.forEach(app => {
-                const owned = currentUser.apps.includes(app.id);
-                const priceObj = getPrice(app.price);
-                const cardBg = owned ? "bg-white border-slate-200 shadow-sm" : "bg-white/50 border-slate-100";
-                appsContainer.innerHTML += `
-                    <div class="${cardBg} p-5 rounded-3xl border transition-all duration-300">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center ${owned ? app.bg : "bg-slate-200/50"} ${owned ? app.color : "text-slate-400 grayscale"} transition-colors"><i class="fa-solid ${app.icon}"></i></div>
-                            <h4 class="font-extrabold ${owned ? "text-slate-900" : "text-slate-600"}">${app.name}</h4>
-                        </div>
-                        <p class="text-xs ${owned ? "text-slate-500" : "text-slate-400"} mb-4 ml-1">${app.desc}</p>
-                        ${owned ? `<button onclick="openApp('${app.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Abrir App</button>` : 
-                        `<button onclick="openUpsellModal('${app.id}', 'herramienta')" class="pulse-btn-violet w-full bg-violet-50 text-violet-700 py-3 rounded-xl font-extrabold border border-violet-200 active:scale-95 transition-transform flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-lock text-sm opacity-80"></i> Desbloquear por ${priceObj.text}
-                        </button>`}
-                    </div>`;
-            });
-
-            const ebooksContainer = document.getElementById('ebooks-container');
-            ebooksContainer.innerHTML = '';
-            ebooksList.forEach(ebook => {
-                if (ebook.isUpcoming) {
-                    ebooksContainer.innerHTML += `
-                    <div class="bg-slate-50 border-slate-200 border-dashed p-5 rounded-3xl border transition-all duration-300 opacity-80">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-200 text-slate-400"><i class="fa-solid ${ebook.icon}"></i></div>
-                            <h4 class="font-extrabold text-slate-500">${ebook.name}</h4>
-                        </div>
-                        <p class="text-xs text-slate-400 mb-4 ml-1">${ebook.desc}</p>
-                        <button disabled class="w-full bg-slate-200 text-slate-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 cursor-not-allowed">
-                            <i class="fa-solid fa-hourglass-half"></i> Próximamente...
+            let catHTML = ''; let ownedHTML = '';
+            
+            snap.forEach(doc => {
+                const p = doc.data(); p.id = doc.id;
+                const pKeys = [...(p.apps_a_desbloquear || []), ...(p.ebooks_a_desbloquear || [])];
+                const has = pKeys.some(id => myIDs.includes(id));
+                const color = p.nicho === 'edudog' ? 'bg-violet-600' : 'bg-blue-600';
+                
+                const card = `
+                    <div class="product-card bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm flex flex-col">
+                        <div class="w-14 h-14 ${color} rounded-2xl flex items-center justify-center text-white text-2xl mb-6 shadow-lg"><i class="fa-solid ${p.nicho==='edudog'?'fa-shield-dog':'fa-gem'}"></i></div>
+                        <h3 class="text-xl font-black text-slate-900 leading-tight mb-2">${p.nombre_producto}</h3>
+                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-6">${p.nicho}</p>
+                        <button onclick="${has ? `window.location.href='${pKeys[0]}.html'` : `viewProduct('${p.id}')`}" class="mt-auto w-full ${has?'bg-slate-900':'bg-blue-50 text-blue-600 border border-blue-100'} text-white font-black py-4 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                            ${has ? 'Abrir Herramienta <i class="fa-solid fa-circle-play"></i>' : 'Ver Detalles <i class="fa-solid fa-lock text-xs opacity-50"></i>'}
                         </button>
                     </div>`;
-                    return; 
-                }
-
-                const owned = currentUser.ebooks.includes(ebook.id);
-                const priceObj = getPrice(ebook.price);
-                const cardBg = owned ? "bg-white border-slate-200 shadow-sm" : "bg-white/50 border-slate-100";
-                ebooksContainer.innerHTML += `
-                    <div class="${cardBg} p-5 rounded-3xl border transition-all duration-300">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center ${owned ? ebook.bg : "bg-slate-200/50"} ${owned ? ebook.color : "text-slate-400 grayscale"} transition-colors"><i class="fa-solid ${ebook.icon}"></i></div>
-                            <h4 class="font-extrabold ${owned ? "text-slate-900" : "text-slate-600"}">${ebook.name}</h4>
-                        </div>
-                        <p class="text-xs ${owned ? "text-slate-500" : "text-slate-400"} mb-4 ml-1">${ebook.desc}</p>
-                        ${owned ? `<button onclick="openApp('${ebook.id}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Abrir Recetario</button>` : 
-                        `<button onclick="openUpsellModal('${ebook.id}', 'eBook')" class="pulse-btn-rose w-full bg-rose-50 text-rose-700 py-3 rounded-xl font-extrabold border border-rose-200 active:scale-95 transition-transform flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-lock text-sm opacity-80"></i> Desbloquear por ${priceObj.text}
-                        </button>`}
-                    </div>`;
+                
+                catHTML += card;
+                if(has) ownedHTML += card;
             });
-        }
-
-        let pendingUpsellItem = null;
-
-        function openUpsellModal(id, type) {
-            const item = type === 'herramienta' ? appsList.find(a => a.id === id) : ebooksList.find(e => e.id === id);
-            if(!item) return;
-
-            pendingUpsellItem = { item: item, type: type };
-            // IMPORTANTE: Fijado a USD por la pérdida del número telefónico
-            const isPeru = false; 
-            const priceText = `$${item.price} USD`;
-
-            document.getElementById('upsell-icon').className = `fa-solid ${item.icon} ${item.color}`;
-            document.getElementById('upsell-icon-container').className = `w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner transition-colors ${item.bg}`;
-            document.getElementById('upsell-title').innerText = item.name;
-            document.getElementById('upsell-subtitle').innerText = item.subtitle;
-            document.getElementById('upsell-price').innerText = priceText;
             
-            const btnConfirm = document.getElementById('btn-confirm-upsell');
-            btnConfirm.className = `w-full text-white font-black py-4 rounded-2xl text-[15px] shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 ${item.themeBtn}`;
+            document.getElementById('grid-catalog').innerHTML = catHTML;
+            document.getElementById('grid-owned').innerHTML = ownedHTML || '<p class="col-span-full text-slate-400 font-bold text-center py-20">Aún no has desbloqueado herramientas.</p>';
+        }
 
-            const ul = document.getElementById('upsell-benefits'); ul.innerHTML = '';
-            item.benefits.forEach(b => { ul.innerHTML += `<li class="flex items-start gap-2"><i class="fa-solid fa-check mt-1 text-emerald-500 text-xs shrink-0"></i> <span>${b}</span></li>`; });
-
-            const modal = document.getElementById('modal-upsell'); modal.classList.remove('hidden'); modal.classList.add('flex');
-            setTimeout(() => { document.getElementById('upsell-content').classList.remove('translate-y-full'); }, 10);
+        async function viewProduct(id) {
+            const doc = await db.collection('productos').doc(id).get();
+            const p = doc.data();
+            const color = p.nicho === 'edudog' ? 'text-violet-600' : 'text-blue-600';
             
-            btnConfirm.onclick = () => { openUpsell(item.id, item.name, item.price, 'USD', type); };
+            document.getElementById('product-detail-view').innerHTML = `
+                <div class="flex-1">
+                    <span class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">Oferta Exclusiva</span>
+                    <h2 class="text-5xl font-black text-slate-900 tracking-tighter mt-6 mb-4">${p.nombre_producto}</h2>
+                    <div class="space-y-4 mb-10">
+                        ${(p.texto_cierre_ventas || '').split('✅').filter(t=>t.trim()).map(t => `<p class="flex items-center gap-3 font-bold text-slate-600"><i class="fa-solid fa-circle-check text-emerald-500"></i> ${t.trim()}</p>`).join('')}
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-4xl font-black text-slate-900">$${p.precio_oferta} <span class="text-sm text-slate-400 font-bold line-through ml-2">$99</span></div>
+                        <button onclick="window.open('${p.link_hotmart}', '_blank')" class="bg-blue-600 text-white font-black px-10 py-5 rounded-[1.5rem] shadow-xl shadow-blue-600/30 active:scale-95 transition-all text-lg">Comprar Ahora</button>
+                    </div>
+                </div>
+                <div class="hidden md:flex flex-1 items-center justify-center bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200">
+                    <div class="text-8xl ${color} opacity-20"><i class="fa-solid ${p.nicho==='edudog'?'fa-shield-dog':'fa-gem'}"></i></div>
+                </div>`;
+            showScreen('product');
         }
 
-        function closeUpsellModal() {
-            document.getElementById('upsell-content').classList.add('translate-y-full');
-            setTimeout(() => { const modal = document.getElementById('modal-upsell'); modal.classList.add('hidden'); modal.classList.remove('flex'); pendingUpsellItem = null; }, 300);
-        }
-
-        function openApp(id) { localStorage.setItem('currentDogName', currentUser.dogName); window.location.href = `${id}.html`; }
-
-        function openUpsell(itemId, itemName, itemPrice, currency, type) {
-            const itemTypeLabel = type === 'eBook' ? 'el eBook' : 'la herramienta';
-            const priceText = `$${itemPrice} USD`;
-            
-            // CAMBIO: Enviamos el correo al WhatsApp en lugar del celular
-            const msg = `Hola Soporte 👋\n\nQuiero desbloquear ${itemTypeLabel} *${itemName}* por ${priceText}.\n\n👤 Mi cuenta es: ${currentUser.email}\n💳 ¿Me dan los pasos para pagar?\n\n[ID: ${itemId}]`;
-            window.open(`https://wa.me/51932335202?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
-        function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
+        function togglePin() { const i = document.getElementById('login-pin'); i.type = i.type==='password'?'text':'password'; }
         function logout() { localStorage.clear(); location.reload(); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const s = localStorage.getItem('hrSess');
+            if(s) { const c = JSON.parse(s); handleLoginManual(c.email, c.pin); }
+        });
+
+        async function handleLoginManual(email, pin) {
+            const doc = await db.collection('usuarios').doc(email).get();
+            if(doc.exists && String(doc.data().pin) === pin) { userData = doc.data(); initUI(); }
+        }
     </script>
 </body>
 </html>

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Digital SaaS - Centro de Mando</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f1f5f9; 
+            color: #0f172a;
+        }
+
+        .premium-input:focus-within {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="antialiased flex h-screen overflow-hidden">
+
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-full shadow-2xl z-[100] transform -translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 font-semibold text-sm pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-msg">Mensaje</span>
+    </div>
+
+    <div id="screen-login" class="fixed inset-0 z-50 bg-slate-50 flex items-center justify-center fade-in">
+        <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-blue-600 to-slate-900 rounded-b-[4rem] opacity-100 z-0"></div>
+        
+        <div class="relative z-10 w-full max-w-sm px-6">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 flex items-center justify-center mx-auto mb-4 shadow-xl">
+                    <i class="fa-solid fa-globe text-4xl text-white"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold text-white">HR Digital</h1>
+                <p class="text-blue-200 font-medium mt-1 text-sm">SaaS Admin Hub</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-[2rem] shadow-2xl space-y-4">
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Correo Electrónico</label>
+                    <div class="relative premium-input transition-all rounded-2xl border border-slate-200 bg-slate-50">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-envelope"></i></span>
+                        <input type="email" id="loginEmail" placeholder="admin@hrdigital.com" class="w-full bg-transparent text-slate-900 py-3.5 pl-12 pr-4 outline-none font-bold text-sm">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Contraseña</label>
+                    <div class="relative premium-input transition-all rounded-2xl border border-slate-200 bg-slate-50">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full bg-transparent text-slate-900 py-3.5 pl-12 pr-4 outline-none font-bold text-sm">
+                    </div>
+                </div>
+
+                <button onclick="doLogin()" id="btnLogin" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-slate-800 active:scale-95 transition-all text-sm mt-2 flex justify-center items-center gap-2">
+                    Ingresar al Sistema <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-dashboard" class="hidden w-full h-full flex bg-slate-100">
+        
+        <aside class="w-64 bg-slate-900 text-white flex flex-col transition-all border-r border-slate-800 shrink-0">
+            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-xl shadow-lg shadow-blue-600/20">
+                    <i class="fa-solid fa-globe"></i>
+                </div>
+                <div>
+                    <h2 class="font-black text-sm tracking-wide">HR Digital</h2>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest" id="status-db">Conectando...</p>
+                </div>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2">
+                <button onclick="switchTab('productos')" id="nav-productos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold bg-blue-600/20 text-blue-400 transition-colors">
+                    <i class="fa-solid fa-box-open w-5"></i> Catálogo SaaS
+                </button>
+                <button onclick="switchTab('campanas')" id="nav-campanas" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors">
+                    <i class="fa-solid fa-bullhorn w-5"></i> Campañas Ads
+                </button>
+                <button onclick="switchTab('cerebro')" id="nav-cerebro" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors border border-blue-500/30">
+                    <i class="fa-solid fa-brain w-5 text-blue-400"></i> Cerebro IA
+                </button>
+                <button onclick="switchTab('copyia')" id="nav-copyia" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors border border-amber-500/30">
+                    <i class="fa-solid fa-robot w-5 text-amber-400"></i> Copy IA
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800">
+                <button onclick="doLogout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket w-5"></i> Cerrar Sesión
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-slate-50">
+            
+            <div id="tab-productos" class="tab-content w-full h-full flex flex-col fade-in relative">
+                
+                <div id="view-productos-list" class="w-full h-full flex flex-col absolute inset-0 z-10 bg-slate-50 transition-transform duration-300">
+                    <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
+                        <div>
+                            <h1 class="text-2xl font-black text-slate-900">Catálogo Universal SaaS</h1>
+                            <p class="text-sm text-slate-500 font-medium">Gestiona todos tus productos y nichos en un solo lugar.</p>
+                        </div>
+                        <button onclick="openProductEditor()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all flex gap-2 items-center">
+                            <i class="fa-solid fa-plus"></i> Nuevo Producto
+                        </button>
+                    </header>
+                    <div class="flex-1 p-8 overflow-y-auto">
+                        <div id="productsList" class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6"></div>
+                    </div>
+                </div>
+
+                <div id="view-producto-editor" class="w-full h-full flex flex-col absolute inset-0 z-20 bg-slate-50 transform translate-x-full transition-transform duration-300">
+                    
+                    <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0 shadow-sm z-10">
+                        <div class="flex items-center gap-4">
+                            <button onclick="closeProductEditor()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+                            <div>
+                                <h1 class="text-xl font-black text-slate-900" id="editor-prod-title">Crear Nuevo Producto</h1>
+                                <p class="text-xs font-bold text-blue-600 uppercase tracking-widest mt-0.5">Editor Maestro</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="closeProductEditor()" class="text-slate-500 font-bold px-4 py-2 hover:text-slate-800 transition-colors">Cancelar</button>
+                            <button onclick="saveProduct()" id="btn-save-prod" class="bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-emerald-600 shadow-md transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar Producto
+                            </button>
+                        </div>
+                    </header>
+
+                    <div class="flex-1 overflow-y-auto p-8">
+                        <input type="hidden" id="prod-id-edit">
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-7xl mx-auto">
+                            
+                            <div class="lg:col-span-5 space-y-6">
+                                
+                                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                                        <h3 class="font-black text-lg text-slate-800">1. Identidad en Hotmart</h3>
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <span class="font-bold text-xs text-slate-500">¿Activo?</span>
+                                            <input type="checkbox" id="prod-activo" class="w-5 h-5 accent-emerald-500 rounded cursor-pointer">
+                                        </label>
+                                    </div>
+
+                                    <div class="space-y-4">
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Nicho / Marca</label>
+                                                <select id="prod-nicho" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-blue-500 text-sm appearance-none">
+                                                    <option value="edudog">EduDog Pro (Mascotas)</option>
+                                                    <option value="finanzas">Finanzas Pro (Negocios)</option>
+                                                    <option value="marketing">HR Digital (Marketing)</option>
+                                                </select>
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-blue-600">ID Hotmart (Vital)</label>
+                                                <input type="text" id="prod-id" placeholder="Ej. 7465138" class="w-full bg-blue-50 border border-blue-200 rounded-xl py-2.5 px-3 font-black text-blue-900 outline-none focus:border-blue-500 text-sm">
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Nombre Público</label>
+                                            <input type="text" id="prod-nombre" placeholder="Ej. NutriCan Vital" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-blue-500 text-sm">
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Precio Oferta (USD)</label>
+                                                <input type="number" id="prod-precio" placeholder="25" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-blue-500 text-sm">
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Tipo</label>
+                                                <select id="prod-tipo" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-blue-500 text-sm appearance-none">
+                                                    <option value="principal">Producto Principal</option>
+                                                    <option value="order_bump">Order Bump / Upsell</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-emerald-600"><i class="fa-solid fa-link"></i> Link Checkout Hotmart</label>
+                                            <input type="url" id="prod-link-hotmart" placeholder="https://pay.hotmart.com/..." class="w-full bg-emerald-50 border border-emerald-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-emerald-500 text-sm">
+                                        </div>
+
+                                        <div class="space-y-1.5 mt-4 pt-4 border-t border-slate-100">
+                                            <label class="text-[11px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1">
+                                                <i class="fa-solid fa-robot"></i> Resumen para la IA (Ventas)
+                                            </label>
+                                            <textarea id="prod-desc-ia" rows="3" placeholder="Ej: Herramienta que ayuda a... Conecta con el dolor de..." class="w-full bg-blue-50 border border-blue-200 rounded-xl py-3 px-4 font-bold text-slate-700 outline-none focus:border-blue-500 text-sm"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                                    <h3 class="font-black text-lg text-slate-800 mb-1">2. Entregables en el SaaS</h3>
+                                    <p class="text-xs text-slate-500 font-medium mb-4 pb-3 border-b border-slate-100">¿Qué IDs internos de herramientas se desbloquean al comprar esto?</p>
+
+                                    <div class="space-y-4">
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-violet-600 uppercase tracking-widest"><i class="fa-solid fa-mobile-screen"></i> IDs de Apps (Separados por coma)</label>
+                                            <input type="text" id="prod-apps-desbloquear" placeholder="Ej: nutrican, mentecan" class="w-full bg-violet-50 border border-violet-200 rounded-xl py-2.5 px-3 font-bold text-violet-900 outline-none focus:border-violet-500 text-sm">
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-rose-600 uppercase tracking-widest"><i class="fa-solid fa-book-open"></i> IDs de eBooks (Separados por coma)</label>
+                                            <input type="text" id="prod-ebooks-desbloquear" placeholder="Ej: nutrichef" class="w-full bg-rose-50 border border-rose-200 rounded-xl py-2.5 px-3 font-bold text-rose-900 outline-none focus:border-rose-500 text-sm">
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="lg:col-span-7">
+                                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm h-full">
+                                    <h3 class="font-black text-lg text-slate-800 mb-1">3. Secuencia del Bot (WhatsApp)</h3>
+                                    <p class="text-xs text-slate-500 font-medium mb-6 pb-3 border-b border-slate-100">Contenido que enviará el bot para vender este producto.</p>
+                                    
+                                    <div class="space-y-6">
+                                        <div class="space-y-1.5 relative">
+                                            <div class="absolute -left-3 top-2 w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                                            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1">1. Mensaje de Gancho (Conecta con Video)</label>
+                                            <textarea id="prod-m1" rows="3" placeholder="¡Hola! Mira cómo funciona la herramienta..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-blue-500"></textarea>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4 relative">
+                                            <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-6 rounded-full bg-sky-400"></div>
+                                            
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1 flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-microphone text-sky-500"></i> URL de Audio
+                                                    <button type="button" onclick="openGuionModal()" class="ml-auto w-6 h-6 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center hover:bg-amber-200 transition-colors" title="Ver/editar guión del audio">
+                                                        <i class="fa-solid fa-robot text-xs"></i>
+                                                    </button>
+                                                </label>
+                                                <div class="flex gap-2 items-center">
+                                                    <input type="text" id="prod-audio" placeholder="https://firebasestorage..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-sky-500 text-xs">
+                                                    <input type="file" id="file-audio" accept="audio/*" class="hidden" onchange="uploadFileToStorage(this, 'prod-audio')">
+                                                    <button type="button" onclick="document.getElementById('file-audio').click()" class="w-10 h-10 shrink-0 bg-sky-50 text-sky-600 border border-sky-200 rounded-xl hover:bg-sky-100 transition-colors flex items-center justify-center shadow-sm" title="Subir a Storage">
+                                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                                    </button>
+                                                </div>
+                                                <div id="progress-prod-audio" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-sky-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
+                                            </div>
+
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1"><i class="fa-solid fa-video text-sky-500 mr-1"></i> URL de Video</label>
+                                                <div class="flex gap-2 items-center">
+                                                    <input type="text" id="prod-video" placeholder="https://firebasestorage..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-sky-500 text-xs">
+                                                    <input type="file" id="file-video" accept="video/*" class="hidden" onchange="uploadFileToStorage(this, 'prod-video')">
+                                                    <button type="button" onclick="document.getElementById('file-video').click()" class="w-10 h-10 shrink-0 bg-sky-50 text-sky-600 border border-sky-200 rounded-xl hover:bg-sky-100 transition-colors flex items-center justify-center shadow-sm" title="Subir a Storage">
+                                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                                    </button>
+                                                </div>
+                                                <div id="progress-prod-video" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-sky-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-1.5 relative">
+                                            <div class="absolute -left-3 top-2 w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                                            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1">Mensaje de Cierre (Beneficios)</label>
+                                            <textarea id="prod-cierre-ventas" rows="4" placeholder="✅ Beneficio 1.&#10;✅ Beneficio 2.&#10;✅ Acceso de por vida." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-blue-500"></textarea>
+                                            <p class="text-[10px] text-slate-400 mt-1 pl-1">Se enviará junto al precio y el link de Hotmart. Usa emojis ✅.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-12"></div> 
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-campanas" class="tab-content hidden w-full h-full flex flex-col fade-in relative">
+                <div id="view-campanas-list" class="w-full h-full flex flex-col absolute inset-0 z-10 bg-slate-50 transition-transform duration-300">
+                    <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
+                        <div>
+                            <h1 class="text-2xl font-black text-slate-900">Campañas y Tráfico</h1>
+                            <p class="text-sm text-slate-500 font-medium">Asocia frases de entrada de tus anuncios con tus productos Hotmart.</p>
+                        </div>
+                        <button onclick="openCampaignEditor()" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 shadow-md transition-all flex gap-2 items-center">
+                            <i class="fa-solid fa-plus"></i> Nueva Campaña
+                        </button>
+                    </header>
+                    <div class="flex-1 p-8 overflow-y-auto">
+                        <div id="campaignsList" class="space-y-4 max-w-4xl mx-auto"></div>
+                    </div>
+                </div>
+
+                <div id="view-campana-editor" class="w-full h-full flex flex-col absolute inset-0 z-20 bg-slate-50 transform translate-x-full transition-transform duration-300">
+                    <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0 shadow-sm z-10">
+                        <div class="flex items-center gap-4">
+                            <button onclick="closeCampaignEditor()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+                            <div>
+                                <h1 class="text-xl font-black text-slate-900" id="editor-camp-title">Configurar Campaña</h1>
+                                <p class="text-xs font-bold text-blue-600 uppercase tracking-widest mt-0.5">Editor de Tráfico</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="closeCampaignEditor()" class="text-slate-500 font-bold px-4 py-2 hover:text-slate-800 transition-colors">Cancelar</button>
+                            <button onclick="saveCampaign()" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-slate-800 shadow-md transition-all">
+                                Guardar Campaña
+                            </button>
+                        </div>
+                    </header>
+
+                    <div class="flex-1 overflow-y-auto p-8 flex justify-center items-start">
+                        <div class="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-sm p-8 space-y-6">
+                            <input type="hidden" id="camp-id-edit">
+                            
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-black text-lg text-slate-800">Detalles Básicos</h3>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <span class="font-bold text-xs text-slate-500">¿Encendida?</span>
+                                    <input type="checkbox" id="camp-activo" class="w-5 h-5 accent-emerald-500 rounded cursor-pointer" checked>
+                                </label>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Nombre de Campaña</label>
+                                <input type="text" id="camp-nombre" placeholder="ej. Fb Ads - Dolor Higiene" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-700 outline-none focus:border-slate-500 text-sm">
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Vender Producto (Paquete)</label>
+                                <select id="camp-producto" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-700 outline-none focus:border-slate-500 text-sm appearance-none">
+                                </select>
+                            </div>
+
+                            <div class="pt-6 border-t border-slate-100">
+                                <div class="flex justify-between items-end mb-4">
+                                    <div>
+                                        <h3 class="font-black text-lg text-slate-800 mb-1">Frases Activadoras</h3>
+                                        <p class="text-xs text-slate-500 font-medium">¿Qué texto exacto enviará el cliente por WhatsApp?</p>
+                                    </div>
+                                    <button onclick="addFraseRow()" class="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">+ Agregar Frase</button>
+                                </div>
+                                <div id="frases-container" class="space-y-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-cerebro" class="tab-content hidden w-full h-full flex flex-col fade-in relative">
+                <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Cerebro de la IA</h1>
+                        <p class="text-sm text-slate-500 font-medium">Define la personalidad global de Gemini para todos tus nichos.</p>
+                    </div>
+                    <button onclick="saveCerebro()" id="btn-save-cerebro" class="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all flex gap-2 items-center">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Prompt
+                    </button>
+                </header>
+                <div class="flex-1 p-8 overflow-y-auto flex justify-center items-start">
+                    <div class="bg-white w-full max-w-4xl rounded-2xl border border-slate-200 shadow-sm p-8 space-y-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800">Prompt Maestro (System Prompt)</h3>
+                                <p class="text-xs text-slate-500 font-medium">Instrucciones base para responder. Las características de producto se inyectan automáticamente.</p>
+                            </div>
+                        </div>
+                        <textarea id="cerebro-prompt" rows="18" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-blue-500 leading-relaxed" placeholder="Eres un asesor experto de ventas..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-copyia" class="tab-content hidden w-full h-full flex flex-col fade-in relative">
+                <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Copy IA</h1>
+                        <p class="text-sm text-slate-500 font-medium">Tu prompt para generar mensajes del funnel con Claude o GPT.</p>
+                    </div>
+                    <button onclick="saveCopyIA()" id="btn-save-copyia" class="bg-amber-500 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all flex gap-2 items-center">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Prompt
+                    </button>
+                </header>
+                <div class="flex-1 p-8 overflow-y-auto flex justify-center items-start">
+                    <div class="bg-white w-full max-w-4xl rounded-2xl border border-slate-200 shadow-sm p-8 space-y-5">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800">Prompt Generador de Copy</h3>
+                                <p class="text-xs text-slate-500 font-medium">Copia este prompt para estructurar nuevos productos rápidamente.</p>
+                            </div>
+                        </div>
+                        <textarea id="copyia-prompt" rows="20" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-amber-400 leading-relaxed" placeholder="Pega aquí tu prompt..."></textarea>
+                        <div class="flex gap-3">
+                            <button onclick="copiarPromptCopyIA()" class="flex items-center gap-2 bg-amber-50 text-amber-700 border border-amber-200 font-bold px-5 py-2.5 rounded-xl hover:bg-amber-100 transition-colors text-sm">
+                                <i class="fa-solid fa-copy"></i> Copiar Prompt
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="modal-guion" class="hidden fixed inset-0 z-[200] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden" style="max-height: 85vh;">
+            <div class="flex items-center justify-between px-7 py-5 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-slate-900 text-base">Guión del Audio</h3>
+                        <p class="text-[11px] text-slate-400 font-medium">Solo para tu referencia. El bot no lo usa directamente.</p>
+                    </div>
+                </div>
+                <button onclick="closeGuionModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-7">
+                <textarea id="modal-guion-text" rows="14" placeholder="Hola! Te cuento rápido..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-amber-400 leading-relaxed resize-none"></textarea>
+            </div>
+            <div class="px-7 py-5 border-t border-slate-100 flex gap-3">
+                <button onclick="closeGuionModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors text-sm">Cancelar</button>
+                <button onclick="saveGuion()" id="btn-save-guion" class="flex-1 bg-amber-500 text-white font-bold py-3 rounded-xl hover:bg-amber-600 transition-colors text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar Guión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. FIREBASE CONFIG 
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrbqdz-JMZNV0H0zcrHwfDOawE3_ouUNw",
+            authDomain: "guias-facil-bot.firebaseapp.com",
+            projectId: "guias-facil-bot",
+            storageBucket: "guias-facil-bot.firebasestorage.app"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
+
+        let allProducts = [];
+
+        // ==========================================
+        // 2. AUTHENTICATION & INIT
+        // ==========================================
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('screen-login').classList.add('hidden');
+                document.getElementById('screen-dashboard').classList.remove('hidden');
+                document.getElementById('status-db').innerText = "Sistema en línea";
+                document.getElementById('status-db').classList.add('text-emerald-400');
+                loadProducts();
+                loadCampaigns();
+                loadCerebro();
+                loadCopyIA();
+            } else {
+                document.getElementById('screen-login').classList.remove('hidden');
+                document.getElementById('screen-dashboard').classList.add('hidden');
+            }
+        });
+
+        async function doLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('btnLogin');
+            if(!email || !pass) return showToast("Faltan datos", "error");
+            
+            btn.innerHTML = `<div class="loader"></div> Ingresando...`;
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+                showToast("Bienvenido Administrador");
+            } catch(e) {
+                showToast("Credenciales incorrectas", "error");
+            } finally {
+                btn.innerHTML = `Ingresar al Sistema <i class="fa-solid fa-arrow-right"></i>`;
+            }
+        }
+
+        function doLogout() { auth.signOut(); }
+
+        // ==========================================
+        // 3. UI UTILS
+        // ==========================================
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            document.getElementById('toast-icon').className = type === 'error' ? 'fa-solid fa-circle-xmark text-rose-400' : 'fa-solid fa-circle-check text-emerald-400';
+            t.classList.remove('-translate-y-24', 'opacity-0');
+            setTimeout(() => t.classList.add('-translate-y-24', 'opacity-0'), 3000);
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-blue-600/20', 'text-blue-400', 'border-blue-500/30', 'bg-amber-500/20', 'text-amber-400', 'border-amber-500/30');
+                el.classList.add('text-slate-400');
+                const icon = el.querySelector('i');
+                icon.classList.remove('text-blue-400', 'text-amber-400');
+            });
+            
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            
+            const btn = document.getElementById(`nav-${tabId}`);
+            btn.classList.remove('text-slate-400');
+
+            if(tabId === 'copyia') {
+                btn.classList.add('bg-amber-500/20', 'text-amber-400', 'border', 'border-amber-500/30');
+                btn.querySelector('i').classList.add('text-amber-400');
+            } else {
+                btn.classList.add('bg-blue-600/20', 'text-blue-400');
+                if(tabId === 'cerebro') btn.classList.add('border', 'border-blue-500/30');
+                btn.querySelector('i').classList.add('text-blue-400');
+            }
+
+            if(tabId === 'productos') closeProductEditor();
+            if(tabId === 'campanas') closeCampaignEditor();
+        }
+
+        async function uploadFileToStorage(input, targetInputId) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const docId = document.getElementById('prod-id-edit').value || document.getElementById('prod-id').value.trim();
+            if (!docId) {
+                showToast('Error: Primero ingresa un ID de Hotmart en el Paso 1', 'error');
+                input.value = ''; 
+                return;
+            }
+
+            const btn = input.nextElementSibling;
+            const originalHTML = btn.innerHTML;
+            const progressBarContainer = document.getElementById(`progress-${targetInputId}`);
+            const progressBar = progressBarContainer.querySelector('div');
+
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            btn.disabled = true;
+            progressBarContainer.classList.remove('hidden');
+            progressBar.style.width = '0%';
+
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${targetInputId}_${Date.now()}.${fileExt}`;
+                const path = `productos_hr/${docId}/${fileName}`;
+                const ref = storage.ref().child(path);
+
+                const task = ref.put(file);
+
+                task.on('state_changed', 
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        progressBar.style.width = progress + '%';
+                    }, 
+                    (error) => {
+                        showToast('Error subiendo: ' + error.message, 'error');
+                        resetUploadUI(btn, originalHTML, progressBarContainer, input);
+                    }, 
+                    async () => {
+                        const downloadURL = await task.snapshot.ref.getDownloadURL();
+                        document.getElementById(targetInputId).value = downloadURL;
+                        showToast('✅ Archivo subido', 'success');
+                        resetUploadUI(btn, originalHTML, progressBarContainer, input);
+                    }
+                );
+            } catch(e) {
+                showToast('Error: ' + e.message, 'error');
+                resetUploadUI(btn, originalHTML, progressBarContainer, input);
+            }
+        }
+
+        function resetUploadUI(btn, originalHTML, progressBarContainer, input) {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            setTimeout(() => { progressBarContainer.classList.add('hidden'); }, 2000);
+            input.value = '';
+        }
+
+        // ==========================================
+        // 5. EDITOR MAESTRO DE PRODUCTOS (HR DIGITAL)
+        // ==========================================
+        function openProductEditor(editData = null) {
+            document.getElementById('prod-id').disabled = false;
+            document.getElementById('prod-id').value = '';
+            document.getElementById('prod-id-edit').value = '';
+            document.getElementById('prod-nicho').value = 'edudog';
+            document.getElementById('prod-tipo').value = 'principal';
+            document.getElementById('prod-nombre').value = '';
+            document.getElementById('prod-precio').value = '';
+            document.getElementById('prod-link-hotmart').value = '';
+            document.getElementById('prod-activo').checked = false;
+            document.getElementById('prod-desc-ia').value = '';
+            
+            document.getElementById('prod-apps-desbloquear').value = '';
+            document.getElementById('prod-ebooks-desbloquear').value = '';
+            
+            document.getElementById('prod-m1').value = '';
+            document.getElementById('prod-audio').value = '';
+            document.getElementById('prod-video').value = '';
+            document.getElementById('prod-cierre-ventas').value = '';
+            
+            window._guionAudioActual = '';
+            document.getElementById('editor-prod-title').innerText = "Crear Nuevo Producto";
+
+            if(editData) {
+                document.getElementById('editor-prod-title').innerText = "Editar Producto: " + editData.id;
+                document.getElementById('prod-id').value = editData.id;
+                document.getElementById('prod-id').disabled = true;
+                document.getElementById('prod-id-edit').value = editData.id;
+                
+                document.getElementById('prod-nicho').value = editData.nicho || 'edudog';
+                document.getElementById('prod-tipo').value = editData.tipo_oferta || 'principal';
+                document.getElementById('prod-nombre').value = editData.nombre_producto || '';
+                document.getElementById('prod-precio').value = editData.precio_oferta || 0;
+                document.getElementById('prod-link-hotmart').value = editData.link_hotmart || '';
+                document.getElementById('prod-activo').checked = editData.activo || false;
+                document.getElementById('prod-desc-ia').value = editData.descripcion_para_ia || '';
+                
+                document.getElementById('prod-apps-desbloquear').value = (editData.apps_a_desbloquear || []).join(', ');
+                document.getElementById('prod-ebooks-desbloquear').value = (editData.ebooks_a_desbloquear || []).join(', ');
+                
+                document.getElementById('prod-m1').value = editData.mensaje_1 || '';
+                document.getElementById('prod-audio').value = editData.url_audio || '';
+                document.getElementById('prod-video').value = editData.url_video || '';
+                document.getElementById('prod-cierre-ventas').value = editData.texto_cierre_ventas || '';
+                
+                window._guionAudioActual = editData.guion_audio || '';
+            }
+
+            document.getElementById('view-productos-list').classList.add('-translate-x-full');
+            document.getElementById('view-producto-editor').classList.remove('translate-x-full');
+        }
+
+        function closeProductEditor() {
+            document.getElementById('view-productos-list').classList.remove('-translate-x-full');
+            document.getElementById('view-producto-editor').classList.add('translate-x-full');
+        }
+
+        async function loadProducts() {
+            try {
+                const snap = await db.collection('productos').get();
+                allProducts = [];
+                snap.forEach(doc => allProducts.push({ id: doc.id, ...doc.data() }));
+                renderProducts();
+            } catch(e) { showToast('Error al cargar catálogo', 'error'); }
+        }
+
+        function renderProducts() {
+            const list = document.getElementById('productsList');
+            if(!allProducts.length) {
+                list.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400"><div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl"><i class="fa-solid fa-box-open"></i></div><p class="font-bold">No tienes productos en tu catálogo universal.</p></div>`;
+                return;
+            }
+
+            list.innerHTML = allProducts.map(p => {
+                const appsCount = (p.apps_a_desbloquear || []).length;
+                const booksCount = (p.ebooks_a_desbloquear || []).length;
+                
+                const nichoBadge = {
+                    'edudog': '<span class="bg-violet-100 text-violet-700 px-2 py-0.5 rounded text-[10px] font-bold border border-violet-200">EduDog</span>',
+                    'finanzas': '<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-200">Finanzas</span>',
+                    'marketing': '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold border border-blue-200">HR Digital</span>'
+                }[p.nicho] || '<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold border border-slate-200">General</span>';
+
+                return `
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow relative group flex flex-col">
+                    <div class="absolute top-4 right-4 flex gap-2">
+                        <div class="w-2.5 h-2.5 rounded-full ${p.activo ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300'}"></div>
+                    </div>
+                    <div class="mb-1">${nichoBadge}</div>
+                    <h3 class="font-black text-lg text-slate-800 mb-0.5">${p.nombre_producto || p.id}</h3>
+                    <p class="text-xs font-mono text-slate-400 mb-4">Hotmart ID: ${p.id}</p>
+                    
+                    <div class="flex gap-4 mb-5 border-t border-slate-100 pt-3 mt-auto">
+                        <div class="text-xs font-bold text-slate-600"><i class="fa-solid fa-unlock-keyhole text-blue-400"></i> ${appsCount + booksCount} Accesos</div>
+                        <div class="text-xs font-black text-emerald-600 ml-auto bg-emerald-50 px-2 py-0.5 rounded-md">$ ${p.precio_oferta || 0}</div>
+                    </div>
+
+                    <button onclick='openProductEditor(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="w-full bg-slate-50 text-slate-600 font-bold py-2.5 rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition-colors">
+                        Editar Producto
+                    </button>
+                </div>`;
+            }).join('');
+        }
+
+        async function saveProduct() {
+            const idInput = document.getElementById('prod-id').value.trim();
+            const idEdit = document.getElementById('prod-id-edit').value;
+            const docId = idEdit || idInput;
+
+            if(!docId) return showToast('El ID de Hotmart es obligatorio', 'error');
+
+            const btnSave = document.getElementById('btn-save-prod');
+            btnSave.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
+            btnSave.disabled = true;
+
+            const appsStr = document.getElementById('prod-apps-desbloquear').value;
+            const ebooksStr = document.getElementById('prod-ebooks-desbloquear').value;
+            
+            const apps = appsStr.split(',').map(s => s.trim()).filter(s => s !== "");
+            const ebooks = ebooksStr.split(',').map(s => s.trim()).filter(s => s !== "");
+
+            const payload = {
+                nicho: document.getElementById('prod-nicho').value,
+                tipo_oferta: document.getElementById('prod-tipo').value,
+                nombre_producto: document.getElementById('prod-nombre').value,
+                precio_oferta: Number(document.getElementById('prod-precio').value),
+                link_hotmart: document.getElementById('prod-link-hotmart').value.trim(),
+                activo: document.getElementById('prod-activo').checked,
+                descripcion_para_ia: document.getElementById('prod-desc-ia').value.trim(),
+                
+                apps_a_desbloquear: apps,
+                ebooks_a_desbloquear: ebooks,
+                
+                mensaje_1: document.getElementById('prod-m1').value,
+                url_audio: document.getElementById('prod-audio').value,
+                url_video: document.getElementById('prod-video').value,
+                texto_cierre_ventas: document.getElementById('prod-cierre-ventas').value, 
+                guion_audio: window._guionAudioActual || '',
+                
+                // Limpiamos la basura del antiguo Order Bump
+                mensaje_oferta_bump: firebase.firestore.FieldValue.delete(),
+                url_imagen_bump: firebase.firestore.FieldValue.delete(),
+                id_oferta_bump: firebase.firestore.FieldValue.delete(),
+                precio_oferta_bump: firebase.firestore.FieldValue.delete(),
+                descripcion_bump_ia: firebase.firestore.FieldValue.delete(),
+                
+                fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if(!idEdit) payload.fecha_creacion = firebase.firestore.FieldValue.serverTimestamp();
+
+            try {
+                await db.collection('productos').doc(docId).set(payload, { merge: true });
+                showToast("Producto Universal Guardado ✅");
+                closeProductEditor();
+                loadProducts(); 
+            } catch(e) {
+                showToast("Error guardando base de datos", "error");
+            } finally {
+                btnSave.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Producto`;
+                btnSave.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // 6. EDITOR DE CAMPAÑAS
+        // ==========================================
+        function openCampaignEditor(editData = null) {
+            document.getElementById('camp-id-edit').value = '';
+            document.getElementById('camp-nombre').value = '';
+            document.getElementById('camp-activo').checked = true;
+            document.getElementById('frases-container').innerHTML = '';
+            document.getElementById('editor-camp-title').innerText = "Configurar Campaña";
+            
+            const sel = document.getElementById('camp-producto');
+            sel.innerHTML = '<option value="">Selecciona un producto de Hotmart...</option>';
+            allProducts.forEach(p => { sel.innerHTML += `<option value="${p.id}">${p.nombre_producto || p.id} ($${p.precio_oferta})</option>`; });
+
+            if(editData) {
+                document.getElementById('editor-camp-title').innerText = "Editar Campaña";
+                document.getElementById('camp-id-edit').value = editData.id;
+                document.getElementById('camp-nombre').value = editData.nombre;
+                document.getElementById('camp-producto').value = editData.producto_id;
+                document.getElementById('camp-activo').checked = editData.activo;
+                (editData.frases || []).forEach(f => addFraseRow(f.texto, f.fuente));
+            } else {
+                addFraseRow();
+            }
+
+            document.getElementById('view-campanas-list').classList.add('-translate-x-full');
+            document.getElementById('view-campana-editor').classList.remove('translate-x-full');
+        }
+
+        function closeCampaignEditor() {
+            document.getElementById('view-campanas-list').classList.remove('-translate-x-full');
+            document.getElementById('view-campana-editor').classList.add('translate-x-full');
+        }
+
+        function addFraseRow(texto = '', fuente = 'Facebook Ads') {
+            const div = document.createElement('div');
+            div.className = 'flex gap-2 items-center';
+            div.innerHTML = `
+                <input type="text" placeholder="Ej. Quiero info" value="${texto}" class="frase-txt flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium outline-none focus:border-blue-500">
+                <select class="frase-src bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium outline-none focus:border-blue-500">
+                    <option value="Facebook Ads" ${fuente==='Facebook Ads'?'selected':''}>Fb Ads</option>
+                    <option value="Instagram Ads" ${fuente==='Instagram Ads'?'selected':''}>Ig Ads</option>
+                    <option value="TikTok Ads" ${fuente==='TikTok Ads'?'selected':''}>TikTok</option>
+                    <option value="Orgánico" ${fuente==='Orgánico'?'selected':''}>Orgánico</option>
+                </select>
+                <button onclick="this.parentElement.remove()" class="text-rose-400 hover:text-rose-600 bg-rose-50 p-2.5 rounded-xl transition-colors"><i class="fa-solid fa-trash"></i></button>
+            `;
+            document.getElementById('frases-container').appendChild(div);
+        }
+
+        async function loadCampaigns() {
+            try {
+                const snap = await db.collection('campanas').get();
+                const list = document.getElementById('campaignsList');
+                if(snap.empty) {
+                    list.innerHTML = `<div class="text-center py-16 text-slate-400"><div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl"><i class="fa-solid fa-bullhorn"></i></div><p class="font-bold">Sin campañas activas.</p></div>`;
+                    return;
+                }
+                
+                let html = '';
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    d.id = doc.id;
+                    html += `
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+                        <div>
+                            <div class="flex items-center gap-3 mb-1">
+                                <h3 class="font-black text-slate-800 text-lg">${d.nombre}</h3>
+                                ${d.activo ? '<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-200">ACTIVA</span>' : '<span class="bg-slate-200 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold border border-slate-300">PAUSADA</span>'}
+                            </div>
+                            <p class="text-xs text-slate-500 font-medium font-mono mb-3">Conecta a Hotmart ID: <span class="text-blue-600 font-bold">${d.producto_id}</span></p>
+                            <div class="flex flex-wrap gap-2">
+                                ${(d.frases||[]).map(f => `<span class="bg-slate-50 border border-slate-200 text-slate-600 text-[11px] font-medium px-2.5 py-1 rounded-lg shadow-sm"><i class="fa-solid fa-quote-left text-blue-400 mr-1.5"></i>${f.texto}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="flex gap-2 pl-4">
+                            <button onclick='openCampaignEditor(${JSON.stringify(d).replace(/'/g, "&#39;")})' class="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-100 transition-colors shadow-sm"><i class="fa-solid fa-pen"></i></button>
+                        </div>
+                    </div>`;
+                });
+                list.innerHTML = html;
+            } catch(e) { showToast('Error cargando campañas', 'error'); }
+        }
+
+        async function saveCampaign() {
+            const idEdit = document.getElementById('camp-id-edit').value;
+            const docId = idEdit || 'camp_' + Date.now();
+            const nombre = document.getElementById('camp-nombre').value.trim();
+            const prod = document.getElementById('camp-producto').value;
+
+            if(!nombre || !prod) return showToast('Nombre y Producto requeridos', 'error');
+
+            const frases = [];
+            document.querySelectorAll('#frases-container > div').forEach(row => {
+                const txt = row.querySelector('.frase-txt').value.trim();
+                const src = row.querySelector('.frase-src').value;
+                if(txt) frases.push({ texto: txt, fuente: src });
+            });
+
+            if(frases.length === 0) return showToast('Agrega al menos una frase', 'error');
+
+            try {
+                await db.collection('campanas').doc(docId).set({
+                    nombre: nombre,
+                    producto_id: prod,
+                    activo: document.getElementById('camp-activo').checked,
+                    frases: frases,
+                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                showToast("Campaña guardada");
+                closeCampaignEditor();
+                loadCampaigns();
+            } catch(e) { showToast("Error guardando campaña", "error"); }
+        }
+
+        // ==========================================
+        // 7. CEREBRO IA & COPY IA
+        // ==========================================
+        async function loadCerebro() {
+            try {
+                const doc = await db.collection('config').doc('bot').get();
+                if (doc.exists) document.getElementById('cerebro-prompt').value = doc.data().prompt_maestro || '';
+            } catch(e) { console.error('Error cargando Cerebro IA:', e); }
+        }
+
+        async function saveCerebro() {
+            const prompt = document.getElementById('cerebro-prompt').value.trim();
+            const btn = document.getElementById('btn-save-cerebro');
+            if(!prompt) return showToast('El prompt no puede estar vacío', 'error');
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
+            btn.disabled = true;
+
+            try {
+                await db.collection('config').doc('bot').set({
+                    prompt_maestro: prompt,
+                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                showToast("Prompt maestro guardado");
+            } catch(e) { showToast("Error guardando", "error"); } 
+            finally {
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Prompt`;
+                btn.disabled = false;
+            }
+        }
+
+        async function loadCopyIA() {
+            try {
+                const doc = await db.collection('config').doc('copy_ia').get();
+                if (doc.exists) document.getElementById('copyia-prompt').value = doc.data().prompt || '';
+            } catch(e) { console.error('Error cargando Copy IA:', e); }
+        }
+
+        async function saveCopyIA() {
+            const prompt = document.getElementById('copyia-prompt').value.trim();
+            const btn = document.getElementById('btn-save-copyia');
+            if(!prompt) return showToast('El prompt no puede estar vacío', 'error');
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
+            btn.disabled = true;
+
+            try {
+                await db.collection('config').doc('copy_ia').set({
+                    prompt: prompt,
+                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                showToast("Prompt Copy IA guardado");
+            } catch(e) { showToast("Error guardando", "error"); } 
+            finally {
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Prompt`;
+                btn.disabled = false;
+            }
+        }
+
+        function copiarPromptCopyIA() {
+            const texto = document.getElementById('copyia-prompt').value.trim();
+            if(!texto) return showToast('El prompt está vacío', 'error');
+            navigator.clipboard.writeText(texto).then(() => showToast("Prompt copiado ✅")).catch(() => showToast("Error", "error"));
+        }
+
+        // ==========================================
+        // 9. MODAL GUIÓN
+        // ==========================================
+        window._guionAudioActual = '';
+
+        function openGuionModal() {
+            document.getElementById('modal-guion-text').value = window._guionAudioActual || '';
+            document.getElementById('modal-guion').classList.remove('hidden');
+            document.getElementById('modal-guion').classList.add('flex');
+        }
+
+        function closeGuionModal() {
+            document.getElementById('modal-guion').classList.add('hidden');
+            document.getElementById('modal-guion').classList.remove('flex');
+        }
+
+        async function saveGuion() {
+            const texto = document.getElementById('modal-guion-text').value.trim();
+            const docId = document.getElementById('prod-id-edit').value || document.getElementById('prod-id').value.trim();
+            const btn = document.getElementById('btn-save-guion');
+
+            if(!docId) return showToast('Primero guarda con un ID', 'error');
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
+            btn.disabled = true;
+
+            try {
+                await db.collection('productos').doc(docId).set({
+                    guion_audio: texto,
+                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                window._guionAudioActual = texto;
+                showToast("Guión guardado ✅");
+                closeGuionModal();
+            } catch(e) { showToast("Error", "error"); } 
+            finally {
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Guión`;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

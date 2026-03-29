@@ -15,12 +15,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; }
         
-        /* Layout Responsivo: Celular centrado / PC Full Screen con Sidebar */
+        /* Layout SaaS: Sidebar en PC / Full screen en móvil [cite: 78, 87] */
         .main-layout { display: flex; height: 100vh; width: 100%; overflow: hidden; }
         .sidebar { width: 280px; background: #0f172a; color: white; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 50; }
         .content-area { flex: 1; overflow-y: auto; background: #f1f5f9; position: relative; }
         
-        /* Ajustes Mobile */
         @media (max-width: 768px) {
             .sidebar { position: fixed; left: 0; height: 100%; transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
@@ -33,9 +32,6 @@
 
         .app-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e2e8f0; }
         .app-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        
-        .loader-dots div { animation: loader-dots 0.6s infinite alternate; }
-        @keyframes loader-dots { from { opacity: 0.1; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
     </style>
 </head>
 <body class="antialiased">
@@ -48,17 +44,17 @@
     <section id="screen-login" class="screen active items-center justify-center bg-slate-50">
         <div class="w-full max-w-md px-6">
             <div class="text-center mb-10">
-                <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center text-white text-4xl mx-auto mb-4 shadow-xl shadow-blue-600/20">
+                <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center text-white text-4xl mx-auto mb-4 shadow-xl">
                     <i class="fa-solid fa-globe"></i>
                 </div>
                 <h1 class="text-3xl font-black text-slate-900 tracking-tight">HR Digital</h1>
-                <p class="text-slate-500 font-bold mt-1 uppercase text-[10px] tracking-widest">Mi Ecosistema de Herramientas</p>
+                <p class="text-slate-500 font-bold mt-1 uppercase text-[10px] tracking-widest">Plataforma de Herramientas</p>
             </div>
 
             <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl space-y-5 border border-slate-100">
                 <div class="space-y-1.5">
                     <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">Correo de Compra</label>
-                    <div class="relative group rounded-2xl border border-slate-200 bg-slate-50/50 focus-within:border-blue-500 transition-all">
+                    <div class="relative rounded-2xl border border-slate-200 bg-slate-50/50 focus-within:border-blue-500 transition-all">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-envelope"></i></span>
                         <input type="email" id="login-email" placeholder="tu@correo.com" class="w-full bg-transparent text-slate-900 py-4 pl-12 pr-4 outline-none font-bold text-lg">
                     </div>
@@ -66,13 +62,16 @@
 
                 <div class="space-y-1.5">
                     <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-2">PIN Secreto (6 dígitos)</label>
-                    <div class="relative rounded-2xl border border-slate-200 bg-slate-50/50 focus-within:border-blue-500 transition-all">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-lock"></i></span>
-                        <input type="password" id="login-pin" maxlength="6" placeholder="••••••" class="w-full bg-transparent text-slate-900 py-4 pl-12 pr-4 outline-none font-black text-2xl tracking-[0.5em]">
+                    <div class="relative rounded-2xl border border-slate-200 bg-slate-50/50 focus-within:border-blue-500 transition-all flex items-center">
+                        <span class="absolute left-4 text-slate-400"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="login-pin" maxlength="6" placeholder="••••••" class="w-full bg-transparent text-slate-900 py-4 pl-12 pr-12 outline-none font-black text-2xl tracking-[0.5em]">
+                        <button type="button" onclick="togglePinVisibility()" class="absolute right-4 text-slate-400 hover:text-blue-600 transition-colors">
+                            <i id="pin-icon" class="fa-solid fa-eye"></i>
+                        </button>
                     </div>
                 </div>
 
-                <button onclick="handleLogin()" id="btn-login" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl active:scale-95 transition-all text-sm shadow-xl shadow-slate-900/20 flex justify-center items-center gap-2">
+                <button onclick="handleLogin()" id="btn-login" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl active:scale-95 transition-all text-sm shadow-xl flex justify-center items-center gap-2">
                     <span id="btn-text">Ingresar a mi Cuenta</span>
                     <div id="btn-loader" class="hidden flex gap-1">
                         <div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce"></div>
@@ -85,82 +84,53 @@
     </section>
 
     <section id="screen-hub" class="screen main-layout">
-        
         <aside class="sidebar" id="sidebar">
             <div class="p-8 border-b border-white/10 flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
-                    <i class="fa-solid fa-globe"></i>
-                </div>
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xl"><i class="fa-solid fa-globe"></i></div>
                 <div>
                     <h2 class="font-black text-base leading-none">HR Digital</h2>
-                    <p class="text-[9px] text-blue-400 font-black uppercase mt-1 tracking-widest">SaaS Premium</p>
+                    <p class="text-[9px] text-blue-400 font-black uppercase mt-1 tracking-widest">SaaS Hub</p>
                 </div>
             </div>
-
             <nav class="flex-1 p-6 space-y-2">
                 <button class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-lg shadow-blue-600/20">
-                    <i class="fa-solid fa-house-chimney w-5"></i> Mis Herramientas
+                    <i class="fa-solid fa-house-chimney w-5"></i> Mis Accesos
                 </button>
-                <button onclick="window.open('https://wa.me/51932335202', '_blank')" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-white/5 font-bold text-sm transition-all">
+                <button onclick="window.open('https://wa.me/51932335202', '_blank')" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-white/5 font-bold text-sm">
                     <i class="fa-solid fa-headset w-5"></i> Soporte VIP
                 </button>
             </nav>
-
             <div class="p-6 border-t border-white/10">
                 <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-rose-400 hover:bg-rose-500/10 font-bold text-sm transition-all">
-                    <i class="fa-solid fa-right-from-bracket w-5"></i> Cerrar Sesión
+                    <i class="fa-solid fa-right-from-bracket w-5"></i> Cerrar Sesión [cite: 185]
                 </button>
             </div>
         </aside>
 
         <main class="content-area">
-            
             <div class="md:hidden bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-40">
-                <div class="flex items-center gap-3">
-                    <button onclick="toggleSidebar()" class="text-slate-600 text-xl"><i class="fa-solid fa-bars-staggered"></i></button>
-                    <h2 class="font-black text-slate-900 text-sm">HR Digital Hub</h2>
-                </div>
+                <button onclick="toggleSidebar()" class="text-slate-600 text-xl"><i class="fa-solid fa-bars-staggered"></i></button>
+                <h2 class="font-black text-slate-900 text-sm">HR Digital Hub</h2>
                 <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xs font-bold" id="user-initial">U</div>
             </div>
 
             <div class="p-6 md:p-10 max-w-7xl mx-auto space-y-10">
-                
                 <header class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 class="text-3xl font-black text-slate-900 tracking-tight">¡Hola, <span id="user-display-name">Usuario</span>! 👋</h1>
-                        <p class="text-slate-500 font-medium mt-1">Aquí tienes el catálogo de herramientas desbloqueadas en tu cuenta.</p>
-                    </div>
-                    <div class="bg-white px-6 py-4 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4">
-                        <div class="text-right">
-                            <p class="text-[10px] font-black text-slate-400 uppercase">Estatus de Cuenta</p>
-                            <p class="text-sm font-black text-emerald-500 uppercase">Miembro Premium</p>
-                        </div>
-                        <i class="fa-solid fa-shield-check text-3xl text-emerald-500 opacity-20"></i>
+                        <h1 class="text-3xl font-black text-slate-900 tracking-tight">¡Hola, <span id="user-display-name">Miembro</span>! 👋</h1>
+                        <p class="text-slate-500 font-medium mt-1">Estas son las herramientas activas en tu suscripción.</p>
                     </div>
                 </header>
 
                 <div id="hub-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div id="skeleton-loader" class="col-span-full py-20 text-center">
-                        <div class="inline-flex gap-2 loader-dots mb-4">
-                            <div class="w-3 h-3 bg-blue-600 rounded-full"></div>
-                            <div class="w-3 h-3 bg-blue-600 rounded-full"></div>
-                            <div class="w-3 h-3 bg-blue-600 rounded-full"></div>
-                        </div>
-                        <p class="text-slate-400 font-bold animate-pulse">Sincronizando tus accesos con Hotmart...</p>
-                    </div>
+                    <div id="skeleton-loader" class="col-span-full py-20 text-center text-slate-400 font-bold animate-pulse">Sincronizando tus herramientas...</div>
                 </div>
-
-                <footer class="pt-10 border-t border-slate-200 text-center opacity-50">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">HR Digital SaaS Framework • Versión 3.0</p>
-                </footer>
             </div>
         </main>
     </section>
 
     <script>
-        // ==========================================
-        // 1. CONFIGURACIÓN FIREBASE
-        // ==========================================
+        // CONFIG [cite: 218, 268]
         const firebaseConfig = {
             apiKey: "AIzaSyCrbqdz-JMZNV0H0zcrHwfDOawE3_ouUNw",
             authDomain: "guias-facil-bot.firebaseapp.com",
@@ -168,49 +138,43 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const auth = firebase.auth();
-
         let currentUserData = null;
 
-        // ==========================================
-        // 2. LÓGICA DE AUTENTICACIÓN
-        // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
-            const savedSession = localStorage.getItem('hrDigitalSession');
-            if (savedSession) {
-                const creds = JSON.parse(savedSession);
-                performLogin(creds.email, creds.pin, true);
-            }
+            const saved = localStorage.getItem('hrDigitalSession');
+            if (saved) { const creds = JSON.parse(saved); performLogin(creds.email, creds.pin, true); }
         });
+
+        // MEJORA: Visibilidad del PIN
+        function togglePinVisibility() {
+            const pinInput = document.getElementById('login-pin');
+            const pinIcon = document.getElementById('pin-icon');
+            if (pinInput.type === 'password') {
+                pinInput.type = 'text';
+                pinIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                pinInput.type = 'password';
+                pinIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
 
         async function handleLogin() {
             const email = document.getElementById('login-email').value.trim();
             const pin = document.getElementById('login-pin').value.trim();
-            
-            if(!email || pin.length < 6) {
-                return showToast("Ingresa un correo válido y PIN de 6 dígitos", "error");
-            }
+            if(!email || pin.length < 6) return showToast("Ingresa correo y PIN de 6 dígitos", "error");
 
             const btn = document.getElementById('btn-login');
-            const text = document.getElementById('btn-text');
-            const loader = document.getElementById('btn-loader');
-
-            btn.disabled = true;
-            text.classList.add('hidden');
-            loader.classList.remove('hidden');
-
+            document.getElementById('btn-text').classList.add('hidden');
+            document.getElementById('btn-loader').classList.remove('hidden');
             await performLogin(email, pin);
-
-            btn.disabled = false;
-            text.classList.remove('hidden');
-            loader.classList.add('hidden');
+            document.getElementById('btn-text').classList.remove('hidden');
+            document.getElementById('btn-loader').classList.add('hidden');
         }
 
         async function performLogin(email, pin, isAuto = false) {
             try {
-                // Buscamos al usuario en la colección universal 'usuarios'
+                // FIX: .doc() en lugar de .document() 
                 const doc = await db.collection('usuarios').doc(email).get();
-                
                 if (doc.exists) {
                     const data = doc.data();
                     if (String(data.pin) === pin) {
@@ -218,98 +182,57 @@
                         localStorage.setItem('hrDigitalSession', JSON.stringify({ email, pin }));
                         renderHub();
                         showScreen('screen-hub');
-                    } else {
-                        if(!isAuto) showToast("PIN incorrecto", "error");
-                    }
-                } else {
-                    if(!isAuto) showToast("No encontramos una cuenta con ese correo", "error");
-                }
-            } catch (e) {
-                console.error(e);
-                if(!isAuto) showToast("Error de conexión", "error");
-            }
+                    } else if(!isAuto) showToast("PIN incorrecto", "error");
+                } else if(!isAuto) showToast("Cuenta no encontrada", "error");
+            } catch (e) { if(!isAuto) showToast("Error de conexión", "error"); }
         }
 
-        // ==========================================
-        // 3. RENDERIZADO DINÁMICO (LA MAGIA DEL SAAS)
-        // ==========================================
+        // RENDER DINÁMICO [cite: 321, 326, 409]
         async function renderHub() {
             const grid = document.getElementById('hub-grid');
             document.getElementById('user-display-name').innerText = currentUserData.nombre || 'Miembro';
             document.getElementById('user-initial').innerText = (currentUserData.nombre || 'U')[0].toUpperCase();
 
-            const myApps = currentUserData.apps_activas || [];
-            const myEbooks = currentUserData.ebooks_activos || [];
-            const allMyIDs = [...myApps, ...myEbooks];
-
-            if (allMyIDs.length === 0) {
-                grid.innerHTML = `<div class="col-span-full bg-white p-10 rounded-[2.5rem] border border-dashed border-slate-300 text-center">
-                    <p class="text-slate-400 font-bold">Aún no tienes herramientas activas.</p>
-                </div>`;
+            const myIDs = [...(currentUserData.apps_activas || []), ...(currentUserData.ebooks_activos || [])];
+            if (myIDs.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-10 text-center font-bold text-slate-400">No tienes herramientas activas aún.</div>`;
                 return;
             }
 
-            // Consultamos nuestro CATÁLOGO MAESTRO (Colección productos)
-            // Solo traemos los productos cuyos ID (Hotmart) desbloqueen lo que el usuario tiene
             try {
                 const snap = await db.collection('productos').where('activo', '==', true).get();
                 let html = '';
-                
-                // Filtramos productos que coincidan con las llaves del usuario
                 snap.forEach(doc => {
                     const p = doc.data();
-                    const pApps = p.apps_a_desbloquear || [];
-                    const pEbooks = p.ebooks_a_desbloquear || [];
-                    
-                    // Si el usuario tiene AL MENOS UNA de las llaves que entrega este producto
-                    const hasAccess = [...pApps, ...pEbooks].some(id => allMyIDs.includes(id));
-
-                    if (hasAccess) {
+                    const pKeys = [...(p.apps_a_desbloquear || []), ...(p.ebooks_a_desbloquear || [])];
+                    if (pKeys.some(id => myIDs.includes(id))) {
                         const icon = p.nicho === 'edudog' ? 'fa-shield-dog' : 'fa-gem';
                         const color = p.nicho === 'edudog' ? 'bg-violet-600' : 'bg-blue-600';
-                        const internalID = pApps[0] || pEbooks[0]; // El ID del archivo .html a abrir
+                        const internalID = p.apps_a_desbloquear[0] || p.ebooks_a_desbloquear[0];
 
                         html += `
-                        <div class="app-card bg-white rounded-[2.5rem] p-8 flex flex-col justify-between">
+                        <div class="app-card bg-white rounded-[2.5rem] p-8 flex flex-col justify-between shadow-sm">
                             <div>
-                                <div class="w-14 h-14 ${color} rounded-2xl flex items-center justify-center text-white text-2xl mb-6 shadow-lg">
-                                    <i class="fa-solid ${icon}"></i>
-                                </div>
+                                <div class="w-14 h-14 ${color} rounded-2xl flex items-center justify-center text-white text-2xl mb-6 shadow-lg"><i class="fa-solid ${icon}"></i></div>
                                 <h3 class="text-xl font-black text-slate-900 leading-tight mb-2">${p.nombre_producto}</h3>
-                                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-6">${p.nicho === 'edudog' ? 'Nicho Mascotas' : 'Nicho Business'}</p>
-                                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 mb-8">
-                                    <p class="text-[11px] text-slate-500 font-medium leading-relaxed">${p.descripcion_para_ia || 'Herramienta premium desbloqueada.'}</p>
-                                </div>
+                                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-6">${p.nicho}</p>
                             </div>
-                            <button onclick="window.location.href='${internalID}.html'" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-blue-600 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2">
-                                Iniciar Herramienta <i class="fa-solid fa-circle-play"></i>
-                            </button>
+                            <button onclick="window.location.href='${internalID}.html'" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">Abrir Herramienta <i class="fa-solid fa-circle-play"></i></button>
                         </div>`;
                     }
                 });
-
-                grid.innerHTML = html || `<p class="col-span-full text-center text-slate-400 font-bold">Configurando tus herramientas...</p>`;
-            } catch (e) {
-                grid.innerHTML = `<p class="col-span-full text-center text-rose-500 font-bold">Error cargando catálogo.</p>`;
-            }
+                grid.innerHTML = html;
+            } catch (e) { grid.innerHTML = `<p class="text-rose-500">Error cargando catálogo.</p>`; }
         }
 
-        // ==========================================
-        // 4. UTILIDADES UI
-        // ==========================================
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
+        function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
         function logout() { localStorage.clear(); location.reload(); }
         function showToast(msg, type = 'success') {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
+            const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg;
             document.getElementById('toast-icon').className = type === 'error' ? 'fa-solid fa-circle-xmark text-rose-400' : 'fa-solid fa-circle-check text-emerald-400';
             t.classList.remove('-translate-y-24', 'opacity-0');
-            t.classList.add('translate-y-0', 'opacity-100');
-            setTimeout(() => { t.classList.remove('translate-y-0', 'opacity-100'); t.classList.add('-translate-y-24', 'opacity-0'); }, 3000);
+            setTimeout(() => t.classList.add('-translate-y-24', 'opacity-0'), 3000);
         }
     </script>
 </body>

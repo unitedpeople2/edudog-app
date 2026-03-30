@@ -1,234 +1,163 @@
 // db_mentecan.js - Base de Datos de Retos Mentecan Vital
 
 const CHALLENGES = [
-    // --- RETO 1: EVITAR QUE MUERDA TODO (5 DÍAS) ---
+    // ==========================================
+    // PACK ESENCIAL (DESBLOQUEADO POR DEFECTO)
+    // ==========================================
     {
-        id: 'evitar-morder-5d', 
-        name: 'Evitar que muerda todo', 
-        icon: '🛑', 
-        totalDays: 5, 
+        id: 'evitar-morder-5d', name: 'Evitar que muerda todo', icon: '🛑', totalDays: 5, isLocked: false,
         desc: 'Elimina el hábito destructivo desde la raíz en 5 días.',
-        introAchieve: 'Vas a entender la psicología de tu perro y redirigir su energía. Salva tus muebles, tus zapatos y crea una convivencia pacífica desde el día 1.',
+        introAchieve: 'Vas a entender la psicología de tu perro y redirigir su energía. Salva tus muebles y crea paz desde el día 1.',
         lessons: [
             { 
-                day: 1, title: 'Entender y redirigir', semanaLabel: 'Fase 1: Acción Inmediata', duracion: '3 min', nivel: 'Principiante', categoria: 'Redirección', icon: 'fa-arrow-right-arrow-left', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy vas a evitar que tu perro muerda objetos prohibidos redirigiendo su conducta. Tu perro no muerde por ser malo, lo hace por energía acumulada. El error es corregir cuando ya rompió algo.", 
-                    puntosClave: ["Observa cuándo intenta morder algo prohibido.", "Di 'NO' firme en el momento exacto.", "Dale inmediatamente un objeto permitido."] 
-                }, 
-                practica: { timerSeconds: 180, pasos: [{ titulo: 'Práctica Activa', desc: 'Durante los próximos 3 minutos, vigila a tu perro de cerca. Si va a morder, aplica el "NO" y redirige con su juguete.', emoji: '⏱️', icon: 'fa-stopwatch' }] }, 
-                tips: ["Corrige en el momento exacto, no segundos o minutos después."], 
-                error: { titulo: "El gran error", desc: "Regañarlo cuando el zapato ya está roto. Su cerebro no conecta el regaño con la acción pasada." }, 
-                resumen: "Hoy diste el primer paso para cambiar su comportamiento.", microEnganche: "Mañana aprenderás por qué tu perro insiste en morder."
+                day: 1, title: 'Entender y redirigir', semanaLabel: 'Fase 1: Acción', duracion: '3 min', nivel: 'Principiante', categoria: 'Redirección', icon: 'fa-arrow-right-arrow-left', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy tu perro dejará de ignorarte y verás el primer cambio real. Tu perro no muerde por ser malo, lo hace por energía acumulada.", puntosClave: ["Observa cuándo intenta morder algo prohibido.", "Di 'NO' firme en el momento exacto.", "Dale inmediatamente un objeto permitido."] }, 
+                practica: { timerSeconds: 180, pasos: [{ titulo: 'Práctica Activa', desc: 'Vigila a tu perro. Si va a morder, aplica el "NO" y redirige con su juguete.', emoji: '⏱️', icon: 'fa-stopwatch' }] }, 
+                tips: ["Corrige en el momento exacto, no segundos después."], error: { titulo: "El gran error", desc: "Regañarlo cuando el zapato ya está roto." }, resumen: "Hoy diste el primer paso hacia el control total.", microEnganche: "Mañana descubrirás por qué tu perro insiste en morder."
             },
             { 
-                day: 2, title: 'Eliminar la causa', semanaLabel: 'Fase 1: Acción Inmediata', duracion: '5 min', nivel: 'Principiante', categoria: 'Energía', icon: 'fa-bolt', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy reducirás la necesidad de morder eliminando su exceso de energía. Un perro con energía sin liberar buscará descargarla destruyendo.", 
-                    puntosClave: ["Juega activamente con tu perro durante 5 minutos.", "Usa un juguete para liberar su energía física y mental.", "Termina la sesión con calma para bajar sus revoluciones."] 
-                }, 
-                practica: { timerSeconds: 300, pasos: [{ titulo: 'Sesión de Desgaste', desc: 'Juega a lanzarle la pelota o tira y afloja. Haz que corra y se canse. Al terminar el timer, detente y pide calma.', emoji: '🎾', icon: 'fa-baseball' }] }, 
-                tips: ["Un perro cansado física y mentalmente aprende mil veces más rápido."], 
-                error: { titulo: "Falta de actividad", desc: "Pedirle que esté tranquilo cuando lleva 8 horas durmiendo y lleno de energía." }, 
-                resumen: "Estás atacando la raíz del problema (la energía acumulada).", microEnganche: "Mañana aprenderás a anticiparte antes de que muerda."
+                day: 2, title: 'Eliminar la causa', semanaLabel: 'Fase 1: Acción', duracion: '5 min', nivel: 'Principiante', categoria: 'Energía', icon: 'fa-bolt', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy apagarás su necesidad de destruir. Un perro con energía sin liberar buscará descargarla con tus cosas.", puntosClave: ["Juega activamente durante 5 minutos.", "Usa un juguete para liberar su energía.", "Termina la sesión con calma."] }, 
+                practica: { timerSeconds: 300, pasos: [{ titulo: 'Sesión de Desgaste', desc: 'Haz que corra y se canse. Al terminar el timer, detente y pide calma.', emoji: '🎾', icon: 'fa-baseball' }] }, 
+                tips: ["Un perro cansado aprende mil veces más rápido."], error: { titulo: "Falta de actividad", desc: "Pedirle calma cuando lleva 8 horas durmiendo." }, resumen: "Estás atacando la raíz exacta del problema.", microEnganche: "Mañana aprenderás a leer su mente antes de que actúe."
             },
             { 
-                day: 3, title: 'La Anticipación', semanaLabel: 'Fase 2: Control Mental', duracion: '3 min', nivel: 'Medio', categoria: 'Atención', icon: 'fa-eye', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy evitarás el problema antes de que ocurra. Tu perro siempre da señales antes de morder: olfatea, se acerca y se enfoca. Si esperas a que muerda, llegaste tarde.", 
-                    puntosClave: ["Identifica los momentos del día donde suele morder.", "Interviene antes de que su boca toque el objeto.", "En el instante que lo interrumpes, dale su juguete."] 
-                }, 
-                practica: { timerSeconds: 180, pasos: [{ titulo: 'Vigilancia Táctica', desc: 'Observa su lenguaje corporal. En cuanto fije su mirada en un mueble o zapato, interrumpe con un chasquido o un "NO" antes de que actúe.', emoji: '👀', icon: 'fa-binoculars' }] }, 
-                tips: ["Anticipar es 100 veces más poderoso que corregir el error."], 
-                error: { titulo: "Reaccionar tarde", desc: "Esperar a escuchar el sonido de algo rompiéndose para recién ir a intervenir." }, 
-                resumen: "Ahora pasaste de ser reactivo a tener control antes del error.", microEnganche: "Mañana reforzarás el buen comportamiento para que lo repita."
+                day: 3, title: 'La Anticipación', semanaLabel: 'Fase 2: Control', duracion: '3 min', nivel: 'Medio', categoria: 'Atención', icon: 'fa-eye', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy te adelantarás al desastre. Tu perro siempre da señales antes de morder: olfatea, se enfoca. Si esperas a que muerda, ya perdiste.", puntosClave: ["Identifica los momentos donde suele morder.", "Interviene antes de que toque el objeto.", "En ese instante, dale su juguete."] }, 
+                practica: { timerSeconds: 180, pasos: [{ titulo: 'Vigilancia Táctica', desc: 'En cuanto fije su mirada en un mueble, interrumpe con un "NO" antes de que actúe.', emoji: '👀', icon: 'fa-binoculars' }] }, 
+                tips: ["Anticipar es 100 veces más poderoso que corregir."], error: { titulo: "Reaccionar tarde", desc: "Esperar a escuchar el sonido de algo rompiéndose." }, resumen: "Pasaste de ser reactivo a dominar la situación.", microEnganche: "Mañana lograrás que prefiera portarse bien."
             },
             { 
-                day: 4, title: 'Reforzamiento Positivo', semanaLabel: 'Fase 2: Control Mental', duracion: '3 min', nivel: 'Medio', categoria: 'Premios', icon: 'fa-star', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy harás que tu perro prefiera lo correcto. Los perros repiten lo que les da recompensa. Si solo corriges lo malo, pero no premias lo bueno, el aprendizaje está incompleto.", 
-                    puntosClave: ["Observa cuidadosamente cuando use SU juguete permitido.", "Felicítalo inmediatamente con voz aguda y alegre.", "Refuerza con toda tu atención, caricias o un premio."] 
-                }, 
-                practica: { timerSeconds: 180, pasos: [{ titulo: 'Cacería de buenas acciones', desc: 'No busques errores, busca aciertos. Cuando de forma natural agarre su hueso o juguete, hazle una fiesta de felicitaciones.', emoji: '🎉', icon: 'fa-gift' }] }, 
-                tips: ["Premia lo bueno de forma exagerada, no solo castigues lo malo."], 
-                error: { titulo: "Ignorar lo bueno", desc: "Verlo jugando con su juguete y no decirle nada porque 'es lo que debe hacer'. ¡Celebra!" }, 
-                resumen: "Tu perro ya está aprendiendo activamente a tomar buenas decisiones.", microEnganche: "Mañana consolidarás el cambio para siempre."
+                day: 4, title: 'Reforzamiento Positivo', semanaLabel: 'Fase 2: Control', duracion: '3 min', nivel: 'Medio', categoria: 'Premios', icon: 'fa-star', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy tu perro elegirá obedecerte por voluntad propia. Si solo corriges lo malo y no premias lo bueno, no hay aprendizaje.", puntosClave: ["Observa cuando use SU juguete.", "Felicítalo inmediatamente con alegría.", "Refuerza con atención o un premio."] }, 
+                practica: { timerSeconds: 180, pasos: [{ titulo: 'Cacería de aciertos', desc: 'Cuando de forma natural agarre su hueso o juguete, hazle una gran fiesta.', emoji: '🎉', icon: 'fa-gift' }] }, 
+                tips: ["Premia lo bueno de forma exagerada."], error: { titulo: "Ignorar lo bueno", desc: "No decirle nada porque 'es lo que debe hacer'." }, resumen: "Tu perro ya busca activamente tu aprobación.", microEnganche: "Mañana haremos este cambio permanente."
             },
             { 
-                day: 5, title: 'La Consolidación', semanaLabel: 'Fase 3: El Hábito', duracion: '5 min', nivel: 'Avanzado', categoria: 'Consistencia', icon: 'fa-lock', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy convertirás el comportamiento en un hábito permanente. El cambio real no ocurre en un día, ocurre con la consistencia. Vamos a unir todo lo aprendido.", 
-                    puntosClave: ["Aplica el combo: Corregir en el momento + Redirigir + Anticipar + Reforzar.", "Sé consistente. No hay días de descanso para las reglas.", "Mantén la calma absoluta, no necesitas gritar."] 
-                }, 
-                practica: { timerSeconds: 300, pasos: [{ titulo: 'Modo Automático', desc: 'Activa el temporizador y haz tu vida normal, pero aplicando las 4 reglas al instante si es necesario. Ya sabes qué hacer.', emoji: '🧠', icon: 'fa-brain' }] }, 
-                tips: ["La constancia paciente crea resultados permanentes."], 
-                error: { titulo: "Bajar la guardia", desc: "Pensar que porque ayer se portó bien, hoy puedes dejar de anticipar." }, 
-                resumen: "Ya tienes el control total del comportamiento de tu perro.", microEnganche: "¡Felicidades! Estás listo para el siguiente reto de tu entrenamiento."
+                day: 5, title: 'La Consolidación', semanaLabel: 'Fase 3: Hábito', duracion: '5 min', nivel: 'Avanzado', categoria: 'Consistencia', icon: 'fa-lock', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy blindarás el comportamiento para siempre. El cambio real ocurre con la consistencia, uniendo todo lo aprendido.", puntosClave: ["Aplica el combo: Corregir + Redirigir + Anticipar + Reforzar.", "Sé consistente siempre.", "Mantén la calma, no necesitas gritar."] }, 
+                practica: { timerSeconds: 300, pasos: [{ titulo: 'Modo Automático', desc: 'Haz tu vida normal, pero aplica las reglas al instante si es necesario.', emoji: '🧠', icon: 'fa-brain' }] }, 
+                tips: ["La constancia paciente crea resultados permanentes."], error: { titulo: "Bajar la guardia", desc: "Creer que porque ayer se portó bien, ya no hay reglas." }, resumen: "Has recuperado el control total de tu hogar.", microEnganche: "¡Felicidades! Estás listo para el siguiente reto."
             }
         ]
     },
-
-    // --- RETO 2: ENSEÑAR A HACER SUS NECESIDADES (5 DÍAS) ---
     {
-        id: 'ir-al-bano-5d', 
-        name: 'Enseñar a ir al baño', 
-        icon: '🚽', 
-        totalDays: 5, 
+        id: 'ir-al-bano-5d', name: 'Enseñar a ir al baño', icon: '🚽', totalDays: 5, isLocked: false,
         desc: 'Logra que tu perro haga sus necesidades en el lugar correcto.',
-        introAchieve: 'Construiremos una rutina infalible. Dile adiós a limpiar accidentes por toda la casa y enséñale exactamente dónde está su baño.',
+        introAchieve: 'Dile adiós a limpiar accidentes por toda la casa y enséñale exactamente dónde está su baño.',
         lessons: [
             { 
                 day: 1, title: 'Crear zona correcta', semanaLabel: 'Fase 1: La Base', duracion: '5 min', nivel: 'Principiante', categoria: 'Ubicación', icon: 'fa-map-location-dot', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy definirás el lugar exacto donde tu perro debe hacer sus necesidades. Tu perro no sabe dónde es su baño porque nadie se lo ha enseñado claramente.", 
-                    puntosClave: ["Elige un solo lugar (pad o exterior).", "Lleva a tu perro a esa zona.", "Espera pacientemente hasta que haga algo."] 
-                }, 
-                practica: { timerSeconds: 300, pasos: [{ titulo: 'Visita guiada', desc: 'Llévalo 3 veces al mismo lugar hoy. Quédate con él hasta que orine o defeque en esa zona específica.', emoji: '📍', icon: 'fa-location-dot' }] }, 
-                tips: ["Nunca cambies el lugar de su baño, eso solo lo confunde."], 
-                error: { titulo: "Múltiples opciones", desc: "Poner pads de entrenamiento por toda la casa. Él no sabrá cuál elegir." }, 
-                resumen: "Hoy creaste la base del entrenamiento y su mapa mental.", microEnganche: "Mañana aprenderás el momento exacto para llevarlo."
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy terminarás con la confusión de tu perro. Él no sabe dónde es su baño porque nadie se lo ha enseñado claramente.", puntosClave: ["Elige un solo lugar (pad o exterior).", "Lleva a tu perro a esa zona.", "Espera pacientemente hasta que haga algo."] }, 
+                practica: { timerSeconds: 300, pasos: [{ titulo: 'Visita guiada', desc: 'Llévalo 3 veces al mismo lugar hoy. Quédate con él hasta que termine.', emoji: '📍', icon: 'fa-location-dot' }] }, 
+                tips: ["Nunca cambies el lugar de su baño, lo confundirás."], error: { titulo: "Múltiples opciones", desc: "Poner pads por toda la casa." }, resumen: "Hoy marcaste el mapa mental de tu perro.", microEnganche: "Mañana aprenderás el truco del tiempo exacto."
             },
             { 
                 day: 2, title: 'Detectar el momento', semanaLabel: 'Fase 1: La Base', duracion: '5 min', nivel: 'Principiante', categoria: 'Rutina', icon: 'fa-clock', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy aprenderás cuándo tu perro necesita ir al baño. Tu perro siempre necesita ir en momentos clave. Si no lo llevas, lo hará en cualquier lugar.", 
-                    puntosClave: ["Llévalo inmediatamente al despertar.", "Llévalo 15 minutos después de comer.", "Llévalo justo después de jugar activamente."] 
-                }, 
-                practica: { timerSeconds: 300, pasos: [{ titulo: 'Anticipación', desc: 'No esperes a que ocurra el accidente. Aplica esta rutina 3 veces hoy en los momentos clave.', emoji: '⏰', icon: 'fa-stopwatch' }] }, 
-                tips: ["Anticiparte a sus necesidades evita accidentes en el piso."], 
-                error: { titulo: "Esperar a que avise", desc: "Creer que el perro te va a ladrar para pedirte ir al baño al segundo día de entrenamiento." }, 
-                resumen: "Ya estás evitando errores antes de que ocurran.", microEnganche: "Mañana reforzarás cuando lo haga bien para que no lo olvide."
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy te anticiparás a los accidentes. Tu perro necesita ir al baño en momentos biológicos exactos.", puntosClave: ["Llévalo al despertar.", "Llévalo después de comer.", "Llévalo después de jugar."] }, 
+                practica: { timerSeconds: 300, pasos: [{ titulo: 'Anticipación', desc: 'No esperes el accidente. Aplica esta rutina 3 veces hoy en los momentos clave.', emoji: '⏰', icon: 'fa-stopwatch' }] }, 
+                tips: ["Anticiparte evita el 90% de los accidentes."], error: { titulo: "Esperar a que avise", desc: "Creer que el perro te ladrará para pedir ir al baño hoy." }, resumen: "Estás ganándole la batalla al tiempo.", microEnganche: "Mañana grabaremos a fuego este buen hábito."
             },
             { 
-                day: 3, title: 'Reforzar lo correcto', semanaLabel: 'Fase 2: El Refuerzo', duracion: '3 min', nivel: 'Medio', categoria: 'Premios', icon: 'fa-star', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy harás que tu perro entienda que lo hizo bien. Los perros aprenden por asociación. Si hace algo correcto y no pasa nada, no aprende.", 
-                    puntosClave: ["Espera a que haga sus necesidades en su zona.", "Felicítalo inmediatamente, justo cuando termine.", "Usa voz muy positiva y entrégale un premio muy rico."] 
-                }, 
-                practica: { timerSeconds: 180, pasos: [{ titulo: 'Fiesta del Baño', desc: 'Refuerza cada vez que acierte en su lugar. Tu emoción debe ser clara para que su cerebro lo registre como una victoria.', emoji: '🎉', icon: 'fa-gift' }] }, 
-                tips: ["Premia en el momento exacto, ni antes de que termine, ni minutos después."], 
-                error: { titulo: "Premiar tarde", desc: "Darle el premio cuando ya volvió a la sala. Pensará que lo premias por entrar a la sala." }, 
-                resumen: "Tu perro ya empieza a entender dónde es su baño.", microEnganche: "Mañana aprenderás a corregir los errores correctamente."
+                day: 3, title: 'Reforzar lo correcto', semanaLabel: 'Fase 2: Refuerzo', duracion: '3 min', nivel: 'Medio', categoria: 'Premios', icon: 'fa-star', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy tu perro sentirá orgullo de hacer las cosas bien. Si hace lo correcto y no lo celebras, su cerebro no lo registra.", puntosClave: ["Espera a que haga en su zona.", "Felicítalo inmediatamente.", "Usa voz muy positiva y dale un premio."] }, 
+                practica: { timerSeconds: 180, pasos: [{ titulo: 'Fiesta del Baño', desc: 'Refuerza cada vez que acierte. Tu emoción debe ser muy clara.', emoji: '🎉', icon: 'fa-gift' }] }, 
+                tips: ["Premia en el momento exacto en que termina."], error: { titulo: "Premiar tarde", desc: "Darle el premio cuando ya volvió a la sala." }, resumen: "Su cerebro acaba de conectar la zona con el placer.", microEnganche: "Mañana dominarás la forma correcta de decir NO."
             },
             { 
-                day: 4, title: 'Corregir sin confundir', semanaLabel: 'Fase 2: El Refuerzo', duracion: '3 min', nivel: 'Medio', categoria: 'Corrección', icon: 'fa-ban', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy aprenderás a corregir sin generar miedo o confusión. Uno de los errores más comunes es corregir tarde. Solo puedes corregir en el momento exacto.", 
-                    puntosClave: ["Si lo ves en el acto, di un 'NO' firme.", "Llévalo rápido, pero sin agresividad, al lugar correcto.", "No castigues nunca si el accidente ya pasó."] 
-                }, 
-                practica: { timerSeconds: 180, pasos: [{ titulo: 'Interrupción', desc: 'Solo si lo atrapas en el acto de orinar fuera de su zona, interrumpe con el "NO" y transpórtalo a su baño.', emoji: '🚫', icon: 'fa-hand' }] }, 
-                tips: ["Fuera de tiempo, no corrijas. Limpia en silencio y con limpiador enzimático."], 
-                error: { titulo: "Castigo retroactivo", desc: "Frotarle la nariz en el orine. Solo lograrás que te tenga miedo y orine a escondidas." }, 
-                resumen: "Ahora estás educando sin confundir a tu mascota.", microEnganche: "Mañana consolidarás el hábito para no volver atrás."
+                day: 4, title: 'Corregir sin confundir', semanaLabel: 'Fase 2: Refuerzo', duracion: '3 min', nivel: 'Medio', categoria: 'Corrección', icon: 'fa-ban', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy serás un líder claro, sin generar miedo. Si corriges un accidente minutos después, tu perro solo sentirá terror, no aprendizaje.", puntosClave: ["Si lo ves EN EL ACTO, di un 'NO' firme.", "Llévalo rápido al lugar correcto.", "Nunca castigues si ya pasó tiempo."] }, 
+                practica: { timerSeconds: 180, pasos: [{ titulo: 'Interrupción', desc: 'Solo si lo atrapas infraganti, di NO y llévalo a su baño.', emoji: '🚫', icon: 'fa-hand' }] }, 
+                tips: ["Fuera de tiempo, límpiate la boca y el piso en silencio."], error: { titulo: "Castigo retroactivo", desc: "Frotarle la nariz en la orina vieja." }, resumen: "Eres un guía justo y claro para tu perro.", microEnganche: "Mañana sellaremos este comportamiento."
             },
             { 
-                day: 5, title: 'Crear el hábito', semanaLabel: 'Fase 3: Éxito Total', duracion: '5 min', nivel: 'Avanzado', categoria: 'Consistencia', icon: 'fa-calendar-check', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy convertirás el comportamiento en rutina. El aprendizaje se convierte en hábito con repetición. Tu perro ya entendió, ahora necesita consistencia.", 
-                    puntosClave: ["Mantén horarios de comida y paseos constantes.", "Usa siempre el mismo lugar designado.", "Refuerza efusivamente lo correcto cada vez."] 
-                }, 
-                practica: { timerSeconds: 300, pasos: [{ titulo: 'Rutina Inquebrantable', desc: 'Aplica todo lo aprendido durante el día. Anticipa, lleva a su zona y premia. No bajes la guardia.', emoji: '🔄', icon: 'fa-arrows-rotate' }] }, 
-                tips: ["La rutina crea resultados permanentes. Los perros aman la previsibilidad."], 
-                error: { titulo: "Cambiar las reglas", desc: "Dejarlo salir a horas diferentes cada día. Su vejiga no sabrá cuándo prepararse." }, 
-                resumen: "Tu perro ya tiene una nueva conducta higiénica.", microEnganche: "¡Felicidades! Un hogar limpio es el mejor premio."
+                day: 5, title: 'Crear el hábito', semanaLabel: 'Fase 3: Éxito', duracion: '5 min', nivel: 'Avanzado', categoria: 'Consistencia', icon: 'fa-calendar-check', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy transformarás estas reglas en el nuevo estilo de vida de tu perro mediante la consistencia total.", puntosClave: ["Mantén horarios constantes.", "Usa siempre el mismo lugar.", "Sigue reforzando lo correcto."] }, 
+                practica: { timerSeconds: 300, pasos: [{ titulo: 'Rutina Inquebrantable', desc: 'Anticipa, lleva a su zona y premia. No bajes la guardia.', emoji: '🔄', icon: 'fa-arrows-rotate' }] }, 
+                tips: ["Los perros aman la previsibilidad de la rutina."], error: { titulo: "Cambiar las reglas", desc: "Sacarlo a horas diferentes cada día." }, resumen: "Has logrado una comunicación higiénica perfecta.", microEnganche: "¡A disfrutar de una casa impecable!"
+            }
+        ]
+    },
+    {
+        id: 'obediencia-basica-5d', name: 'Obediencia Básica', icon: '🐕', totalDays: 5, isLocked: false,
+        desc: 'Logra que tu perro te preste atención y siga tus órdenes.',
+        introAchieve: 'Sentaremos las bases de la comunicación. Tu perro aprenderá a mirarte, acudir a tu llamado y quedarse quieto.',
+        lessons: [
+            { 
+                day: 1, title: 'Captar su atención', semanaLabel: 'Fase 1: Conexión', duracion: '3 min', nivel: 'Principiante', categoria: 'Atención', icon: 'fa-bullseye', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy lograrás que tu perro deje de ignorarte. Antes de que obedezca, debe conectarse contigo.", puntosClave: ["Di su nombre con tono alegre.", "Cuando te mire a los ojos, felicítalo o premia.", "Repite esto varias veces hoy."] }, 
+                practica: { timerSeconds: 180, pasos: [{ titulo: 'Juego del Nombre', desc: 'Di su nombre. Si te mira, premio. Si no, haz un sonido gracioso, cuando voltee, premio.', emoji: '🗣️', icon: 'fa-comment-dots' }] }, 
+                tips: ["Di el nombre una vez y espera, no lo repitas como loco."], error: { titulo: "Desgastar el nombre", desc: "Usar su nombre para regañarlo ('¡Milo, NO!')." }, resumen: "Hoy abriste el canal de comunicación con su mente.", microEnganche: "Mañana vendrá corriendo hacia ti."
+            },
+            { 
+                day: 2, title: 'Llamado Efectivo', semanaLabel: 'Fase 1: Conexión', duracion: '5 min', nivel: 'Principiante', categoria: 'Llamado', icon: 'fa-person-walking-arrow-right', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy te convertirás en un imán para tu perro. Muchos no vienen porque no ven un motivo emocionante para hacerlo.", puntosClave: ["Llámalo por su nombre con energía.", "Retrocede unos pasos rápidamente.", "Felicítalo exageradamente al llegar."] }, 
+                practica: { timerSeconds: 300, pasos: [{ titulo: 'El Imán', desc: 'Practica 5 veces. Llámalo, corre hacia atrás y cuando llegue, dale un snack premium.', emoji: '🧲', icon: 'fa-magnet' }] }, 
+                tips: ["Nunca lo llames para algo aburrido o negativo (ej. bañarlo)."], error: { titulo: "Perseguirlo", desc: "Caminar HACIA él al llamarlo. Creerá que lo estás cazando." }, resumen: "Tu perro ahora asocia tu voz con alegría y premios.", microEnganche: "Mañana le enseñaremos la magia del autocontrol."
+            },
+            { 
+                day: 3, title: 'La Orden "Quieto"', semanaLabel: 'Fase 2: Control', duracion: '3 min', nivel: 'Medio', categoria: 'Autocontrol', icon: 'fa-hand', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy tomarás el control de sus impulsos. Quedarse quieto no es natural, debes enseñárselo segundo a segundo.", puntosClave: ["Dile 'Quieto' mostrando la palma de tu mano.", "Espera solo un par de segundos.", "Premia si no se mueve."] }, 
+                practica: { timerSeconds: 180, pasos: [{ titulo: 'Pausa de 3 Segundos', desc: 'Dile QUIETO, cuenta hasta 3. Si no se levanta, libéralo diciendo "OK" y prémialo.', emoji: '⏱️', icon: 'fa-stopwatch' }] }, 
+                tips: ["Empieza con tiempos cortos. El éxito construye confianza."], error: { titulo: "Exigir demasiado", desc: "Pedirle que se quede quieto 1 minuto en su primer día." }, resumen: "Tu perro acaba de descubrir el poder de la paciencia.", microEnganche: "Mañana uniremos sus habilidades como un ninja."
+            },
+            { 
+                day: 4, title: 'Refuerzo de Obediencia', semanaLabel: 'Fase 2: Control', duracion: '5 min', nivel: 'Medio', categoria: 'Circuito', icon: 'fa-dumbbell', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy harás que su obediencia sea automática mediante la repetición divertida de los comandos aprendidos.", puntosClave: ["Practica la atención ('Nombre').", "Practica el comando 'Venir'.", "Practica el comando 'Quieto'."] }, 
+                practica: { timerSeconds: 300, pasos: [{ titulo: 'Circuito Ninja', desc: 'Haz una sesión de 5 minutos combinando las 3 órdenes de forma aleatoria.', emoji: '🔄', icon: 'fa-arrows-rotate' }] }, 
+                tips: ["Repetir bien y con entusiasmo vale más que hacerlo perfecto."], error: { titulo: "Aburrir al perro", desc: "Hacer sesiones de 20 minutos. El cerebro canino se satura rápido." }, resumen: "El respeto mutuo se ha fortalecido enormemente.", microEnganche: "Mañana llevaremos esto al mundo real."
+            },
+            { 
+                day: 5, title: 'Control Total', semanaLabel: 'Fase 3: Maestría', duracion: '5 min', nivel: 'Avanzado', categoria: 'Generalización', icon: 'fa-globe', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy lograrás que te obedezca sin importar en qué cuarto de la casa estén. Demuéstrale que tu liderazgo es global.", puntosClave: ["Practica en diferentes lugares.", "Úsalo en situaciones reales (antes de comer).", "Refuerza cada acierto fuertemente."] }, 
+                practica: { timerSeconds: 300, pasos: [{ titulo: 'Cambio de Escenario', desc: 'Aplica el circuito en el patio, en la cocina o durante un paseo calmado.', emoji: '🌳', icon: 'fa-tree' }] }, 
+                tips: ["Varía el entorno poco a poco para no frustrarlo."], error: { titulo: "Quitar los premios", desc: "Creer que como ya lo sabe, no debes pagarle con snacks." }, resumen: "¡Has forjado una obediencia sólida y real!", microEnganche: "Un perro educado es un perro feliz."
             }
         ]
     },
 
-    // --- RETO 3: LOGRA QUE TE OBEDEZCA (5 DÍAS) ---
+    // ==========================================
+    // PACK DOMINIO TOTAL (UPSELL - BLOQUEADOS)
+    // ==========================================
     {
-        id: 'obediencia-basica-5d', 
-        name: 'Obediencia Básica', 
-        icon: '🐕', 
-        totalDays: 5, 
-        desc: 'Logra que tu perro te preste atención y siga tus órdenes.',
-        introAchieve: 'Sentaremos las bases de la comunicación. Tu perro aprenderá a mirarte, a acudir a tu llamado y a quedarse quieto, transformándose en un compañero educado.',
+        id: 'ansiedad-separacion-5d', name: 'Ansiedad por separación', icon: '🥺', totalDays: 5, isLocked: true,
+        desc: 'Enseña a tu perro a estar tranquilo y feliz cuando te vas de casa.',
+        introAchieve: 'Lograrás que quedarse solo sea una experiencia relajante para él, evitando destrozos y llantos interminables.',
         lessons: [
             { 
-                day: 1, title: 'Captar su atención', semanaLabel: 'Fase 1: Conexión', duracion: '3 min', nivel: 'Principiante', categoria: 'Atención', icon: 'fa-bullseye', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy lograrás que tu perro te preste atención cuando lo llamas. Antes de que obedezca, primero debe prestarte atención. Si no reacciona a su nombre, no hay conexión.", 
-                    puntosClave: ["Di su nombre con tono alegre.", "Cuando te mire a los ojos, felicítalo o dale un snack.", "Repite esto varias veces a lo largo del día."] 
-                }, 
-                practica: { timerSeconds: 180, pasos: [{ titulo: 'Juego del Nombre', desc: 'En un ambiente tranquilo, di su nombre. Si te mira, premio. Si no te mira, haz un sonido gracioso, cuando voltee, premio.', emoji: '🗣️', icon: 'fa-comment-dots' }] }, 
-                tips: ["No repitas su nombre muchas veces seguidas como un disco rayado. Di el nombre y espera."], 
-                error: { titulo: "Desgastar su nombre", desc: "Usar su nombre para regañarlo ('¡Milo, NO!'). Su nombre debe ser siempre algo positivo." }, 
-                resumen: "Hoy lograste el primer y más importante paso: la conexión.", microEnganche: "Mañana aprenderá a venir corriendo hacia ti."
+                day: 1, title: 'Normalizar tu salida', semanaLabel: 'Fase 1: Calma', duracion: '3 min', nivel: 'Principiante', categoria: 'Psicología', icon: 'fa-door-open', 
+                teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy le quitarás el drama a tus salidas. Tu perro no sufre porque te vas, sufre porque tu salida es un evento emocional muy fuerte.", puntosClave: ["Sal de casa sin despedirte.", "Ignora al perro 2 minutos antes de salir.", "Actúa como si fuera lo más normal del mundo."] }, 
+                practica: { timerSeconds: 180, pasos: [{ titulo: 'Salida Fantasma', desc: 'Simula que te vas. Toma tus llaves y sal sin mirarlo. Vuelve pronto sin hacer fiesta.', emoji: '👻', icon: 'fa-ghost' }] }, 
+                tips: ["Menos emoción de tu parte = menos ansiedad en su mente."], error: { titulo: "Despedidas largas", desc: "Abrazarlo y decirle 'ya vuelvo mi bebé', eso dispara su alerta." }, resumen: "Acabas de bajarle 10 niveles de estrés a su cerebro.", microEnganche: "Mañana le demostrarás que siempre vuelves."
             },
-            { 
-                day: 2, title: 'El Llamado Efectivo', semanaLabel: 'Fase 1: Conexión', duracion: '5 min', nivel: 'Principiante', categoria: 'Llamado', icon: 'fa-person-walking-arrow-right', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy lograrás que tu perro venga cuando lo llamas. Muchos perros no vienen porque no ven motivo para hacerlo. Hoy vas a cambiar eso siendo irresistible para él.", 
-                    puntosClave: ["Llámalo por su nombre con energía y entusiasmo.", "Retrocede unos pasos rápidamente para activar su instinto de seguimiento.", "Felicítalo exageradamente al llegar a ti."] 
-                }, 
-                practica: { timerSeconds: 300, pasos: [{ titulo: 'El Imán', desc: 'Practica el llamado 5 veces hoy dentro de casa. Llámalo, corre hacia atrás y cuando llegue, dale un snack premium.', emoji: '🧲', icon: 'fa-magnet' }] }, 
-                tips: ["Nunca lo llames para algo negativo (bañarlo, regañarlo o cortarle las uñas)."], 
-                error: { titulo: "Perseguirlo", desc: "Llamarlo y caminar HACIA él. Eso en lenguaje canino significa 'te estoy cazando', por lo que él huirá." }, 
-                resumen: "Tu perro empieza a responder a tu voz con alegría.", microEnganche: "Mañana aprenderá a controlar su cuerpo y quedarse quieto."
-            },
-            { 
-                day: 3, title: 'La Orden "Quieto"', semanaLabel: 'Fase 2: Control', duracion: '3 min', nivel: 'Medio', categoria: 'Autocontrol', icon: 'fa-hand', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy tu perro aprenderá a quedarse en un lugar. Quedarse quieto no es natural para ellos, se enseña paso a paso. No busques perfección, busca progreso.", 
-                    puntosClave: ["Dile 'Quieto' acompañando con la palma de tu mano abierta.", "Espera solo un par de segundos.", "Felicítalo y prémialo si no se mueve en ese breve tiempo."] 
-                }, 
-                practica: { timerSeconds: 180, pasos: [{ titulo: 'Pausa de 3 Segundos', desc: 'Pídele que se siente. Di QUIETO, cuenta hasta 3 en tu mente. Si no se levanta, libéralo diciendo "OK" y prémialo.', emoji: '⏱️', icon: 'fa-stopwatch' }] }, 
-                tips: ["Empieza con tiempos muy cortos. El éxito construye confianza."], 
-                error: { titulo: "Exigir demasiado", desc: "Pedirle que se quede quieto por 1 minuto en el primer intento. Fracasará y se frustrará." }, 
-                resumen: "Tu perro ya está desarrollando control de sus impulsos.", microEnganche: "Mañana uniremos todas las órdenes en un circuito."
-            },
-            { 
-                day: 4, title: 'Refuerzo de Obediencia', semanaLabel: 'Fase 2: Control', duracion: '5 min', nivel: 'Medio', categoria: 'Circuito', icon: 'fa-dumbbell', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy harás que tu perro repita las órdenes correctamente. La obediencia se logra con repetición. Vamos a unir el nombre, el llamado y el quieto para crear un hábito.", 
-                    puntosClave: ["Practica la atención con su 'Nombre'.", "Practica el comando 'Venir'.", "Practica el comando 'Quieto'."] 
-                }, 
-                practica: { timerSeconds: 300, pasos: [{ titulo: 'Circuito Ninja', desc: 'Haz una sesión de 5 minutos donde combines las 3 órdenes. Llámalo, pídele que se quede quieto, aléjate, y vuelve a llamarlo.', emoji: '🔄', icon: 'fa-arrows-rotate' }] }, 
-                tips: ["Repetir bien vale más que hacerlo perfecto. Sé paciente."], 
-                error: { titulo: "Aburrir al perro", desc: "Hacer sesiones de 20 minutos seguidos. Los perros aprenden mejor en ráfagas cortas y divertidas de 5 minutos." }, 
-                resumen: "Tu perro ya está entendiendo la estructura de obediencia.", microEnganche: "Mañana consolidaremos el aprendizaje a prueba de balas."
-            },
-            { 
-                day: 5, title: 'Control Total', semanaLabel: 'Fase 3: Maestría', duracion: '5 min', nivel: 'Avanzado', categoria: 'Generalización', icon: 'fa-globe', 
-                teoria: { 
-                    audioSeconds: 45, audioUrl: "", 
-                    intro: "Objetivo de hoy 🎯", 
-                    cuerpo: "Hoy convertirás la obediencia en un comportamiento natural en cualquier entorno. Los perros son contextuales; si obedece en la sala, no significa que obedezca en el parque.", 
-                    puntosClave: ["Practica las órdenes en diferentes lugares de la casa.", "Usa los comandos en situaciones reales (antes de comer o salir).", "Sigue reforzando cada acierto para mantener la motivación."] 
-                }, 
-                practica: { timerSeconds: 300, pasos: [{ titulo: 'Cambio de Escenario', desc: 'Aplica el circuito de ayer pero en el patio, en la cocina o durante el paseo en un lugar sin tantas distracciones.', emoji: '🌳', icon: 'fa-tree' }] }, 
-                tips: ["Varía el entorno poco a poco. No vayas al parque más ruidoso el primer día."], 
-                error: { titulo: "Quitar los premios muy rápido", desc: "Creer que como ya lo sabe hacer, ya no necesita que le pagues con su snack." }, 
-                resumen: "Tu perro ahora responde a tus órdenes en diversos escenarios.", microEnganche: "¡Felicidades! Estás listo para retos más avanzados de educación."
-            }
+            { day: 2, title: 'Micro salidas', semanaLabel: 'Fase 1: Calma', duracion: '5 min', nivel: 'Medio', categoria: 'Confianza', icon: 'fa-clock-rotate-left', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy romperás su creencia de que te vas para siempre. Al hacer salidas cortas, le enseñas que siempre regresas.", puntosClave: ["Sal por 1 o 2 minutos.", "Regresa sin emoción alguna.", "Repite esto varias veces."] }, practica: { timerSeconds: 300, pasos: [{ titulo: 'El Retorno', desc: 'Sal de la casa, espera 1 minuto afuera y entra. Ignóralo al entrar hasta que se calme.', emoji: '⏳', icon: 'fa-hourglass' }] }, tips: ["El secreto es que tu regreso sea aburrido."], error: { titulo: "Saludar eufórico", desc: "Hacerle una fiesta al volver le enseña que estar separado de ti era algo terrible." }, resumen: "Su confianza en ti está creciendo.", microEnganche: "Mañana le enseñaremos a ser independiente." },
+            { day: 3, title: 'Independencia emocional', semanaLabel: 'Fase 2: Desapego', duracion: '5 min', nivel: 'Medio', categoria: 'Espacio', icon: 'fa-couch', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy lograrás que no dependa de ti para estar tranquilo. Si es tu sombra en casa, sufrirá cuando no estés.", puntosClave: ["Déjalo solo en otra habitación.", "Dale un juguete interactivo.", "No interactúes con él."] }, practica: { timerSeconds: 300, pasos: [{ titulo: 'Separación Interna', desc: 'Pon una barrera física (puerta o reja) mientras tú estás en casa. Déjale su juguete favorito.', emoji: '🚪', icon: 'fa-door-closed' }] }, tips: ["Debe aprender a estar en calma aunque escuche tus pasos en otra sala."], error: { titulo: "Ceder al llanto", desc: "Abrirle la puerta porque llora un poco." }, resumen: "Tu perro está aprendiendo a ser seguro de sí mismo.", microEnganche: "Mañana haremos que ame cuando te vayas." },
+            { day: 4, title: 'Asociación positiva', semanaLabel: 'Fase 2: Desapego', duracion: '3 min', nivel: 'Avanzado', categoria: 'Premios', icon: 'fa-face-smile', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy cambiarás su emoción frente a tu partida. Vas a lograr que asocie tu salida con algo increíblemente bueno.", puntosClave: ["Cuando te vayas, déjale algo que ame.", "Usa un snack de larga duración (ej. un Kong relleno).", "Solo dáselo justo al salir."] }, practica: { timerSeconds: 180, pasos: [{ titulo: 'El Tesoro', desc: 'Prepárale un juguete relleno muy rico. Entrégaselo y sal de casa inmediatamente sin decir nada.', emoji: '💎', icon: 'fa-gem' }] }, tips: ["El juguete especial SOLO debe aparecer cuando te vas."], error: { titulo: "Dejar el premio siempre", desc: "Si tiene el juguete todo el día, perderá el valor." }, resumen: "Ahora tu salida es sinónimo de su premio favorito.", microEnganche: "Mañana lo pondremos a prueba en el mundo real." },
+            { day: 5, title: 'Salidas reales', semanaLabel: 'Fase 3: Libertad', duracion: '10 min', nivel: 'Avanzado', categoria: 'Consolidación', icon: 'fa-house-circle-check', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy aplicarás todo en una salida real. Tu perro ya aprendió que estar solo no es peligroso.", puntosClave: ["Haz salidas normales de mayor duración.", "Mantén cero drama y cero emoción.", "Actúa con total naturalidad."] }, practica: { timerSeconds: 600, pasos: [{ titulo: 'La Prueba Final', desc: 'Prepárate para salir. Dale su juguete de alto valor, no te despidas y sal por 10 minutos reales.', emoji: '🚶', icon: 'fa-person-walking' }] }, tips: ["La calma que tú proyectas es la calma que él sentirá."], error: { titulo: "Mirarlo con pena", desc: "Sentir culpa al salir. Ellos huelen tu preocupación." }, resumen: "Has construido un perro emocionalmente sano e independiente.", microEnganche: "¡Disfruta de tu libertad y de su tranquilidad!" }
+        ]
+    },
+    {
+        id: 'no-jalar-correa-5d', name: 'No jalar la correa', icon: '🦮', totalDays: 5, isLocked: true,
+        desc: 'Transforma los paseos estresantes en caminatas relajantes a tu lado.',
+        introAchieve: 'Recuperarás el control de los paseos. Tu perro entenderá que jalar no lo lleva a ninguna parte y preferirá caminar a tu ritmo.',
+        lessons: [
+            { day: 1, title: 'Detener el tirón', semanaLabel: 'Fase 1: Frenado', duracion: '5 min', nivel: 'Principiante', categoria: 'Reglas', icon: 'fa-hand', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy eliminarás la recompensa de jalar. Si él jala y tú avanzas, le enseñas que jalar funciona.", puntosClave: ["Cada vez que la correa se tense, detente.", "No avances ni un milímetro.", "Solo avanza cuando la correa se afloje."] }, practica: { timerSeconds: 300, pasos: [{ titulo: 'Estatua Humana', desc: 'Sal a caminar. Si la correa se pone tensa, clávate al suelo. Espera a que él retroceda o te mire para avanzar.', emoji: '🗿', icon: 'fa-monument' }] }, tips: ["Paciencia de acero: el primer paseo te detendrás 50 veces."], error: { titulo: "Jalar de vuelta", desc: "Darle tirones bruscos al cuello solo genera más tensión." }, resumen: "Acabas de quitarle el poder de decidir hacia dónde van.", microEnganche: "Mañana le enseñaremos a enfocarse en ti." },
+            { day: 2, title: 'Seguirte a ti', semanaLabel: 'Fase 1: Frenado', duracion: '5 min', nivel: 'Principiante', categoria: 'Atención', icon: 'fa-arrow-turn-down', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy lograrás que te preste atención en la calle. El paseo no es para que te arrastre, es para caminar juntos.", puntosClave: ["Cambia de dirección constantemente.", "Haz tu ruta impredecible.", "Premia cuando decida seguirte."] }, practica: { timerSeconds: 300, pasos: [{ titulo: 'Caminata Sorpresa', desc: 'Camina y gira 180 grados sin avisar. Si te sigue sin jalar, hazle una fiesta y dale un premio.', emoji: '🔄', icon: 'fa-arrows-rotate' }] }, tips: ["Tú eres el guía. Si él quiere ir a la derecha, tú ve a la izquierda."], error: { titulo: "Seguir su ritmo", desc: "Acelerar tu paso porque él camina rápido." }, resumen: "Ahora tu perro está pendiente de tus movimientos.", microEnganche: "Mañana usaremos sus premios para acelerar el proceso." },
+            { day: 3, title: 'Recompensa correcta', semanaLabel: 'Fase 2: Refuerzo', duracion: '5 min', nivel: 'Medio', categoria: 'Premios', icon: 'fa-bone', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy reforzarás el comportamiento ideal. Tu perro repite lo que funciona; si caminar a tu lado trae premios, lo hará siempre.", puntosClave: ["Premia cuando camine a tu lado con la correa floja.", "Si jala, te detienes (sin premio).", "La recompensa debe darse junto a tu pierna."] }, practica: { timerSeconds: 300, pasos: [{ titulo: 'La Zona Dulce', desc: 'Mantén premios en la mano más cercana a él. Págale cada vez que camine alineado a tu pierna.', emoji: '🎯', icon: 'fa-crosshairs' }] }, tips: ["El premio se entrega abajo, a la altura de su boca, no lo hagas saltar."], error: { titulo: "Premiar lejos", desc: "Darle el premio estirando tu brazo hacia adelante." }, resumen: "Su mente ya asocia caminar a tu lado con felicidad.", microEnganche: "Mañana pondremos este control a prueba." },
+            { day: 4, title: 'Control en movimiento', semanaLabel: 'Fase 2: Refuerzo', duracion: '5 min', nivel: 'Avanzado', categoria: 'Constancia', icon: 'fa-person-walking', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy mantendrás el comportamiento ante distracciones leves. No se trata de hacerlo bien una vez, sino siempre.", puntosClave: ["Mantén el control en todo el paseo.", "Si se distrae, usa el cambio de dirección.", "No dejes que una paloma o perro rompa las reglas."] }, practica: { timerSeconds: 300, pasos: [{ titulo: 'Paseo con Obstáculos', desc: 'Pasa cerca de distracciones moderadas. Si ignora la distracción y te sigue, dale el mejor premio que tengas.', emoji: '🐕', icon: 'fa-dog' }] }, tips: ["Mantén la correa corta pero SIN TENSIÓN."], error: { titulo: "Tensar por miedo", desc: "Apretar la correa cuando ves a otro perro. Le transmites tensión." }, resumen: "Eres el centro de atención de tu perro en la calle.", microEnganche: "Mañana disfrutarás del paseo de tus sueños." },
+            { day: 5, title: 'Paseo perfecto', semanaLabel: 'Fase 3: Éxito', duracion: '10 min', nivel: 'Avanzado', categoria: 'Libertad', icon: 'fa-star', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy verás el cambio real. Disfrutarás de un perro que camina contigo, no delante de ti arrastrándote.", puntosClave: ["Disfruta la caminata relajada.", "Mantén las reglas si intenta probar los límites.", "Felicítalo verbalmente por su buen comportamiento."] }, practica: { timerSeconds: 600, pasos: [{ titulo: 'Paseo Maestro', desc: 'Realiza un paseo de 10 minutos aplicando la detención, los giros y los premios solo cuando sea necesario.', emoji: '🚶', icon: 'fa-person-walking' }] }, tips: ["El paseo relajado es un reflejo de tu liderazgo calmado."], error: { titulo: "Olvidar las reglas", desc: "Dejarlo jalar 'solo por un ratito' para llegar al parque." }, resumen: "Has transformado el estrés en un momento de paz mutua.", microEnganche: "¡A disfrutar la calle juntos!" }
+        ]
+    },
+    {
+        id: 'controlar-ladridos-5d', name: 'Controlar ladridos', icon: '🔊', totalDays: 5, isLocked: true,
+        desc: 'Reduce los ladridos excesivos y recupera la tranquilidad.',
+        introAchieve: 'Entenderás por qué ladra y le enseñarás que el silencio también trae recompensas, logrando un hogar silencioso.',
+        lessons: [
+            { day: 1, title: 'Identificar el motivo', semanaLabel: 'Fase 1: Análisis', duracion: '3 min', nivel: 'Principiante', categoria: 'Psicología', icon: 'fa-magnifying-glass', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy tomarás el control analizando la raíz. Tu perro no ladra por nada; ladra por miedo, aburrimiento o alerta.", puntosClave: ["Observa antes de corregir.", "Anota a qué le ladra (timbre, perros, ruidos).", "No le grites, eso es ladrar con él."] }, practica: { timerSeconds: 180, pasos: [{ titulo: 'El Detective', desc: 'Si ladra hoy, no digas nada. Solo observa qué detonó el ladrido y tu nivel de tensión en ese momento.', emoji: '🕵️', icon: 'fa-user-secret' }] }, tips: ["Gritarle 'CÁLLATE' solo aumenta su nivel de estrés."], error: { titulo: "Gritar", desc: "Intentar apagar fuego con más fuego (gritar)." }, resumen: "Conocer al enemigo (el detonante) es ganar la mitad de la batalla.", microEnganche: "Mañana aprenderás el arte de interrumpir." },
+            { day: 2, title: 'Interrumpir el ladrido', semanaLabel: 'Fase 1: Análisis', duracion: '5 min', nivel: 'Medio', categoria: 'Interrupción', icon: 'fa-hand-paper', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy aprenderás a cortar el patrón de forma seca y calmada. Cuando ladra, entra en trance; debemos sacarlo de ahí.", puntosClave: ["Interrumpe con un sonido seco (chasquido) o un 'NO' firme.", "Hazlo en el momento exacto.", "Tu cuerpo debe estar relajado."] }, practica: { timerSeconds: 300, pasos: [{ titulo: 'Corte Limpio', desc: 'Cuando empiece a ladrar, acércate con calma, ponte frente a él y usa tu sonido de interrupción firme.', emoji: '✂️', icon: 'fa-scissors' }] }, tips: ["La interrupción debe ser una sorpresa, no un regaño de 5 minutos."], error: { titulo: "Tocarlo mientras ladra", desc: "Acariciarlo para que se calme. Creerá que lo premias por ladrar." }, resumen: "Acabas de aprender a 'reiniciar' el cerebro de tu perro.", microEnganche: "Mañana le daremos una tarea alternativa." },
+            { day: 3, title: 'Redirigir energía', semanaLabel: 'Fase 2: Cambio', duracion: '5 min', nivel: 'Medio', categoria: 'Redirección', icon: 'fa-arrow-turn-up', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy le enseñarás qué hacer en vez de ladrar. No basta con callarlo, debes darle otra opción mental.", puntosClave: ["Tras interrumpir el ladrido, pídele un comando (ej. 'Sentado').", "Esto cambia su enfoque del estímulo hacia ti.", "Si obedece, prémialo."] }, practica: { timerSeconds: 300, pasos: [{ titulo: 'El Enfoque', desc: 'Suena el timbre (ladra) -> Interrumpes (se calla) -> Pides "Sentado" -> Premias.', emoji: '🔄', icon: 'fa-rotate' }] }, tips: ["Pedirle que haga un truco gasta energía mental y lo calma."], error: { titulo: "Premiar el ladrido", desc: "Darle el premio antes de que se siente y se quede en silencio total." }, resumen: "Su cerebro ahora sabe que concentrarse en ti es mejor que ladrar.", microEnganche: "Mañana lo premiaremos por la tranquilidad." },
+            { day: 4, title: 'Reforzar el silencio', semanaLabel: 'Fase 2: Cambio', duracion: '5 min', nivel: 'Avanzado', categoria: 'Premios', icon: 'fa-volume-xmark', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy grabarás en su mente que el silencio es oro. Debes premiar cuando esté tranquilo frente al estímulo.", puntosClave: ["Identifica cuando decida NO ladrar ante un ruido.", "Premia esa calma inmediatamente.", "El silencio es lo que quieres repetir."] }, practica: { timerSeconds: 300, pasos: [{ titulo: 'Cazador de Silencios', desc: 'Pídele a alguien que golpee la puerta suavemente. Si el perro solo mira pero no ladra, dale un súper premio.', emoji: '🤫', icon: 'fa-ear-listen' }] }, tips: ["Los dueños suelen ignorar al perro cuando se porta bien. ¡Ese es el momento de premiar!"], error: { titulo: "Dar por sentado", desc: "Escuchar un ruido, ver que no ladra y no felicitarlo." }, resumen: "El silencio se ha convertido en su comportamiento más rentable.", microEnganche: "Mañana será la consolidación final." },
+            { day: 5, title: 'Control total', semanaLabel: 'Fase 3: Paz', duracion: '5 min', nivel: 'Avanzado', categoria: 'Consolidación', icon: 'fa-house-signal', teoria: { audioSeconds: 45, audioUrl: "", intro: "Objetivo de hoy 🎯", cuerpo: "Hoy lograrás que tu perro entienda que tu casa es un lugar seguro donde él no necesita estar en alerta constante.", puntosClave: ["Mantén tu liderazgo tranquilo.", "Sigue interrumpiendo, redirigiendo y premiando la calma.", "Un perro seguro no siente la necesidad de ladrar a todo."] }, practica: { timerSeconds: 300, pasos: [{ titulo: 'Maestro de la Calma', desc: 'Aplica el sistema completo. Transmite con tu cuerpo que tú controlas el entorno, no él.', emoji: '🧘', icon: 'fa-om' }] }, tips: ["Tú eres el radar de la casa, no él. Demuéstraselo con tu seguridad."], error: { titulo: "Estrés ambiental", desc: "Tener la casa llena de gritos y esperar que el perro sea un monje tibetano." }, resumen: "Has devuelto la tranquilidad y el silencio a tu hogar.", microEnganche: "¡Felicidades por completar este gran reto!" }
         ]
     }
 ];

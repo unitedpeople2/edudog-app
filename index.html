@@ -187,13 +187,16 @@
                     
                     const label = p.nicho === 'edudog' ? 'Mascotas' : 'Premium';
                     
-                    // MAGIA: Inyección automática de imágenes si no están en Firebase
+                    // MAGIA: Inyección automática de imágenes
                     let imageUrl = p.imagen_url || "";
                     if (!imageUrl) {
-                        if (p.nombre_producto.toLowerCase().includes('nutrican')) {
+                        const productName = p.nombre_producto.toLowerCase();
+                        if (productName.includes('nutrican')) {
                             imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriCan.jpg?alt=media&token=417ba8ef-1f85-4011-a497-2cb0c182186d";
-                        } else if (p.nombre_producto.toLowerCase().includes('nutrichef')) {
+                        } else if (productName.includes('nutrichef')) {
                             imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriChef.jpg?alt=media&token=e66b0f8f-ad5d-442a-b751-e22d7d90929f";
+                        } else if (productName.includes('mentecan')) {
+                            imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FMenteCan.jpg?alt=media&token=3ce25407-9c91-445d-baad-014976720b2d";
                         }
                     }
 
@@ -249,8 +252,14 @@
             // Reusamos la magia de inyección para la página de ventas
             let imageUrl = p.imagen_url || "";
             if (!imageUrl) {
-                if (p.nombre_producto.toLowerCase().includes('nutrican')) imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriCan.jpg?alt=media&token=417ba8ef-1f85-4011-a497-2cb0c182186d";
-                else if (p.nombre_producto.toLowerCase().includes('nutrichef')) imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriChef.jpg?alt=media&token=e66b0f8f-ad5d-442a-b751-e22d7d90929f";
+                const productName = p.nombre_producto.toLowerCase();
+                if (productName.includes('nutrican')) {
+                    imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriCan.jpg?alt=media&token=417ba8ef-1f85-4011-a497-2cb0c182186d";
+                } else if (productName.includes('nutrichef')) {
+                    imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriChef.jpg?alt=media&token=e66b0f8f-ad5d-442a-b751-e22d7d90929f";
+                } else if (productName.includes('mentecan')) {
+                    imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FMenteCan.jpg?alt=media&token=3ce25407-9c91-445d-baad-014976720b2d";
+                }
             }
 
             // Si hay imagen, la mostramos espectacular; si no, el ícono gigante
@@ -260,7 +269,7 @@
 
             // Ojo al inyectar el correo del usuario para Hotmart
             const userEmail = userData?.email || '';
-            const hotmartLinkConCorreo = userEmail ? `${p.link_hotmart}?email=${encodeURIComponent(userEmail)}` : p.link_hotmart;
+            const hotmartLinkConCorreo = userEmail ? `${p.link_hotmart}&email=${encodeURIComponent(userEmail)}` : p.link_hotmart;
 
             document.getElementById('product-detail-view').innerHTML = `
                 <div class="flex-1 order-2 lg:order-1">

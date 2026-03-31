@@ -6,12 +6,16 @@
     <title>NutriChef Vital - El Creador Dinámico Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
         
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; -webkit-user-select: none; user-select: none; margin: 0; padding: 0; }
         
-        /* 1. MODO CELULAR (ESTRUCTURA ORIGINAL INTACTA) */
+        /* MODO CELULAR */
         .app-container { 
             max-width: 420px; margin: 0 auto; 
             height: 100vh; height: 100dvh; 
@@ -23,7 +27,7 @@
         .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; background-color: #f8fafc; overflow-x: hidden; }
         .screen.active { display: flex; }
         
-        /* 2. MODO ESCRITORIO (CUADRÍCULA RESPONSIVA) */
+        /* MODO ESCRITORIO */
         @media (min-width: 1024px) {
             .app-container { 
                 max-width: 100%; height: auto; min-height: 100vh; border: none !important; border-radius: 0 !important; 
@@ -63,9 +67,15 @@
 
         .progress-bar { transition: width 0.4s ease; }
         .desktop-glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+
+        /* Loader Inteligente */
+        .magic-loader { border: 4px solid #f3f3f3; border-top: 4px solid #f43f5e; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="antialiased text-slate-900 md:py-8 lg:py-0">
+
+    <script src="db_nutrichef.js"></script>
 
     <div class="app-container md:rounded-[2.5rem] md:border-[8px] md:border-slate-900 relative">
 
@@ -106,6 +116,12 @@
                 </div>
             </div>
         </nav>
+
+        <section id="screen-init-loader" class="screen active flex-col justify-center items-center p-6 text-center lg:min-h-[600px] bg-slate-50">
+            <div class="magic-loader mb-6 mx-auto"></div>
+            <h3 class="text-xl lg:text-3xl font-black text-slate-800 mb-2 tracking-tight">Sincronizando cocina...</h3>
+            <p class="text-sm lg:text-base text-rose-600 font-bold tracking-wide uppercase">Cargando recetas favoritas</p>
+        </section>
 
         <section id="screen-onboarding" class="screen relative p-6 lg:py-12 flex-col lg:items-center lg:justify-center">
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border border-slate-100 text-center relative overflow-hidden w-full lg:max-w-md">
@@ -362,99 +378,87 @@
 
     <script>
         // ==========================================
-        // LA LÓGICA JAVASCRIPT ÍNTEGRA Y SEGURA
+        // CONFIGURACIÓN FIREBASE & SINCRONIZACIÓN
         // ==========================================
-        let dogName = "tu peludo"; let countryCode = "51"; let currentScreen = 'screen-lobby';
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrbqdz-JMZNV0H0zcrHwfDOawE3_ouUNw",
+            authDomain: "guias-facil-bot.firebaseapp.com",
+            projectId: "guias-facil-bot",
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.firestore();
+
+        // Obtener sesión activa
+        const sessionInfo = JSON.parse(localStorage.getItem('hrSess') || localStorage.getItem('eduDogSession') || '{}');
+        const userEmail = sessionInfo.email;
+        
+        let dogName = localStorage.getItem('currentDogName') || "tu peludo"; 
+        let countryCode = sessionInfo.phone && sessionInfo.phone.startsWith("54") ? "54" : "51";
+        let currentScreen = 'screen-init-loader';
         let originalRecipe = null; let activeRecipe = null; let activeSizeMultiplier = 1; let currentStepIndex = 0;
         let nutriCanPlan = null; let syncGramsPerMeal = 0; let isSyncMode = false;
         let isTransitioning = false; let transitionMultiplier = 1; let kibbleGramsGlobal = 0;
         let timerSeconds = 0; let timerInterval = null; let isTimerRunning = false; let wakeLock = null;
         let favoriteRecipes = []; let selectedDailyMeals = {}; let selectedSnackId = null;
+        let recipeNotes = {}; // Objeto maestro para todas las notas
 
-        const dictionary = {
-            "camote": { "51": "Camote", "54": "Batata", "52": "Camote", "34": "Boniato" },
-            "zapallo": { "51": "Zapallo", "54": "Calabaza", "52": "Calabaza", "34": "Calabaza" },
-            "arvejas": { "51": "Arvejas", "54": "Arvejas", "52": "Chícharos", "34": "Guisantes" },
-            "fresa": { "51": "Fresa", "54": "Frutilla", "52": "Fresa", "34": "Fresa" },
-            "cerdo": { "51": "Lomo de Cerdo", "54": "Lomo de Chancho", "52": "Lomo de Cerdo" },
-            "higado": { "51": "Hígado", "54": "Hígado", "52": "Hígado" }
-        };
-        function tr(word) { const w = word.toLowerCase(); return (dictionary[w] && dictionary[w][countryCode]) ? dictionary[w][countryCode] : word; }
+        // ==========================================
+        // LÓGICA DE DICCIONARIO
+        // ==========================================
+        function tr(word) { const w = word.toLowerCase(); return (DICTIONARY[w] && DICTIONARY[w][countryCode]) ? DICTIONARY[w][countryCode] : word; }
         function translateText(text) { return text ? text.replace(/\[\[(.*?)\]\]/gi, (m, word) => tr(word)) : ""; }
 
-        // BASE DE DATOS: 50 RECETAS COMPRIMIDAS PARA SEGURIDAD DEL ARCHIVO
-        const recipes = [
-            { id: 1, title: "Amanecer de Pollo Salvaje", category: "desayuno", tagText: "🌟 Balance Perfecto", tagColors: "bg-emerald-50 border-emerald-200 text-emerald-700", time: "10 min", icon: "🍗", ingredients: [{ baseGrams: 40, name: "Cuellos de pollo crudos", type: "bone" }, { baseGrams: 35, name: "Pechuga de pollo pura", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de pollo", type: "org" }, { baseGrams: 10, name: "Puré de [[Zapallo]] y Zanahoria", type: "veg" }, { baseGrams: 1, name: "Toque de Aceite de Oliva", type: "comp", noScale: true }], steps: [{ icon: "❄️", text: "Asegúrate de que las carnes y vísceras hayan estado congeladas mínimo 3 días. Descongela lentamente." }, { icon: "🥣", text: "Haz un puré fino con el zapallo y la zanahoria (previamente ablandados)." }, { icon: "✂️", text: "Usa tijeras de cocina para trocear los cuellos si tu perro es pequeño." }, { icon: "🍽️", text: "Emplata la pechuga de base, ubica los huesos a un lado, corona con el hígado y baña con puré." }] },
-            { id: 2, title: "Pavo y Antioxidantes", category: "desayuno", tagText: "💪 Piel Sana", tagColors: "bg-rose-50 border-rose-200 text-rose-700", time: "8 min", icon: "🦃", ingredients: [{ baseGrams: 40, name: "Alitas de pavo sin puntas", type: "bone" }, { baseGrams: 35, name: "Pulpa de pavo cruda", type: "prot" }, { baseGrams: 15, name: "Riñón de res", type: "org" }, { baseGrams: 10, name: "Arándanos triturados", type: "veg" }, { baseGrams: 1, name: "Kéfir o Yogur Natural", type: "comp", noScale: true }], steps: [{ icon: "🔪", text: "Retira las puntas de las alitas. Trocea la pulpa de pavo." }, { icon: "🫐", text: "Tritura los arándanos con un tenedor hasta que suelten su jugo antioxidante." }, { icon: "🍽️", text: "Sirve las alitas a un extremo del plato. Mezcla la pulpa de pavo con el riñón." }, { icon: "🥄", text: "Finaliza coronando la carne con los arándanos triturados y una cucharada de kéfir." }] },
-            { id: 3, title: "Energía de Res y Espinaca", category: "desayuno", tagText: "🥩 Hierro Puro", tagColors: "bg-amber-50 border-amber-200 text-amber-700", time: "10 min", icon: "🐂", ingredients: [{ baseGrams: 40, name: "Espinazo de pollo crudo", type: "bone" }, { baseGrams: 35, name: "Carne de res magra", type: "prot" }, { baseGrams: 15, name: "Bazo de res", type: "org" }, { baseGrams: 10, name: "Espinaca y Manzana", type: "veg" }, { baseGrams: 1, name: "Huevo de codorniz crudo", type: "comp", noScale: true }], steps: [{ icon: "❄️", text: "Verifica que la res haya cumplido sus 3 días de congelación." }, { icon: "🍏", text: "Retira el corazón y semillas de la manzana. Licúa con la espinaca." }, { icon: "🔪", text: "Pica la res en dados y el bazo en trocitos pequeños." }, { icon: "🥚", text: "Coloca el espinazo y res. Vierte el licuado y rompe un huevo de codorniz crudo." }] },
-            { id: 4, title: "Cerdo Noble y Plátano", category: "desayuno", tagText: "🔋 Kalórico", tagColors: "bg-blue-50 border-blue-200 text-blue-700", time: "12 min", icon: "🥓", ingredients: [{ baseGrams: 40, name: "Costillas blandas de cerdo", type: "bone" }, { baseGrams: 35, name: "Lomo de [[Cerdo]] magro", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de cerdo", type: "org" }, { baseGrams: 10, name: "Puré de Plátano y Apio", type: "veg" }], steps: [{ icon: "⚠️", text: "El cerdo siempre debe pasar por 21 días de congelación estricta." }, { icon: "🍌", text: "Aplasta el plátano maduro con un tenedor y ralla el apio." }, { icon: "✂️", text: "Separa las costillas de cerdo y corta el hígado en láminas." }, { icon: "🍽️", text: "Sirve costillas, lomo en cubos y esparce el puré." }] },
-            { id: 5, title: "Pato Salvaje y Brócoli", category: "desayuno", tagText: "🦆 Premium", tagColors: "bg-purple-50 border-purple-200 text-purple-700", time: "10 min", icon: "🦆", ingredients: [{ baseGrams: 40, name: "Cuellos de pato crudos", type: "bone" }, { baseGrams: 35, name: "Pechuga de pato cruda", type: "prot" }, { baseGrams: 15, name: "Corazón de pollo", type: "org" }, { baseGrams: 10, name: "Puré de Brócoli cocido", type: "veg" }, { baseGrams: 1, name: "Pizca de Orégano seco", type: "comp", noScale: true }], steps: [{ icon: "🥦", text: "Pasa el brócoli por vapor rápido y tritura." }, { icon: "✂️", text: "Golpea los cuellos con un martillo de cocina si es principiante." }, { icon: "🔪", text: "Corta los corazones de pollo por la mitad." }, { icon: "🍽️", text: "Integra todo y espolvorea orégano." }] },
-            { id: 6, title: "Mar y Tierra Matutino", category: "desayuno", tagText: "🐟 Omega 3", tagColors: "bg-cyan-50 border-cyan-200 text-cyan-700", time: "15 min", icon: "🐠", ingredients: [{ baseGrams: 40, name: "Carcasas de pollo crudas", type: "bone" }, { baseGrams: 35, name: "Pescado azul (Bonito/Jurel)", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de pollo", type: "org" }, { baseGrams: 10, name: "Puré de [[Camote]]", type: "veg" }], steps: [{ icon: "🐟", text: "Congela pescado 7 días. Extrae cualquier espina." }, { icon: "🍠", text: "Camote bien cocido y hecho puré." }, { icon: "✂️", text: "Trocea las carcasas." }, { icon: "🍽️", text: "Desmenuza pescado con puré, sirve carcasas e hígado." }] },
-            { id: 7, title: "Mix de Conejo y Zanahoria", category: "desayuno", tagText: "🐇 Gourmet", tagColors: "bg-amber-50 border-amber-200 text-amber-700", time: "12 min", icon: "🥕", ingredients: [{ baseGrams: 40, name: "Trozos de conejo con hueso", type: "bone" }, { baseGrams: 35, name: "Músculo de conejo/pollo", type: "prot" }, { baseGrams: 15, name: "Riñón de cerdo", type: "org" }, { baseGrams: 10, name: "Zanahoria y Pepino licuado", type: "veg" }], steps: [{ icon: "🔪", text: "Usa trozos carnosos de conejo." }, { icon: "🥒", text: "Licúa zanahoria y pepino." }, { icon: "🩸", text: "Lava bien el riñón antes de picar." }, { icon: "🍽️", text: "Mezcla la carne con el licuado y sirve presas enteras." }] },
-            { id: 8, title: "Desayuno Base Cero", category: "desayuno", tagText: "🩺 Estómagos Sensibles", tagColors: "bg-emerald-50 border-emerald-200 text-emerald-700", time: "10 min", icon: "🛡️", ingredients: [{ baseGrams: 40, name: "Cuellos de pollo crudos", type: "bone" }, { baseGrams: 35, name: "Pechuga de pavo pura", type: "prot" }, { baseGrams: 15, name: "Corazón de pollo", type: "org" }, { baseGrams: 10, name: "Puré de [[Zapallo]] suave", type: "veg" }, { baseGrams: 1, name: "Infusión de Manzanilla", type: "comp", noScale: true }], steps: [{ icon: "❄️", text: "Ideal si hubo heces blandas. Todo a temperatura ambiente." }, { icon: "🥣", text: "Usa puré de zapallo blando como protector." }, { icon: "✂️", text: "Corta cuellos en anillos y pechuga en tiras." }, { icon: "🍵", text: "Hidrata con infusión de manzanilla fría." }] },
-            { id: 9, title: "Cordero y Manzana Verde", category: "desayuno", tagText: "🐑 Novel", tagColors: "bg-indigo-50 border-indigo-200 text-indigo-700", time: "15 min", icon: "🍏", ingredients: [{ baseGrams: 40, name: "Cuellos de pavo crudos", type: "bone" }, { baseGrams: 35, name: "Carne magra de cordero", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de res", type: "org" }, { baseGrams: 10, name: "Manzana verde rallada", type: "veg" }, { baseGrams: 1, name: "Hojas de menta fresca", type: "comp", noScale: true }], steps: [{ icon: "🔪", text: "Pica cordero en dados." }, { icon: "🍏", text: "Ralla manzana verde sin semillas." }, { icon: "✂️", text: "Corta cuellos de pavo." }, { icon: "🌿", text: "Acomoda, espolvorea menta y sirve." }] },
-            { id: 10, title: "Pollo Crunch y Espinaca", category: "desayuno", tagText: "🦷 Súper Crunch", tagColors: "bg-amber-50 border-amber-200 text-amber-700", time: "10 min", icon: "🍗", ingredients: [{ baseGrams: 40, name: "Rabadillas de pollo crudas", type: "bone" }, { baseGrams: 35, name: "Muslo de pollo sin hueso", type: "prot" }, { baseGrams: 15, name: "Mollejas de pollo", type: "org" }, { baseGrams: 10, name: "Espinaca cruda triturada", type: "veg" }], steps: [{ icon: "❄️", text: "Descongela bien las rabadillas." }, { icon: "🌿", text: "Tritura espinaca con caldo." }, { icon: "🔪", text: "Corta carne de muslo y filetea mollejas." }, { icon: "🍽️", text: "Mezcla carnes con jugo verde, rabadillas a los lados." }] },
-            { id: 11, title: "Boost Inmunológico", category: "desayuno", tagText: "🛡️ Defensas", tagColors: "bg-rose-50 border-rose-200 text-rose-700", time: "12 min", icon: "🔋", ingredients: [{ baseGrams: 40, name: "Alitas de pollo (sin punta)", type: "bone" }, { baseGrams: 35, name: "Pechuga de pollo pura", type: "prot" }, { baseGrams: 15, name: "Bazo de res", type: "org" }, { baseGrams: 10, name: "Pimiento rojo y Pera licuados", type: "veg" }, { baseGrams: 1, name: "Cúrcuma molida", type: "comp", noScale: true }], steps: [{ icon: "🔪", text: "Retira puntas de alitas." }, { icon: "🫑", text: "Licúa pimiento sin pepas y pera." }, { icon: "🩸", text: "Bazo en tiras finas." }, { icon: "✨", text: "Mezcla todo con cúrcuma." }] },
-            { id: 12, title: "Oceánico con Calabacín", category: "desayuno", tagText: "🌟 Ligero", tagColors: "bg-cyan-50 border-cyan-200 text-cyan-700", time: "15 min", icon: "🥒", ingredients: [{ baseGrams: 40, name: "Cuellos de pato/pollo crudos", type: "bone" }, { baseGrams: 35, name: "Pescado blanco en trozos", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de res", type: "org" }, { baseGrams: 10, name: "Calabacín (Zucchini) rallado", type: "veg" }], steps: [{ icon: "🐟", text: "Pescado congelado 7 días, sin espinas." }, { icon: "🥒", text: "Ralla calabacín muy fino." }, { icon: "✂️", text: "Corta cuellos crudos." }, { icon: "🍽️", text: "Integra calabacín con pescado." }] },
-            { id: 13, title: "Festín de Res y Remolacha", category: "almuerzo", tagText: "🥩 Pura Sangre", tagColors: "bg-emerald-50 border-emerald-200 text-emerald-700", time: "10 min", icon: "🍲", ingredients: [{ baseGrams: 40, name: "Carcasas de pollo crudas", type: "bone" }, { baseGrams: 35, name: "Carne molida de res", type: "prot" }, { baseGrams: 15, name: "Riñón de res", type: "org" }, { baseGrams: 10, name: "Remolacha cocida y triturada", type: "veg" }, { baseGrams: 1, name: "Huevo crudo de gallina", type: "comp", noScale: true }], steps: [{ icon: "❄️", text: "Descongela carne molida segura." }, { icon: "🍠", text: "Remolacha hervida y triturada." }, { icon: "🩸", text: "Corta riñón en trozos minúsculos." }, { icon: "🥚", text: "Mezcla y rompe huevo crudo." }] },
-            { id: 14, title: "Cazador de Cerdo y Manzana", category: "almuerzo", tagText: "🔋 Kalórico", tagColors: "bg-indigo-50 border-indigo-200 text-indigo-700", time: "15 min", icon: "🥓", ingredients: [{ baseGrams: 40, name: "Costillas de cerdo blandas", type: "bone" }, { baseGrams: 35, name: "Lomo de [[Cerdo]] magro crudo", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de cerdo", type: "org" }, { baseGrams: 10, name: "Manzana y Apio triturados", type: "veg" }], steps: [{ icon: "⚠️", text: "Cerdo 21 días congelado." }, { icon: "🍏", text: "Tritura manzana y apio." }, { icon: "✂️", text: "Costillas tiernas." }, { icon: "🍽️", text: "Sirve lomo con puré frutal." }] },
-            { id: 15, title: "Almuerzo Pavo Omega", category: "almuerzo", tagText: "🌟 Piel Top", tagColors: "bg-amber-50 border-amber-200 text-amber-700", time: "10 min", icon: "🦃", ingredients: [{ baseGrams: 40, name: "Espinazo de pollo crudo", type: "bone" }, { baseGrams: 35, name: "Pulpa de pavo cruda", type: "prot" }, { baseGrams: 15, name: "Bazo de res", type: "org" }, { baseGrams: 10, name: "Puré de [[Zapallo]] y Zanahoria", type: "veg" }, { baseGrams: 1, name: "Aceite de Sardina/Salmón", type: "comp", noScale: true }], steps: [{ icon: "🔪", text: "Trocea pulpa de pavo y bazo." }, { icon: "🥣", text: "Puré de zapallo y zanahoria machacados." }, { icon: "✂️", text: "Corta espinazo." }, { icon: "🐟", text: "Mezcla carnes y aceite." }] },
-            { id: 16, title: "Mix Pescado y Pollo", category: "almuerzo", tagText: "🐟 Doble Proteína", tagColors: "bg-cyan-50 border-cyan-200 text-cyan-700", time: "15 min", icon: "🐠", ingredients: [{ baseGrams: 40, name: "Cuellos de pollo crudos", type: "bone" }, { baseGrams: 35, name: "Pescado azul o blanco crudo", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de pollo", type: "org" }, { baseGrams: 10, name: "Espinaca triturada en agua", type: "veg" }], steps: [{ icon: "🐟", text: "Pescado sin espinas." }, { icon: "🌿", text: "Jugo verde de espinaca." }, { icon: "✂️", text: "Cortes en cuellos." }, { icon: "🍽️", text: "Integra todo." }] },
-            { id: 17, title: "Corazón Toro y Brócoli", category: "almuerzo", tagText: "❤️ Taurina", tagColors: "bg-emerald-50 border-emerald-200 text-emerald-700", time: "10 min", icon: "❤️", ingredients: [{ baseGrams: 40, name: "Rabadillas de pollo crudas", type: "bone" }, { baseGrams: 35, name: "Corazón de res crudo", type: "prot" }, { baseGrams: 15, name: "Riñón de cerdo", type: "org" }, { baseGrams: 10, name: "Puré de Brócoli al vapor", type: "veg" }], steps: [{ icon: "🔪", text: "Limpia grasa del corazón y corta." }, { icon: "🥦", text: "Brócoli machacado al vapor." }, { icon: "❄️", text: "Riñón limpio y descongelado." }, { icon: "🍽️", text: "Mezcla carne y brócoli." }] },
-            { id: 18, title: "Banquetito de Pato", category: "almuerzo", tagText: "🦆 Piel Sensible", tagColors: "bg-amber-50 border-amber-200 text-amber-700", time: "12 min", icon: "🦆", ingredients: [{ baseGrams: 40, name: "Cuellos de pato/pollo crudos", type: "bone" }, { baseGrams: 35, name: "Pechuga de pato o pavo", type: "prot" }, { baseGrams: 15, name: "Mollejas de pollo", type: "org" }, { baseGrams: 10, name: "Calabacín licuado", type: "veg" }, { baseGrams: 1, name: "Kéfir o Yogur Natural", type: "comp", noScale: true }], steps: [{ icon: "🔪", text: "Pato en dados." }, { icon: "🥒", text: "Licúa calabacín crudo." }, { icon: "✂️", text: "Agrega mollejas y cuellos." }, { icon: "🥄", text: "Corona con kéfir." }] },
-            { id: 19, title: "Almuerzo Cordero Fino", category: "almuerzo", tagText: "🌟 Exclusivo", tagColors: "bg-blue-50 border-blue-200 text-blue-700", time: "15 min", icon: "🐑", ingredients: [{ baseGrams: 40, name: "Carcasas de pollo crudas", type: "bone" }, { baseGrams: 35, name: "Músculo de cordero crudo", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de res", type: "org" }, { baseGrams: 10, name: "Puré de Pera y Pepino", type: "veg" }], steps: [{ icon: "🔪", text: "Cordero troceado sin exceso de grasa." }, { icon: "🍐", text: "Compota fresca de pera y pepino." }, { icon: "🩸", text: "Pica fina la ración de hígado." }, { icon: "🍽️", text: "Emplata bañado en compota." }] },
-            { id: 20, title: "Oveja y Remolacha", category: "almuerzo", tagText: "🥩 Resistencia", tagColors: "bg-indigo-50 border-indigo-200 text-indigo-700", time: "12 min", icon: "🧆", ingredients: [{ baseGrams: 40, name: "Espinazo de pollo crudo", type: "bone" }, { baseGrams: 35, name: "Pulpa de res o cordero", type: "prot" }, { baseGrams: 15, name: "Corazón de pollo", type: "org" }, { baseGrams: 10, name: "Remolacha cocida machacada", type: "veg" }, { baseGrams: 1, name: "Caldo de huesos frío", type: "comp", noScale: true }], steps: [{ icon: "🔪", text: "Pulpa roja picada y corazones limpios." }, { icon: "🍠", text: "Remolacha hervida." }, { icon: "✂️", text: "Espinazo crudo triturado." }, { icon: "🥣", text: "Emplata con caldo de huesos." }] },
-            { id: 21, title: "Pollo Crunch Zanahoria", category: "almuerzo", tagText: "🥕 Ligereza", tagColors: "bg-rose-50 border-rose-200 text-rose-700", time: "8 min", icon: "🍗", ingredients: [{ baseGrams: 40, name: "Alitas de pollo sin punta", type: "bone" }, { baseGrams: 35, name: "Pechuga de pollo pura", type: "prot" }, { baseGrams: 15, name: "Riñón de res o cerdo", type: "org" }, { baseGrams: 10, name: "Puré de Zanahoria cruda licuada", type: "veg" }], steps: [{ icon: "🥕", text: "Zanahoria licuada en puré." }, { icon: "🔪", text: "Corta pechuga y riñón." }, { icon: "✂️", text: "Quita puntas de alitas." }, { icon: "🍽️", text: "Almuerzo rápido e hidratante." }] },
-            { id: 22, title: "Res y Pimiento Dulce", category: "almuerzo", tagText: "💰 Ahorro Mágico", tagColors: "bg-emerald-50 border-emerald-200 text-emerald-700", time: "10 min", icon: "🥩", ingredients: [{ baseGrams: 40, name: "Cuellos de pollo crudos", type: "bone" }, { baseGrams: 35, name: "Carne molida de res", type: "prot" }, { baseGrams: 15, name: "Bazo de res", type: "org" }, { baseGrams: 10, name: "Pimiento dulce y [[Zapallo]]", type: "veg" }, { baseGrams: 1, name: "Huevo de codorniz crudo", type: "comp", noScale: true }], steps: [{ icon: "🫑", text: "Tritura pimiento rojo dulce con zapallo." }, { icon: "🔪", text: "Carne molida y bazo finito." }, { icon: "✂️", text: "Trocea cuellos." }, { icon: "🥚", text: "Mezcla todo y agrega huevo." }] },
-            { id: 23, title: "Pescado al Apio", category: "almuerzo", tagText: "🐟 Detox", tagColors: "bg-cyan-50 border-cyan-200 text-cyan-700", time: "12 min", icon: "🐠", ingredients: [{ baseGrams: 40, name: "Rabadillas de pollo crudas", type: "bone" }, { baseGrams: 35, name: "Pescado blanco (crudo, sin espinas)", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de pollo", type: "org" }, { baseGrams: 10, name: "Apio licuado con agua", type: "veg" }], steps: [{ icon: "🐟", text: "Pescado sin espinas." }, { icon: "🌿", text: "Licúa apio con agua." }, { icon: "🔪", text: "Alista rabadillas y el hígado." }, { icon: "🥣", text: "Mezcla pescado con apio y sirve." }] },
-            { id: 24, title: "Chancho a la Espinaca", category: "almuerzo", tagText: "🩺 Flora Sana", tagColors: "bg-blue-50 border-blue-200 text-blue-700", time: "15 min", icon: "🥓", ingredients: [{ baseGrams: 40, name: "Carcasas de pollo crudas", type: "bone" }, { baseGrams: 35, name: "Lomo de [[Cerdo]] magro crudo", type: "prot" }, { baseGrams: 15, name: "Mollejas de pollo", type: "org" }, { baseGrams: 10, name: "Espinaca y [[Zapallo]] licuados", type: "veg" }, { baseGrams: 1, name: "Toque de Aceite de Oliva", type: "comp", noScale: true }], steps: [{ icon: "🔪", text: "Cerdo 21 días congelado, pica en dados." }, { icon: "🥬", text: "Batido verde con espinaca y zapallo." }, { icon: "✂️", text: "Mollejas y carcasa troceada." }, { icon: "✨", text: "Agrega batido y aceite de oliva." }] },
-            { id: 25, title: "Cena Nocturna Pavo", category: "cena", tagText: "🌙 Relajante", tagColors: "bg-blue-50 border-blue-200 text-blue-700", time: "8 min", icon: "🦃", ingredients: [{ baseGrams: 40, name: "Cuellos de pollo crudos", type: "bone" }, { baseGrams: 35, name: "Pechuga de pavo cruda", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de res", type: "org" }, { baseGrams: 10, name: "Manzanilla fría y Manzana", type: "veg" }], steps: [{ icon: "🍵", text: "Manzana rallada con té de manzanilla frío." }, { icon: "🔪", text: "Pica pavo en dados y el hígado." }, { icon: "✂️", text: "Cuellos de pollo a temperatura ambiente." }, { icon: "🍽️", text: "Sirve y deja que el triptófano relaje a tu perro." }] },
-            { id: 26, title: "Lomo Base Calma", category: "cena", tagText: "🥩 Cero Estrés", tagColors: "bg-amber-50 border-amber-200 text-amber-700", time: "10 min", icon: "🐂", ingredients: [{ baseGrams: 40, name: "Espinazo de pollo crudo", type: "bone" }, { baseGrams: 35, name: "Carne magra de res", type: "prot" }, { baseGrams: 15, name: "Riñón de cerdo", type: "org" }, { baseGrams: 10, name: "Puré de [[Zapallo]] suave", type: "veg" }], steps: [{ icon: "🔪", text: "Corta carne magra muy pequeña." }, { icon: "🥣", text: "Puré de zapallo bien blando." }, { icon: "✂️", text: "Espinazo crudo." }, { icon: "🍽️", text: "Presenta todo a temperatura ambiente." }] },
-            { id: 27, title: "Salmón o Jurel Ligero", category: "cena", tagText: "🐟 Digestión Rápida", tagColors: "bg-cyan-50 border-cyan-200 text-cyan-700", time: "12 min", icon: "🐠", ingredients: [{ baseGrams: 40, name: "Alitas de pollo sin puntas", type: "bone" }, { baseGrams: 35, name: "Pescado azul (crudo, sin espinas)", type: "prot" }, { baseGrams: 15, name: "Corazón de pollo", type: "org" }, { baseGrams: 10, name: "Calabacín rallado muy fino", type: "veg" }, { baseGrams: 1, name: "Kéfir", type: "comp", noScale: true }], steps: [{ icon: "🔍", text: "Revisión de espinas." }, { icon: "🥒", text: "Ralla el calabacín minúsculo." }, { icon: "🔪", text: "Trocea corazones de pollo." }, { icon: "✨", text: "Mezcla con el Kéfir." }] },
-            { id: 28, title: "Mollejitas de los Sueños", category: "cena", tagText: "💰 Ahorro", tagColors: "bg-emerald-50 border-emerald-200 text-emerald-700", time: "10 min", icon: "🍗", ingredients: [{ baseGrams: 40, name: "Rabadillas de pollo crudas", type: "bone" }, { baseGrams: 35, name: "Pollo molido crudo", type: "prot" }, { baseGrams: 15, name: "Mollejas de pollo", type: "org" }, { baseGrams: 10, name: "Zanahoria licuada", type: "veg" }], steps: [{ icon: "🔪", text: "Pica finamente las mollejas crudas." }, { icon: "🥕", text: "Añade la zanahoria procesada." }, { icon: "✂️", text: "Rabadillas crudas." }, { icon: "🥣", text: "Mezcla la base muscular y sirve." }] },
-            { id: 29, title: "Cordero de Luna", category: "cena", tagText: "🐑 Exclusivo", tagColors: "bg-purple-50 border-purple-200 text-purple-700", time: "10 min", icon: "🐑", ingredients: [{ baseGrams: 40, name: "Carcasas de pollo crudas", type: "bone" }, { baseGrams: 35, name: "Carne de cordero cruda", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de pollo", type: "org" }, { baseGrams: 10, name: "Puré de Pera", type: "veg" }], steps: [{ icon: "🔪", text: "Cordero picado." }, { icon: "🍐", text: "Pera procesada en puré." }, { icon: "🩸", text: "Medida estricta de hígado." }, { icon: "🍽️", text: "Sirve la carcasa troceada." }] },
-            { id: 30, title: "Cerdo Suave y Pepino", category: "cena", tagText: "🥓 Refrescante", tagColors: "bg-blue-50 border-blue-200 text-blue-700", time: "10 min", icon: "🥒", ingredients: [{ baseGrams: 40, name: "Cuellos de pollo crudos", type: "bone" }, { baseGrams: 35, name: "Lomo de [[Cerdo]] magro crudo", type: "prot" }, { baseGrams: 15, name: "Bazo de res", type: "org" }, { baseGrams: 10, name: "Pepino licuado", type: "veg" }, { baseGrams: 1, name: "Caldo de huesos", type: "comp", noScale: true }], steps: [{ icon: "⚠️", text: "Cerdo congelado 21 días." }, { icon: "🥒", text: "Jugo de pepino." }, { icon: "✂️", text: "Cuellos y bazo fino." }, { icon: "🥣", text: "Integra con caldo de huesos." }] },
-            { id: 31, title: "Res y Zapallo Mágico", category: "cena", tagText: "🐂 Sólido", tagColors: "bg-amber-50 border-amber-200 text-amber-700", time: "8 min", icon: "🥩", ingredients: [{ baseGrams: 40, name: "Espinazo de pollo crudo", type: "bone" }, { baseGrams: 35, name: "Pulpa de res cruda", type: "prot" }, { baseGrams: 15, name: "Corazón de res", type: "org" }, { baseGrams: 10, name: "Puré de [[Zapallo]]", type: "veg" }], steps: [{ icon: "🔪", text: "Res y corazón en dados." }, { icon: "🥣", text: "Base de zapallo hervido." }, { icon: "❄️", text: "Temperatura ambiente." }, { icon: "🍽️", text: "Mezcla carne con zapallo y huesos." }] },
-            { id: 32, title: "Pescado Blanco en Puré", category: "cena", tagText: "🐟 Liviano", tagColors: "bg-cyan-50 border-cyan-200 text-cyan-700", time: "12 min", icon: "🐠", ingredients: [{ baseGrams: 40, name: "Alitas de pollo sin punta", type: "bone" }, { baseGrams: 35, name: "Pescado blanco crudo sin espinas", type: "prot" }, { baseGrams: 15, name: "Riñón de cerdo", type: "org" }, { baseGrams: 10, name: "Manzana cruda procesada", type: "veg" }, { baseGrams: 1, name: "Aceite de Oliva", type: "comp", noScale: true }], steps: [{ icon: "🔍", text: "Cero espinas en pescado." }, { icon: "🍏", text: "Manzana procesada." }, { icon: "🩸", text: "Riñón diminuto." }, { icon: "✨", text: "Mezcla con oliva." }] },
-            { id: 33, title: "Cazuela Cruda de Pavo", category: "cena", tagText: "🦃 Base Estricta", tagColors: "bg-emerald-50 border-emerald-200 text-emerald-700", time: "10 min", icon: "🍲", ingredients: [{ baseGrams: 40, name: "Rabadillas de pollo crudas", type: "bone" }, { baseGrams: 35, name: "Carne de pavo cruda", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de res", type: "org" }, { baseGrams: 10, name: "Zanahoria licuada", type: "veg" }], steps: [{ icon: "🔪", text: "Pavo y ración de hígado picados." }, { icon: "🥕", text: "Zanahoria licuada." }, { icon: "✂️", text: "Alista rabadillas." }, { icon: "🥣", text: "Combina carne con zanahoria." }] },
-            { id: 34, title: "Pato y Apio Nocturno", category: "cena", tagText: "🦆 Premium", tagColors: "bg-indigo-50 border-indigo-200 text-indigo-700", time: "12 min", icon: "🦆", ingredients: [{ baseGrams: 40, name: "Cuellos de pato crudos", type: "bone" }, { baseGrams: 35, name: "Músculo de pato o pollo", type: "prot" }, { baseGrams: 15, name: "Corazón de pollo", type: "org" }, { baseGrams: 10, name: "Apio y Calabacín licuados", type: "veg" }, { baseGrams: 1, name: "Orégano fresco", type: "comp", noScale: true }], steps: [{ icon: "🔪", text: "Pato en cuadrados." }, { icon: "🥒", text: "Apio y calabacín licuados." }, { icon: "✂️", text: "Cuellos de pato machacados." }, { icon: "🌿", text: "Emplata con orégano." }] },
-            { id: 35, title: "Conejo de Pradera", category: "cena", tagText: "🐇 Exótico", tagColors: "bg-rose-50 border-rose-200 text-rose-700", time: "15 min", icon: "🐇", ingredients: [{ baseGrams: 40, name: "Trozos de conejo con hueso", type: "bone" }, { baseGrams: 35, name: "Músculo de conejo/pollo", type: "prot" }, { baseGrams: 15, name: "Mollejas de pollo", type: "org" }, { baseGrams: 10, name: "Puré de [[Camote]]", type: "veg" }], steps: [{ icon: "🔪", text: "Cuartos traseros de conejo." }, { icon: "🍠", text: "Camote hervido." }, { icon: "🩸", text: "Mollejas crudas." }, { icon: "🍽️", text: "Sirve una cena ancestral." }] },
-            { id: 36, title: "Pollo Crunch Final", category: "cena", tagText: "🍗 Sencillo", tagColors: "bg-amber-50 border-amber-200 text-amber-700", time: "8 min", icon: "🍗", ingredients: [{ baseGrams: 40, name: "Carcasas de pollo crudas", type: "bone" }, { baseGrams: 35, name: "Pechuga cruda", type: "prot" }, { baseGrams: 15, name: "[[Higado]] de pollo", type: "org" }, { baseGrams: 10, name: "Puré de [[Zapallo]]", type: "veg" }, { baseGrams: 1, name: "Huevo crudo", type: "comp", noScale: true }], steps: [{ icon: "🔪", text: "Todo crudo y descongelado." }, { icon: "✂️", text: "Carcasas e hígado listos." }, { icon: "🥣", text: "Integra todo con huevo crudo." }, { icon: "🍽️", text: "Cena en 5 minutos." }] },
-            { id: 37, title: "Helado de [[Fresa]]", category: "snack", tagText: "🧊 Refrescante", tagColors: "bg-rose-50 border-rose-200 text-rose-700", time: "5 min", icon: "🍦", ingredients: [{ baseGrams: 50, name: "Kéfir o Yogur natural", type: "comp" }, { baseGrams: 50, name: "[[Fresa]] o Arándanos", type: "veg" }], steps: [ { icon: "🔪", text: "Lava y retira hojitas." }, { icon: "🌪️", text: "Licúa." }, { icon: "❄️", text: "Congela en moldes o en un LickMat." } ] },
-            { id: 38, title: "Zanahoria Cruda", category: "snack", tagText: "🦷 Dental Libre", tagColors: "bg-emerald-50 border-emerald-200 text-emerald-700", time: "2 min", icon: "🥕", ingredients: [{ baseGrams: 100, name: "Zanahoria cruda pelada", type: "veg" }], steps: [ { icon: "🔪", text: "Pela y corta en bastones largos." }, { icon: "🦴", text: "Ofrece el bastón entero bajo supervisión. Masticará, no absorberá nutrientes, pero limpiará sus dientes mágicamente." } ] },
-            { id: 39, title: "Queso y Manzana", category: "snack", tagText: "🧀 Entrenamiento", tagColors: "bg-amber-50 border-amber-200 text-amber-700", time: "5 min", icon: "🎲", ingredients: [{ baseGrams: 50, name: "Queso fresco (sin sal)", type: "comp" }, { baseGrams: 50, name: "Manzana sin pepas", type: "veg" }], steps: [ { icon: "🔪", text: "Corta todo en dados milimétricos (tamaño de una uña)." }, { icon: "🥣", text: "Guárdalos en un taper de cintura. Úsalos exclusivamente para el entrenamiento en la calle." } ] },
-            { id: 40, title: "Gomitas de Colágeno", category: "snack", tagText: "🦴 Articulaciones", tagColors: "bg-blue-50 border-blue-200 text-blue-700", time: "10 min", icon: "🍬", ingredients: [{ baseGrams: 90, name: "Caldo de huesos de pollo", type: "comp" }, { baseGrams: 10, name: "Colapez neutro", type: "comp" }], steps: [ { icon: "🥣", text: "Toma el caldo sin sal súper tibio." }, { icon: "🌡️", text: "Disuelve la colapez sin dejar un solo grumo." }, { icon: "❄️", text: "Refrigera en moldes de gomitas y sírvelas." } ] },
-            { id: 41, title: "Tiras de [[Higado]] Seco", category: "snack", tagText: "🧆 Súper Premio", tagColors: "bg-orange-50 border-orange-200 text-orange-700", time: "2 Horas", icon: "🥓", ingredients: [{ baseGrams: 100, name: "[[Higado]] crudo de res/pollo", type: "org" }], steps: [ { icon: "🔪", text: "Corta láminas ultra finas de hígado crudo." }, { icon: "🔥", text: "Hornea a 90°C (temperatura mínima) con la puerta del horno entreabierta para deshidratar (no cocinar).", timer: 7200 }, { icon: "🌡️", text: "Quedará duro y negro como un premio comercial." } ] },
-            { id: 42, title: "Helado Plátano Maní", category: "snack", tagText: "🧊 Cremoso", tagColors: "bg-rose-50 border-rose-200 text-rose-700", time: "5 min", icon: "🥜", ingredients: [{ baseGrams: 80, name: "Plátano maduro", type: "veg" }, { baseGrams: 20, name: "Mantequilla maní pura", type: "comp" }], steps: [ { icon: "⚠️", text: "VERIFICA que la mantequilla de maní NO TENGA Xilitol (es mortal)." }, { icon: "🌪️", text: "Licúa el plátano con la cucharada de maní." }, { icon: "❄️", text: "Unta en su juguete o congela en moldes." } ] },
-            { id: 43, title: "Patas de Pollo Crudas", category: "snack", tagText: "🦷 Condroitina", tagColors: "bg-emerald-50 border-emerald-200 text-emerald-700", time: "2 min", icon: "🐾", ingredients: [{ baseGrams: 100, name: "Patas de pollo crudas limpias", type: "bone" }], steps: [ { icon: "🔪", text: "Lava muy bien, córtales las uñas por seguridad y asegúrate de que tengan congelación de 3 días." }, { icon: "🦴", text: "Dáselas 100% CRUDAS. Limpiarán sus dientes y rellenarán sus cartílagos de forma natural." } ] },
-            { id: 44, title: "Cubitos Sangrecita", category: "snack", tagText: "💪 Sangre", tagColors: "bg-rose-50 border-rose-200 text-rose-700", time: "10 min", icon: "🩸", ingredients: [{ baseGrams: 100, name: "Sangrecita cruda o sancochada", type: "prot" }], steps: [ { icon: "🔥", text: "Si es comprada en mercado, hiérvela bien por seguridad." }, { icon: "🔪", text: "Corta en daditos como si fueran pequeños brownies oscuros." }, { icon: "🎲", text: "Úsalo como jackpot (premio mayor) al enseñarle trucos difíciles." } ] },
-            { id: 45, title: "Tiras Pollo Jerky", category: "snack", tagText: "🍗 Masticable", tagColors: "bg-amber-50 border-amber-200 text-amber-700", time: "60 min", icon: "🥓", ingredients: [{ baseGrams: 100, name: "Pechuga cruda", type: "prot" }], steps: [ { icon: "🔪", text: "Haz filetes súper delgados de pechuga pura." }, { icon: "🔥", text: "Al horno en la temperatura más baja posible (90°C) por horas hasta que se resequen.", timer: 3600 }, { icon: "🌡️", text: "Serán como charqui para perros 100% sano." } ] },
-            { id: 46, title: "Yogur y Zapallo", category: "snack", tagText: "🧊 Refrescante", tagColors: "bg-rose-50 border-rose-200 text-rose-700", time: "5 min", icon: "🎃", ingredients: [{ baseGrams: 50, name: "Puré de zapallo cocido", type: "veg" }, { baseGrams: 50, name: "Kéfir o Yogur sin azúcar", type: "comp" }], steps: [ { icon: "🥣", text: "Mezcla el puré dulce con la acidez suave del yogur probiótico." }, { icon: "❄️", text: "Sírvelo tibio, o congélalo en capas para que lo lama y se desestrese." } ] },
-            { id: 47, title: "Huevo de Codorniz", category: "snack", tagText: "🥚 Super Alimento", tagColors: "bg-orange-50 border-orange-200 text-orange-700", time: "2 min", icon: "🥚", ingredients: [{ baseGrams: 100, name: "Huevos de codorniz", type: "comp" }], steps: [ { icon: "🥣", text: "Toma de 2 a 3 huevos de codorniz." }, { icon: "🥚", text: "Rómpelos crudos y tritura la cáscara con tus manos (¡es puro calcio absorvible!)." }, { icon: "🍽️", text: "Sirve directamente en su bowl como un premio rápido y vitaminado." } ] },
-            { id: 48, title: "Hielo de Manzanilla", category: "snack", tagText: "🧊 Calma", tagColors: "bg-indigo-50 border-indigo-200 text-indigo-700", time: "5 min", icon: "🌼", ingredients: [{ baseGrams: 90, name: "Infusión de Manzanilla", type: "comp" }, { baseGrams: 10, name: "Trocitos de Manzana", type: "veg" }], steps: [ { icon: "🍵", text: "Prepara té de manzanilla (sin azúcar) y déjalo enfriar." }, { icon: "🔪", text: "Pica cuadritos diminutos de manzana y ponlos en cubiteras de hielo." }, { icon: "❄️", text: "Rellena con la manzanilla y congela. Dales un cubito cuando los dejes solos en casa." } ] },
-            { id: 49, title: "Trozos Huevo Duro", category: "snack", tagText: "🥚 Parque", tagColors: "bg-amber-50 border-amber-200 text-amber-700", time: "10 min", icon: "🥚", ingredients: [{ baseGrams: 100, name: "Huevo entero", type: "prot" }], steps: [ { icon: "🔥", text: "Hierve el huevo de gallina hasta que quede duro.", timer: 600 }, { icon: "🔪", text: "Retira la cáscara y pícalo en cuadraditos pequeños." }, { icon: "🐕", text: "Es el premio más barato y de mayor valor biológico para llevar al parque." } ] },
-            { id: 50, title: "Cubos de Caldo", category: "snack", tagText: "🧊 Verano", tagColors: "bg-cyan-50 border-cyan-200 text-cyan-700", time: "2 min", icon: "🧊", ingredients: [{ baseGrams: 100, name: "Caldo de huesos espeso", type: "comp" }], steps: [ { icon: "🚰", text: "Vierte el caldo gelatinoso de huesos naturales en cubiteras o en un Kong." }, { icon: "❄️", text: "Llévalo al freezer toda la noche." }, { icon: "🐶", text: "Entrégaselo en el patio o sobre una toalla para que lama y libere estrés." } ] }
-        ];
+        // ==========================================
+        // LÓGICA DE SINCRONIZACIÓN
+        // ==========================================
+        function syncToCloud() {
+            if (!userEmail) return;
+            db.collection('usuarios').doc(userEmail).set({
+                nutrichef_data: { 
+                    favorites: favoriteRecipes,
+                    notes: recipeNotes
+                },
+                nutrican_data: {
+                    planData: nutriCanPlan
+                }
+            }, { merge: true }).catch(err => console.error("Error silencioso al sincronizar:", err));
+        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedName = localStorage.getItem('currentDogName'); 
-            if(savedName && savedName !== "undefined" && savedName.trim() !== "") dogName = savedName;
+        document.addEventListener('DOMContentLoaded', async () => {
             document.querySelectorAll('.dog-name-display').forEach(el => el.innerText = dogName);
-
-            const savedSession = localStorage.getItem('eduDogSession');
-            if(savedSession) {
-                const creds = JSON.parse(savedSession);
-                countryCode = creds.phone && creds.phone.startsWith("54") ? "54" : "51";
-            }
             const flagEl = document.getElementById('region-flag');
             if(flagEl) flagEl.innerText = countryCode === "54" ? "AR" : "PE";
-            
+
+            if (userEmail) {
+                try {
+                    const doc = await db.collection('usuarios').doc(userEmail).get();
+                    if (doc.exists) {
+                        const data = doc.data();
+                        if (data.nutrichef_data) {
+                            if (data.nutrichef_data.favorites) favoriteRecipes = data.nutrichef_data.favorites;
+                            if (data.nutrichef_data.notes) recipeNotes = data.nutrichef_data.notes;
+                            localStorage.setItem(`nutriChefFavs_${dogName}`, JSON.stringify(favoriteRecipes));
+                            localStorage.setItem(`nutriChefNotes_${dogName}`, JSON.stringify(recipeNotes));
+                        }
+                        if (data.nutrican_data && data.nutrican_data.planData && data.nutrican_data.planData.totalGrams > 0) {
+                            nutriCanPlan = data.nutrican_data.planData;
+                            localStorage.setItem(`nutriCanPlan_${dogName}`, JSON.stringify(nutriCanPlan));
+                        }
+                    }
+                } catch(e) { console.error("Error al cargar nube", e); }
+            }
+
+            // Fallback a localStorage (para velocidad extrema)
             const savedFavs = localStorage.getItem(`nutriChefFavs_${dogName}`);
             if(savedFavs) favoriteRecipes = JSON.parse(savedFavs);
+            
+            const savedNotes = localStorage.getItem(`nutriChefNotes_${dogName}`);
+            if(savedNotes) recipeNotes = JSON.parse(savedNotes);
 
             const savedPlan = localStorage.getItem(`nutriCanPlan_${dogName}`);
-            if(savedPlan) {
-                nutriCanPlan = JSON.parse(savedPlan);
+            if(savedPlan && !nutriCanPlan) nutriCanPlan = JSON.parse(savedPlan);
+            
+            if(nutriCanPlan) {
                 let tomas = nutriCanPlan.etapa === 'cachorro' ? 3 : 2;
                 syncGramsPerMeal = Math.round(nutriCanPlan.totalGrams / tomas);
                 
@@ -501,6 +505,8 @@
             nutriCanPlan = { totalGrams: totalGrams, etapa: age, isStandalone: true };
             localStorage.setItem(`nutriCanPlan_${dogName}`, JSON.stringify(nutriCanPlan));
             
+            syncToCloud(); // Respaldo a la nube
+
             let tomas = age === 'cachorro' ? 3 : 2;
             syncGramsPerMeal = Math.round(totalGrams / tomas);
 
@@ -529,7 +535,7 @@
             
             const btnBack = document.getElementById('btn-back-mob');
             const btnBackDesk = document.getElementById('btn-back-desk');
-            const showBtn = !(screenId === 'screen-welcome-sync' || screenId === 'screen-onboarding');
+            const showBtn = !(screenId === 'screen-welcome-sync' || screenId === 'screen-onboarding' || screenId === 'screen-init-loader');
             if (btnBack) btnBack.style.display = showBtn ? 'flex' : 'none';
             if (btnBackDesk) btnBackDesk.style.display = showBtn ? 'flex' : 'none';
             
@@ -548,7 +554,7 @@
             if(query.length === 0) { renderLobby('todos'); return; }
             const list = document.getElementById('recipe-list');
             list.innerHTML = '';
-            const filtered = recipes.filter(r => normalizeText(translateText(r.title)).includes(query) || r.ingredients.some(i => normalizeText(translateText(i.name)).includes(query)));
+            const filtered = RECIPES.filter(r => normalizeText(translateText(r.title)).includes(query) || r.ingredients.some(i => normalizeText(translateText(i.name)).includes(query)));
             if(filtered.length === 0) { list.innerHTML = `<div class="col-span-full text-center py-10"><p class="text-slate-400 font-bold text-sm">No se encontraron recetas</p></div>`; return; }
             renderRecipeCards(filtered, list);
         }
@@ -563,7 +569,7 @@
         function renderLobby(filter) {
             const list = document.getElementById('recipe-list');
             list.innerHTML = '';
-            let filtered = filter === 'todos' ? recipes : (filter === 'favoritas' ? recipes.filter(r => favoriteRecipes.includes(r.id)) : recipes.filter(r => r.category === filter));
+            let filtered = filter === 'todos' ? RECIPES : (filter === 'favoritas' ? RECIPES.filter(r => favoriteRecipes.includes(r.id)) : RECIPES.filter(r => r.category === filter));
             if(filtered.length === 0 && filter === 'favoritas') { list.innerHTML = `<div class="col-span-full text-center py-10"><i class="fa-regular fa-heart text-4xl text-slate-200 mb-3"></i><p class="text-slate-400 font-bold text-sm">Aún no has guardado favoritas</p></div>`; return; }
             renderRecipeCards(filtered, list);
         }
@@ -595,6 +601,9 @@
             let isFav = false;
             if(favoriteRecipes.includes(id)) { favoriteRecipes = favoriteRecipes.filter(f => f !== id); } else { favoriteRecipes.push(id); isFav = true; }
             localStorage.setItem(`nutriChefFavs_${dogName}`, JSON.stringify(favoriteRecipes));
+            
+            syncToCloud(); // Respaldo a la nube
+
             icon.classList.remove('heart-beat'); void icon.offsetWidth; 
             icon.className = isFav ? "fa-solid fa-heart text-rose-500 transition-colors heart-beat text-sm" : "fa-regular fa-heart text-slate-300 transition-colors heart-beat text-sm";
             if(currentScreen === 'screen-lobby') { const filterBtn = document.querySelector('.category-btn.active'); if(filterBtn && filterBtn.dataset.filter === 'favoritas' && !isFav) { btn.closest('.bg-white').remove(); if(favoriteRecipes.length === 0) renderLobby('favoritas'); } }
@@ -603,7 +612,7 @@
         function randomizeMenu() {
             const tomas = nutriCanPlan.etapa === 'cachorro' ? 3 : 2;
             const mealTypes = tomas === 3 ? ['desayuno', 'almuerzo', 'cena'] : ['desayuno', 'cena'];
-            for(let i=0; i<tomas; i++) { const options = recipes.filter(r => r.category === mealTypes[i]); selectedDailyMeals[i] = options[Math.floor(Math.random() * options.length)].id; }
+            for(let i=0; i<tomas; i++) { const options = RECIPES.filter(r => r.category === mealTypes[i]); selectedDailyMeals[i] = options[Math.floor(Math.random() * options.length)].id; }
             selectedSnackId = null;
             document.getElementById('btn-add-snack').classList.remove('hidden'); document.getElementById('snack-section').classList.add('hidden');
             openPlanner();
@@ -612,7 +621,6 @@
         function selectMeal(slotIndex, recipeId) { selectedDailyMeals[slotIndex] = recipeId; openPlanner(); }
         function selectSnack(recipeId) { selectedSnackId = recipeId; renderSnackCarousel(); }
 
-        // AQUÍ ESTÁ LA MAGIA DEL GRID PARA LA PC EN EL PLANIFICADOR
         function openPlanner() {
             const container = document.getElementById('meals-container');
             container.innerHTML = '';
@@ -623,7 +631,7 @@
             const icons = tomas === 3 ? ['🍳', '🍲', '🌙'] : ['🍳', '🌙'];
 
             for(let i=0; i<tomas; i++) {
-                const options = recipes.filter(r => r.category === mealTypes[i]);
+                const options = RECIPES.filter(r => r.category === mealTypes[i]);
                 if(!selectedDailyMeals[i]) selectedDailyMeals[i] = options[0].id;
 
                 let cards = '';
@@ -638,11 +646,9 @@
                     const heartClass = isFav ? "fa-solid fa-heart text-rose-500" : "fa-regular fa-heart text-slate-300";
                     const btnHtml = isSelected ? `<div class="flex gap-2 w-full mt-4"><div class="flex-1 bg-white text-rose-600 font-black py-3 rounded-xl text-[10px] text-center flex items-center justify-center gap-1 border border-rose-200 shadow-sm"><i class="fa-solid fa-check"></i> Listo</div><button onclick="openSyncedRecipe(${opt.id}, ${syncGramsPerMeal}, false)" class="flex-[1.5] chef-gradient text-white font-black py-3 rounded-xl text-xs active:scale-95 transition-all shadow-xl shadow-rose-200">👨‍🍳 Cocinar</button></div>` : `<button onclick="selectMeal(${i}, ${opt.id})" class="w-full mt-4 bg-slate-50 text-slate-500 border border-slate-200 font-bold py-3.5 rounded-xl text-xs hover:bg-slate-100 active:scale-95 transition-all">Seleccionar</button>`;
 
-                    // El lg:min-w-0 permite que en PC ocupe el espacio del grid
                     cards += `<div class="min-w-[240px] lg:min-w-0 rounded-[2.5rem] p-5 snap-center flex flex-col justify-between transition-all relative ${cardBorder}"><button onclick="toggleFavorite(event, ${opt.id})" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 backdrop-blur hover:bg-slate-100 transition-colors border border-slate-100 shadow-sm z-10"><i class="${heartClass} text-sm transition-colors"></i></button><div class="flex gap-4 items-center pr-6"><div class="w-12 h-12 bg-white rounded-[1rem] flex items-center justify-center text-2xl shrink-0 border border-slate-100 shadow-sm">${opt.icon}</div><h4 class="font-extrabold text-slate-900 leading-tight text-sm">${translateText(opt.title)}</h4></div>${btnHtml}</div>`;
                 });
                 
-                // Las clases lg:grid lg:grid-cols-2 lg:overflow-visible activan la vista multi-fila en PC
                 container.innerHTML += `<div class="space-y-4"><div class="flex justify-between items-center px-2"><h3 class="font-black text-slate-900 text-lg flex items-center gap-2"><span>${icons[i]}</span> Ración ${labels[i]}</h3><span class="bg-slate-900 text-white text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm">${syncGramsPerMeal}g</span></div><div class="flex gap-4 overflow-x-auto pb-4 snap-x hide-scroll px-1 lg:grid lg:grid-cols-2 lg:gap-6 lg:overflow-visible lg:pb-0">${cards}</div></div>`;
             }
             if(selectedSnackId) { document.getElementById('btn-add-snack').classList.add('hidden'); document.getElementById('snack-section').classList.remove('hidden'); renderSnackCarousel(); }
@@ -653,14 +659,14 @@
             document.getElementById('btn-add-snack').classList.add('hidden'); document.getElementById('snack-section').classList.remove('hidden');
             const snackLimit = Math.round(nutriCanPlan.totalGrams * 0.10);
             document.getElementById('snack-limit-grams').innerText = `${snackLimit}g`;
-            if(!selectedSnackId) { const options = recipes.filter(r => r.category === 'snack'); selectedSnackId = options[Math.floor(Math.random() * options.length)].id; }
+            if(!selectedSnackId) { const options = RECIPES.filter(r => r.category === 'snack'); selectedSnackId = options[Math.floor(Math.random() * options.length)].id; }
             renderSnackCarousel();
         }
 
         function renderSnackCarousel() {
             const container = document.getElementById('snack-carousel-container');
             const snackLimit = Math.round(nutriCanPlan.totalGrams * 0.10);
-            let snackOptions = [...recipes.filter(r => r.category === 'snack')];
+            let snackOptions = [...RECIPES.filter(r => r.category === 'snack')];
             if(selectedSnackId) { const selectedIndex = snackOptions.findIndex(r => r.id === selectedSnackId); if(selectedIndex > -1) { const selectedItem = snackOptions.splice(selectedIndex, 1)[0]; snackOptions.unshift(selectedItem); } }
             let cards = '';
             snackOptions.forEach(opt => {
@@ -671,7 +677,6 @@
                 const btnHtml = isSelected ? `<div class="flex gap-2 w-full mt-4"><div class="flex-1 bg-white text-amber-600 font-black py-3 rounded-xl text-[10px] text-center flex items-center justify-center gap-1 border border-amber-200 shadow-sm"><i class="fa-solid fa-check"></i> Listo</div><button onclick="openSyncedRecipe(${opt.id}, ${snackLimit}, true)" class="flex-[1.5] bg-amber-500 text-white font-black py-3 rounded-xl text-xs active:scale-95 transition-all shadow-xl shadow-amber-500/20">👨‍🍳 Cocinar</button></div>` : `<button onclick="selectSnack(${opt.id})" class="w-full mt-4 bg-slate-50 text-slate-500 border border-slate-200 font-bold py-3.5 rounded-xl text-xs hover:bg-slate-100 active:scale-95 transition-all">Seleccionar Snack</button>`;
                 cards += `<div class="min-w-[240px] lg:min-w-0 rounded-[2.5rem] p-5 snap-center flex flex-col justify-between transition-all relative ${cardBorder}"><button onclick="toggleFavorite(event, ${opt.id})" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 backdrop-blur hover:bg-slate-100 transition-colors border border-slate-100 shadow-sm z-10"><i class="${heartClass} text-sm transition-colors"></i></button><div class="flex gap-4 items-center pr-6"><div class="w-12 h-12 bg-white rounded-[1rem] flex items-center justify-center text-2xl shrink-0 border border-slate-100 shadow-sm">${opt.icon}</div><h4 class="font-extrabold text-slate-900 leading-tight text-sm">${translateText(opt.title)}</h4></div>${btnHtml}</div>`;
             });
-            // Aplicado el lg:grid a los snacks también
             container.innerHTML = `<div class="space-y-4"><div class="flex justify-between items-center px-2"><h3 class="font-black text-slate-900 text-lg flex items-center gap-2"><span>🦴</span> Snack del Día</h3><span class="bg-amber-500 text-white text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm">${snackLimit}g</span></div><div class="flex gap-4 overflow-x-auto pb-4 snap-x hide-scroll px-1 lg:grid lg:grid-cols-2 lg:gap-6 lg:overflow-visible lg:pb-0">${cards}</div></div>`;
         }
 
@@ -701,7 +706,7 @@
         }
 
         function loadRecipe(id) {
-            activeRecipe = JSON.parse(JSON.stringify(recipes.find(r => r.id === id)));
+            activeRecipe = JSON.parse(JSON.stringify(RECIPES.find(r => r.id === id)));
             document.getElementById('recipe-header-img').innerText = activeRecipe.icon;
             document.getElementById('recipe-title').innerText = translateText(activeRecipe.title);
             document.getElementById('recipe-tag').innerText = activeRecipe.tagText;
@@ -716,6 +721,7 @@
             if(!activeRecipe) return; let id = activeRecipe.id; let isFav = false;
             if(favoriteRecipes.includes(id)) { favoriteRecipes = favoriteRecipes.filter(f => f !== id); } else { favoriteRecipes.push(id); isFav = true; }
             localStorage.setItem(`nutriChefFavs_${dogName}`, JSON.stringify(favoriteRecipes));
+            syncToCloud();
             const iconEl = document.getElementById('recipe-fav-icon'); iconEl.classList.remove('heart-beat'); void iconEl.offsetWidth; 
             iconEl.className = isFav ? "fa-solid fa-heart text-xl text-rose-500 heart-beat" : "fa-regular fa-heart text-xl text-slate-300 heart-beat";
         }
@@ -757,8 +763,17 @@
             });
         }
 
-        function loadNotes() { const notesEl = document.getElementById('recipe-notes'); const savedNote = localStorage.getItem(`nutriChefNote_${dogName}_${activeRecipe.id}`); notesEl.value = savedNote ? savedNote : ''; }
-        function saveNotes() { const notesVal = document.getElementById('recipe-notes').value; localStorage.setItem(`nutriChefNote_${dogName}_${activeRecipe.id}`, notesVal); }
+        function loadNotes() { 
+            const notesEl = document.getElementById('recipe-notes'); 
+            notesEl.value = recipeNotes[activeRecipe.id] || ''; 
+        }
+
+        function saveNotes() { 
+            const notesVal = document.getElementById('recipe-notes').value; 
+            recipeNotes[activeRecipe.id] = notesVal;
+            localStorage.setItem(`nutriChefNotes_${dogName}`, JSON.stringify(recipeNotes)); 
+            syncToCloud();
+        }
 
         async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (err) { console.log("Wake Lock no soportado."); } }
         function releaseWakeLock() { if (wakeLock !== null) { wakeLock.release(); wakeLock = null; } }
@@ -812,14 +827,14 @@
             if(missing) { alert("Por favor, asegúrate de tener un plato seleccionado para cada ración principal."); return; }
             let aggList = { bone: {}, prot: {}, org: {}, veg: {}, comp: {} };
             for(let i=0; i<tomas; i++) {
-                const recipeId = selectedDailyMeals[i]; const rec = recipes.find(r => r.id === recipeId);
+                const recipeId = selectedDailyMeals[i]; const rec = RECIPES.find(r => r.id === recipeId);
                 let totalBase = 0; rec.ingredients.forEach(ing => { if(!ing.noScale) totalBase += ing.baseGrams; });
                 let recGrams = syncGramsPerMeal; if (isTransitioning && transitionMultiplier < 1) { recGrams = syncGramsPerMeal * transitionMultiplier; }
                 const mult = recGrams / totalBase;
                 rec.ingredients.forEach(ing => { const name = translateText(ing.name); const finalGrams = ing.noScale ? ing.baseGrams : Math.round(ing.baseGrams * mult); if(aggList[ing.type][name]) aggList[ing.type][name] += finalGrams; else aggList[ing.type][name] = finalGrams; });
             }
             if (selectedSnackId && !document.getElementById('snack-section').classList.contains('hidden')) {
-                const rec = recipes.find(r => r.id === selectedSnackId); let totalBase = 0; rec.ingredients.forEach(ing => { if(!ing.noScale) totalBase += ing.baseGrams; });
+                const rec = RECIPES.find(r => r.id === selectedSnackId); let totalBase = 0; rec.ingredients.forEach(ing => { if(!ing.noScale) totalBase += ing.baseGrams; });
                 const snackLimit = Math.round(nutriCanPlan.totalGrams * 0.10); const mult = snackLimit / totalBase;
                 rec.ingredients.forEach(ing => { const name = translateText(ing.name); const finalGrams = ing.noScale ? ing.baseGrams : Math.round(ing.baseGrams * mult); if(aggList[ing.type][name]) aggList[ing.type][name] += finalGrams; else aggList[ing.type][name] = finalGrams; });
             }

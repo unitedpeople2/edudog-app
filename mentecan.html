@@ -6,12 +6,16 @@
     <title>Mentecan Vital - Entrenamiento Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; color: #1e293b; -webkit-user-select: none; user-select: none; margin: 0; padding: 0; }
 
-        .app-container { max-width: 420px; margin: 0 auto; height: 100vh; height: 100dvh; position: relative; background: #ffffff; overflow: hidden; display: flex; flex-direction: column; }
+        .app-container { max-width: 480px; margin: 0 auto; height: 100vh; height: 100dvh; position: relative; background: #ffffff; overflow: hidden; display: flex; flex-direction: column; }
         .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; overflow-x: hidden; background-color: #f8fafc; }
         .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -52,6 +56,10 @@
         #btn-header-back.hidden-back { opacity: 0; pointer-events: none; }
         #btn-header-back:not(.hidden-back) { opacity: 1; pointer-events: auto; }
         .desktop-glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+
+        /* Loader Inteligente */
+        .magic-loader { border: 4px solid #f3f3f3; border-top: 4px solid #10b981; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="md:py-8 lg:py-0">
@@ -68,7 +76,7 @@
     <div id="app-header" class="brand-gradient text-white px-5 py-4 flex items-center justify-between shadow-md sticky top-0 z-50 lg:hidden">
         <button id="btn-header-back" onclick="goBack()" class="relative z-10 hidden-back w-10 h-10 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer shadow-sm"><i class="fa-solid fa-chevron-left text-white drop-shadow"></i></button>
         <div class="relative z-10 text-center flex-1"><h2 class="font-black text-base tracking-tight">Mentecan Vital</h2></div>
-        <button onclick="showScreen('screen-hub')" class="relative z-10 w-10 h-10 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer shadow-sm"><i class="fa-solid fa-house text-white drop-shadow"></i></button>
+        <button onclick="window.location.href='index.html'" class="relative z-10 w-10 h-10 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all cursor-pointer shadow-sm"><i class="fa-solid fa-house text-white drop-shadow"></i></button>
     </div>
 
     <nav class="hidden lg:flex sticky top-0 z-50 desktop-glass-nav h-16 shrink-0 shadow-sm border-b border-emerald-100">
@@ -83,18 +91,24 @@
             </div>
             <div class="text-right">
                 <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Academia Activa</p>
-                <p id="hub-dog-name-desk" class="text-xs font-extrabold text-slate-900 leading-none">Cargando...</p>
+                <p id="hub-dog-name-desk" class="dog-name-display text-xs font-extrabold text-slate-900 leading-none">Cargando...</p>
             </div>
         </div>
     </nav>
 
+    <section id="screen-init-loader" class="screen active flex-col justify-center items-center p-6 text-center lg:min-h-[600px] bg-slate-50">
+        <div class="magic-loader mb-6 mx-auto"></div>
+        <h3 class="text-xl lg:text-3xl font-black text-slate-800 mb-2 tracking-tight">Cargando academia...</h3>
+        <p class="text-sm lg:text-base text-emerald-600 font-bold tracking-wide uppercase">Sincronizando progreso</p>
+    </section>
+
     <section id="screen-hub" class="screen bg-[#f8fafc] lg:bg-transparent lg:py-8">
-        <div class="px-6 py-6 space-y-6 lg:max-w-5xl lg:mx-auto lg:w-full">
+        <div class="px-6 py-6 space-y-6 lg:max-w-6xl lg:mx-auto lg:w-full">
             <div class="brand-gradient rounded-[2rem] p-6 lg:p-10 text-white shadow-xl relative overflow-hidden mb-8">
                 <div class="relative z-10 lg:flex lg:justify-between lg:items-center">
                     <div>
                         <p class="text-emerald-100 text-[9px] lg:text-xs font-black uppercase tracking-widest mb-1.5 opacity-80">Entrenamiento activo de</p>
-                        <h3 class="text-3xl lg:text-5xl font-black tracking-tighter mb-4 lg:mb-0" id="hub-dog-name">Cargando...</h3>
+                        <h3 class="text-3xl lg:text-5xl font-black tracking-tighter mb-4 lg:mb-0"><span class="dog-name-display"></span> 🐾</h3>
                     </div>
                     <div class="bg-black/15 p-4 lg:p-5 rounded-3xl border border-white/5 lg:w-72 shadow-inner">
                         <div class="flex justify-between text-[9px] lg:text-[10px] font-black uppercase mb-1.5 tracking-wider"><span class="opacity-70">Tu Progreso</span><span id="hub-progress-text" class="text-emerald-100">0 días</span></div>
@@ -103,7 +117,7 @@
                 </div>
             </div>
             
-            <h3 class="font-black text-slate-900 text-base lg:text-2xl mb-4 mt-4 px-2">Rutas de Entrenamiento</h3>
+            <h3 class="font-black text-slate-900 text-base lg:text-2xl mb-2 mt-4 px-2">Retos de Entrenamiento</h3>
             <div id="challenges-container" class="space-y-4 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0"></div>
         </div>
     </section>
@@ -122,22 +136,22 @@
                 <p class="text-sm font-bold text-slate-700 flex items-center gap-3"><i class="fa-solid fa-circle-check text-emerald-500"></i> Cero Ladridos Excesivos</p>
             </div>
             <div class="relative z-10 space-y-3">
-                <button onclick="window.open('AQUI_TU_LINK_HOTMART', '_blank')" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-white p-5 rounded-3xl font-black text-[15px] shadow-xl shadow-amber-500/30 active:scale-95 transition-all hover:brightness-110 flex items-center justify-center gap-2">Desbloquear Ahora por $14.90 <i class="fa-solid fa-arrow-right text-xs"></i></button>
+                <button onclick="comprarPackAvanzado()" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-white p-5 rounded-3xl font-black text-[15px] shadow-xl shadow-amber-500/30 active:scale-95 transition-all hover:brightness-110 flex items-center justify-center gap-2">Desbloquear Ahora por $14.90 <i class="fa-solid fa-arrow-right text-xs"></i></button>
                 <button onclick="closeUpsellModal()" class="w-full text-slate-400 py-3 font-bold text-sm active:scale-95 transition-transform hover:text-slate-600">Quizás más tarde</button>
             </div>
         </div>
     </div>
 
     <section id="screen-challenge" class="screen lg:bg-slate-50">
-        <div class="lg:max-w-3xl lg:mx-auto lg:w-full lg:bg-white lg:min-h-[calc(100vh-64px)] lg:shadow-xl lg:border-x lg:border-slate-100 lg:p-10">
+        <div class="lg:max-w-4xl lg:mx-auto lg:w-full lg:bg-white lg:min-h-[calc(100vh-64px)] lg:shadow-xl lg:border-x lg:border-slate-100 lg:p-10">
             <div class="px-6 pt-6 pb-2 lg:px-0">
-                <h2 class="text-2xl lg:text-4xl font-black text-slate-900 tracking-tight" id="challenge-screen-title">Cargando...</h2>
-                <p class="text-[10px] lg:text-xs font-bold text-slate-400 uppercase tracking-widest mt-1 mb-5">Módulo de Entrenamiento</p>
+                <h2 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight" id="challenge-screen-title">Cargando...</h2>
+                <p class="text-[10px] lg:text-xs font-bold text-slate-400 uppercase tracking-widest mt-1 mb-5">Módulo Principal</p>
                 
                 <div class="bg-gradient-to-br from-emerald-50 to-teal-100/50 rounded-[1.5rem] p-5 lg:p-6 border border-emerald-100 shadow-sm relative overflow-hidden mb-4">
                     <div class="absolute -right-4 -top-4 text-emerald-500/10 text-6xl lg:text-8xl"><i class="fa-solid fa-bullseye"></i></div>
                     <p class="text-[9px] lg:text-[10px] font-black uppercase text-emerald-600 tracking-widest mb-1.5 relative z-10">Lo que lograremos</p>
-                    <p class="text-xs lg:text-sm font-bold text-emerald-900 leading-relaxed relative z-10" id="challenge-intro-text">Cargando logros...</p>
+                    <p class="text-xs lg:text-sm font-bold text-emerald-900 leading-relaxed relative z-10" id="challenge-intro-text">Cargando logros del reto...</p>
                 </div>
             </div>
             <div id="days-container" class="px-6 py-4 space-y-3 pb-8 lg:px-0 lg:space-y-4"></div>
@@ -145,11 +159,11 @@
     </section>
 
     <section id="screen-lesson" class="screen relative lg:bg-slate-50">
-        <div class="px-6 py-6 pb-12 lg:max-w-2xl lg:mx-auto lg:w-full lg:bg-white lg:min-h-[calc(100vh-64px)] lg:shadow-2xl lg:border-x lg:border-slate-100 lg:p-12" id="lesson-content"></div>
+        <div class="px-6 py-6 pb-12 lg:max-w-3xl lg:mx-auto lg:w-full lg:bg-white lg:min-h-[calc(100vh-64px)] lg:shadow-2xl lg:border-x lg:border-slate-100 lg:p-12" id="lesson-content"></div>
     </section>
 
-    <div id="modal-complete" class="hidden fixed inset-0 z-[100] modal-bg flex-col justify-end lg:justify-center lg:items-center lg:p-6">
-        <div class="bg-white rounded-t-[2.5rem] lg:rounded-[2.5rem] p-8 lg:p-10 shadow-2xl w-full lg:max-w-md transform transition-transform duration-300">
+    <div id="modal-complete" class="hidden absolute inset-0 z-50 modal-bg flex flex-col justify-end lg:justify-center lg:items-center">
+        <div class="bg-white rounded-t-[2.5rem] p-8 shadow-2xl w-full lg:max-w-md lg:rounded-[2.5rem] lg:mb-8 lg:mx-auto transform transition-transform duration-300">
             <div class="text-center mb-8"><div class="text-5xl mb-3">✨</div><h3 class="text-2xl font-black text-slate-900 tracking-tight">¿Cómo fue la sesión?</h3><p class="text-slate-400 text-sm font-medium mt-1">Tu honestidad garantiza un aprendizaje real.</p></div>
             <div class="space-y-3">
                 <button onclick="saveDay('excelente')" class="w-full bg-emerald-50 text-emerald-800 p-5 rounded-3xl font-black text-sm border border-emerald-100 flex items-center justify-between active:scale-95 transition-all shadow-sm hover:bg-emerald-100"><span><i class="fa-solid fa-star mr-2 text-emerald-600"></i> ¡Excelente progreso!</span><i class="fa-solid fa-chevron-right opacity-30"></i></button>
@@ -163,8 +177,20 @@
 
 <script>
 // =============================================
-// VARIABLES GLOBALES Y SEGURIDAD
+// CONFIGURACIÓN FIREBASE & SINCRONIZACIÓN
 // =============================================
+const firebaseConfig = {
+    apiKey: "AIzaSyCrbqdz-JMZNV0H0zcrHwfDOawE3_ouUNw",
+    authDomain: "guias-facil-bot.firebaseapp.com",
+    projectId: "guias-facil-bot",
+};
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+const db = firebase.firestore();
+
+// Obtener sesión activa de forma segura
+const sessionInfo = JSON.parse(localStorage.getItem('hrSess') || localStorage.getItem('eduDogSession') || '{}');
+const userEmail = sessionInfo.email;
+
 let audioPlayer = null; 
 const sanitizeHTML = (str) => { const temp = document.createElement('div'); temp.textContent = str; return temp.innerHTML; };
 let rawDogName = localStorage.getItem('currentDogName') || 'Tu Peludo';
@@ -175,12 +201,64 @@ let audioInterval = null, timerInterval = null;
 let currentAudioTime = 0, currentTimerTime = 0;
 
 let trackerData = {};
-try { const savedData = localStorage.getItem(`eduDog_tracker_${dogName}`); if (savedData) trackerData = JSON.parse(savedData); } catch (e) { trackerData = {}; }
+let userHasAdvancedPack = false;
 
-document.addEventListener('DOMContentLoaded', () => { renderHub(); showScreen('screen-hub'); });
+// ==========================================
+// LÓGICA DE SINCRONIZACIÓN
+// ==========================================
+function syncToCloud() {
+    if (!userEmail) return;
+    db.collection('usuarios').doc(userEmail).set({
+        mentecan_data: { trackerData: trackerData }
+    }, { merge: true }).catch(err => console.error("Error silencioso al sincronizar:", err));
+}
 
+document.addEventListener('DOMContentLoaded', async () => {
+    document.querySelectorAll('.dog-name-display').forEach(el => el.innerText = dogName);
+
+    if (userEmail) {
+        try {
+            const doc = await db.collection('usuarios').doc(userEmail).get();
+            if (doc.exists) {
+                const data = doc.data();
+                
+                // 1. Verificamos permisos del Upsell (Pack Avanzado)
+                const appsActivas = data.apps_activas || [];
+                const ebooksActivos = data.ebooks_activos || [];
+                const todosLosPermisos = [...appsActivas, ...ebooksActivos];
+                
+                if (todosLosPermisos.includes('pack_avanzado')) {
+                    userHasAdvancedPack = true;
+                    // Desbloqueamos los últimos 3 retos mágicamente
+                    CHALLENGES.forEach((ch, index) => {
+                        if (index >= 3) ch.isLocked = false;
+                    });
+                }
+
+                // 2. Cargamos el progreso de MenteCan
+                if (data.mentecan_data && data.mentecan_data.trackerData) {
+                    trackerData = data.mentecan_data.trackerData;
+                    localStorage.setItem(`eduDog_tracker_${dogName}`, JSON.stringify(trackerData));
+                }
+            }
+        } catch(e) { console.error("Error al cargar nube", e); }
+    }
+
+    // Fallback a localStorage si falló el internet
+    const savedData = localStorage.getItem(`eduDog_tracker_${dogName}`);
+    if (savedData && Object.keys(trackerData).length === 0) {
+        trackerData = JSON.parse(savedData); 
+    }
+
+    renderHub(); 
+    showScreen('screen-hub');
+});
+
+// ==========================================
+// LÓGICA VISUAL (INTERFAZ)
+// ==========================================
 function renderHub() {
-    document.getElementById('hub-dog-name').innerText = `${dogName} 🐾`;
+    if(document.getElementById('hub-dog-name')) document.getElementById('hub-dog-name').innerText = `${dogName} 🐾`;
     if(document.getElementById('hub-dog-name-desk')) document.getElementById('hub-dog-name-desk').innerText = `${dogName}`;
     const container = document.getElementById('challenges-container');
     container.innerHTML = '';
@@ -190,7 +268,7 @@ function renderHub() {
     
     if (typeof CHALLENGES === 'undefined') { container.innerHTML = `<p class="p-6 text-rose-500 text-center font-bold">Error: No se encontró la base de datos (db_mentecan.js).</p>`; return; }
 
-    // Progreso calculado SOLO en base a los retos desbloqueados
+    // Progreso calculado SOLO en base a los retos que tiene desbloqueados
     const unlockedChallenges = CHALLENGES.filter(c => !c.isLocked);
     unlockedChallenges.forEach(ch => {
         const chTracker = trackerData[ch.id] || {};
@@ -203,7 +281,6 @@ function renderHub() {
         const passedCount = Object.values(chTracker).filter(t => t.passed).length;
         const pct = Math.round((passedCount / ch.totalDays) * 100);
         
-        // DISEÑO INTELIGENTE: Diferencia si está bloqueado (Candado) o libre
         if (ch.isLocked) {
             container.innerHTML += `
                 <div onclick="openUpsellModal()" class="bg-slate-50/50 rounded-[2rem] p-5 lg:p-6 shadow-sm active:scale-[0.98] transition-all cursor-pointer flex items-center gap-4 border border-slate-200 group opacity-70 hover:opacity-100 hover:border-amber-200">
@@ -228,8 +305,14 @@ function renderHub() {
     });
 
     const globalPct = totalGlobalDays > 0 ? Math.round((totalPassedDays / totalGlobalDays) * 100) : 0;
-    document.getElementById('hub-progress-text').innerText = `${totalPassedDays}/${totalGlobalDays} días`;
-    document.getElementById('hub-progress-bar').style.width = `${globalPct}%`;
+    if(document.getElementById('hub-progress-text')) document.getElementById('hub-progress-text').innerText = `${totalPassedDays}/${totalGlobalDays} días`;
+    if(document.getElementById('hub-progress-bar')) document.getElementById('hub-progress-bar').style.width = `${globalPct}%`;
+}
+
+function comprarPackAvanzado() {
+    const hotmartUrl = "https://pay.hotmart.com/S105149416C?src=upsell_mentecan";
+    const finalUrl = userEmail ? hotmartUrl + "&email=" + encodeURIComponent(userEmail) : hotmartUrl;
+    window.open(finalUrl, '_blank');
 }
 
 function openUpsellModal() { document.getElementById('modal-upsell').classList.remove('hidden'); document.getElementById('modal-upsell').classList.add('flex'); }
@@ -426,8 +509,8 @@ function showScreen(id) {
 
     const backBtn = document.getElementById('btn-header-back');
     const backBtnDesk = document.getElementById('btn-header-back-desk');
-    if(backBtn) { if (id === 'screen-hub') { backBtn.classList.add('hidden-back'); } else { backBtn.classList.remove('hidden-back'); } }
-    if(backBtnDesk) { if (id === 'screen-hub') { backBtnDesk.classList.add('hidden-back'); } else { backBtnDesk.classList.remove('hidden-back'); } }
+    if(backBtn) { if (id === 'screen-hub' || id === 'screen-init-loader') { backBtn.classList.add('hidden-back'); } else { backBtn.classList.remove('hidden-back'); } }
+    if(backBtnDesk) { if (id === 'screen-hub' || id === 'screen-init-loader') { backBtnDesk.classList.add('hidden-back'); } else { backBtnDesk.classList.remove('hidden-back'); } }
 }
 
 function goBack() {
@@ -444,10 +527,14 @@ function saveDay(result) {
     const passed = result !== 'dificil';
     if (!trackerData[currentChallenge.id]) trackerData[currentChallenge.id] = {};
     trackerData[currentChallenge.id][currentLessonDay] = { result, passed };
+    
+    // Guardamos en local para velocidad
     localStorage.setItem(`eduDog_tracker_${dogName}`, JSON.stringify(trackerData));
     
+    // Guardamos en la nube silenciosamente
+    syncToCloud();
+    
     closeCompleteModal();
-    // GOLPE DE DOPAMINA: Mensaje de celebración
     showToast(passed ? `¡Día completado! 🎉 Estás un paso más cerca de tu meta.` : `Guardado para reintento`);
     renderHub(); renderDays(); showScreen('screen-challenge');
 }

@@ -95,8 +95,8 @@
                     <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">Ecosistema Premium 🚀</h1>
                     <p class="text-slate-500 font-medium mt-3 text-sm md:text-base">Explora las herramientas que están transformando rutinas diarias.</p>
                 </header>
-                <div id="grid-catalog" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-                    </div>
+                <div id="grid-catalog" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-10">
+                </div>
             </main>
 
             <main id="screen-dashboard" class="screen p-6 md:p-8 lg:py-12">
@@ -104,15 +104,15 @@
                     <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">Tus Accesos 🛡️</h1>
                     <p class="text-slate-500 font-medium mt-3 text-sm md:text-base">Bienvenido de nuevo. Aquí tienes todo lo que has desbloqueado.</p>
                 </header>
-                <div id="grid-owned" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-                    </div>
+                <div id="grid-owned" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-10">
+                </div>
             </main>
 
             <main id="screen-product" class="screen p-6 md:p-8 lg:py-12">
                 <div class="max-w-6xl mx-auto">
                     <button onclick="showScreen('catalog')" class="mb-6 lg:mb-8 font-black text-slate-400 hover:text-slate-700 flex items-center gap-2 transition-all active:translate-x-[-4px]"><i class="fa-solid fa-arrow-left"></i> Volver al Catálogo</button>
                     <div id="product-detail-view" class="bg-white rounded-[2.5rem] lg:rounded-[3.5rem] p-6 md:p-10 lg:p-14 shadow-2xl border border-slate-100 flex flex-col lg:flex-row gap-10 lg:gap-16 items-center">
-                        </div>
+                    </div>
                 </div>
             </main>
         </div>
@@ -186,16 +186,16 @@
                     const hasAccess = pKeys.some(key => myPerms.includes(key));
                     
                     const label = p.nicho === 'edudog' ? 'Mascotas' : 'Premium';
+                    const productNameLower = p.nombre_producto ? p.nombre_producto.toLowerCase() : "";
                     
                     // MAGIA: Inyección automática de imágenes
                     let imageUrl = p.imagen_url || "";
                     if (!imageUrl) {
-                        const productName = p.nombre_producto.toLowerCase();
-                        if (productName.includes('nutrican')) {
+                        if (productNameLower.includes('nutrican')) {
                             imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriCan.jpg?alt=media&token=417ba8ef-1f85-4011-a497-2cb0c182186d";
-                        } else if (productName.includes('nutrichef')) {
+                        } else if (productNameLower.includes('nutrichef')) {
                             imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriChef.jpg?alt=media&token=e66b0f8f-ad5d-442a-b751-e22d7d90929f";
-                        } else if (productName.includes('mentecan')) {
+                        } else if (productNameLower.includes('mentecan')) {
                             imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FMenteCan.jpg?alt=media&token=3ce25407-9c91-445d-baad-014976720b2d";
                         }
                     }
@@ -215,8 +215,8 @@
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
                             
-                            <div class="p-6 md:p-7 flex flex-col flex-1 bg-white">
-                                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1.5">${label}</p>
+                            <div class="p-6 md:p-8 flex flex-col flex-1 bg-white">
+                                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">${label}</p>
                                 <h3 class="text-lg md:text-xl font-black text-slate-900 leading-tight mb-6">${p.nombre_producto}</h3>
                                 
                                 <div class="mt-auto">
@@ -244,32 +244,47 @@
             } catch (e) { console.error(e); }
         }
 
-        // PÁGINA DE VENTAS INTERNA (CON IMAGEN GRANDE)
+        // PÁGINA DE VENTAS INTERNA (CON IMAGEN GRANDE Y LINKS AUTOMÁTICOS)
         async function viewProductDetails(productId) {
             const doc = await db.collection('productos').doc(productId).get();
             const p = doc.data();
+            const productNameLower = p.nombre_producto ? p.nombre_producto.toLowerCase() : "";
             
-            // Reusamos la magia de inyección para la página de ventas
+            // Reusamos la magia de inyección para la imagen
             let imageUrl = p.imagen_url || "";
             if (!imageUrl) {
-                const productName = p.nombre_producto.toLowerCase();
-                if (productName.includes('nutrican')) {
+                if (productNameLower.includes('nutrican')) {
                     imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriCan.jpg?alt=media&token=417ba8ef-1f85-4011-a497-2cb0c182186d";
-                } else if (productName.includes('nutrichef')) {
+                } else if (productNameLower.includes('nutrichef')) {
                     imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FNutriChef.jpg?alt=media&token=e66b0f8f-ad5d-442a-b751-e22d7d90929f";
-                } else if (productName.includes('mentecan')) {
+                } else if (productNameLower.includes('mentecan')) {
                     imageUrl = "https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FMenteCan.jpg?alt=media&token=3ce25407-9c91-445d-baad-014976720b2d";
                 }
             }
+
+            // MAGIA 2: Inyección de enlaces de Hotmart como salvavidas
+            let linkHotmart = p.link_hotmart || "";
+            if (!linkHotmart) {
+                if (productNameLower.includes('nutrican')) linkHotmart = "https://pay.hotmart.com/M105116507K?checkoutMode=10";
+                else if (productNameLower.includes('nutrichef')) linkHotmart = "https://pay.hotmart.com/K105117038U";
+                else if (productNameLower.includes('mentecan')) linkHotmart = "https://pay.hotmart.com/N105147491K?off=zod1hhfg&checkoutMode=10";
+            }
+
+            // Construimos la URL de Hotmart agregando el email correctamente
+            const userEmail = userData?.email || '';
+            let finalCheckoutUrl = linkHotmart;
+            if (userEmail && linkHotmart) {
+                const separator = linkHotmart.includes('?') ? '&' : '?';
+                finalCheckoutUrl = `${linkHotmart}${separator}email=${encodeURIComponent(userEmail)}`;
+            }
+
+            // Precio de oferta (fallback a 9.90 si está vacío)
+            const precio = p.precio_oferta || "9.90";
 
             // Si hay imagen, la mostramos espectacular; si no, el ícono gigante
             const rightSideVisual = imageUrl
                 ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-[2rem] lg:rounded-[3rem] shadow-2xl border border-slate-100" alt="${p.nombre_producto}">`
                 : `<div class="text-[10rem] text-slate-200"><i class="fa-solid fa-box"></i></div>`;
-
-            // Ojo al inyectar el correo del usuario para Hotmart
-            const userEmail = userData?.email || '';
-            const hotmartLinkConCorreo = userEmail ? `${p.link_hotmart}&email=${encodeURIComponent(userEmail)}` : p.link_hotmart;
 
             document.getElementById('product-detail-view').innerHTML = `
                 <div class="flex-1 order-2 lg:order-1">
@@ -282,9 +297,9 @@
                     
                     <div class="flex flex-col sm:flex-row items-center gap-4 md:gap-6 pt-8 border-t border-slate-100">
                         <div class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight shrink-0 flex items-end gap-2">
-                            $${p.precio_oferta} <span class="text-sm font-bold text-slate-400 mb-1 line-through opacity-70">$97 USD</span>
+                            $${precio} <span class="text-sm font-bold text-slate-400 mb-1 line-through opacity-70">$97 USD</span>
                         </div>
-                        <button onclick="window.open('${hotmartLinkConCorreo}', '_blank')" class="w-full bg-blue-600 text-white font-black px-8 py-4 md:py-5 rounded-[1.5rem] shadow-xl shadow-blue-600/20 active:scale-95 transition-all md:text-lg hover:bg-blue-700 flex justify-center items-center gap-2">
+                        <button onclick="window.open('${finalCheckoutUrl}', '_blank')" class="w-full bg-blue-600 text-white font-black px-8 py-4 md:py-5 rounded-[1.5rem] shadow-xl shadow-blue-600/20 active:scale-95 transition-all md:text-lg hover:bg-blue-700 flex justify-center items-center gap-2">
                             Desbloquear Ahora <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </div>

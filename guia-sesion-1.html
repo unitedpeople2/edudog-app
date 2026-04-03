@@ -13,7 +13,6 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* ── VARIABLES DE TEMA ── */
         :root {
             --bg:         #0f172a;
             --nav-bg:     rgba(15, 23, 42, 0.97);
@@ -42,7 +41,7 @@
             transition: background-color 0.3s;
         }
 
-        /* ── NAV: altura fija, una sola línea siempre ── */
+        /* ── NAV ── */
         .glass-nav {
             height: 56px;
             background: var(--nav-bg);
@@ -59,8 +58,6 @@
             gap: 8px;
             transition: background 0.3s, border-color 0.3s;
         }
-
-        /* Botón volver — solo ícono en móvil */
         .nav-back {
             color: var(--subtext);
             text-decoration: none;
@@ -71,17 +68,13 @@
             font-size: 13px;
             transition: color 0.2s;
             flex-shrink: 0;
-            white-space: nowrap;
         }
         .nav-back:hover { color: var(--text); }
         .nav-back .label { display: none; }
-
-        /* Título centrado, no se rompe */
         .nav-title {
             color: var(--text);
             font-weight: 800;
             font-size: 14px;
-            letter-spacing: -0.2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -89,8 +82,6 @@
             text-align: center;
             transition: color 0.3s;
         }
-
-        /* Botón tema — solo ícono en móvil */
         .theme-btn {
             display: flex;
             align-items: center;
@@ -111,25 +102,24 @@
         .theme-btn:hover { background: var(--btn-hover); }
         .theme-btn .btn-label { display: none; }
 
-        /* En pantallas ≥ 480px mostramos texto */
         @media (min-width: 480px) {
-            .glass-nav { height: 64px; padding: 0 20px; }
-            .nav-back .label { display: inline; }
+            .glass-nav            { height: 64px; padding: 0 20px; }
+            .nav-back .label      { display: inline; }
             .theme-btn .btn-label { display: inline; }
-            .theme-btn { padding: 7px 14px; min-width: 130px; }
-            .nav-back { min-width: 130px; }
-            .nav-title { font-size: 15px; }
+            .theme-btn            { padding: 7px 14px; min-width: 130px; }
+            .nav-back             { min-width: 130px; }
+            .nav-title            { font-size: 15px; }
         }
         @media (min-width: 768px) {
             .glass-nav { padding: 0 24px; }
             .nav-title { font-size: 16px; }
         }
 
-        /* Ocultar marca de agua y botón de más */
+        /* ── Ocultar marca de agua y botón de más ── */
         .df-ui-btn.df-ui-logo,
         .df-ui-btn.df-ui-more { display: none !important; }
 
-        /* ── CONTENIDO ── */
+        /* ── CONTENIDO PRINCIPAL ── */
         #main-content {
             position: fixed;
             top: 56px; left: 0; right: 0; bottom: 0;
@@ -145,28 +135,75 @@
 
         #libro_3d { height: 100% !important; }
         #libro_3d .df-container { height: 100% !important; }
+
+        /* ══════════════════════════════════════════
+           TEMA OSCURO — forzar fondo y toolbar oscuros
+           dFlip usa clases internas: df-ui-wrapper, df-book-wrap, df-ui-controls
+        ══════════════════════════════════════════ */
+
+        /* Fondo general del visor */
+        [data-theme="dark"] .df-container,
+        [data-theme="dark"] .df-book-wrap,
+        [data-theme="dark"] .df-wrapper,
+        [data-theme="dark"] .df-ui-wrapper { 
+            background-color: #0f172a !important; 
+        }
+
+        /* Toolbar / controles inferior */
+        [data-theme="dark"] .df-ui-controls {
+            background-color: #1e293b !important;
+            border-top: 1px solid rgba(255,255,255,0.08) !important;
+        }
+
+        /* Iconos y texto del toolbar */
+        [data-theme="dark"] .df-ui-controls .df-ui-btn,
+        [data-theme="dark"] .df-ui-controls .df-ui-page {
+            color: #cbd5e1 !important;
+        }
+        [data-theme="dark"] .df-ui-controls .df-ui-btn:hover {
+            color: #ffffff !important;
+            background-color: rgba(255,255,255,0.08) !important;
+        }
+
+        /* Flechas de navegación laterales */
+        [data-theme="dark"] .df-ui-prev,
+        [data-theme="dark"] .df-ui-next {
+            color: #cbd5e1 !important;
+            background-color: rgba(15,23,42,0.7) !important;
+        }
+
+        /* ── TEMA CLARO ── */
+        [data-theme="light"] .df-container,
+        [data-theme="light"] .df-book-wrap,
+        [data-theme="light"] .df-wrapper,
+        [data-theme="light"] .df-ui-wrapper {
+            background-color: #f1f5f9 !important;
+        }
+        [data-theme="light"] .df-ui-controls {
+            background-color: #e2e8f0 !important;
+            border-top: 1px solid rgba(0,0,0,0.08) !important;
+        }
+        [data-theme="light"] .df-ui-controls .df-ui-btn,
+        [data-theme="light"] .df-ui-controls .df-ui-page {
+            color: #334155 !important;
+        }
     </style>
 </head>
 <body>
 
     <nav class="glass-nav">
-        <!-- Volver -->
         <a href="index.html" class="nav-back">
             <i class="fa-solid fa-arrow-left"></i>
             <span class="label">Volver</span>
         </a>
-
-        <!-- Título -->
         <span class="nav-title">Prompt SESIÓN #1</span>
-
-        <!-- Toggle tema -->
-        <button class="theme-btn" id="themeToggle" onclick="toggleTheme()">
+        <button class="theme-btn" onclick="toggleTheme()">
             <i class="fa-solid fa-moon" id="themeIcon"></i>
             <span class="btn-label" id="themeLabel">Modo Oscuro</span>
         </button>
     </nav>
 
-    <div id="main-content" id="mainContent">
+    <div id="main-content">
         <div class="_df_book" 
              source="https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FPrompt%20SESION%20%231.pdf?alt=media&token=a0e0f588-75c7-48bc-891f-a1f122d211f4" 
              id="libro_3d">
@@ -178,52 +215,57 @@
 
         var navH = window.innerWidth >= 480 ? 64 : 56;
         var availH = window.innerHeight - navH;
-        var idealWidth = Math.round(availH / 1.414);
-        var bookWidth = Math.min(idealWidth, 860);
+        var bookWidth = Math.min(Math.round(availH / 1.414), 860);
 
         var df_options = {
-            webgl: true,
-            backgroundColor: "#0f172a",
-            singlePageMode: 1,
-            height: availH,
-            width: bookWidth,
-            forceFit: true,
-            autoEnableOutline: false,
+            webgl:               true,
+            backgroundColor:     "#0f172a",
+            singlePageMode:      1,
+            height:              availH,
+            width:               bookWidth,
+            forceFit:            true,
+            autoEnableOutline:   false,
             autoEnableThumbnail: false,
-            maxTextureSize: 2048,
-            duration: 800
+            maxTextureSize:      2048,
+            duration:            800
         };
 
-        // ── TOGGLE TEMA ──
         var isDark = true;
+
+        function applyThemeToVisor(dark) {
+            // Fuerza el fondo del contenedor via JS también (por si el CSS no alcanza algún elemento)
+            var bg = dark ? '#0f172a' : '#f1f5f9';
+            var toolbarBg = dark ? '#1e293b' : '#e2e8f0';
+            document.querySelectorAll('.df-container, .df-book-wrap, .df-wrapper, .df-ui-wrapper').forEach(function(el) {
+                el.style.backgroundColor = bg;
+            });
+            document.querySelectorAll('.df-ui-controls').forEach(function(el) {
+                el.style.backgroundColor = toolbarBg;
+            });
+            document.getElementById('main-content').style.backgroundColor = bg;
+        }
 
         function toggleTheme() {
             isDark = !isDark;
-            var html = document.documentElement;
-            var icon = document.getElementById('themeIcon');
-            var label = document.getElementById('themeLabel');
-            var bgColor = isDark ? '#0f172a' : '#f1f5f9';
-
-            html.setAttribute('data-theme', isDark ? 'dark' : 'light');
-            icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-            label.textContent = isDark ? 'Modo Oscuro' : 'Modo Claro';
-
-            // Actualizar fondo del visor dFlip
-            document.getElementById('main-content').style.backgroundColor = bgColor;
-            document.querySelectorAll('.df-container, .df-book-wrap').forEach(function(el) {
-                el.style.backgroundColor = bgColor;
-            });
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            document.getElementById('themeIcon').className  = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            document.getElementById('themeLabel').textContent = isDark ? 'Modo Oscuro' : 'Modo Claro';
+            applyThemeToVisor(isDark);
         }
+
+        // Aplicar al cargar (dFlip tarda un poco en renderizar)
+        window.addEventListener('load', function() {
+            setTimeout(function() { applyThemeToVisor(true); }, 800);
+        });
 
         window.addEventListener('resize', function () {
             var navH = window.innerWidth >= 480 ? 64 : 56;
             var availH = window.innerHeight - navH;
-            var idealWidth = Math.round(availH / 1.414);
-            var bookWidth = Math.min(idealWidth, 860);
+            var bookWidth = Math.min(Math.round(availH / 1.414), 860);
             var libro = document.getElementById('libro_3d');
             if (libro) {
                 libro.style.height = availH + 'px';
-                libro.style.width = bookWidth + 'px';
+                libro.style.width  = bookWidth + 'px';
             }
         });
     </script>

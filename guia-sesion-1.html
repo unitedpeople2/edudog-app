@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lectura: Prompt SESIÓN #1 | HR Digital</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    
     <link href="https://cdn.jsdelivr.net/npm/dflip/css/dflip.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/dflip/css/themify-icons.min.css" rel="stylesheet">
     
@@ -17,39 +15,36 @@
 
         /* ── VARIABLES DE TEMA ── */
         :root {
-            --bg:        #0f172a;
-            --nav-bg:    rgba(15, 23, 42, 0.95);
-            --nav-border:rgba(255,255,255,0.1);
-            --text:      #ffffff;
-            --subtext:   #94a3b8;
-            --btn-bg:    rgba(255,255,255,0.08);
-            --btn-hover: rgba(255,255,255,0.15);
-            --btn-border:rgba(255,255,255,0.15);
-            --df-bg:     #0f172a;
+            --bg:         #0f172a;
+            --nav-bg:     rgba(15, 23, 42, 0.97);
+            --nav-border: rgba(255,255,255,0.1);
+            --text:       #ffffff;
+            --subtext:    #94a3b8;
+            --btn-bg:     rgba(255,255,255,0.08);
+            --btn-hover:  rgba(255,255,255,0.15);
+            --btn-border: rgba(255,255,255,0.18);
         }
-
         [data-theme="light"] {
-            --bg:        #f1f5f9;
-            --nav-bg:    rgba(241, 245, 249, 0.95);
-            --nav-border:rgba(0,0,0,0.1);
-            --text:      #0f172a;
-            --subtext:   #475569;
-            --btn-bg:    rgba(0,0,0,0.06);
-            --btn-hover: rgba(0,0,0,0.12);
-            --btn-border:rgba(0,0,0,0.12);
-            --df-bg:     #f1f5f9;
+            --bg:         #f1f5f9;
+            --nav-bg:     rgba(241,245,249,0.97);
+            --nav-border: rgba(0,0,0,0.1);
+            --text:       #0f172a;
+            --subtext:    #475569;
+            --btn-bg:     rgba(0,0,0,0.06);
+            --btn-hover:  rgba(0,0,0,0.12);
+            --btn-border: rgba(0,0,0,0.15);
         }
 
         html, body {
             height: 100%;
             background-color: var(--bg);
             overflow: hidden;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s;
         }
 
-        /* ── NAV ── */
+        /* ── NAV: altura fija, una sola línea siempre ── */
         .glass-nav {
-            height: 64px;
+            height: 56px;
             background: var(--nav-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -57,40 +52,51 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
+            padding: 0 12px;
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 50;
+            gap: 8px;
             transition: background 0.3s, border-color 0.3s;
         }
 
+        /* Botón volver — solo ícono en móvil */
         .nav-back {
             color: var(--subtext);
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13px;
             transition: color 0.2s;
-            min-width: 160px;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
         .nav-back:hover { color: var(--text); }
+        .nav-back .label { display: none; }
 
+        /* Título centrado, no se rompe */
         .nav-title {
             color: var(--text);
             font-weight: 800;
-            font-size: 16px;
-            letter-spacing: -0.3px;
+            font-size: 14px;
+            letter-spacing: -0.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            text-align: center;
             transition: color 0.3s;
         }
 
-        /* ── BOTÓN TEMA ── */
+        /* Botón tema — solo ícono en móvil */
         .theme-btn {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 7px 14px;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px 10px;
             border-radius: 999px;
             border: 1px solid var(--btn-border);
             background: var(--btn-bg);
@@ -98,55 +104,69 @@
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            transition: background 0.2s, color 0.2s;
+            flex-shrink: 0;
             white-space: nowrap;
-            min-width: 130px;
-            justify-content: center;
         }
         .theme-btn:hover { background: var(--btn-hover); }
-        .theme-btn i { font-size: 14px; }
+        .theme-btn .btn-label { display: none; }
 
-        /* ── CONTENIDO ── */
-        #main-content {
-            position: fixed;
-            top: 64px; left: 0; right: 0; bottom: 0;
-            background-color: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.3s;
+        /* En pantallas ≥ 480px mostramos texto */
+        @media (min-width: 480px) {
+            .glass-nav { height: 64px; padding: 0 20px; }
+            .nav-back .label { display: inline; }
+            .theme-btn .btn-label { display: inline; }
+            .theme-btn { padding: 7px 14px; min-width: 130px; }
+            .nav-back { min-width: 130px; }
+            .nav-title { font-size: 15px; }
+        }
+        @media (min-width: 768px) {
+            .glass-nav { padding: 0 24px; }
+            .nav-title { font-size: 16px; }
         }
 
         /* Ocultar marca de agua y botón de más */
         .df-ui-btn.df-ui-logo,
         .df-ui-btn.df-ui-more { display: none !important; }
 
-        #libro_3d {
-            height: 100% !important;
+        /* ── CONTENIDO ── */
+        #main-content {
+            position: fixed;
+            top: 56px; left: 0; right: 0; bottom: 0;
+            background-color: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
         }
-        #libro_3d .df-container {
-            height: 100% !important;
+        @media (min-width: 480px) {
+            #main-content { top: 64px; }
         }
+
+        #libro_3d { height: 100% !important; }
+        #libro_3d .df-container { height: 100% !important; }
     </style>
 </head>
 <body>
 
     <nav class="glass-nav">
+        <!-- Volver -->
         <a href="index.html" class="nav-back">
             <i class="fa-solid fa-arrow-left"></i>
-            <span class="hidden sm:inline">Volver a la Plataforma</span>
+            <span class="label">Volver</span>
         </a>
 
+        <!-- Título -->
         <span class="nav-title">Prompt SESIÓN #1</span>
 
-        <!-- Botón modo claro/oscuro -->
+        <!-- Toggle tema -->
         <button class="theme-btn" id="themeToggle" onclick="toggleTheme()">
             <i class="fa-solid fa-moon" id="themeIcon"></i>
-            <span id="themeLabel">Modo Oscuro</span>
+            <span class="btn-label" id="themeLabel">Modo Oscuro</span>
         </button>
     </nav>
 
-    <div id="main-content">
+    <div id="main-content" id="mainContent">
         <div class="_df_book" 
              source="https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FPrompt%20SESION%20%231.pdf?alt=media&token=a0e0f588-75c7-48bc-891f-a1f122d211f4" 
              id="libro_3d">
@@ -156,7 +176,7 @@
     <script>
         var dFlipLocation = "https://cdn.jsdelivr.net/npm/dflip/";
 
-        var navH = 64;
+        var navH = window.innerWidth >= 480 ? 64 : 56;
         var availH = window.innerHeight - navH;
         var idealWidth = Math.round(availH / 1.414);
         var bookWidth = Math.min(idealWidth, 860);
@@ -182,32 +202,21 @@
             var html = document.documentElement;
             var icon = document.getElementById('themeIcon');
             var label = document.getElementById('themeLabel');
+            var bgColor = isDark ? '#0f172a' : '#f1f5f9';
 
-            if (isDark) {
-                html.setAttribute('data-theme', 'dark');
-                icon.className = 'fa-solid fa-moon';
-                label.textContent = 'Modo Oscuro';
-                updateDfBackground('#0f172a');
-            } else {
-                html.setAttribute('data-theme', 'light');
-                icon.className = 'fa-solid fa-sun';
-                label.textContent = 'Modo Claro';
-                updateDfBackground('#f1f5f9');
-            }
-        }
+            html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            label.textContent = isDark ? 'Modo Oscuro' : 'Modo Claro';
 
-        function updateDfBackground(color) {
-            // Actualiza el fondo del canvas de dFlip
-            var containers = document.querySelectorAll('.df-container, .df-book-wrap, .df-book-wrap canvas');
-            containers.forEach(function(el) {
-                el.style.backgroundColor = color;
+            // Actualizar fondo del visor dFlip
+            document.getElementById('main-content').style.backgroundColor = bgColor;
+            document.querySelectorAll('.df-container, .df-book-wrap').forEach(function(el) {
+                el.style.backgroundColor = bgColor;
             });
-            // También actualiza el fondo del contenedor principal
-            document.getElementById('main-content').style.backgroundColor = color;
         }
 
         window.addEventListener('resize', function () {
-            var navH = 64;
+            var navH = window.innerWidth >= 480 ? 64 : 56;
             var availH = window.innerHeight - navH;
             var idealWidth = Math.round(availH / 1.414);
             var bookWidth = Math.min(idealWidth, 860);

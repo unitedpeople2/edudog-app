@@ -31,22 +31,27 @@
     </nav>
 
     <main class="flex-1 w-full bg-slate-900 relative">
+        <!-- Solo dejamos la clase y el source, la configuración se la damos por JS -->
         <div class="_df_book" 
-             webgl="true"
-             backgroundcolor="#0f172a"
-             singlepage="true" 
-             pageinfo="true"
              source="https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/productos%2FPrompt%20SESION%20%231.pdf?alt=media&token=a0e0f588-75c7-48bc-891f-a1f122d211f4" 
              id="libro_3d">
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/dflip/js/dflip.min.js"></script>
-
+    <!-- CONFIGURACIÓN GLOBAL: DEBE IR ANTES DEL SCRIPT DE DFLIP -->
     <script>
-        // Le indicamos a la librería dónde están sus iconos y recursos visuales
         var dFlipLocation = "https://cdn.jsdelivr.net/npm/dflip/";
+        var df_options = {
+            webgl: true,
+            backgroundColor: "#0f172a",
+            // ESTO ES EL TRUCO: 1 = Fuerza una sola página. 2 = Fuerza doble. 0 = Auto.
+            singlePageMode: 1, 
+            duration: 800
+        };
     </script>
+
+    <!-- SCRIPT DE DFLIP -->
+    <script src="https://cdn.jsdelivr.net/npm/dflip/js/dflip.min.js"></script>
 
 </body>
 </html>

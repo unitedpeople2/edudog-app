@@ -197,6 +197,18 @@
                                             <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Precio Oferta (S/ o USD)</label>
                                             <input type="number" id="prod-precio" placeholder="25" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm">
                                         </div>
+
+                                        <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-100">
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Emoji del Producto</label>
+                                                <input type="text" id="prod-nicho-emoji" placeholder="🧶" maxlength="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm text-center">
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Audiencia</label>
+                                                <input type="text" id="prod-nicho-audiencia" placeholder="emprendedoras, creativas..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-xs">
+                                            </div>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-1">Emoji: personalidad del producto (Gemini lo usa). Audiencia: para quién es (recordatorios + IA).</p>
                                     </div>
                                 </div>
 
@@ -204,24 +216,11 @@
                                 <div class="bg-white rounded-2xl p-6 border border-blue-200 shadow-sm relative overflow-hidden">
                                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-400"></div>
                                     <h3 class="font-black text-lg text-blue-800 mb-1"><i class="fa-solid fa-message text-blue-500 mr-1"></i> 2. Bloque 1 (Caption de la Imagen)</h3>
-                                    <p class="text-xs text-blue-600/80 font-medium mb-4 pb-3 border-b border-blue-200/50">Campos que arman el texto del caption que va debajo de la imagen en el Bloque 1.</p>
+                                    <p class="text-xs text-blue-600/80 font-medium mb-4 pb-3 border-b border-blue-200/50">Texto exacto que el bot enviará debajo de la imagen en el Bloque 1.</p>
 
-                                    <div class="space-y-4">
-                                        <div class="grid grid-cols-3 gap-3">
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-blue-700 uppercase tracking-widest">Audiencia</label>
-                                                <input type="text" id="prod-nicho-audiencia" placeholder="emprendedores..." class="w-full bg-blue-50 border border-blue-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-blue-500 text-xs">
-                                            </div>
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-blue-700 uppercase tracking-widest">Emoji</label>
-                                                <input type="text" id="prod-nicho-emoji" placeholder="🚀" maxlength="4" class="w-full bg-blue-50 border border-blue-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-blue-500 text-xs text-center">
-                                            </div>
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-blue-700 uppercase tracking-widest">Qué Incluye</label>
-                                                <input type="text" id="prod-que-incluye" placeholder="50 plantillas..." class="w-full bg-blue-50 border border-blue-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-blue-500 text-xs">
-                                            </div>
-                                        </div>
-                                        <p class="text-[10px] text-blue-600/70">El bot arma el caption así: [Emoji] [Nombre] + Precio + [Qué Incluye] + Bonos + Escasez + Pregunta gancho.</p>
+                                    <div class="space-y-1.5">
+                                        <textarea id="prod-copy-bloque-1" rows="8" placeholder="🧶 *Kit +60 Moldes de Pijamas*&#10;&#10;💰 S/10&#10;&#10;🎁 +5 BONOS EXCLUSIVOS: Guía de precios, plantillas de atención, Comunidad VIP, 5 patrones de temporada y checklist emprendedor.&#10;&#10;⚠️ Solo primeras 50 compras de abril reciben los bonos.&#10;&#10;¿Te interesa? 😊" class="w-full bg-white border border-blue-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-blue-500 text-sm leading-relaxed"></textarea>
+                                        <p class="text-[10px] text-blue-600/70">Pega aquí el copy completo. Incluye nombre, precio, bonos resumen, escasez y pregunta gancho. Lo que escribas aquí es exactamente lo que el cliente verá.</p>
                                     </div>
                                 </div>
 
@@ -807,7 +806,7 @@
             document.getElementById('prod-imagen').value = '';
             document.getElementById('prod-nicho-audiencia').value = '';
             document.getElementById('prod-nicho-emoji').value = '';
-            document.getElementById('prod-que-incluye').value = '';
+            document.getElementById('prod-copy-bloque-1').value = '';
             document.getElementById('prod-bonos-corto').value = '';
             document.getElementById('prod-imagen-bonos').value = '';
             document.getElementById('prod-bonos-detalle').value = '';
@@ -839,7 +838,7 @@
                 document.getElementById('prod-imagen').value = editData.imagen_producto || '';
                 document.getElementById('prod-nicho-audiencia').value = editData.nicho_audiencia || '';
                 document.getElementById('prod-nicho-emoji').value = editData.nicho_emoji || '';
-                document.getElementById('prod-que-incluye').value = editData.que_incluye || '';
+                document.getElementById('prod-copy-bloque-1').value = editData.copy_bloque_1 || '';
                 document.getElementById('prod-bonos-corto').value = editData.texto_bonos_corto || '';
                 document.getElementById('prod-imagen-bonos').value = editData.imagen_bonos || '';
                 document.getElementById('prod-bonos-detalle').value = editData.texto_bonos_detalle || '';
@@ -944,7 +943,7 @@
                 imagen_producto: document.getElementById('prod-imagen').value.trim(),
                 nicho_audiencia: document.getElementById('prod-nicho-audiencia').value.trim(),
                 nicho_emoji: document.getElementById('prod-nicho-emoji').value.trim(),
-                que_incluye: document.getElementById('prod-que-incluye').value.trim(),
+                copy_bloque_1: document.getElementById('prod-copy-bloque-1').value.trim(),
                 texto_bonos_corto: document.getElementById('prod-bonos-corto').value.trim(),
                 imagen_bonos: document.getElementById('prod-imagen-bonos').value.trim(),
                 texto_bonos_detalle: document.getElementById('prod-bonos-detalle').value.trim(),

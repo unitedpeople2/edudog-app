@@ -197,28 +197,37 @@
                                             <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Precio Oferta (S/ o USD)</label>
                                             <input type="number" id="prod-precio" placeholder="25" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm">
                                         </div>
-
-                                        <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100">
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-violet-600 uppercase tracking-widest">Audiencia</label>
-                                                <input type="text" id="prod-nicho-audiencia" placeholder="emprendedores, creativos..." class="w-full bg-violet-50 border border-violet-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-xs">
-                                            </div>
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-violet-600 uppercase tracking-widest">Emoji</label>
-                                                <input type="text" id="prod-nicho-emoji" placeholder="🚀" maxlength="4" class="w-full bg-violet-50 border border-violet-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-xs text-center">
-                                            </div>
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-violet-600 uppercase tracking-widest">Qué Incluye</label>
-                                                <input type="text" id="prod-que-incluye" placeholder="50 plantillas editables..." class="w-full bg-violet-50 border border-violet-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-xs">
-                                            </div>
-                                        </div>
-                                        <p class="text-[10px] text-slate-400 mt-1">Audiencia: para quién es. Emoji: tono del bot. Qué Incluye: se muestra junto al precio.</p>
                                     </div>
                                 </div>
 
-                                <!-- ========== TARJETA 2: IMÁGENES ========== -->
+                                <!-- ========== TARJETA 2: BLOQUE 1 - CAPTION ========== -->
+                                <div class="bg-white rounded-2xl p-6 border border-blue-200 shadow-sm relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-400"></div>
+                                    <h3 class="font-black text-lg text-blue-800 mb-1"><i class="fa-solid fa-message text-blue-500 mr-1"></i> 2. Bloque 1 (Caption de la Imagen)</h3>
+                                    <p class="text-xs text-blue-600/80 font-medium mb-4 pb-3 border-b border-blue-200/50">Campos que arman el texto del caption que va debajo de la imagen en el Bloque 1.</p>
+
+                                    <div class="space-y-4">
+                                        <div class="grid grid-cols-3 gap-3">
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-blue-700 uppercase tracking-widest">Audiencia</label>
+                                                <input type="text" id="prod-nicho-audiencia" placeholder="emprendedores..." class="w-full bg-blue-50 border border-blue-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-blue-500 text-xs">
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-blue-700 uppercase tracking-widest">Emoji</label>
+                                                <input type="text" id="prod-nicho-emoji" placeholder="🚀" maxlength="4" class="w-full bg-blue-50 border border-blue-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-blue-500 text-xs text-center">
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-blue-700 uppercase tracking-widest">Qué Incluye</label>
+                                                <input type="text" id="prod-que-incluye" placeholder="50 plantillas..." class="w-full bg-blue-50 border border-blue-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-blue-500 text-xs">
+                                            </div>
+                                        </div>
+                                        <p class="text-[10px] text-blue-600/70">El bot arma el caption así: [Emoji] [Nombre] + Precio + [Qué Incluye] + Bonos + Escasez + Pregunta gancho.</p>
+                                    </div>
+                                </div>
+
+                                <!-- ========== TARJETA 3: IMÁGENES ========== -->
                                 <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                                    <h3 class="font-black text-lg text-slate-800 mb-1">2. Imágenes</h3>
+                                    <h3 class="font-black text-lg text-slate-800 mb-1">3. Imágenes</h3>
                                     <p class="text-xs text-slate-500 font-medium mb-4 pb-3 border-b border-slate-100">Imágenes que el bot enviará en los Bloques 1 y 2.</p>
 
                                     <div class="space-y-5">
@@ -256,10 +265,10 @@
                                     </div>
                                 </div>
 
-                                <!-- ========== TARJETA 3: BONOS (LOW-COST) ========== -->
+                                <!-- ========== TARJETA 4: BONOS (LOW-COST) ========== -->
                                 <div class="bg-white rounded-2xl p-6 border border-amber-200 shadow-sm relative overflow-hidden">
                                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-amber-400"></div>
-                                    <h3 class="font-black text-lg text-amber-800 mb-1"><i class="fa-solid fa-gift text-amber-500 mr-1"></i> 3. Bonos (Low-Cost)</h3>
+                                    <h3 class="font-black text-lg text-amber-800 mb-1"><i class="fa-solid fa-gift text-amber-500 mr-1"></i> 4. Bonos (Low-Cost)</h3>
                                     <p class="text-xs text-amber-600/80 font-medium mb-4 pb-3 border-b border-amber-200/50">Ancla de valor: resumen en Bloque 1, detalle en Bloque 2.</p>
 
                                     <div class="space-y-4">
@@ -283,9 +292,9 @@
                                     </div>
                                 </div>
 
-                                <!-- ========== TARJETA 4: ENTREGA (PDF + LINKS) ========== -->
+                                <!-- ========== TARJETA 5: ENTREGA (PDF + LINKS) ========== -->
                                 <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                                    <h3 class="font-black text-lg text-slate-800 mb-1">4. Entrega al Cliente</h3>
+                                    <h3 class="font-black text-lg text-slate-800 mb-1">5. Entrega al Cliente</h3>
                                     <p class="text-xs text-slate-500 font-medium mb-4 pb-3 border-b border-slate-100">Qué recibe el cliente después de pagar (Yape/Plin).</p>
 
                                     <div class="space-y-4">
@@ -314,10 +323,14 @@
                                     </div>
                                 </div>
 
-                                <!-- ========== TARJETA 5: CEREBRO IA ========== -->
+                            </div>
+
+                            <div class="lg:col-span-7 space-y-6">
+
+                                <!-- ========== TARJETA 6: CEREBRO IA ========== -->
                                 <div class="bg-white rounded-2xl p-6 border border-violet-200 shadow-sm relative overflow-hidden">
                                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-violet-400"></div>
-                                    <h3 class="font-black text-lg text-violet-800 mb-1"><i class="fa-solid fa-robot text-violet-500 mr-1"></i> 5. Cerebro IA</h3>
+                                    <h3 class="font-black text-lg text-violet-800 mb-1"><i class="fa-solid fa-robot text-violet-500 mr-1"></i> 6. Cerebro IA</h3>
                                     <p class="text-xs text-violet-600/80 font-medium mb-4 pb-3 border-b border-violet-200/50">Texto que Gemini lee para saber cómo vender este producto.</p>
 
                                     <div class="space-y-1.5">
@@ -327,9 +340,9 @@
                                     </div>
                                 </div>
 
-                                <!-- ========== TARJETA 6: ENTREGABLES HUB (Premium) ========== -->
+                                <!-- ========== TARJETA 7: ENTREGABLES HUB (Premium) ========== -->
                                 <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                                    <h3 class="font-black text-lg text-slate-800 mb-1">6. Entregables en el Hub</h3>
+                                    <h3 class="font-black text-lg text-slate-800 mb-1">7. Entregables en el Hub</h3>
                                     <p class="text-xs text-slate-500 font-medium mb-4 pb-3 border-b border-slate-100">Selecciona qué se desbloqueará en el panel del cliente.</p>
 
                                     <div class="space-y-4">
@@ -347,66 +360,11 @@
                                     </div>
                                 </div>
 
-                            </div>
-
-                            <div class="lg:col-span-7">
-                                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                                    <h3 class="font-black text-lg text-slate-800 mb-1">3. Secuencia del Bot (WhatsApp)</h3>
-                                    <p class="text-xs text-slate-500 font-medium mb-6 pb-3 border-b border-slate-100">Esta es la secuencia exacta en la que el bot enviará los mensajes.</p>
-                                    
-                                    <div class="space-y-6">
-                                        <div class="space-y-1.5 relative">
-                                            <div class="absolute -left-3 top-2 w-1.5 h-1.5 rounded-full bg-violet-400"></div>
-                                            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1">1. Mensaje de Empatía (Inicio)</label>
-                                            <textarea id="prod-m1" rows="3" placeholder="¡Hola! Qué gusto saludarte..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-violet-500"></textarea>
-                                        </div>
-
-                                        <div class="grid grid-cols-2 gap-4 relative">
-                                            <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-6 rounded-full bg-sky-400"></div>
-                                            
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1 flex items-center gap-1.5">
-                                                    <i class="fa-solid fa-microphone text-sky-500"></i> URL de Audio
-                                                    <button type="button" onclick="openGuionModal()" class="ml-auto w-6 h-6 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center hover:bg-amber-200 transition-colors" title="Ver/editar guión del audio">
-                                                        <i class="fa-solid fa-robot text-xs"></i>
-                                                    </button>
-                                                </label>
-                                                <div class="flex gap-2 items-center">
-                                                    <input type="text" id="prod-audio" placeholder="https://firebasestorage..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-sky-500 text-xs">
-                                                    <input type="file" id="file-audio" accept="audio/*" class="hidden" onchange="uploadFileToStorage(this, 'prod-audio')">
-                                                    <button type="button" onclick="document.getElementById('file-audio').click()" class="w-10 h-10 shrink-0 bg-sky-50 text-sky-600 border border-sky-200 rounded-xl hover:bg-sky-100 transition-colors flex items-center justify-center shadow-sm" title="Subir a Storage">
-                                                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                                                    </button>
-                                                </div>
-                                                <div id="progress-prod-audio" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-sky-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
-                                            </div>
-
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1"><i class="fa-solid fa-video text-sky-500 mr-1"></i> URL de Video</label>
-                                                <div class="flex gap-2 items-center">
-                                                    <input type="text" id="prod-video" placeholder="https://firebasestorage..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-sky-500 text-xs">
-                                                    <input type="file" id="file-video" accept="video/*" class="hidden" onchange="uploadFileToStorage(this, 'prod-video')">
-                                                    <button type="button" onclick="document.getElementById('file-video').click()" class="w-10 h-10 shrink-0 bg-sky-50 text-sky-600 border border-sky-200 rounded-xl hover:bg-sky-100 transition-colors flex items-center justify-center shadow-sm" title="Subir a Storage">
-                                                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                                                    </button>
-                                                </div>
-                                                <div id="progress-prod-video" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-sky-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="space-y-1.5 relative">
-                                            <div class="absolute -left-3 top-2 w-1.5 h-1.5 rounded-full bg-violet-400"></div>
-                                            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1">Mensaje de Cierre (Beneficios)</label>
-                                            <textarea id="prod-cierre-ventas" rows="4" placeholder="✅ La ración exacta según su peso.&#10;✅ Transición segura sin diarreas.&#10;✅ Acceso de por vida desde tu celular." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-violet-500"></textarea>
-                                            <p class="text-[10px] text-slate-400 mt-1 pl-1">Este texto se enviará junto al precio y los botones de pago cuando el cliente diga "sí". Cada línea debe empezar con un emoji (ej. ✅).</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="bg-emerald-50/40 rounded-2xl p-6 border border-emerald-200 shadow-sm mt-6 relative overflow-hidden">
+                                <!-- ========== TARJETA 8: ORDER BUMP ========== -->
+                                <div class="bg-emerald-50/40 rounded-2xl p-6 border border-emerald-200 shadow-sm relative overflow-hidden">
                                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-400"></div>
-                                    <h3 class="font-black text-lg text-emerald-800 mb-1"><i class="fa-solid fa-bolt text-emerald-500 mr-1"></i> 4. Order Bump (Oferta Adicional)</h3>
-                                    <p class="text-xs text-emerald-600/80 font-medium mb-5 pb-3 border-b border-emerald-200/50">Esta oferta se enviará justo después de que el bot le entregue su PIN.</p>
+                                    <h3 class="font-black text-lg text-emerald-800 mb-1"><i class="fa-solid fa-bolt text-emerald-500 mr-1"></i> 8. Order Bump (Oferta Adicional)</h3>
+                                    <p class="text-xs text-emerald-600/80 font-medium mb-5 pb-3 border-b border-emerald-200/50">Oferta adicional que se envía después de que el bot entrega el producto al cliente.</p>
                                     
                                     <div class="space-y-5">
                                         <div class="space-y-1.5">
@@ -856,11 +814,6 @@
             document.getElementById('prod-limite-bonos').value = '50';
             document.getElementById('prod-pdf-entrega').value = '';
             
-            document.getElementById('prod-m1').value = '';
-            document.getElementById('prod-audio').value = '';
-            document.getElementById('prod-video').value = '';
-            document.getElementById('prod-cierre-ventas').value = '';
-            
             document.getElementById('prod-mbump').value = '';
             document.getElementById('prod-bump-img').value = '';
             document.getElementById('prod-bump-id').value = '';
@@ -892,11 +845,6 @@
                 document.getElementById('prod-bonos-detalle').value = editData.texto_bonos_detalle || '';
                 document.getElementById('prod-limite-bonos').value = editData.limite_bonos || 50;
                 document.getElementById('prod-pdf-entrega').value = editData.pdf_entrega || '';
-                
-                document.getElementById('prod-m1').value = editData.mensaje_1 || '';
-                document.getElementById('prod-audio').value = editData.url_audio || '';
-                document.getElementById('prod-video').value = editData.url_video || '';
-                document.getElementById('prod-cierre-ventas').value = editData.texto_cierre_ventas || '';
                 
                 window._guionAudioActual = editData.guion_audio || '';
                 
@@ -1005,10 +953,6 @@
                 apps_a_desbloquear: apps,
                 ebooks_a_desbloquear: ebooks,
                 
-                mensaje_1: document.getElementById('prod-m1').value,
-                url_audio: document.getElementById('prod-audio').value,
-                url_video: document.getElementById('prod-video').value,
-                texto_cierre_ventas: document.getElementById('prod-cierre-ventas').value, 
                 guion_audio: window._guionAudioActual || '',
                 
                 mensaje_oferta_bump: document.getElementById('prod-mbump').value,

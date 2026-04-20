@@ -101,6 +101,12 @@
                 <button onclick="switchTab('campanas')" id="nav-campanas" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors">
                     <i class="fa-solid fa-bullhorn w-5"></i> Campañas Ads
                 </button>
+                <button onclick="switchTab('cerebro')" id="nav-cerebro" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors border border-violet-500/30">
+                    <i class="fa-solid fa-brain w-5 text-violet-400"></i> Cerebro IA
+                </button>
+                <button onclick="switchTab('copyia')" id="nav-copyia" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors border border-amber-500/30">
+                    <i class="fa-solid fa-robot w-5 text-amber-400"></i> Copy IA
+                </button>
             </nav>
 
             <div class="p-4 border-t border-slate-800">
@@ -156,6 +162,7 @@
                             
                             <div class="lg:col-span-5 space-y-6">
                                 
+                                <!-- ========== TARJETA 1: IDENTIDAD BÁSICA ========== -->
                                 <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                                     <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
                                         <h3 class="font-black text-lg text-slate-800">1. Identidad</h3>
@@ -190,38 +197,151 @@
                                             <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Precio Oferta (S/ o USD)</label>
                                             <input type="number" id="prod-precio" placeholder="25" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm">
                                         </div>
+
+                                        <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100">
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-violet-600 uppercase tracking-widest">Audiencia</label>
+                                                <input type="text" id="prod-nicho-audiencia" placeholder="emprendedores, creativos..." class="w-full bg-violet-50 border border-violet-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-xs">
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-violet-600 uppercase tracking-widest">Emoji</label>
+                                                <input type="text" id="prod-nicho-emoji" placeholder="🚀" maxlength="4" class="w-full bg-violet-50 border border-violet-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-xs text-center">
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="text-[11px] font-bold text-violet-600 uppercase tracking-widest">Qué Incluye</label>
+                                                <input type="text" id="prod-que-incluye" placeholder="50 plantillas editables..." class="w-full bg-violet-50 border border-violet-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-xs">
+                                            </div>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-1">Audiencia: para quién es. Emoji: tono del bot. Qué Incluye: se muestra junto al precio.</p>
                                     </div>
                                 </div>
 
+                                <!-- ========== TARJETA 2: IMÁGENES ========== -->
                                 <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                                    <h3 class="font-black text-lg text-slate-800 mb-1">2. Entregables en el Hub</h3>
+                                    <h3 class="font-black text-lg text-slate-800 mb-1">2. Imágenes</h3>
+                                    <p class="text-xs text-slate-500 font-medium mb-4 pb-3 border-b border-slate-100">Imágenes que el bot enviará en los Bloques 1 y 2.</p>
+
+                                    <div class="space-y-5">
+                                        <!-- Imagen del Producto -->
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1">
+                                                <i class="fa-solid fa-image"></i> Imagen del Producto (Bloque 1)
+                                            </label>
+                                            <div class="flex gap-2 items-center">
+                                                <input type="text" id="prod-imagen" placeholder="https://firebasestorage..." class="flex-1 bg-blue-50 border border-blue-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-blue-500 text-xs">
+                                                <input type="file" id="file-imagen" accept="image/*" class="hidden" onchange="uploadFileToStorage(this, 'prod-imagen')">
+                                                <button type="button" onclick="document.getElementById('file-imagen').click()" class="w-10 h-10 shrink-0 bg-blue-50 text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-100 transition-colors flex items-center justify-center shadow-sm" title="Subir Imagen">
+                                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                                </button>
+                                            </div>
+                                            <div id="progress-prod-imagen" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-blue-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
+                                            <p class="text-[10px] text-slate-400">Se envía con caption en el Bloque 1. Si tiene imagen → modo low-cost activado.</p>
+                                        </div>
+
+                                        <!-- Imagen de Bonos -->
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-amber-600 uppercase tracking-widest flex items-center gap-1">
+                                                <i class="fa-solid fa-gift"></i> Imagen de Bonos (Bloque 2)
+                                            </label>
+                                            <div class="flex gap-2 items-center">
+                                                <input type="text" id="prod-imagen-bonos" placeholder="https://firebasestorage..." class="flex-1 bg-amber-50 border border-amber-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-amber-500 text-xs">
+                                                <input type="file" id="file-imagen-bonos" accept="image/*" class="hidden" onchange="uploadFileToStorage(this, 'prod-imagen-bonos')">
+                                                <button type="button" onclick="document.getElementById('file-imagen-bonos').click()" class="w-10 h-10 shrink-0 bg-amber-50 text-amber-600 border border-amber-200 rounded-xl hover:bg-amber-100 transition-colors flex items-center justify-center shadow-sm" title="Subir Imagen de Bonos">
+                                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                                </button>
+                                            </div>
+                                            <div id="progress-prod-imagen-bonos" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-amber-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
+                                            <p class="text-[10px] text-slate-400">Se envía SOLA (sin caption) en el Bloque 2. Collage visual de los bonos.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ========== TARJETA 3: BONOS (LOW-COST) ========== -->
+                                <div class="bg-white rounded-2xl p-6 border border-amber-200 shadow-sm relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-amber-400"></div>
+                                    <h3 class="font-black text-lg text-amber-800 mb-1"><i class="fa-solid fa-gift text-amber-500 mr-1"></i> 3. Bonos (Low-Cost)</h3>
+                                    <p class="text-xs text-amber-600/80 font-medium mb-4 pb-3 border-b border-amber-200/50">Ancla de valor: resumen en Bloque 1, detalle en Bloque 2.</p>
+
+                                    <div class="space-y-4">
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-amber-700 uppercase tracking-widest">Resumen corto (para Bloque 1)</label>
+                                            <textarea id="prod-bonos-corto" rows="3" placeholder="• Guía de precios y costos para tu negocio&#10;• Plantillas de atención al cliente&#10;• Acceso a comunidad de emprendedoras&#10;• 5 patrones exclusivos de temporada&#10;• Checklist para emprendedores" class="w-full bg-white border border-amber-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-amber-500 text-sm"></textarea>
+                                            <p class="text-[10px] text-amber-600/70">Máximo 5 líneas con bullet points. Va en el caption de la imagen.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-amber-700 uppercase tracking-widest">Detalle completo (para Bloque 2)</label>
+                                            <textarea id="prod-bonos-detalle" rows="5" placeholder="1️⃣ *Guía de precios y costos* — Sabe cuánto cobrar por cada creación&#10;2️⃣ *Plantillas de atención al cliente* — Mensajes listos para copiar y pegar&#10;3️⃣ *Comunidad VIP de emprendedoras* — Soporte directo y networking&#10;4️⃣ *5 patrones exclusivos de temporada* — No están en el pack principal&#10;5️⃣ *Checklist para emprendedores* — Paso a paso para armar tu negocio" class="w-full bg-white border border-amber-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-amber-500 text-sm"></textarea>
+                                            <p class="text-[10px] text-amber-600/70">Detalle de cada bono con numeración. Se envía como mensaje de texto.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-amber-700 uppercase tracking-widest">Límite de bonos por mes</label>
+                                            <input type="number" id="prod-limite-bonos" placeholder="50" value="50" class="w-full bg-white border border-amber-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-amber-500 text-sm">
+                                            <p class="text-[10px] text-amber-600/70">Escasez REAL. El bot dirá: "solo para las primeras X compras del mes".</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ========== TARJETA 4: ENTREGA (PDF + LINKS) ========== -->
+                                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                                    <h3 class="font-black text-lg text-slate-800 mb-1">4. Entrega al Cliente</h3>
+                                    <p class="text-xs text-slate-500 font-medium mb-4 pb-3 border-b border-slate-100">Qué recibe el cliente después de pagar (Yape/Plin).</p>
+
+                                    <div class="space-y-4">
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-rose-600 uppercase tracking-widest flex items-center gap-1">
+                                                <i class="fa-solid fa-file-pdf"></i> PDF de Entrega
+                                            </label>
+                                            <div class="flex gap-2 items-center">
+                                                <input type="text" id="prod-pdf-entrega" placeholder="https://firebasestorage.../pack_amigurumi.pdf" class="flex-1 bg-rose-50 border border-rose-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-rose-500 text-xs">
+                                                <input type="file" id="file-pdf-entrega" accept=".pdf" class="hidden" onchange="uploadFileToStorage(this, 'prod-pdf-entrega')">
+                                                <button type="button" onclick="document.getElementById('file-pdf-entrega').click()" class="w-10 h-10 shrink-0 bg-rose-50 text-rose-600 border border-rose-200 rounded-xl hover:bg-rose-100 transition-colors flex items-center justify-center shadow-sm" title="Subir PDF">
+                                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                                </button>
+                                            </div>
+                                            <div id="progress-prod-pdf-entrega" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-rose-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
+                                            <p class="text-[10px] text-slate-400">PDF que se enviará al cliente cuando el bot valide su comprobante de Yape/Plin.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-1">
+                                                <i class="fa-solid fa-link"></i> Link de Hotmart (Checkout)
+                                            </label>
+                                            <input type="url" id="prod-link-hotmart" placeholder="https://pay.hotmart.com/..." class="w-full bg-emerald-50 border border-emerald-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-emerald-500 text-sm">
+                                            <p class="text-[10px] text-slate-400">Para ventas internacionales. El bot lo envía si el cliente quiere tarjeta.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ========== TARJETA 5: CEREBRO IA ========== -->
+                                <div class="bg-white rounded-2xl p-6 border border-violet-200 shadow-sm relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-violet-400"></div>
+                                    <h3 class="font-black text-lg text-violet-800 mb-1"><i class="fa-solid fa-robot text-violet-500 mr-1"></i> 5. Cerebro IA</h3>
+                                    <p class="text-xs text-violet-600/80 font-medium mb-4 pb-3 border-b border-violet-200/50">Texto que Gemini lee para saber cómo vender este producto.</p>
+
+                                    <div class="space-y-1.5">
+                                        <label class="text-[11px] font-bold text-violet-700 uppercase tracking-widest">Resumen para la IA</label>
+                                        <textarea id="prod-desc-ia" rows="4" placeholder="Ej: NutriCan Vital es una app que calcula dieta natural para perros. Resuelve problemas de alergias, sobrepeso y transición a comida casera. Incluye +200 recetas y planes personalizados..." class="w-full bg-white border border-violet-200 rounded-xl py-3 px-4 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm"></textarea>
+                                        <p class="text-[10px] text-violet-600/70">Describe qué es el producto, qué problemas resuelve y quién lo necesita. Gemini usará esto para responder dudas y cerrar ventas.</p>
+                                    </div>
+                                </div>
+
+                                <!-- ========== TARJETA 6: ENTREGABLES HUB (Premium) ========== -->
+                                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                                    <h3 class="font-black text-lg text-slate-800 mb-1">6. Entregables en el Hub</h3>
                                     <p class="text-xs text-slate-500 font-medium mb-4 pb-3 border-b border-slate-100">Selecciona qué se desbloqueará en el panel del cliente.</p>
 
                                     <div class="space-y-4">
                                         <div class="bg-violet-50/50 border border-violet-100 p-4 rounded-xl">
                                             <h4 class="font-bold text-violet-800 mb-3 text-xs uppercase tracking-wider"><i class="fa-solid fa-mobile-screen"></i> Apps</h4>
-                                            <div class="grid grid-cols-2 gap-2">
-                                                <label class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
-                                                    <input type="checkbox" value="edudog" class="app-chk w-4 h-4 accent-violet-600"> <span class="font-bold text-xs">EduDog Pro</span>
-                                                </label>
-                                                <label class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
-                                                    <input type="checkbox" value="nutrican" class="app-chk w-4 h-4 accent-violet-600"> <span class="font-bold text-xs">NutriCan AI</span>
-                                                </label>
-                                                <label class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
-                                                    <input type="checkbox" value="dogzen" class="app-chk w-4 h-4 accent-violet-600"> <span class="font-bold text-xs">DogZen</span>
-                                                </label>
+                                            <div id="apps-container" class="grid grid-cols-1 gap-2">
                                             </div>
                                         </div>
 
                                         <div class="bg-rose-50/50 border border-rose-100 p-4 rounded-xl">
-                                            <h4 class="font-bold text-rose-800 mb-3 text-xs uppercase tracking-wider"><i class="fa-solid fa-book-open"></i> eBooks</h4>
-                                            <div class="grid grid-cols-2 gap-2">
-                                                <label class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
-                                                    <input type="checkbox" value="ebook_lenguaje" class="ebook-chk w-4 h-4 accent-rose-600"> <span class="font-bold text-xs">Lenguaje Secreto</span>
-                                                </label>
-                                                <label class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
-                                                    <input type="checkbox" value="ebook_recetas" class="ebook-chk w-4 h-4 accent-rose-600"> <span class="font-bold text-xs">50 Recetas</span>
-                                                </label>
+                                            <h4 class="font-bold text-rose-800 mb-3 text-xs uppercase tracking-wider"><i class="fa-solid fa-book-open"></i> eBooks Interactivos</h4>
+                                            <div id="ebooks-container" class="grid grid-cols-1 gap-2">
                                             </div>
                                         </div>
                                     </div>
@@ -245,7 +365,12 @@
                                             <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-6 rounded-full bg-sky-400"></div>
                                             
                                             <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1"><i class="fa-solid fa-microphone text-sky-500 mr-1"></i> URL de Audio</label>
+                                                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1 flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-microphone text-sky-500"></i> URL de Audio
+                                                    <button type="button" onclick="openGuionModal()" class="ml-auto w-6 h-6 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center hover:bg-amber-200 transition-colors" title="Ver/editar guión del audio">
+                                                        <i class="fa-solid fa-robot text-xs"></i>
+                                                    </button>
+                                                </label>
                                                 <div class="flex gap-2 items-center">
                                                     <input type="text" id="prod-audio" placeholder="https://firebasestorage..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-sky-500 text-xs">
                                                     <input type="file" id="file-audio" accept="audio/*" class="hidden" onchange="uploadFileToStorage(this, 'prod-audio')">
@@ -271,14 +396,9 @@
 
                                         <div class="space-y-1.5 relative">
                                             <div class="absolute -left-3 top-2 w-1.5 h-1.5 rounded-full bg-violet-400"></div>
-                                            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1">3. Mensaje Stack de Valor (Lo que incluye)</label>
-                                            <textarea id="prod-m3" rows="3" placeholder="Con esta herramienta vas a lograr..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-violet-500"></textarea>
-                                        </div>
-
-                                        <div class="space-y-1.5 relative">
-                                            <div class="absolute -left-3 top-2 w-1.5 h-1.5 rounded-full bg-violet-400"></div>
-                                            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1">4. Mensaje Oferta (Cierre)</label>
-                                            <textarea id="prod-m4" rows="3" placeholder="Hoy lo tienes por solo S/25. ¿Qué método de pago prefieres?" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-violet-500"></textarea>
+                                            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1">Mensaje de Cierre (Beneficios)</label>
+                                            <textarea id="prod-cierre-ventas" rows="4" placeholder="✅ La ración exacta según su peso.&#10;✅ Transición segura sin diarreas.&#10;✅ Acceso de por vida desde tu celular." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-violet-500"></textarea>
+                                            <p class="text-[10px] text-slate-400 mt-1 pl-1">Este texto se enviará junto al precio y los botones de pago cuando el cliente diga "sí". Cada línea debe empezar con un emoji (ej. ✅).</p>
                                         </div>
                                     </div>
                                 </div>
@@ -310,21 +430,20 @@
                                             <div class="space-y-1.5">
                                                 <label class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">ID a Desbloquear</label>
                                                 <select id="prod-bump-id" class="w-full bg-white border border-emerald-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-emerald-500 text-xs appearance-none cursor-pointer">
-                                                    <option value="">Selecciona qué vender...</option>
-                                                    <optgroup label="📖 eBooks (Recomendado para Bumps)">
-                                                        <option value="ebook_recetas">50 Recetas Caninas</option>
-                                                        <option value="ebook_lenguaje">El Lenguaje Secreto</option>
-                                                    </optgroup>
-                                                    <optgroup label="📱 Apps Adicionales">
-                                                        <option value="nutrican">NutriCan AI</option>
-                                                        <option value="dogzen">DogZen</option>
-                                                    </optgroup>
                                                 </select>
                                             </div>
                                             <div class="space-y-1.5">
                                                 <label class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Precio a Validar (S/)</label>
                                                 <input type="number" id="prod-bump-precio" placeholder="10" class="w-full bg-white border border-emerald-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-emerald-500 text-xs">
                                             </div>
+                                        </div>
+
+                                        <div class="space-y-1.5 pt-2 border-t border-emerald-100 mt-2">
+                                            <label class="text-[11px] font-bold text-emerald-700 uppercase tracking-widest flex items-center gap-1.5">
+                                                <i class="fa-solid fa-robot text-emerald-500"></i> Resumen para la IA (Order Bump)
+                                            </label>
+                                            <textarea id="prod-bump-desc-ia" rows="4" placeholder="Ej: El cliente ya compró NutriCan Vital. Ahora se le ofrece el recetario BARF con 50 recetas listas..." class="w-full bg-white border border-emerald-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-emerald-500 text-sm leading-relaxed"></textarea>
+                                            <p class="text-[10px] text-emerald-600/70">Gemini leerá esto para defender el bono cuando el cliente haga preguntas.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -408,10 +527,156 @@
                     </div>
                 </div>
             </div>
+
+            <div id="tab-cerebro" class="tab-content hidden w-full h-full flex flex-col fade-in relative">
+                <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Cerebro de la IA</h1>
+                        <p class="text-sm text-slate-500 font-medium">Define la personalidad y reglas globales de tu asistente Gemini.</p>
+                    </div>
+                    <button onclick="saveCerebro()" id="btn-save-cerebro" class="bg-violet-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-violet-700 shadow-md shadow-violet-600/20 transition-all flex gap-2 items-center">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Prompt
+                    </button>
+                </header>
+                <div class="flex-1 p-8 overflow-y-auto flex justify-center items-start">
+                    <div class="bg-white w-full max-w-4xl rounded-2xl border border-slate-200 shadow-sm p-8 space-y-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 bg-violet-100 text-violet-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800">Prompt Maestro (System Prompt)</h3>
+                                <p class="text-xs text-slate-500 font-medium">Instrucciones base para responder preguntas abierta por WhatsApp. Aplica a toda tu marca.</p>
+                            </div>
+                        </div>
+                        <textarea id="cerebro-prompt" rows="18" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-violet-500 leading-relaxed" placeholder="Eres un asesor experto de ventas de cursos caninos. Responde de forma amable, corta y con emojis..."></textarea>
+                        
+                        <div class="bg-blue-50/50 border border-blue-100 rounded-xl p-4 mt-4">
+                            <h4 class="font-bold text-blue-800 text-xs mb-1 uppercase tracking-widest"><i class="fa-solid fa-circle-info"></i> Recuerda</h4>
+                            <p class="text-xs text-slate-600">Este texto es el "Manual de Empleado" de Gemini. Las características específicas de cada producto (como precios y detalles de la app) se las pasaremos desde la pestaña de "Productos", no necesitas escribirlas aquí.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-copyia" class="tab-content hidden w-full h-full flex flex-col fade-in relative">
+                <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Copy IA</h1>
+                        <p class="text-sm text-slate-500 font-medium">Tu prompt para generar mensajes del funnel con Claude.</p>
+                    </div>
+                    <button onclick="saveCopyIA()" id="btn-save-copyia" class="bg-amber-500 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all flex gap-2 items-center">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Prompt
+                    </button>
+                </header>
+                <div class="flex-1 p-8 overflow-y-auto flex justify-center items-start">
+                    <div class="bg-white w-full max-w-4xl rounded-2xl border border-slate-200 shadow-sm p-8 space-y-5">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800">Prompt Generador de Copy</h3>
+                                <p class="text-xs text-slate-500 font-medium">Copia este prompt, pégalo en Claude junto con el HTML de tu app y obtén los 4 mensajes listos.</p>
+                            </div>
+                        </div>
+
+                        <textarea id="copyia-prompt" rows="20" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-amber-400 leading-relaxed" placeholder="Pega aquí tu prompt de instrucción para generar mensajes del funnel..."></textarea>
+
+                        <div class="flex gap-3">
+                            <button onclick="copiarPromptCopyIA()" class="flex items-center gap-2 bg-amber-50 text-amber-700 border border-amber-200 font-bold px-5 py-2.5 rounded-xl hover:bg-amber-100 transition-colors text-sm">
+                                <i class="fa-solid fa-copy"></i> Copiar Prompt
+                            </button>
+                        </div>
+
+                        <div class="bg-amber-50/50 border border-amber-100 rounded-xl p-4">
+                            <h4 class="font-bold text-amber-800 text-xs mb-1 uppercase tracking-widest"><i class="fa-solid fa-circle-info"></i> Cómo usarlo</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">1. Presiona <strong>Copiar Prompt</strong> · 2. Abre un chat nuevo con Claude · 3. Pega el prompt · 4. Al final agrega el HTML de tu app · 5. Claude te genera Mensaje 1, Guión Audio, Mensaje 3 y Mensaje 4 listos para copiar a Firestore.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
+    <div id="modal-guion" class="hidden fixed inset-0 z-[200] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden" style="max-height: 85vh;">
+            <div class="flex items-center justify-between px-7 py-5 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-slate-900 text-base">Guión del Audio</h3>
+                        <p class="text-[11px] text-slate-400 font-medium">Solo para tu referencia. El bot no lo usa.</p>
+                    </div>
+                </div>
+                <button onclick="closeGuionModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-7">
+                <textarea id="modal-guion-text" rows="14" placeholder="Hola, soy Valeria de NutriCan Vital...&#10;&#10;Pega aquí el guión completo del audio para este producto." class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-amber-400 leading-relaxed resize-none"></textarea>
+            </div>
+            <div class="px-7 py-5 border-t border-slate-100 flex gap-3">
+                <button onclick="closeGuionModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors text-sm">Cancelar</button>
+                <button onclick="saveGuion()" id="btn-save-guion" class="flex-1 bg-amber-500 text-white font-bold py-3 rounded-xl hover:bg-amber-600 transition-colors text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar Guión
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // ==========================================
+        // 0. CATÁLOGO CENTRAL DE PRODUCTOS (¡Edita solo esto!)
+        // ==========================================
+        const catalogApps = [
+            { id: "nutrican", name: "NutriCan Vital" },
+            { id: "mentecan", name: "Mentecan Vital" }
+        ];
+
+        const catalogEbooks = [
+            { id: "nutrichef", name: "NutriChef Vital" }
+        ];
+
+        // Función para renderizar dinámicamente el Paso 2 y el Paso 4
+        function renderDynamicCatalogs() {
+            // Generar Checkboxes para Apps
+            const appsContainer = document.getElementById('apps-container');
+            appsContainer.innerHTML = catalogApps.map(app => `
+                <label class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+                    <input type="checkbox" value="${app.id}" class="app-chk w-4 h-4 accent-violet-600"> <span class="font-bold text-xs">${app.name}</span>
+                </label>
+            `).join('');
+
+            // Generar Checkboxes para eBooks
+            const ebooksContainer = document.getElementById('ebooks-container');
+            ebooksContainer.innerHTML = catalogEbooks.map(ebook => `
+                <label class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+                    <input type="checkbox" value="${ebook.id}" class="ebook-chk w-4 h-4 accent-rose-600"> <span class="font-bold text-xs">${ebook.name}</span>
+                </label>
+            `).join('');
+
+            // Generar Options para el Order Bump (Paso 4)
+            const bumpSelect = document.getElementById('prod-bump-id');
+            let bumpHTML = `<option value="">Selecciona qué vender...</option>`;
+            
+            bumpHTML += `<optgroup label="📖 eBooks Interactivos">`;
+            catalogEbooks.forEach(e => bumpHTML += `<option value="${e.id}">${e.name}</option>`);
+            bumpHTML += `</optgroup>`;
+
+            bumpHTML += `<optgroup label="📱 Apps Adicionales">`;
+            catalogApps.forEach(a => bumpHTML += `<option value="${a.id}">${a.name}</option>`);
+            bumpHTML += `</optgroup>`;
+
+            bumpSelect.innerHTML = bumpHTML;
+        }
+
+        // Ejecutar apenas cargue la página
+        document.addEventListener('DOMContentLoaded', renderDynamicCatalogs);
+
         // ==========================================
         // 1. FIREBASE CONFIG 
         // ==========================================
@@ -424,7 +689,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-        const storage = firebase.storage(); // Inicializar Storage
+        const storage = firebase.storage();
 
         let allProducts = [];
 
@@ -439,6 +704,8 @@
                 document.getElementById('status-db').classList.add('text-emerald-400');
                 loadProducts();
                 loadCampaigns();
+                loadCerebro();
+                loadCopyIA();
             } else {
                 document.getElementById('screen-login').classList.remove('hidden');
                 document.getElementById('screen-dashboard').classList.add('hidden');
@@ -479,31 +746,43 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             
             document.querySelectorAll('.nav-btn').forEach(el => {
-                el.classList.remove('bg-violet-600/20', 'text-violet-400');
+                el.classList.remove('bg-violet-600/20', 'text-violet-400', 'border-violet-500/30', 'bg-amber-500/20', 'text-amber-400', 'border-amber-500/30');
                 el.classList.add('text-slate-400');
+                
+                const icon = el.querySelector('i');
+                icon.classList.remove('text-violet-400', 'text-amber-400');
             });
             
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            
             const btn = document.getElementById(`nav-${tabId}`);
             btn.classList.remove('text-slate-400');
-            btn.classList.add('bg-violet-600/20', 'text-violet-400');
+
+            if(tabId === 'copyia') {
+                btn.classList.add('bg-amber-500/20', 'text-amber-400', 'border', 'border-amber-500/30');
+                btn.querySelector('i').classList.add('text-amber-400');
+            } else {
+                btn.classList.add('bg-violet-600/20', 'text-violet-400');
+                if(tabId === 'cerebro') btn.classList.add('border', 'border-violet-500/30');
+                btn.querySelector('i').classList.add('text-violet-400');
+            }
 
             if(tabId === 'productos') closeProductEditor();
             if(tabId === 'campanas') closeCampaignEditor();
+            if(tabId === 'copyia') loadCopyIA();
         }
 
         // ==========================================
-        // 4. LÓGICA DE SUBIDA A STORAGE (NUEVO)
+        // 4. LÓGICA DE SUBIDA A STORAGE
         // ==========================================
         async function uploadFileToStorage(input, targetInputId) {
             const file = input.files[0];
             if (!file) return;
 
-            // Asegurar que el usuario ya le puso un ID al producto para organizar las carpetas
             const docId = document.getElementById('prod-id-edit').value || document.getElementById('prod-id').value.trim();
             if (!docId) {
                 showToast('Error: Primero escribe un ID para el paquete en el Paso 1', 'error');
-                input.value = ''; // Limpiar el input file
+                input.value = ''; 
                 return;
             }
 
@@ -512,7 +791,6 @@
             const progressBarContainer = document.getElementById(`progress-${targetInputId}`);
             const progressBar = progressBarContainer.querySelector('div');
 
-            // Preparar UI
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
             btn.disabled = true;
             progressBarContainer.classList.remove('hidden');
@@ -552,7 +830,7 @@
             btn.innerHTML = originalHTML;
             btn.disabled = false;
             setTimeout(() => { progressBarContainer.classList.add('hidden'); }, 2000);
-            input.value = ''; // Permite volver a subir el mismo archivo si es necesario
+            input.value = '';
         }
 
         // ==========================================
@@ -566,18 +844,30 @@
             document.getElementById('prod-nombre').value = '';
             document.getElementById('prod-precio').value = '';
             document.getElementById('prod-activo').checked = false;
+            document.getElementById('prod-desc-ia').value = '';
+            document.getElementById('prod-link-hotmart').value = '';
+            document.getElementById('prod-imagen').value = '';
+            document.getElementById('prod-nicho-audiencia').value = '';
+            document.getElementById('prod-nicho-emoji').value = '';
+            document.getElementById('prod-que-incluye').value = '';
+            document.getElementById('prod-bonos-corto').value = '';
+            document.getElementById('prod-imagen-bonos').value = '';
+            document.getElementById('prod-bonos-detalle').value = '';
+            document.getElementById('prod-limite-bonos').value = '50';
+            document.getElementById('prod-pdf-entrega').value = '';
             
             document.getElementById('prod-m1').value = '';
             document.getElementById('prod-audio').value = '';
             document.getElementById('prod-video').value = '';
-            document.getElementById('prod-m3').value = '';
-            document.getElementById('prod-m4').value = '';
+            document.getElementById('prod-cierre-ventas').value = '';
             
             document.getElementById('prod-mbump').value = '';
             document.getElementById('prod-bump-img').value = '';
             document.getElementById('prod-bump-id').value = '';
             document.getElementById('prod-bump-precio').value = '';
+            document.getElementById('prod-bump-desc-ia').value = '';
             
+            window._guionAudioActual = '';
             document.querySelectorAll('.app-chk, .ebook-chk').forEach(c => c.checked = false);
             document.getElementById('editor-prod-title').innerText = "Crear Nuevo Paquete";
 
@@ -591,17 +881,30 @@
                 document.getElementById('prod-nombre').value = editData.nombre_producto || '';
                 document.getElementById('prod-precio').value = editData.precio_oferta || 0;
                 document.getElementById('prod-activo').checked = editData.activo || false;
+                document.getElementById('prod-desc-ia').value = editData.descripcion_para_ia || '';
+                document.getElementById('prod-link-hotmart').value = editData.link_hotmart || '';
+                document.getElementById('prod-imagen').value = editData.imagen_producto || '';
+                document.getElementById('prod-nicho-audiencia').value = editData.nicho_audiencia || '';
+                document.getElementById('prod-nicho-emoji').value = editData.nicho_emoji || '';
+                document.getElementById('prod-que-incluye').value = editData.que_incluye || '';
+                document.getElementById('prod-bonos-corto').value = editData.texto_bonos_corto || '';
+                document.getElementById('prod-imagen-bonos').value = editData.imagen_bonos || '';
+                document.getElementById('prod-bonos-detalle').value = editData.texto_bonos_detalle || '';
+                document.getElementById('prod-limite-bonos').value = editData.limite_bonos || 50;
+                document.getElementById('prod-pdf-entrega').value = editData.pdf_entrega || '';
                 
                 document.getElementById('prod-m1').value = editData.mensaje_1 || '';
                 document.getElementById('prod-audio').value = editData.url_audio || '';
                 document.getElementById('prod-video').value = editData.url_video || '';
-                document.getElementById('prod-m3').value = editData.mensaje_3 || '';
-                document.getElementById('prod-m4').value = editData.mensaje_4 || '';
+                document.getElementById('prod-cierre-ventas').value = editData.texto_cierre_ventas || '';
+                
+                window._guionAudioActual = editData.guion_audio || '';
                 
                 document.getElementById('prod-mbump').value = editData.mensaje_oferta_bump || '';
                 document.getElementById('prod-bump-img').value = editData.url_imagen_bump || '';
                 document.getElementById('prod-bump-id').value = editData.id_oferta_bump || '';
                 document.getElementById('prod-bump-precio').value = editData.precio_oferta_bump || '';
+                document.getElementById('prod-bump-desc-ia').value = editData.descripcion_bump_ia || '';
                 
                 (editData.apps_a_desbloquear || []).forEach(val => {
                     const chk = document.querySelector(`.app-chk[value="${val}"]`);
@@ -688,22 +991,37 @@
                 nombre_producto: document.getElementById('prod-nombre').value,
                 precio_oferta: Number(document.getElementById('prod-precio').value),
                 activo: document.getElementById('prod-activo').checked,
+                descripcion_para_ia: document.getElementById('prod-desc-ia').value.trim(),
+                link_hotmart: document.getElementById('prod-link-hotmart').value.trim(),
+                imagen_producto: document.getElementById('prod-imagen').value.trim(),
+                nicho_audiencia: document.getElementById('prod-nicho-audiencia').value.trim(),
+                nicho_emoji: document.getElementById('prod-nicho-emoji').value.trim(),
+                que_incluye: document.getElementById('prod-que-incluye').value.trim(),
+                texto_bonos_corto: document.getElementById('prod-bonos-corto').value.trim(),
+                imagen_bonos: document.getElementById('prod-imagen-bonos').value.trim(),
+                texto_bonos_detalle: document.getElementById('prod-bonos-detalle').value.trim(),
+                limite_bonos: Number(document.getElementById('prod-limite-bonos').value) || 50,
+                pdf_entrega: document.getElementById('prod-pdf-entrega').value.trim(),
                 apps_a_desbloquear: apps,
                 ebooks_a_desbloquear: ebooks,
                 
                 mensaje_1: document.getElementById('prod-m1').value,
                 url_audio: document.getElementById('prod-audio').value,
                 url_video: document.getElementById('prod-video').value,
-                mensaje_3: document.getElementById('prod-m3').value,
-                mensaje_4: document.getElementById('prod-m4').value,
+                texto_cierre_ventas: document.getElementById('prod-cierre-ventas').value, 
+                guion_audio: window._guionAudioActual || '',
                 
                 mensaje_oferta_bump: document.getElementById('prod-mbump').value,
                 url_imagen_bump: document.getElementById('prod-bump-img').value,
                 id_oferta_bump: document.getElementById('prod-bump-id').value,
                 precio_oferta_bump: Number(document.getElementById('prod-bump-precio').value),
+                descripcion_bump_ia: document.getElementById('prod-bump-desc-ia').value.trim(),
                 
                 fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
             };
+
+            payload.mensaje_3 = firebase.firestore.FieldValue.delete();
+            payload.mensaje_4 = firebase.firestore.FieldValue.delete();
 
             if(!idEdit) payload.fecha_creacion = firebase.firestore.FieldValue.serverTimestamp();
 
@@ -834,6 +1152,137 @@
                 closeCampaignEditor();
                 loadCampaigns();
             } catch(e) { showToast("Error guardando campaña", "error"); }
+        }
+
+        // ==========================================
+        // 7. CEREBRO IA
+        // ==========================================
+        async function loadCerebro() {
+            try {
+                const doc = await db.collection('config').doc('bot').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('cerebro-prompt').value = data.prompt_maestro || '';
+                }
+            } catch(e) { 
+                console.error('Error cargando Cerebro IA:', e); 
+            }
+        }
+
+        async function saveCerebro() {
+            const prompt = document.getElementById('cerebro-prompt').value.trim();
+            const btn = document.getElementById('btn-save-cerebro');
+            
+            if(!prompt) return showToast('El prompt no puede estar vacío', 'error');
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
+            btn.disabled = true;
+
+            try {
+                await db.collection('config').doc('bot').set({
+                    prompt_maestro: prompt,
+                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                showToast("Prompt guardado con éxito");
+            } catch(e) { 
+                showToast("Error guardando el Cerebro IA", "error"); 
+            } finally {
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Prompt`;
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // 8. COPY IA
+        // ==========================================
+        async function loadCopyIA() {
+            try {
+                const doc = await db.collection('config').doc('copy_ia').get();
+                if (doc.exists) {
+                    document.getElementById('copyia-prompt').value = doc.data().prompt || '';
+                }
+            } catch(e) {
+                console.error('Error cargando Copy IA:', e);
+            }
+        }
+
+        async function saveCopyIA() {
+            const prompt = document.getElementById('copyia-prompt').value.trim();
+            const btn = document.getElementById('btn-save-copyia');
+            if(!prompt) return showToast('El prompt no puede estar vacío', 'error');
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
+            btn.disabled = true;
+
+            try {
+                await db.collection('config').doc('copy_ia').set({
+                    prompt: prompt,
+                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                showToast("Prompt Copy IA guardado");
+            } catch(e) {
+                showToast("Error guardando", "error");
+            } finally {
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Prompt`;
+                btn.disabled = false;
+            }
+        }
+
+        function copiarPromptCopyIA() {
+            const texto = document.getElementById('copyia-prompt').value.trim();
+            if(!texto) return showToast('El prompt está vacío', 'error');
+            navigator.clipboard.writeText(texto).then(() => {
+                showToast("Prompt copiado al portapapeles ✅");
+            }).catch(() => {
+                showToast("Error al copiar", "error");
+            });
+        }
+
+        // ==========================================
+        // 9. MODAL GUIÓN DE AUDIO
+        // ==========================================
+        window._guionAudioActual = '';
+
+        function openGuionModal() {
+            document.getElementById('modal-guion-text').value = window._guionAudioActual || '';
+            document.getElementById('modal-guion').classList.remove('hidden');
+            document.getElementById('modal-guion').classList.add('flex');
+        }
+
+        function closeGuionModal() {
+            document.getElementById('modal-guion').classList.add('hidden');
+            document.getElementById('modal-guion').classList.remove('flex');
+        }
+
+        async function saveGuion() {
+            const texto = document.getElementById('modal-guion-text').value.trim();
+            const docId = document.getElementById('prod-id-edit').value || document.getElementById('prod-id').value.trim();
+            const btn = document.getElementById('btn-save-guion');
+
+            if(!docId) {
+                showToast('Primero guarda el producto con un ID', 'error');
+                return;
+            }
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
+            btn.disabled = true;
+
+            try {
+                await db.collection('productos').doc(docId).set({
+                    guion_audio: texto,
+                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                window._guionAudioActual = texto;
+                showToast("Guión guardado en el producto ✅");
+                closeGuionModal();
+            } catch(e) {
+                showToast("Error guardando guión", "error");
+            } finally {
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Guión`;
+                btn.disabled = false;
+            }
         }
     </script>
 </body>

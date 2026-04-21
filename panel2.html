@@ -397,6 +397,21 @@
 
                                         <div class="space-y-1.5 pt-2 border-t border-emerald-100 mt-2">
                                             <label class="text-[11px] font-bold text-emerald-700 uppercase tracking-widest flex items-center gap-1.5">
+                                                <i class="fa-solid fa-file-pdf text-emerald-500"></i> PDF de Entrega (Order Bump)
+                                            </label>
+                                            <div class="flex gap-2 items-center">
+                                                <input type="text" id="prod-bump-pdf" placeholder="https://firebasestorage.../bump_extra.pdf" class="flex-1 bg-white border border-emerald-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-emerald-500 text-xs">
+                                                <input type="file" id="file-bump-pdf" accept=".pdf" class="hidden" onchange="uploadFileToStorage(this, 'prod-bump-pdf')">
+                                                <button type="button" onclick="document.getElementById('file-bump-pdf').click()" class="w-10 h-10 shrink-0 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors flex items-center justify-center shadow-sm" title="Subir PDF del Bump">
+                                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                                </button>
+                                            </div>
+                                            <div id="progress-prod-bump-pdf" class="hidden w-full bg-emerald-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-emerald-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
+                                            <p class="text-[10px] text-emerald-600/70">PDF que se enviará al cliente cuando pague el Order Bump. Si lo deja vacío, solo se desbloqueará el contenido en el Hub.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-emerald-700 uppercase tracking-widest flex items-center gap-1.5">
                                                 <i class="fa-solid fa-robot text-emerald-500"></i> Resumen para la IA (Order Bump)
                                             </label>
                                             <textarea id="prod-bump-desc-ia" rows="4" placeholder="Ej: El cliente ya compró NutriCan Vital. Ahora se le ofrece el recetario BARF con 50 recetas listas..." class="w-full bg-white border border-emerald-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-emerald-500 text-sm leading-relaxed"></textarea>
@@ -818,6 +833,7 @@
             document.getElementById('prod-bump-id').value = '';
             document.getElementById('prod-bump-precio').value = '';
             document.getElementById('prod-bump-desc-ia').value = '';
+            document.getElementById('prod-bump-pdf').value = '';
             
             window._guionAudioActual = '';
             document.querySelectorAll('.app-chk, .ebook-chk').forEach(c => c.checked = false);
@@ -852,6 +868,7 @@
                 document.getElementById('prod-bump-id').value = editData.id_oferta_bump || '';
                 document.getElementById('prod-bump-precio').value = editData.precio_oferta_bump || '';
                 document.getElementById('prod-bump-desc-ia').value = editData.descripcion_bump_ia || '';
+                document.getElementById('prod-bump-pdf').value = editData.pdf_entrega_bump || '';
                 
                 (editData.apps_a_desbloquear || []).forEach(val => {
                     const chk = document.querySelector(`.app-chk[value="${val}"]`);
@@ -959,6 +976,7 @@
                 id_oferta_bump: document.getElementById('prod-bump-id').value,
                 precio_oferta_bump: Number(document.getElementById('prod-bump-precio').value),
                 descripcion_bump_ia: document.getElementById('prod-bump-desc-ia').value.trim(),
+                pdf_entrega_bump: document.getElementById('prod-bump-pdf').value.trim(),
                 
                 fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
             };

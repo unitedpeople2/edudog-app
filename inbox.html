@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox - EduDog Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #111b21; color: #e9edef; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #374045; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #54656f; }
+
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Client list item */
+        .client-item { transition: background 0.15s; cursor: pointer; }
+        .client-item:hover { background: #202c33; }
+        .client-item.active { background: #2a3942; }
+
+        /* Chat bubbles */
+        .bubble-bot {
+            background: #202c33; border-radius: 0 12px 12px 12px; padding: 8px 12px 6px;
+            max-width: 65%; word-wrap: break-word; white-space: pre-wrap;
+        }
+        .bubble-client {
+            background: #005c4b; border-radius: 12px 0 12px 12px; padding: 8px 12px 6px;
+            max-width: 65%; word-wrap: break-word; white-space: pre-wrap;
+        }
+
+        /* Chat bg pattern */
+        .chat-bg {
+            background-color: #0b141a;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23111b21' fill-opacity='0.6'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Image in chat */
+        .chat-image { border-radius: 8px; max-width: 280px; max-height: 280px; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
+        .chat-image:hover { transform: scale(1.03); }
+
+        /* Document chip */
+        .doc-chip { background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
+        .doc-chip:hover { background: rgba(0,0,0,0.3); }
+
+        /* Buttons chip */
+        .btn-chip { background: rgba(0,92,75,0.3); border: 1px solid rgba(0,188,140,0.3); border-radius: 8px; padding: 10px 14px; }
+
+        /* Lightbox */
+        .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: flex; align-items: center; justify-content: center; cursor: zoom-out; }
+        .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; }
+
+        /* Status badge colors */
+        .state-nuevo { background: #3b82f6; }
+        .state-conversando { background: #8b5cf6; }
+        .state-esperando_opcion_pago { background: #f59e0b; }
+        .state-esperando_captura { background: #ef4444; }
+        .state-esperando_captura_bump { background: #f97316; }
+        .state-completado { background: #10b981; }
+        .state-default { background: #6b7280; }
+
+        .unread-badge { background: #25d366; min-width: 20px; height: 20px; border-radius: 10px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 6px; }
+    </style>
+</head>
+<body class="antialiased flex h-screen overflow-hidden">
+
+    <!-- ========== LOGIN SCREEN ========== -->
+    <div id="screen-login" class="fixed inset-0 z-50 bg-slate-50 flex items-center justify-center fade-in">
+        <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-emerald-600 to-slate-900 rounded-b-[4rem] opacity-100 z-0"></div>
+        <div class="relative z-10 w-full max-w-sm px-6">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 flex items-center justify-center mx-auto mb-4 shadow-xl">
+                    <i class="fa-solid fa-comments text-4xl text-white"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold text-white">Inbox</h1>
+                <p class="text-emerald-200 font-medium mt-1 text-sm">Centro de Mensajes</p>
+            </div>
+            <div class="bg-white p-6 rounded-[2rem] shadow-2xl space-y-4">
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Correo</label>
+                    <div class="relative bg-slate-50 border border-slate-200 rounded-2xl">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-envelope"></i></span>
+                        <input type="email" id="loginEmail" placeholder="admin@ejemplo.com" class="w-full bg-transparent text-slate-900 py-3.5 pl-12 pr-4 outline-none font-bold text-sm">
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Contraseña</label>
+                    <div class="relative bg-slate-50 border border-slate-200 rounded-2xl">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full bg-transparent text-slate-900 py-3.5 pl-12 pr-4 outline-none font-bold text-sm">
+                    </div>
+                </div>
+                <button onclick="doLogin()" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-2xl hover:bg-emerald-700 active:scale-95 transition-all text-sm mt-2 flex justify-center items-center gap-2">
+                    Ingresar <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MAIN INBOX ========== -->
+    <div id="screen-inbox" class="hidden w-full h-full flex">
+
+        <!-- Left Sidebar -->
+        <aside class="w-[380px] bg-[#111b21] border-r border-[#222d34] flex flex-col shrink-0">
+            <!-- Header -->
+            <div class="bg-[#202c33] px-5 py-3 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-comments text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-black text-sm text-[#e9edef]">Inbox</h2>
+                        <p class="text-[10px] text-[#8696a0] font-bold" id="client-count">0 clientes</p>
+                    </div>
+                </div>
+                <button onclick="doLogout()" class="text-[#8696a0] hover:text-[#e9edef] transition-colors p-2" title="Cerrar sesión">
+                    <i class="fa-solid fa-right-from-brucket"></i>
+                </button>
+            </div>
+
+            <!-- Search -->
+            <div class="px-3 py-2 bg-[#111b21]">
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#8696a0] text-sm"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="searchInput" oninput="filterClients()" placeholder="Buscar cliente..." class="w-full bg-[#202c33] border border-[#313d45] rounded-xl py-2.5 pl-10 pr-4 text-sm text-[#e9edef] outline-none focus:border-[#00a884] placeholder-[#8696a0]">
+                </div>
+            </div>
+
+            <!-- Client List -->
+            <div id="client-list" class="flex-1 overflow-y-auto"></div>
+        </aside>
+
+        <!-- Right Panel - Chat -->
+        <main class="flex-1 flex flex-col h-full">
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="flex-1 flex items-center justify-center chat-bg">
+                <div class="text-center">
+                    <div class="w-24 h-24 bg-[#202c33] rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fa-solid fa-comments text-4xl text-[#8696a0]"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-[#e9edef] mb-2">Inbox de Mensajes</h3>
+                    <p class="text-[#8696a0] text-sm max-w-sm">Selecciona un cliente de la lista para ver la conversación</p>
+                </div>
+            </div>
+
+            <!-- Chat View (hidden by default) -->
+            <div id="chat-view" class="hidden flex-1 flex flex-col h-full">
+                
+                <!-- Chat Header -->
+                <div class="bg-[#202c33] px-5 py-3 flex items-center justify-between shrink-0 border-b border-[#222d34]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-[#2a3942] rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-user text-[#8696a0]"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-[#e9edef] text-sm" id="chat-phone">—</h3>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="w-2 h-2 rounded-full" id="chat-state-dot"></span>
+                                <span class="text-[11px] font-bold text-[#8696a0] uppercase" id="chat-state-label">—</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] bg-[#2a3942] text-[#8696a0] px-3 py-1 rounded-full font-bold" id="chat-product">—</span>
+                    </div>
+                </div>
+
+                <!-- Messages Area -->
+                <div id="messages-area" class="flex-1 overflow-y-auto chat-bg px-16 py-4 space-y-2"></div>
+
+                <!-- Footer Info -->
+                <div class="bg-[#202c33] px-5 py-2 flex items-center justify-between shrink-0 border-t border-[#222d34]">
+                    <span class="text-[11px] text-[#8696a0]"><i class="fa-solid fa-shield-halved mr-1"></i> Modo solo lectura</span>
+                    <span class="text-[11px] text-[#8696a0]" id="chat-total-msgs">0 mensajes</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========== LIGHTBOX ========== -->
+    <div id="lightbox" class="lightbox hidden" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Imagen ampliada">
+    </div>
+
+    <script>
+        // ==========================================
+        // FIREBASE CONFIG
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrbqdz-JMZNV0H0zcrHwfDOawE3_ouUNw",
+            authDomain: "guias-facil-bot.firebaseapp.com",
+            projectId: "guias-facil-bot",
+            storageBucket: "guias-facil-bot.firebasestorage.app"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
+
+        // ==========================================
+        // STATE
+        // ==========================================
+        let clientsData = {};    // { phone: { lastMsg, lastTime, state, product } }
+        let selectedClient = null;
+        let unsubMessages = null;
+        let unsubClients = null;
+
+        // ==========================================
+        // AUTH
+        // ==========================================
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('screen-login').classList.add('hidden');
+                document.getElementById('screen-inbox').classList.remove('hidden');
+                loadClients();
+            } else {
+                document.getElementById('screen-login').classList.remove('hidden');
+                document.getElementById('screen-inbox').classList.add('hidden');
+            }
+        });
+
+        function doLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+            if (!email || !pass) return alert('Completa todos los campos');
+            auth.signInWithEmailAndPassword(email, pass).catch(e => alert('Error: ' + e.message));
+        }
+
+        function doLogout() {
+            auth.signOut();
+            if (unsubMessages) unsubMessages();
+            if (unsubClients) unsubClients();
+        }
+
+        // ==========================================
+        // LOAD CLIENTS
+        // ==========================================
+        function loadClients() {
+            // Listen to clientes collection (ordered by updated_at)
+            unsubClients = db.collection('clientes')
+                .orderBy('updated_at', 'desc')
+                .onSnapshot(snap => {
+                    const changes = snap.docChanges();
+                    changes.forEach(change => {
+                        const phone = change.doc.id;
+                        const data = change.doc.data();
+
+                        if (change.type === 'removed') {
+                            delete clientsData[phone];
+                        } else {
+                            // Get last message from subcollection
+                            db.collection('clientes').doc(phone).collection('mensajes')
+                                .orderBy('timestamp', 'desc').limit(1).get()
+                                .then(msgSnap => {
+                                    let lastMsg = '';
+                                    let lastTime = data.updated_at || '';
+                                    let lastType = 'texto';
+                                    if (!msgSnap.empty) {
+                                        const m = msgSnap.docs[0].data();
+                                        lastType = m.tipo || 'texto';
+                                        if (lastType === 'imagen') lastMsg = '📷 Imagen';
+                                        else if (lastType === 'documento') lastMsg = '📄 ' + (m.caption || m.texto || 'Documento');
+                                        else if (lastType === 'botones') lastMsg = '🔘 Botones de pago';
+                                        else if (lastType === 'audio') lastMsg = '🎤 Audio';
+                                        else if (lastType === 'video') lastMsg = '🎬 Video';
+                                        else lastMsg = m.texto || '';
+                                        lastTime = m.timestamp || lastTime;
+                                    }
+                                    clientsData[phone] = {
+                                        lastMsg: lastMsg.substring(0, 50),
+                                        lastTime: lastTime,
+                                        state: data.estado || '',
+                                        product: data.apps_activas?.[0] || data.ebooks_activos?.[0] || ''
+                                    };
+                                    renderClientList();
+                                });
+                        }
+                    });
+                }, err => console.error('Error listening clients:', err));
+        }
+
+        // ==========================================
+        // RENDER CLIENT LIST
+        // ==========================================
+        function renderClientList(filter = '') {
+            const container = document.getElementById('client-list');
+            container.innerHTML = '';
+
+            const phones = Object.keys(clientsData).sort((a, b) => {
+                return (clientsData[b].lastTime || '').localeCompare(clientsData[a].lastTime || '');
+            });
+
+            const filtered = filter
+                ? phones.filter(p => p.includes(filter) || clientsData[p].lastMsg.toLowerCase().includes(filter.toLowerCase()))
+                : phones;
+
+            document.getElementById('client-count').textContent = `${filtered.length} cliente${filtered.length !== 1 ? 's' : ''}`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-[#8696a0] text-sm"><i class="fa-solid fa-inbox text-3xl mb-3 block"></i>No hay clientes${filter ? ' que coincidan' : ''}</div>`;
+                return;
+            }
+
+            filtered.forEach(phone => {
+                const c = clientsData[phone];
+                const isActive = selectedClient === phone;
+                const timeStr = formatTime(c.lastTime);
+                const stateLabel = formatState(c.state);
+
+                const div = document.createElement('div');
+                div.className = `client-item flex items-center gap-3 px-4 py-3 border-b border-[#222d34] ${isActive ? 'active' : ''}`;
+                div.onclick = () => openChat(phone);
+                div.innerHTML = `
+                    <div class="w-12 h-12 bg-[#2a3942] rounded-full flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-user text-[#8696a0]"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-sm text-[#e9edef] truncate">${phone}</span>
+                            <span class="text-[10px] text-[#8696a0] shrink-0 ml-2">${timeStr}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-[#8696a0] truncate">${c.lastMsg}</span>
+                            ${c.state ? `<span class="w-2.5 h-2.5 rounded-full shrink-0 ml-2 ${getStateColor(c.state)}"></span>` : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function filterClients() {
+            const q = document.getElementById('searchInput').value.trim();
+            renderClientList(q);
+        }
+
+        // ==========================================
+        // OPEN CHAT
+        // ==========================================
+        function openChat(phone) {
+            selectedClient = phone;
+            renderClientList(document.getElementById('searchInput').value.trim());
+
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('chat-view').classList.remove('hidden');
+
+            // Header info
+            document.getElementById('chat-phone').textContent = phone;
+
+            // Load session state
+            db.collection('sesiones').doc(phone).get().then(snap => {
+                const session = snap.exists ? snap.to_dict() : {};
+                const state = session.state || 'desconocido';
+                const productId = session.producto_id || '';
+
+                document.getElementById('chat-state-label').textContent = formatState(state);
+                document.getElementById('chat-state-dot').className = `w-2 h-2 rounded-full ${getStateColor(state)}`;
+
+                if (productId) {
+                    document.getElementById('chat-product').textContent = productId;
+                    document.getElementById('chat-product').classList.remove('hidden');
+                } else {
+                    document.getElementById('chat-product').classList.add('hidden');
+                }
+            });
+
+            // Listen to messages in real-time
+            if (unsubMessages) unsubMessages();
+
+            const msgArea = document.getElementById('messages-area');
+            msgArea.innerHTML = '<div class="text-center text-[#8696a0] text-sm py-8">Cargando mensajes...</div>';
+
+            unsubMessages = db.collection('clientes').doc(phone).collection('mensajes')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot(snap => {
+                    msgArea.innerHTML = '';
+                    const docs = snap.docs;
+                    document.getElementById('chat-total-msgs').textContent = `${docs.length} mensaje${docs.length !== 1 ? 's' : ''}`;
+
+                    if (docs.length === 0) {
+                        msgArea.innerHTML = '<div class="text-center text-[#8696a0] text-sm py-8">Sin mensajes aún</div>';
+                        return;
+                    }
+
+                    docs.forEach(doc => {
+                        const m = doc.data();
+                        const isBot = m.remitente === 'bot';
+                        const timeStr = formatTime(m.timestamp);
+                        const tipo = m.tipo || 'texto';
+
+                        const wrapper = document.createElement('div');
+                        wrapper.className = `flex ${isBot ? 'justify-start' : 'justify-end'} fade-in`;
+
+                        let content = '';
+
+                        if (tipo === 'imagen') {
+                            const url = m.url_media || '';
+                            if (url) {
+                                content = `
+                                    <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
+                                        <img src="${url}" class="chat-image" onclick="openLightbox('${url}')" onerror="this.parentElement.innerHTML='<span class=text-[#8696a0] text-xs>📷 Imagen no disponible</span>'">
+                                        ${m.caption ? `<p class="text-xs text-[#8696a0] mt-1">${escapeHtml(m.caption)}</p>` : ''}
+                                        <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
+                                    </div>`;
+                            } else {
+                                content = `<div class="${isBot ? 'bubble-bot' : 'bubble-client'}"><span class="text-[#8696a0] text-xs">📷 Imagen</span><span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span></div>`;
+                            }
+                        } else if (tipo === 'documento') {
+                            content = `
+                                <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
+                                    <a href="${m.url_media || '#'}" target="_blank" class="doc-chip">
+                                        <div class="w-10 h-10 bg-[#00a884] rounded-lg flex items-center justify-center shrink-0">
+                                            <i class="fa-solid fa-file-pdf text-white"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-bold text-[#e9edef] truncate">${escapeHtml(m.caption || m.texto || 'Documento')}</p>
+                                            <p class="text-[10px] text-[#8696a0]">PDF</p>
+                                        </div>
+                                        <i class="fa-solid fa-arrow-up-right-from-square text-[#8696a0] text-xs shrink-0"></i>
+                                    </a>
+                                    <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
+                                </div>`;
+                        } else if (tipo === 'botones') {
+                            content = `
+                                <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
+                                    <div class="btn-chip">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <i class="fa-solid fa-rectangle-list text-[#00a884] text-sm"></i>
+                                            <span class="text-sm font-bold text-[#e9edef]">Botones enviados</span>
+                                        </div>
+                                        <p class="text-xs text-[#8696a0]">${escapeHtml(m.texto || 'Opciones de pago')}</p>
+                                    </div>
+                                    <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
+                                </div>`;
+                        } else if (tipo === 'audio') {
+                            content = `
+                                <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 bg-[#00a884] rounded-full flex items-center justify-center">
+                                            <i class="fa-solid fa-play text-white text-xs"></i>
+                                        </div>
+                                        <span class="text-xs text-[#8696a0]">Audio</span>
+                                    </div>
+                                    <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
+                                </div>`;
+                        } else if (tipo === 'video') {
+                            content = `
+                                <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-10 h-10 bg-[#00a884] rounded-lg flex items-center justify-center">
+                                            <i class="fa-solid fa-video text-white"></i>
+                                        </div>
+                                        <span class="text-xs text-[#8696a0]">${escapeHtml(m.caption || m.texto || 'Video')}</span>
+                                    </div>
+                                    <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
+                                </div>`;
+                        } else {
+                            // Texto normal
+                            const text = m.texto || '';
+                            if (text) {
+                                content = `
+                                    <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
+                                        <p class="text-sm text-[#e9edef] leading-relaxed whitespace-pre-wrap">${formatWhatsAppText(text)}</p>
+                                        <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
+                                    </div>`;
+                            }
+                        }
+
+                        if (content) wrapper.innerHTML = content;
+                        msgArea.appendChild(wrapper);
+                    });
+
+                    // Scroll to bottom
+                    setTimeout(() => { msgArea.scrollTop = msgArea.scrollHeight; }, 100);
+                }, err => console.error('Error listening messages:', err));
+        }
+
+        // ==========================================
+        // LIGHTBOX
+        // ==========================================
+        function openLightbox(url) {
+            document.getElementById('lightbox-img').src = url;
+            document.getElementById('lightbox').classList.remove('hidden');
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+        // ==========================================
+        // HELPERS
+        // ==========================================
+        function formatTime(isoStr) {
+            if (!isoStr) return '';
+            try {
+                const d = new Date(isoStr);
+                const now = new Date();
+                const diff = now - d;
+                if (diff < 86400000) {
+                    return d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false });
+                }
+                if (diff < 172800000) {
+                    return 'Ayer';
+                }
+                return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' });
+            } catch { return ''; }
+        }
+
+        function formatState(state) {
+            const map = {
+                'nuevo': 'Nuevo',
+                'conversando': 'Conversando',
+                'esperando_accion_inicial': 'Acción inicial',
+                'esperando_opcion_pago': 'Eligiendo pago',
+                'esperando_captura': 'Esperando captura',
+                'esperando_captura_bump': 'Esperando bump',
+                'esperando_captura_hub': 'Esperando Hub',
+                'completado': 'Completado ✅'
+            };
+            return map[state] || state || '—';
+        }
+
+        function getStateColor(state) {
+            const map = {
+                'nuevo': 'bg-blue-500',
+                'conversando': 'bg-violet-500',
+                'esperando_opcion_pago': 'bg-amber-500',
+                'esperando_captura': 'bg-red-500',
+                'esperando_captura_bump': 'bg-orange-500',
+                'completado': 'bg-emerald-500'
+            };
+            return map[state] || 'bg-gray-500';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatWhatsAppText(text) {
+            if (!text) return '';
+            // Bold: *text* → <strong>
+            let html = escapeHtml(text);
+            html = html.replace(/\*(.+?)\*/g, '<strong>$1</strong>');
+            // Italic: _text_ → <em>
+            html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+            return html;
+        }
+
+        // Enter key on login
+        document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+        document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPassword').focus(); });
+    </script>
+</body>
+</html>

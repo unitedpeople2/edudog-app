@@ -401,6 +401,7 @@
         let ADMIN_TOKEN = '';       // Token para llamar a los endpoints admin
         let currentBotPaused = false;  // Estado del bot para el cliente seleccionado
         let unreadVouchers = {};    // { telefono: timestamp } — vouchers no leídos por el admin
+        let sessionMap = {};        // { telefono: { state, bot_pausado, ... } } — sesiones indexadas por teléfono
 
         // ==========================================
         // AUTH
@@ -414,6 +415,7 @@
                 loadClients();
                 loadStats();
                 startVoucherListener();
+                loadSessions();
             } else {
                 document.getElementById('screen-login').classList.remove('hidden');
                 document.getElementById('screen-inbox').classList.add('hidden');
@@ -573,15 +575,13 @@
             }
 
             // Load session state
-            db.collection('sesiones').doc(phone).get().then(snap => {
-                const s = snap.exists ? snap.to_dict() : {};
-                const state = s.state || 'desconocido';
-                document.getElementById('chat-state-label').textContent = formatState(state);
-                document.getElementById('chat-state-dot').className = `state-dot ${getStateBg(state)}`;
-                // Check if bot is paused for this client
-                currentBotPaused = s.bot_pausado || false;
-                updateBotToggleUI();
-            });
+            const sData = sessionMap[phone] || {};
+            const state = sData.state || 'desconocido';
+            document.getElementById('chat-state-label').textContent = formatState(state);
+            document.getElementById('chat-state-dot').className = `state-dot ${getStateBg(state)}`;
+            // Check if bot is paused for this client
+            currentBotPaused = sData.bot_pausado || false;
+            updateBotToggleUI();
 
             // Real-time messages
             if (unsubMessages) unsubMessages();
@@ -692,6 +692,37 @@
 
                     setTimeout(() => { area.scrollTop = area.scrollHeight; }, 50);
                 }, err => console.error(err));
+        }
+
+        // ==========================================
+        // LOAD SESSIONS — extrae teléfono del doc ID (businessId_phone)
+        // ==========================================
+        function loadSessions() {
+            db.collection('sesiones').get().then(snap => {
+                sessionMap = {};
+                snap.forEach(doc => {
+                    const docId = doc.id;
+                    // El doc ID puede ser "51971337730" o "1014155008455170_51971337730"
+                    const phone = docId.includes('_') ? docId.substring(docId.indexOf('_') + 1) : docId;
+                    sessionMap[phone] = doc.data();
+
+                    // Actualizar estado en clientsData si ya existe
+                    if (clientsData[phone]) {
+                        clientsData[phone].state = doc.data().state || '';
+                    }
+                });
+                // Actualizar Kanban si está visible
+                if (currentView === 'kanban') {
+                    loadKanbanData();
+                }
+                // Si hay un chat abierto, actualizar su estado
+                if (selectedClient && sessionMap[selectedClient]) {
+                    const sData = sessionMap[selectedClient];
+                    const state = sData.state || 'desconocido';
+                    document.getElementById('chat-state-label').textContent = formatState(state);
+                    document.getElementById('chat-state-dot').className = `state-dot ${getStateBg(state)}`;
+                }
+            });
         }
 
         // ==========================================
@@ -1021,31 +1052,27 @@
 
         function loadKanbanData() {
             if (currentView !== 'kanban') return;
-            // Usamos los datos ya cargados en clientsData + sesiones para el estado
-            db.collection('sesiones').get().then(snap => {
-                kanbanData = {};
-                snap.forEach(doc => {
-                    const phone = doc.id;
-                    const s = doc.data();
-                    const state = s.state || 'nuevo';
+            // Usamos sessionMap que ya tiene los datos indexados por teléfono
+            kanbanData = {};
+            for (const phone in sessionMap) {
+                const s = sessionMap[phone];
+                kanbanData[phone] = {
+                    state: s.state || 'nuevo',
+                    lastMsg: clientsData[phone] ? clientsData[phone].lastMsg : '',
+                    lastTime: clientsData[phone] ? clientsData[phone].lastTime : (s.updated_at || '')
+                };
+            }
+            // También agregar clientes que están en clientsData pero no en sesiones
+            for (const phone in clientsData) {
+                if (!kanbanData[phone]) {
                     kanbanData[phone] = {
-                        state: state,
-                        lastMsg: clientsData[phone] ? clientsData[phone].lastMsg : '',
-                        lastTime: clientsData[phone] ? clientsData[phone].lastTime : (s.updated_at || '')
+                        state: clientsData[phone].state || 'nuevo',
+                        lastMsg: clientsData[phone].lastMsg,
+                        lastTime: clientsData[phone].lastTime
                     };
-                });
-                // También agregar clientes que están en clientesData pero no en sesiones
-                for (const phone in clientsData) {
-                    if (!kanbanData[phone]) {
-                        kanbanData[phone] = {
-                            state: clientsData[phone].state || 'nuevo',
-                            lastMsg: clientsData[phone].lastMsg,
-                            lastTime: clientsData[phone].lastTime
-                        };
-                    }
                 }
-                renderKanban();
-            });
+            }
+            renderKanban();
         }
 
         function renderKanban() {
@@ -1069,9 +1096,10 @@
             for (const phone in kanbanData) {
                 const d = kanbanData[phone];
                 let col = 'nuevo';
+                // Mapear todos los estados reales del bot
                 if (d.state === 'completado') col = 'completado';
-                else if (d.state === 'esperando_captura') col = 'esperando_captura';
-                else if (d.state === 'chat' || d.state === 'en_chat' || d.state === 'esperando_seleccion') col = 'chat';
+                else if (d.state === 'esperando_captura' || d.state === 'esperando_captura_bump' || d.state === 'esperando_captura_hub') col = 'esperando_captura';
+                else if (d.state === 'conversando' || d.state === 'en_chat' || d.state === 'esperando_seleccion' || d.state === 'esperando_opcion_pago') col = 'chat';
                 grouped[col].push({ phone, ...d });
                 counts[col]++;
             }

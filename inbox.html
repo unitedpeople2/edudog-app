@@ -235,6 +235,15 @@
         .wa-profile-tag.paused { background: #fce7e7; color: #d32f2f; }
         .wa-profile-empty { text-align: center; padding: 16px; color: #8696a0; font-size: 13px; }
 
+        /* ===== CLIENT TAGS ===== */
+        .wa-tags { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+        .wa-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; white-space: nowrap; line-height: 1.4; }
+        .wa-tag-country { background: #e3f2fd; color: #1565c0; }
+        .wa-tag-nuevo { background: #f0f2f5; color: #667781; }
+        .wa-tag-principal { background: #e3f2fd; color: #1565c0; }
+        .wa-tag-bump { background: #fff3e0; color: #e65100; }
+        .wa-tag-orden { background: #e8f5e9; color: #2e7d32; }
+
         .hidden { display: none !important; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -407,6 +416,7 @@
             <!-- Info general -->
             <div class="wa-profile-section">
                 <div class="wa-profile-section-title">Información</div>
+                <div id="prof-tags" style="margin-bottom:10px;"></div>
                 <div class="wa-profile-row">
                     <span class="wa-profile-row-label">Bot</span>
                     <span class="wa-profile-tag active" id="prof-bot-tag">Activo</span>
@@ -478,6 +488,7 @@
         let currentBotPaused = false;  // Estado del bot para el cliente seleccionado
         let unreadVouchers = {};    // { telefono: timestamp } — vouchers no leídos por el admin
         let sessionMap = {};        // { telefono: { state, bot_pausado, ... } } — sesiones indexadas por teléfono
+        let clientTags = {};        // { telefono: { country, purchase } } — etiquetas por cliente
 
         // ==========================================
         // AUTH
@@ -492,6 +503,7 @@
                 loadStats();
                 startVoucherListener();
                 loadSessions();
+                loadClientTags();
             } else {
                 document.getElementById('screen-login').classList.remove('hidden');
                 document.getElementById('screen-inbox').classList.add('hidden');
@@ -607,6 +619,7 @@
                             <span class="wa-client-msg">${escapeHtml(c.lastMsg)}</span>
                             ${c.state ? `<span class="wa-state-dot ${getStateBg(c.state)}"></span>` : ''}
                         </div>
+                        ${renderTags(phone)}
                     </div>`;
                 container.appendChild(div);
             });
@@ -799,6 +812,98 @@
                     document.getElementById('chat-state-dot').className = `state-dot ${getStateBg(state)}`;
                 }
             });
+        }
+
+        // ==========================================
+        // CLIENT TAGS (país + estado de compra)
+        // ==========================================
+        function getCountryFromPhone(phone) {
+            const p = phone.replace(/\D/g, '');
+            const countries = [
+                { prefix: '51', flag: '🇵🇪', name: 'Perú' },
+                { prefix: '591', flag: '🇧🇴', name: 'Bolivia' },
+                { prefix: '52', flag: '🇲🇽', name: 'México' },
+                { prefix: '57', flag: '🇨🇴', name: 'Colombia' },
+                { prefix: '58', flag: '🇻🇪', name: 'Venezuela' },
+                { prefix: '54', flag: '🇦🇷', name: 'Argentina' },
+                { prefix: '56', flag: '🇨🇱', name: 'Chile' },
+                { prefix: '593', flag: '🇪🇨', name: 'Ecuador' },
+                { prefix: '53', flag: '🇨🇺', name: 'Cuba' },
+                { prefix: '502', flag: '🇬🇹', name: 'Guatemala' },
+                { prefix: '503', flag: '🇸🇻', name: 'El Salvador' },
+                { prefix: '504', flag: '🇭🇳', name: 'Honduras' },
+                { prefix: '505', flag: '🇳🇮', name: 'Nicaragua' },
+                { prefix: '506', flag: '🇨🇷', name: 'Costa Rica' },
+                { prefix: '507', flag: '🇵🇦', name: 'Panamá' },
+                { prefix: '595', flag: '🇵🇾', name: 'Paraguay' },
+                { prefix: '598', flag: '🇺🇾', name: 'Uruguay' },
+                { prefix: '55', flag: '🇧🇷', name: 'Brasil' },
+                { prefix: '34', flag: '🇪🇸', name: 'España' },
+                { prefix: '1', flag: '🇺🇸', name: 'USA' },
+            ];
+            // Ordenar por longitud descendente para que 593 no sea atrapado por 59
+            countries.sort((a, b) => b.prefix.length - a.prefix.length);
+            for (const c of countries) {
+                if (p.startsWith(c.prefix)) return c;
+            }
+            return { flag: '🌍', name: 'Otro' };
+        }
+
+        function loadClientTags() {
+            // Asignar país a todos los clientes conocidos
+            for (const phone in clientsData) {
+                if (!clientTags[phone]) clientTags[phone] = {};
+                clientTags[phone].country = getCountryFromPhone(phone);
+            }
+            // Cargar ventas para determinar estado de compra
+            db.collection('ventas').get().then(snap => {
+                const ventasPorCliente = {};
+                snap.forEach(doc => {
+                    const v = doc.data();
+                    const phone = v.cliente_numero || '';
+                    if (!phone) return;
+                    if (!ventasPorCliente[phone]) ventasPorCliente[phone] = [];
+                    ventasPorCliente[phone].push(v);
+                });
+                // Determinar etiqueta de compra para cada cliente
+                for (const phone in ventasPorCliente) {
+                    const ventas = ventasPorCliente[phone];
+                    const tienePrincipal = ventas.some(v => !v.es_bump);
+                    const tieneBump = ventas.some(v => v.es_bump);
+                    let purchase = 'nuevo';
+                    if (tienePrincipal && tieneBump) purchase = 'orden';
+                    else if (tieneBump) purchase = 'bump';
+                    else if (tienePrincipal) purchase = 'principal';
+                    if (!clientTags[phone]) clientTags[phone] = {};
+                    clientTags[phone].country = getCountryFromPhone(phone);
+                    clientTags[phone].purchase = purchase;
+                }
+                // Clientes sin ventas = nuevo
+                for (const phone in clientsData) {
+                    if (!clientTags[phone] || !clientTags[phone].purchase) {
+                        if (!clientTags[phone]) clientTags[phone] = {};
+                        clientTags[phone].purchase = 'nuevo';
+                    }
+                }
+                renderClientList(document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim() : '');
+                if (currentView === 'kanban') renderKanban();
+            });
+        }
+
+        function renderTags(phone) {
+            const t = clientTags[phone];
+            if (!t) return '';
+            const country = t.country || getCountryFromPhone(phone);
+            const purchase = t.purchase || 'nuevo';
+            let html = '<div class="wa-tags">';
+            // Tag país (siempre)
+            html += `<span class="wa-tag wa-tag-country">${country.flag} ${country.name}</span>`;
+            // Tag compra (solo si no es nuevo)
+            if (purchase === 'orden') html += '<span class="wa-tag wa-tag-orden">Orden completa</span>';
+            else if (purchase === 'bump') html += '<span class="wa-tag wa-tag-bump">Compró bump</span>';
+            else if (purchase === 'principal') html += '<span class="wa-tag wa-tag-principal">Compró principal</span>';
+            html += '</div>';
+            return html;
         }
 
         // ==========================================
@@ -1196,6 +1301,7 @@
                         card.onclick = () => openChat(item.phone);
                         card.innerHTML = `
                             <div class="wa-kanban-card-phone">${item.phone}</div>
+                            ${renderTags(item.phone)}
                             <div class="wa-kanban-card-msg">${escapeHtml(item.lastMsg) || '—'}</div>
                             <div class="wa-kanban-card-time">${formatTime(item.lastTime)}</div>
                         `;
@@ -1232,6 +1338,9 @@
             const paused = sData.bot_pausado || false;
             botTag.textContent = paused ? 'Pausado' : 'Activo';
             botTag.className = `wa-profile-tag ${paused ? 'paused' : 'active'}`;
+
+            // Tags in profile
+            document.getElementById('prof-tags').innerHTML = renderTags(phone);
 
             // Load ventas for this client
             db.collection('ventas').where('cliente_numero', '==', phone).get().then(snap => {

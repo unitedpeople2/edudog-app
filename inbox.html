@@ -418,8 +418,10 @@
                                 .orderBy('timestamp', 'desc').limit(1).get()
                                 .then(msgSnap => {
                                     let lastMsg = '', lastTime = change.doc.data().updated_at || '';
+                                    let lastMsgData = null;
                                     if (!msgSnap.empty) {
                                         const m = msgSnap.docs[0].data();
+                                        lastMsgData = m;
                                         const tipo = m.tipo || 'texto';
                                         lastTime = m.timestamp || lastTime;
                                         if (tipo === 'imagen') lastMsg = '📷 Imagen';
@@ -432,6 +434,9 @@
                                     const sessionData = change.doc.data();
                                     clientsData[phone] = { lastMsg, lastTime, state: sessionData.estado || '' };
                                     renderClientList();
+
+                                    // Detectar voucher si el último mensaje es imagen del cliente
+                                    if (lastMsgData) detectVoucher(phone, lastMsgData);
                                 });
                         }
                     });
@@ -688,41 +693,30 @@
             // Cargar vouchers ya vistos desde localStorage
             const seen = JSON.parse(localStorage.getItem('seen_vouchers') || '{}');
             Object.assign(unreadVouchers, seen);
+            updateVoucherBadge();
+            updateClientListHighlights();
+        }
 
-            // Escuchar TODOS los mensajes de tipo imagen de TODOS los clientes
-            // Usamos la colección mensajes agrupada
-            db.collectionGroup('mensajes')
-                .where('tipo', '==', 'imagen')
-                .where('remitente', '==', 'cliente')
-                .orderBy('timestamp', 'desc')
-                .limit(50)
-                .onSnapshot(snap => {
-                    const todayISO = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
-                    let newCount = 0;
+        // Detecta vouchers nuevos dentro de loadClients() — NO necesita índice compuesto
+        function detectVoucher(phone, msgData) {
+            const tipo = msgData.tipo || 'texto';
+            const remitente = msgData.remitente || '';
+            const ts = msgData.timestamp || '';
 
-                    snap.forEach(doc => {
-                        const m = doc.data();
-                        const ts = m.timestamp || '';
-                        const phone = doc.ref.parent.parent.id;
+            // Solo imágenes enviadas por el cliente
+            if (tipo !== 'imagen' || remitente !== 'cliente') return;
 
-                        // Solo contar vouchers de hoy
-                        if (!ts.startsWith(todayISO)) return;
+            // Solo de hoy (Perú)
+            const todayISO = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
+            if (!ts.startsWith(todayISO)) return;
 
-                        // Si ya fue visto, ignorar
-                        if (unreadVouchers[phone + '_' + ts]) return;
+            const vKey = phone + '_' + ts;
+            if (unreadVouchers[vKey]) return; // ya visto
 
-                        // Marcar como no leído
-                        unreadVouchers[phone + '_' + ts] = true;
-                        newCount++;
-                    });
-
-                    if (newCount > 0) {
-                        // Guardar en localStorage para no duplicar al recargar
-                        localStorage.setItem('seen_vouchers', JSON.stringify(unreadVouchers));
-                        updateVoucherBadge();
-                        updateClientListHighlights();
-                    }
-                }, err => console.error('Voucher listener error:', err));
+            unreadVouchers[vKey] = true;
+            localStorage.setItem('seen_vouchers', JSON.stringify(unreadVouchers));
+            updateVoucherBadge();
+            updateClientListHighlights();
         }
 
         function updateVoucherBadge() {

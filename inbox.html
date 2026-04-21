@@ -183,6 +183,31 @@
         .login-icon { text-align: center; margin-bottom: 20px; }
         .login-icon i { font-size: 48px; color: #00a884; }
 
+        /* ===== KANBAN BOARD ===== */
+        .wa-kanban { flex: 1; overflow-x: auto; overflow-y: hidden; display: flex; gap: 10px; padding: 10px; background: #f0f2f5; align-items: stretch; }
+        .wa-kanban-col { min-width: 200px; flex: 1; background: #e9edef; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
+        .wa-kanban-col-header { padding: 10px 12px; font-size: 13px; font-weight: 600; color: #111b21; display: flex; align-items: center; justify-content: space-between; border-radius: 10px 10px 0 0; }
+        .wa-kanban-col-header .col-count { font-size: 11px; font-weight: 500; color: #667781; background: #dfe5e7; padding: 1px 8px; border-radius: 10px; }
+        .wa-kanban-col-body { flex: 1; overflow-y: auto; padding: 6px; }
+        .wa-kanban-card { background: #fff; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; border: 1px solid #e9edef; }
+        .wa-kanban-card:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .wa-kanban-card.active { border-color: #00a884; box-shadow: 0 0 0 1px #00a884; }
+        .wa-kanban-card-phone { font-size: 13px; color: #111b21; font-weight: 500; margin-bottom: 4px; }
+        .wa-kanban-card-msg { font-size: 12px; color: #667781; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .wa-kanban-card-time { font-size: 10px; color: #8696a0; margin-top: 6px; }
+        .wa-kanban-col-nuevo .wa-kanban-col-header { background: #e3f2fd; color: #1565c0; }
+        .wa-kanban-col-nuevo .col-count { background: #bbdefb; color: #1565c0; }
+        .wa-kanban-col-chat .wa-kanban-col-header { background: #fff8e1; color: #f57f17; }
+        .wa-kanban-col-chat .col-count { background: #ffecb3; color: #f57f17; }
+        .wa-kanban-col-voucher .wa-kanban-col-header { background: #fff3e0; color: #e65100; }
+        .wa-kanban-col-voucher .col-count { background: #ffe0b2; color: #e65100; }
+        .wa-kanban-col-done .wa-kanban-col-header { background: #e8f5e9; color: #2e7d32; }
+        .wa-kanban-col-done .col-count { background: #c8e6c9; color: #2e7d32; }
+        /* Kanban view toggle */
+        .wa-view-toggle { display: flex; background: #e9edef; border-radius: 8px; padding: 2px; }
+        .wa-view-toggle button { border: none; background: transparent; padding: 4px 10px; border-radius: 6px; font-size: 13px; color: #54656f; cursor: pointer; transition: background 0.15s; }
+        .wa-view-toggle button.active { background: #fff; color: #111b21; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
         .hidden { display: none !important; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -215,13 +240,19 @@
             <aside class="wa-sidebar">
                 <div class="wa-sidebar-header">
                     <div class="avatar"><i class="fa-solid fa-comments"></i></div>
-                    <div class="icons">
-                        <i class="fa-solid fa-users"></i>
-                        <span class="wa-icon-badge">
-                            <i class="fa-solid fa-message"></i>
-                            <span class="wa-badge hidden" id="voucher-badge">0</span>
-                        </span>
-                        <i class="fa-solid fa-ellipsis-vertical" onclick="doLogout()" title="Cerrar sesión"></i>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="wa-view-toggle">
+                            <button id="btn-view-list" class="active" onclick="switchView('list')" title="Vista lista"><i class="fa-solid fa-list"></i></button>
+                            <button id="btn-view-kanban" onclick="switchView('kanban')" title="Vista Kanban"><i class="fa-solid fa-table-columns"></i></button>
+                        </div>
+                        <div class="icons">
+                            <i class="fa-solid fa-users"></i>
+                            <span class="wa-icon-badge">
+                                <i class="fa-solid fa-message"></i>
+                                <span class="wa-badge hidden" id="voucher-badge">0</span>
+                            </span>
+                            <i class="fa-solid fa-ellipsis-vertical" onclick="doLogout()" title="Cerrar sesión"></i>
+                        </div>
                     </div>
                 </div>
                 <div class="wa-search">
@@ -254,7 +285,30 @@
                     </div>
                 </div>
 
-                <div id="client-list" class="wa-client-list"></div>
+                <!-- LIST VIEW -->
+                <div id="view-list" class="wa-client-list">
+                    <div id="client-list"></div>
+                </div>
+
+                <!-- KANBAN VIEW -->
+                <div id="view-kanban" class="wa-kanban hidden">
+                    <div class="wa-kanban-col wa-kanban-col-nuevo">
+                        <div class="wa-kanban-col-header"><span>Nuevo</span><span class="col-count" id="kanban-count-nuevo">0</span></div>
+                        <div class="wa-kanban-col-body" id="kanban-nuevo"></div>
+                    </div>
+                    <div class="wa-kanban-col wa-kanban-col-chat">
+                        <div class="wa-kanban-col-header"><span>En chat</span><span class="col-count" id="kanban-count-chat">0</span></div>
+                        <div class="wa-kanban-col-body" id="kanban-chat"></div>
+                    </div>
+                    <div class="wa-kanban-col wa-kanban-col-voucher">
+                        <div class="wa-kanban-col-header"><span>Esperando voucher</span><span class="col-count" id="kanban-count-voucher">0</span></div>
+                        <div class="wa-kanban-col-body" id="kanban-voucher"></div>
+                    </div>
+                    <div class="wa-kanban-col wa-kanban-col-done">
+                        <div class="wa-kanban-col-header"><span>Completado</span><span class="col-count" id="kanban-count-done">0</span></div>
+                        <div class="wa-kanban-col-body" id="kanban-done"></div>
+                    </div>
+                </div>
             </aside>
 
             <!-- CHAT PANEL -->
@@ -936,6 +990,121 @@
             h = h.replace(/\*(.+?)\*/g, '<strong>$1</strong>');
             h = h.replace(/_(.+?)_/g, '<em>$1</em>');
             return h;
+        }
+
+        // ==========================================
+        // KANBAN VIEW
+        // ==========================================
+        let currentView = 'list';
+        let kanbanData = {}; // { phone: { state, lastMsg, lastTime } }
+
+        function switchView(view) {
+            currentView = view;
+            const listView = document.getElementById('view-list');
+            const kanbanView = document.getElementById('view-kanban');
+            const btnList = document.getElementById('btn-view-list');
+            const btnKanban = document.getElementById('btn-view-kanban');
+
+            if (view === 'kanban') {
+                listView.classList.add('hidden');
+                kanbanView.classList.remove('hidden');
+                btnKanban.classList.add('active');
+                btnList.classList.remove('active');
+                loadKanbanData();
+            } else {
+                listView.classList.remove('hidden');
+                kanbanView.classList.add('hidden');
+                btnList.classList.add('active');
+                btnKanban.classList.remove('active');
+            }
+        }
+
+        function loadKanbanData() {
+            if (currentView !== 'kanban') return;
+            // Usamos los datos ya cargados en clientsData + sesiones para el estado
+            db.collection('sesiones').get().then(snap => {
+                kanbanData = {};
+                snap.forEach(doc => {
+                    const phone = doc.id;
+                    const s = doc.data();
+                    const state = s.state || 'nuevo';
+                    kanbanData[phone] = {
+                        state: state,
+                        lastMsg: clientsData[phone] ? clientsData[phone].lastMsg : '',
+                        lastTime: clientsData[phone] ? clientsData[phone].lastTime : (s.updated_at || '')
+                    };
+                });
+                // También agregar clientes que están en clientesData pero no en sesiones
+                for (const phone in clientsData) {
+                    if (!kanbanData[phone]) {
+                        kanbanData[phone] = {
+                            state: clientsData[phone].state || 'nuevo',
+                            lastMsg: clientsData[phone].lastMsg,
+                            lastTime: clientsData[phone].lastTime
+                        };
+                    }
+                }
+                renderKanban();
+            });
+        }
+
+        function renderKanban() {
+            const columns = {
+                'nuevo': document.getElementById('kanban-nuevo'),
+                'chat': document.getElementById('kanban-chat'),
+                'esperando_captura': document.getElementById('kanban-voucher'),
+                'completado': document.getElementById('kanban-done')
+            };
+
+            // Limpiar columnas
+            for (const key in columns) {
+                columns[key].innerHTML = '';
+            }
+
+            const counts = { 'nuevo': 0, 'chat': 0, 'esperando_captura': 0, 'completado': 0 };
+
+            // Agrupar por estado
+            const grouped = { 'nuevo': [], 'chat': [], 'esperando_captura': [], 'completado': [] };
+
+            for (const phone in kanbanData) {
+                const d = kanbanData[phone];
+                let col = 'nuevo';
+                if (d.state === 'completado') col = 'completado';
+                else if (d.state === 'esperando_captura') col = 'esperando_captura';
+                else if (d.state === 'chat' || d.state === 'en_chat' || d.state === 'esperando_seleccion') col = 'chat';
+                grouped[col].push({ phone, ...d });
+                counts[col]++;
+            }
+
+            // Ordenar por tiempo dentro de cada columna
+            for (const col in grouped) {
+                grouped[col].sort((a, b) => (b.lastTime || '').localeCompare(a.lastTime || ''));
+            }
+
+            // Renderizar tarjetas
+            for (const col in columns) {
+                if (grouped[col].length === 0) {
+                    columns[col].innerHTML = '<div style="text-align:center;padding:16px;color:#8696a0;font-size:11px;">Sin contactos</div>';
+                } else {
+                    grouped[col].forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'wa-kanban-card' + (selectedClient === item.phone ? ' active' : '');
+                        card.onclick = () => openChat(item.phone);
+                        card.innerHTML = `
+                            <div class="wa-kanban-card-phone">${item.phone}</div>
+                            <div class="wa-kanban-card-msg">${escapeHtml(item.lastMsg) || '—'}</div>
+                            <div class="wa-kanban-card-time">${formatTime(item.lastTime)}</div>
+                        `;
+                        columns[col].appendChild(card);
+                    });
+                }
+            }
+
+            // Actualizar contadores
+            document.getElementById('kanban-count-nuevo').textContent = counts['nuevo'];
+            document.getElementById('kanban-count-chat').textContent = counts['chat'];
+            document.getElementById('kanban-count-voucher').textContent = counts['esperando_captura'];
+            document.getElementById('kanban-count-done').textContent = counts['completado'];
         }
 
         // Enter key login

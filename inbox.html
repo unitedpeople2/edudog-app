@@ -253,6 +253,24 @@
         .wa-template-title { font-size: 13px; color: #111b21; font-weight: 500; margin-bottom: 2px; }
         .wa-template-preview { font-size: 12px; color: #667781; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .wa-template-icon { color: #00a884; font-size: 14px; margin-right: 10px; }
+        .wa-template-actions { display: flex; gap: 8px; align-items: center; margin-left: auto; flex-shrink: 0; }
+        .wa-template-actions i { color: #8696a0; font-size: 13px; cursor: pointer; transition: color 0.15s; }
+        .wa-template-actions i:hover { color: #008069; }
+        .wa-template-actions i.delete:hover { color: #ef4444; }
+        /* Template editor form */
+        .wa-template-editor { padding: 12px 14px; border-top: 1px solid #f0f2f5; background: #f8f9fa; }
+        .wa-template-editor input, .wa-template-editor textarea { width: 100%; border: 1px solid #e9edef; border-radius: 6px; padding: 8px 10px; font-size: 13px; outline: none; color: #111b21; font-family: inherit; box-sizing: border-box; }
+        .wa-template-editor input:focus, .wa-template-editor textarea:focus { border-color: #00a884; }
+        .wa-template-editor input { margin-bottom: 6px; }
+        .wa-template-editor textarea { height: 60px; resize: vertical; margin-bottom: 8px; }
+        .wa-template-editor-btns { display: flex; gap: 8px; }
+        .wa-template-editor-btns button { flex: 1; border: none; border-radius: 6px; padding: 7px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .wa-template-editor-btns .btn-save { background: #00a884; color: #fff; }
+        .wa-template-editor-btns .btn-save:hover { background: #008069; }
+        .wa-template-editor-btns .btn-cancel { background: #e9edef; color: #54656f; }
+        .wa-template-editor-btns .btn-cancel:hover { background: #dfe5e7; }
+        .wa-template-editor-btns .btn-add { background: #008069; color: #fff; }
+        .wa-template-editor-btns .btn-add:hover { background: #006d56; }
 
         /* ===== TAG FILTER BAR ===== */
         .wa-filter-bar { display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto; background: #f0f2f5; border-bottom: 1px solid #e9edef; }
@@ -527,6 +545,7 @@
                 startVoucherListener();
                 loadSessions();
                 loadClientTags();
+                loadTemplatesFromFirestore();
             } else {
                 document.getElementById('screen-login').classList.remove('hidden');
                 document.getElementById('screen-inbox').classList.add('hidden');
@@ -1360,9 +1379,9 @@
         }
 
         // ==========================================
-        // QUICK TEMPLATES
+        // QUICK TEMPLATES (Firestore-backed)
         // ==========================================
-        const quickTemplates = [
+        const defaultTemplates = [
             { title: 'Saludo inicial', text: 'Hola, gracias por tu interés en nuestros productos. ¿En qué puedo ayudarte?' },
             { title: 'Datos de pago', text: 'Te dejo los datos para realizar el pago:\n\nBanco: [BANCO]\nCuenta: [NUMERO]\nTitular: [NOMBRE]\nConcepto: [PRODUCTO]' },
             { title: 'Confirmar pago recibido', text: 'Hemos recibido tu pago correctamente. En unos momentos te enviaremos tu material.' },
@@ -1372,13 +1391,41 @@
             { title: 'Seguimiento', text: 'Hola, ¿pudiste ver el material? ¿Tienes alguna consulta?' },
             { title: 'Despedida amable', text: 'Gracias por confiar en nosotros. ¡Que tengas un excelente día!' },
         ];
+        let quickTemplates = [...defaultTemplates];
         let templatesOpen = false;
+        let editingTemplateIndex = -1; // -1 = no editando, >=0 = editando esa plantilla
+        let isAddingTemplate = false;
+
+        function loadTemplatesFromFirestore() {
+            db.collection('config').doc('plantillas').get().then(snap => {
+                if (snap.exists) {
+                    const data = snap.data();
+                    const arr = data.plantillas || [];
+                    if (arr.length > 0) {
+                        quickTemplates = arr;
+                    }
+                } else {
+                    // Crear documento con plantillas por defecto
+                    db.collection('config').doc('plantillas').set({ plantillas: defaultTemplates });
+                }
+            }).catch(err => {
+                console.error('Error cargando plantillas:', err);
+            });
+        }
+
+        function saveTemplatesToFirestore() {
+            db.collection('config').doc('plantillas').set({ plantillas: quickTemplates })
+                .then(() => console.log('Plantillas guardadas en Firestore'))
+                .catch(err => console.error('Error guardando plantillas:', err));
+        }
 
         function toggleTemplates() {
             if (!selectedClient || !ADMIN_TOKEN) return;
             const panel = document.getElementById('templates-panel');
             templatesOpen = !templatesOpen;
             if (templatesOpen) {
+                editingTemplateIndex = -1;
+                isAddingTemplate = false;
                 renderTemplates();
                 panel.classList.remove('hidden');
             } else {
@@ -1388,17 +1435,101 @@
 
         function renderTemplates() {
             const panel = document.getElementById('templates-panel');
-            let html = '<div class="wa-templates-panel-header">Respuestas rápidas</div>';
-            quickTemplates.forEach((t, i) => {
-                html += `<div class="wa-template-item" onclick="useTemplate(${i})">
-                    <span class="wa-template-title"><i class="fa-solid fa-bolt wa-template-icon"></i>${escapeHtml(t.title)}</span>
-                    <span class="wa-template-preview">${escapeHtml(t.text)}</span>
+            let html = '<div class="wa-templates-panel-header" style="display:flex;justify-content:space-between;align-items:center;">';
+            html += '<span>Respuestas rápidas</span>';
+            if (editingTemplateIndex === -1 && !isAddingTemplate) {
+                html += '<i class="fa-solid fa-plus" onclick="startAddTemplate(event)" style="color:#00a884;cursor:pointer;font-size:14px;" title="Agregar plantilla"></i>';
+            }
+            html += '</div>';
+
+            if (editingTemplateIndex === -1 && !isAddingTemplate) {
+                // Modo normal: lista de plantillas
+                quickTemplates.forEach((t, i) => {
+                    html += `<div class="wa-template-item" style="display:flex;align-items:center;">
+                        <div style="flex:1;min-width:0;" onclick="useTemplate(${i})">
+                            <div class="wa-template-title"><i class="fa-solid fa-bolt wa-template-icon"></i>${escapeHtml(t.title)}</div>
+                            <div class="wa-template-preview">${escapeHtml(t.text)}</div>
+                        </div>
+                        <div class="wa-template-actions" onclick="event.stopPropagation()">
+                            <i class="fa-solid fa-pen" onclick="startEditTemplate(${i}, event)" title="Editar"></i>
+                            <i class="fa-solid fa-trash delete" onclick="deleteTemplate(${i}, event)" title="Eliminar"></i>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                // Modo edición o agregar
+                const isEdit = editingTemplateIndex >= 0;
+                const current = isEdit ? quickTemplates[editingTemplateIndex] : { title: '', text: '' };
+                html += `<div class="wa-template-editor">
+                    <input type="text" id="tpl-edit-title" placeholder="Título de la plantilla" value="${escapeHtml(current.title)}">
+                    <textarea id="tpl-edit-text" placeholder="Mensaje...">${escapeHtml(current.text)}</textarea>
+                    <div class="wa-template-editor-btns">
+                        <button class="${isEdit ? 'btn-save' : 'btn-add'}" onclick="${isEdit ? 'saveEditTemplate()' : 'saveNewTemplate()'}">${isEdit ? 'Guardar cambios' : 'Agregar'}</button>
+                        <button class="btn-cancel" onclick="cancelTemplateEdit()">Cancelar</button>
+                    </div>
                 </div>`;
-            });
+            }
             panel.innerHTML = html;
         }
 
+        function startAddTemplate(e) {
+            e && e.stopPropagation();
+            isAddingTemplate = true;
+            editingTemplateIndex = -1;
+            renderTemplates();
+            setTimeout(() => {
+                const input = document.getElementById('tpl-edit-title');
+                if (input) input.focus();
+            }, 50);
+        }
+
+        function startEditTemplate(index, e) {
+            e && e.stopPropagation();
+            editingTemplateIndex = index;
+            isAddingTemplate = false;
+            renderTemplates();
+            setTimeout(() => {
+                const input = document.getElementById('tpl-edit-title');
+                if (input) input.focus();
+            }, 50);
+        }
+
+        function saveEditTemplate() {
+            const title = document.getElementById('tpl-edit-title').value.trim();
+            const text = document.getElementById('tpl-edit-text').value.trim();
+            if (!title || !text) { alert('Escribe un título y un mensaje'); return; }
+            quickTemplates[editingTemplateIndex] = { title, text };
+            saveTemplatesToFirestore();
+            editingTemplateIndex = -1;
+            renderTemplates();
+        }
+
+        function saveNewTemplate() {
+            const title = document.getElementById('tpl-edit-title').value.trim();
+            const text = document.getElementById('tpl-edit-text').value.trim();
+            if (!title || !text) { alert('Escribe un título y un mensaje'); return; }
+            quickTemplates.push({ title, text });
+            saveTemplatesToFirestore();
+            isAddingTemplate = false;
+            renderTemplates();
+        }
+
+        function deleteTemplate(index, e) {
+            e && e.stopPropagation();
+            if (!confirm('¿Eliminar esta plantilla?')) return;
+            quickTemplates.splice(index, 1);
+            saveTemplatesToFirestore();
+            renderTemplates();
+        }
+
+        function cancelTemplateEdit() {
+            editingTemplateIndex = -1;
+            isAddingTemplate = false;
+            renderTemplates();
+        }
+
         function useTemplate(index) {
+            if (editingTemplateIndex >= 0 || isAddingTemplate) return;
             const input = document.getElementById('replyInput');
             input.value = quickTemplates[index].text;
             input.focus();
@@ -1546,6 +1677,23 @@
         // Enter key login
         document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
         document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPassword').focus(); });
+
+        // Cerrar plantillas al hacer clic fuera o Escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && templatesOpen) {
+                document.getElementById('templates-panel').classList.add('hidden');
+                templatesOpen = false;
+            }
+        });
+        document.addEventListener('click', e => {
+            if (!templatesOpen) return;
+            const panel = document.getElementById('templates-panel');
+            const boltBtn = e.target.closest('[onclick="toggleTemplates()"]');
+            if (panel && !panel.contains(e.target) && !boltBtn) {
+                panel.classList.add('hidden');
+                templatesOpen = false;
+            }
+        });
     </script>
 </body>
 </html>

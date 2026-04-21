@@ -42,6 +42,26 @@
             transition: all 0.2s ease; flex-shrink: 0;
         }
         .img-preview-thumb:hover { transform: scale(1.8); box-shadow: 0 8px 25px rgba(0,0,0,0.15); z-index: 50; position: relative; }
+
+        .card-product-thumb {
+            width: 100%; height: 100px; object-fit: cover; border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, #e2e8f0, #f1f5f9);
+        }
+
+        .wa-bubble {
+            background: #dcf8c6; border-radius: 0 12px 12px 12px; padding: 10px 14px;
+            font-size: 13.5px; line-height: 1.45; color: #111b21; max-width: 280px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.06); white-space: pre-wrap; word-wrap: break-word;
+        }
+        .wa-bubble::before {
+            content: ''; position: absolute; top: 0; left: -8px; width: 0; height: 0;
+            border-top: 0 solid transparent; border-bottom: 10px solid transparent;
+            border-right: 10px solid #dcf8c6;
+        }
+
+        .char-counter { font-size: 10px; color: #94a3b8; text-align: right; margin-top: 2px; }
+        .char-counter.warn { color: #f59e0b; }
+        .char-counter.danger { color: #ef4444; font-weight: 700; }
     </style>
 </head>
 <body class="antialiased flex h-screen overflow-hidden">
@@ -225,8 +245,17 @@
                                     <p class="text-xs text-blue-600/80 font-medium mb-4 pb-3 border-b border-blue-200/50">Texto exacto que el bot enviará debajo de la imagen en el Bloque 1.</p>
 
                                     <div class="space-y-1.5">
-                                        <textarea id="prod-copy-bloque-1" rows="8" placeholder="🧶 *Kit +60 Moldes de Pijamas*&#10;&#10;💰 S/10&#10;&#10;🎁 +5 BONOS EXCLUSIVOS: Guía de precios, plantillas de atención, Comunidad VIP, 5 patrones de temporada y checklist emprendedor.&#10;&#10;⚠️ Solo primeras 50 compras de abril reciben los bonos.&#10;&#10;¿Te interesa? 😊" class="w-full bg-white border border-blue-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-blue-500 text-sm leading-relaxed"></textarea>
-                                        <p class="text-[10px] text-blue-600/70">Pega aquí el copy completo. Incluye nombre, precio, bonos resumen, escasez y pregunta gancho. Lo que escribas aquí es exactamente lo que el cliente verá.</p>
+                                        <textarea id="prod-copy-bloque-1" rows="8" oninput="updateWAPreview()" placeholder="🧶 *Kit +60 Moldes de Pijamas*&#10;&#10;💰 S/10&#10;&#10;🎁 +5 BONOS EXCLUSIVOS: Guía de precios, plantillas de atención, Comunidad VIP, 5 patrones de temporada y checklist emprendedor.&#10;&#10;⚠️ Solo primeras 50 compras de abril reciben los bonos.&#10;&#10;¿Te interesa? 😊" class="w-full bg-white border border-blue-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-blue-500 text-sm leading-relaxed"></textarea>
+                                        <div class="char-counter" id="counter-copy-bloque-1">0 / 4096</div>
+                                    </div>
+
+                                    <div class="mt-4 pt-4 border-t border-blue-200/50">
+                                        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2"><i class="fa-brands fa-whatsapp"></i> Vista previa WhatsApp</p>
+                                        <div class="bg-[#e5ddd5] rounded-xl p-4 min-h-[80px]">
+                                            <div class="relative">
+                                                <div class="wa-bubble" id="wa-preview-bubble">Escribe tu copy aquí para ver la vista previa...</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -287,7 +316,8 @@
 
                                         <div class="space-y-1.5">
                                             <label class="text-[11px] font-bold text-amber-700 uppercase tracking-widest">Detalle completo (para Bloque 2)</label>
-                                            <textarea id="prod-bonos-detalle" rows="5" placeholder="1️⃣ *Guía de precios y costos* — Sabe cuánto cobrar por cada creación&#10;2️⃣ *Plantillas de atención al cliente* — Mensajes listos para copiar y pegar&#10;3️⃣ *Comunidad VIP de emprendedoras* — Soporte directo y networking&#10;4️⃣ *5 patrones exclusivos de temporada* — No están en el pack principal&#10;5️⃣ *Checklist para emprendedores* — Paso a paso para armar tu negocio" class="w-full bg-white border border-amber-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-amber-500 text-sm"></textarea>
+                                            <textarea id="prod-bonos-detalle" rows="5" oninput="updateCharCounter(this,'counter-bonos-detalle')" placeholder="1️⃣ *Guía de precios y costos* — Sabe cuánto cobrar por cada creación&#10;2️⃣ *Plantillas de atención al cliente* — Mensajes listos para copiar y pegar&#10;3️⃣ *Comunidad VIP de emprendedoras* — Soporte directo y networking&#10;4️⃣ *5 patrones exclusivos de temporada* — No están en el pack principal&#10;5️⃣ *Checklist para emprendedores* — Paso a paso para armar tu negocio" class="w-full bg-white border border-amber-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-amber-500 text-sm"></textarea>
+                                            <div class="char-counter" id="counter-bonos-detalle">0 / 4096</div>
                                             <p class="text-[10px] text-amber-600/70">Detalle de cada bono con numeración. Se envía como mensaje de texto.</p>
                                         </div>
 
@@ -342,7 +372,8 @@
 
                                     <div class="space-y-1.5">
                                         <label class="text-[11px] font-bold text-violet-700 uppercase tracking-widest">Resumen para la IA</label>
-                                        <textarea id="prod-desc-ia" rows="4" placeholder="Ej: NutriCan Vital es una app que calcula dieta natural para perros. Resuelve problemas de alergias, sobrepeso y transición a comida casera. Incluye +200 recetas y planes personalizados..." class="w-full bg-white border border-violet-200 rounded-xl py-3 px-4 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm"></textarea>
+                                        <textarea id="prod-desc-ia" rows="4" oninput="updateCharCounter(this,'counter-desc-ia')" placeholder="Ej: NutriCan Vital es una app que calcula dieta natural para perros. Resuelve problemas de alergias, sobrepeso y transición a comida casera. Incluye +200 recetas y planes personalizados..." class="w-full bg-white border border-violet-200 rounded-xl py-3 px-4 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm"></textarea>
+                                        <div class="char-counter" id="counter-desc-ia">0 / 4096</div>
                                         <p class="text-[10px] text-violet-600/70">Describe qué es el producto, qué problemas resuelve y quién lo necesita. Gemini usará esto para responder dudas y cerrar ventas.</p>
                                     </div>
                                 </div>
@@ -356,7 +387,8 @@
                                     <div class="space-y-5">
                                         <div class="space-y-1.5">
                                             <label class="text-[11px] font-bold text-emerald-700 uppercase tracking-widest pl-1">Mensaje Persuasivo</label>
-                                            <textarea id="prod-mbump" rows="2" placeholder="¡Genial! Ya tienes tu acceso. 🎁 Antes de irte, por S/10 extra puedes añadir..." class="w-full bg-white border border-emerald-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-emerald-500"></textarea>
+                                            <textarea id="prod-mbump" rows="2" oninput="updateCharCounter(this,'counter-mbump')" placeholder="¡Genial! Ya tienes tu acceso. 🎁 Antes de irte, por S/10 extra puedes añadir..." class="w-full bg-white border border-emerald-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-emerald-500"></textarea>
+                                            <div class="char-counter" id="counter-mbump">0 / 4096</div>
                                         </div>
                                         
                                         <div class="space-y-1.5">
@@ -372,16 +404,9 @@
                                             <div id="preview-prod-bump-img" class="hidden mt-1"><img src="" class="img-preview-thumb" onerror="this.parentElement.classList.add('hidden')"></div>
                                         </div>
 
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div class="space-y-1.5">
-                                                <label class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">ID a Desbloquear</label>
-                                                <select id="prod-bump-id" class="w-full bg-white border border-emerald-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-emerald-500 text-xs appearance-none cursor-pointer">
-                                                </select>
-                                            </div>
-                                            <div class="space-y-1.5">
-                                                <label class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Precio a Validar (S/)</label>
-                                                <input type="number" id="prod-bump-precio" placeholder="10" class="w-full bg-white border border-emerald-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-emerald-500 text-xs">
-                                            </div>
+                                        <div class="space-y-1.5">
+                                            <label class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Precio a Validar (S/)</label>
+                                            <input type="number" id="prod-bump-precio" placeholder="10" class="w-full bg-white border border-emerald-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-emerald-500 text-xs">
                                         </div>
 
                                         <div class="space-y-1.5 pt-2 border-t border-emerald-100 mt-2">
@@ -403,7 +428,8 @@
                                             <label class="text-[11px] font-bold text-emerald-700 uppercase tracking-widest flex items-center gap-1.5">
                                                 <i class="fa-solid fa-robot text-emerald-500"></i> Resumen para la IA (Order Bump)
                                             </label>
-                                            <textarea id="prod-bump-desc-ia" rows="4" placeholder="Ej: El cliente ya compró NutriCan Vital. Ahora se le ofrece el recetario BARF con 50 recetas listas..." class="w-full bg-white border border-emerald-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-emerald-500 text-sm leading-relaxed"></textarea>
+                                            <textarea id="prod-bump-desc-ia" rows="4" oninput="updateCharCounter(this,'counter-bump-desc-ia')" placeholder="Ej: El cliente ya compró NutriCan Vital. Ahora se le ofrece el recetario BARF con 50 recetas listas..." class="w-full bg-white border border-emerald-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-emerald-500 text-sm leading-relaxed"></textarea>
+                                            <div class="char-counter" id="counter-bump-desc-ia">0 / 4096</div>
                                             <p class="text-[10px] text-emerald-600/70">Gemini leerá esto para defender el bono cuando el cliente haga preguntas.</p>
                                         </div>
                                     </div>
@@ -591,38 +617,6 @@
 
     <script>
         // ==========================================
-        // 0. CATÁLOGO CENTRAL DE PRODUCTOS (¡Edita solo esto!)
-        // ==========================================
-        const catalogApps = [
-            { id: "nutrican", name: "NutriCan Vital" },
-            { id: "mentecan", name: "Mentecan Vital" }
-        ];
-
-        const catalogEbooks = [
-            { id: "nutrichef", name: "NutriChef Vital" }
-        ];
-
-        // Función para renderizar dinámicamente el Paso 2 y el Paso 4
-        function renderDynamicCatalogs() {
-            // Generar Options para el Order Bump
-            const bumpSelect = document.getElementById('prod-bump-id');
-            let bumpHTML = `<option value="">Selecciona qué vender...</option>`;
-            
-            bumpHTML += `<optgroup label="📖 eBooks Interactivos">`;
-            catalogEbooks.forEach(e => bumpHTML += `<option value="${e.id}">${e.name}</option>`);
-            bumpHTML += `</optgroup>`;
-
-            bumpHTML += `<optgroup label="📱 Apps Adicionales">`;
-            catalogApps.forEach(a => bumpHTML += `<option value="${a.id}">${a.name}</option>`);
-            bumpHTML += `</optgroup>`;
-
-            bumpSelect.innerHTML = bumpHTML;
-        }
-
-        // Ejecutar apenas cargue la página
-        document.addEventListener('DOMContentLoaded', renderDynamicCatalogs);
-
-        // ==========================================
         // 1. FIREBASE CONFIG 
         // ==========================================
         const firebaseConfig = {
@@ -803,7 +797,6 @@
             
             document.getElementById('prod-mbump').value = '';
             document.getElementById('prod-bump-img').value = '';
-            document.getElementById('prod-bump-id').value = '';
             document.getElementById('prod-bump-precio').value = '';
             document.getElementById('prod-bump-desc-ia').value = '';
             document.getElementById('prod-bump-pdf').value = '';
@@ -837,7 +830,6 @@
                 
                 document.getElementById('prod-mbump').value = editData.mensaje_oferta_bump || '';
                 document.getElementById('prod-bump-img').value = editData.url_imagen_bump || '';
-                document.getElementById('prod-bump-id').value = editData.id_oferta_bump || '';
                 document.getElementById('prod-bump-precio').value = editData.precio_oferta_bump || '';
                 document.getElementById('prod-bump-desc-ia').value = editData.descripcion_bump_ia || '';
                 document.getElementById('prod-bump-pdf').value = editData.pdf_entrega_bump || '';
@@ -876,8 +868,10 @@
                 };
 
                 return `
-                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow relative group flex flex-col">
-                    <div class="absolute top-4 right-4 flex gap-2">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative group flex flex-col overflow-hidden">
+                    ${p.imagen_producto ? `<img src="${p.imagen_producto}" class="card-product-thumb" onerror="this.style.display='none'">` : ''}
+                    <div class="p-5 flex flex-col flex-1">
+                    <div class="absolute top-4 right-4 flex gap-2 z-10 ${p.imagen_producto ? 'mt-[100px]' : ''}">
                         <div class="w-2.5 h-2.5 rounded-full ${p.activo ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300'}"></div>
                     </div>
                     <div class="mb-1">${badges[p.tipo_oferta] || ''}</div>
@@ -895,6 +889,10 @@
                         <button onclick='duplicateProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="bg-violet-50 text-violet-600 font-bold py-2.5 px-3.5 rounded-xl text-sm border border-violet-200 hover:bg-violet-100 transition-colors" title="Duplicar paquete">
                             <i class="fa-solid fa-copy"></i>
                         </button>
+                        <button onclick='deleteProduct("${p.id}","${(p.nombre_producto || p.id).replace(/"/g, '\\"')}")' class="bg-rose-50 text-rose-500 font-bold py-2.5 px-3.5 rounded-xl text-sm border border-rose-200 hover:bg-rose-100 transition-colors opacity-0 group-hover:opacity-100" title="Eliminar paquete">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                     </div>
                 </div>`;
             }).join('');
@@ -932,10 +930,10 @@
                 
                 mensaje_oferta_bump: document.getElementById('prod-mbump').value,
                 url_imagen_bump: document.getElementById('prod-bump-img').value,
-                id_oferta_bump: document.getElementById('prod-bump-id').value,
                 precio_oferta_bump: Number(document.getElementById('prod-bump-precio').value),
                 descripcion_bump_ia: document.getElementById('prod-bump-desc-ia').value.trim(),
                 pdf_entrega_bump: document.getElementById('prod-bump-pdf').value.trim(),
+                id_oferta_bump: firebase.firestore.FieldValue.delete(),
                 apps_a_desbloquear: firebase.firestore.FieldValue.delete(),
                 ebooks_a_desbloquear: firebase.firestore.FieldValue.delete(),
                 
@@ -1258,6 +1256,65 @@
                 document.getElementById('prod-id-edit').value = '';
                 document.getElementById('editor-prod-title').innerText = 'Duplicando: ' + (data.nombre_producto || data.id);
             }, 100);
+        }
+
+        // ==========================================
+        // 10. CHARACTER COUNTER
+        // ==========================================
+        function updateCharCounter(textarea, counterId) {
+            const counter = document.getElementById(counterId);
+            if (!counter) return;
+            const len = textarea.value.length;
+            const max = 4096;
+            counter.textContent = `${len} / ${max}`;
+            counter.className = 'char-counter' + (len > max ? ' danger' : len > max * 0.85 ? ' warn' : '');
+        }
+
+        // Init counters on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('textarea').forEach(ta => {
+                const counterId = 'counter-' + ta.id;
+                const counter = document.getElementById(counterId);
+                if (counter) updateCharCounter(ta, counterId);
+            });
+        });
+
+        // ==========================================
+        // 11. WHATSAPP PREVIEW
+        // ==========================================
+        function updateWAPreview() {
+            const textarea = document.getElementById('prod-copy-bloque-1');
+            const bubble = document.getElementById('wa-preview-bubble');
+            const counterId = 'counter-copy-bloque-1';
+            if (!textarea || !bubble) return;
+            updateCharCounter(textarea, counterId);
+            const text = textarea.value.trim();
+            if (!text) {
+                bubble.innerHTML = '<span style="color:#8696a0">Escribe tu copy aquí para ver la vista previa...</span>';
+                return;
+            }
+            // Convertir *bold* a <b> y _italic_ a <i> para el preview
+            const formatted = text
+                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                .replace(/\*(.*?)\*/g, '<b>$1</b>')
+                .replace(/_(.*?)_/g, '<i>$1</i>')
+                .replace(/~(.*?)~/g, '<s>$1</s>')
+                .replace(/\n/g, '<br>');
+            bubble.innerHTML = formatted;
+        }
+
+        // ==========================================
+        // 12. DELETE PRODUCT
+        // ==========================================
+        async function deleteProduct(docId, name) {
+            if (!confirm(`¿Estás seguro de eliminar "${name}"?\n\nEsta acción NO se puede deshacer.`)) return;
+            try {
+                await db.collection('productos').doc(docId).delete();
+                showToast(`"${name}" eliminado`);
+                loadProducts();
+            } catch(e) {
+                showToast('Error eliminando producto', 'error');
+            }
         }
     </script>
 </body>

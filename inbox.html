@@ -153,6 +153,19 @@
         .wa-send-btn:active { transform: scale(0.95); }
         .wa-send-btn.sending { opacity: 0.5; pointer-events: none; }
 
+        /* ===== NOTIFICATION BADGE ===== */
+        .wa-icon-badge { position: relative; display: inline-flex; }
+        .wa-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid #f0f2f5; pointer-events: none; }
+        .wa-badge.hidden { display: none; }
+        .wa-badge.bounce { animation: badgeBounce 0.4s ease; }
+        @keyframes badgeBounce { 0% { transform: scale(0.5); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+        /* ===== CLIENT ITEM WITH UNREAD VOUCHER ===== */
+        .wa-client-item.has-voucher { background: #fff5f5; }
+        .wa-client-item.has-voucher:hover { background: #fee2e2; }
+        .wa-voucher-indicator { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; margin-left: 6px; flex-shrink: 0; animation: voucherPulse 2s infinite; }
+        @keyframes voucherPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
         /* Lightbox */
         .wa-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 200; display: flex; align-items: center; justify-content: center; cursor: zoom-out; }
         .wa-lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
@@ -204,7 +217,10 @@
                     <div class="avatar"><i class="fa-solid fa-comments"></i></div>
                     <div class="icons">
                         <i class="fa-solid fa-users"></i>
-                        <i class="fa-solid fa-message"></i>
+                        <span class="wa-icon-badge">
+                            <i class="fa-solid fa-message"></i>
+                            <span class="wa-badge hidden" id="voucher-badge">0</span>
+                        </span>
                         <i class="fa-solid fa-ellipsis-vertical" onclick="doLogout()" title="Cerrar sesión"></i>
                     </div>
                 </div>
@@ -330,6 +346,7 @@
         let unsubClients = null;
         let ADMIN_TOKEN = '';       // Token para llamar a los endpoints admin
         let currentBotPaused = false;  // Estado del bot para el cliente seleccionado
+        let unreadVouchers = {};    // { telefono: timestamp } — vouchers no leídos por el admin
 
         // ==========================================
         // AUTH
@@ -342,6 +359,7 @@
                 await exchangeAdminToken(user);
                 loadClients();
                 loadStats();
+                startVoucherListener();
             } else {
                 document.getElementById('screen-login').classList.remove('hidden');
                 document.getElementById('screen-inbox').classList.add('hidden');
@@ -439,6 +457,7 @@
                 const isActive = selectedClient === phone;
                 const div = document.createElement('div');
                 div.className = `wa-client-item${isActive ? ' active' : ''}`;
+                div.setAttribute('data-phone', phone);
                 div.onclick = () => openChat(phone);
                 div.innerHTML = `
                     <div class="wa-client-avatar"><i class="fa-solid fa-user"></i></div>
@@ -478,6 +497,20 @@
                 sendBtn.style.display = 'block';
                 micIcon.style.display = 'none';
                 setTimeout(() => replyInput.focus(), 100);
+            }
+
+            // Limpiar badge de voucher para este cliente
+            if (unreadVouchers) {
+                const todayISO = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
+                for (const key in unreadVouchers) {
+                    const keyPhone = key.replace(/_\d{4}-\d{2}-\d{2}.*$/, '');
+                    if (keyPhone === phone) {
+                        delete unreadVouchers[key];
+                    }
+                }
+                localStorage.setItem('seen_vouchers', JSON.stringify(unreadVouchers));
+                updateVoucherBadge();
+                updateClientListHighlights();
             }
 
             // Load session state
@@ -642,6 +675,115 @@
                     document.getElementById('stat-pendientes').textContent = pendientes;
                     document.getElementById('stat-activos').textContent = activos;
                 }, err => console.error('Stats sesiones error:', err));
+        }
+
+        // ==========================================
+        // NOTIFICACIÓN DE VOUCHERS (badge rojo)
+        // Detecta cuando un cliente envía una imagen (voucher)
+        // y muestra badge + resalta en la lista
+        // ==========================================
+        let unsubVouchers = null;
+
+        function startVoucherListener() {
+            // Cargar vouchers ya vistos desde localStorage
+            const seen = JSON.parse(localStorage.getItem('seen_vouchers') || '{}');
+            Object.assign(unreadVouchers, seen);
+
+            // Escuchar TODOS los mensajes de tipo imagen de TODOS los clientes
+            // Usamos la colección mensajes agrupada
+            db.collectionGroup('mensajes')
+                .where('tipo', '==', 'imagen')
+                .where('remitente', '==', 'cliente')
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .onSnapshot(snap => {
+                    const todayISO = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
+                    let newCount = 0;
+
+                    snap.forEach(doc => {
+                        const m = doc.data();
+                        const ts = m.timestamp || '';
+                        const phone = doc.ref.parent.parent.id;
+
+                        // Solo contar vouchers de hoy
+                        if (!ts.startsWith(todayISO)) return;
+
+                        // Si ya fue visto, ignorar
+                        if (unreadVouchers[phone + '_' + ts]) return;
+
+                        // Marcar como no leído
+                        unreadVouchers[phone + '_' + ts] = true;
+                        newCount++;
+                    });
+
+                    if (newCount > 0) {
+                        // Guardar en localStorage para no duplicar al recargar
+                        localStorage.setItem('seen_vouchers', JSON.stringify(unreadVouchers));
+                        updateVoucherBadge();
+                        updateClientListHighlights();
+                    }
+                }, err => console.error('Voucher listener error:', err));
+        }
+
+        function updateVoucherBadge() {
+            const badge = document.getElementById('voucher-badge');
+            if (!badge) return;
+
+            // Contar vouchers no leídos (excluir los del cliente actualmente seleccionado)
+            let count = 0;
+            for (const key in unreadVouchers) {
+                const phone = key.replace(/_\d{4}-\d{2}-\d{2}.*$/, '');
+                if (phone !== selectedClient) {
+                    count++;
+                }
+            }
+
+            if (count > 0) {
+                badge.textContent = count > 9 ? '9+' : count;
+                badge.classList.remove('hidden');
+                badge.classList.add('bounce');
+                setTimeout(() => badge.classList.remove('bounce'), 400);
+                // Cambiar título de la pestaña
+                document.title = `(${count}) EduDog Pro Inbox`;
+            } else {
+                badge.classList.add('hidden');
+                document.title = 'EduDog Pro Inbox';
+            }
+        }
+
+        function updateClientListHighlights() {
+            // Agregar clase has-voucher a clientes con vouchers pendientes
+            const items = document.querySelectorAll('.wa-client-item');
+            const todayISO = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
+
+            items.forEach(item => {
+                const phone = item.getAttribute('data-phone');
+                if (!phone) return;
+
+                let hasUnread = false;
+                for (const key in unreadVouchers) {
+                    const keyPhone = key.replace(/_\d{4}-\d{2}-\d{2}.*$/, '');
+                    const keyDate = key.replace(/^\d+_(\d{4}-\d{2}-\d{2}).*$/, '$1');
+                    if (keyPhone === phone && keyDate === todayISO && keyPhone !== selectedClient) {
+                        hasUnread = true;
+                        break;
+                    }
+                }
+
+                if (hasUnread) {
+                    item.classList.add('has-voucher');
+                    // Agregar indicador rojo si no existe
+                    if (!item.querySelector('.wa-voucher-indicator')) {
+                        const dot = document.createElement('span');
+                        dot.className = 'wa-voucher-indicator';
+                        item.querySelector('.wa-client-bottom').appendChild(dot);
+                    }
+                } else {
+                    item.classList.remove('has-voucher');
+                    const dot = item.querySelector('.wa-voucher-indicator');
+                    if (dot) dot.remove();
+                }
+            });
         }
 
         // ==========================================

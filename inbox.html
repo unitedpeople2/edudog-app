@@ -125,6 +125,34 @@
         .wa-footer-input span { color: #8696a0; font-size: 15px; }
         .wa-footer .read-only-badge { background: #e7fce3; color: #008069; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
 
+        /* ===== STATS PANEL ===== */
+        .wa-stats-panel { background: #f0f2f5; padding: 8px 12px; display: flex; gap: 8px; border-bottom: 1px solid #e9edef; }
+        .wa-stat-card { flex: 1; background: #fff; border-radius: 8px; padding: 8px 6px; text-align: center; cursor: default; transition: transform 0.1s; }
+        .wa-stat-card:hover { transform: scale(1.03); }
+        .wa-stat-value { font-size: 20px; font-weight: 700; color: #111b21; line-height: 1.2; }
+        .wa-stat-value.green { color: #25d366; }
+        .wa-stat-value.orange { color: #f59e0b; }
+        .wa-stat-value.blue { color: #008069; }
+        .wa-stat-value.red { color: #ef4444; }
+        .wa-stat-label { font-size: 10px; color: #667781; margin-top: 3px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+
+        /* ===== BOT TOGGLE ===== */
+        .wa-bot-toggle { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 16px; cursor: pointer; transition: background 0.2s; user-select: none; }
+        .wa-bot-toggle.active { background: #e7fce3; color: #008069; }
+        .wa-bot-toggle.paused { background: #fce7e7; color: #d32f2f; }
+        .wa-bot-toggle .toggle-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .wa-bot-toggle.active .toggle-dot { background: #25d366; }
+        .wa-bot-toggle.paused .toggle-dot { background: #ef4444; }
+
+        /* ===== REPLY INPUT ===== */
+        .wa-footer-input input { border: none; outline: none; background: transparent; flex: 1; font-size: 15px; color: #3b4a54; padding: 0; height: 100%; font-family: inherit; }
+        .wa-footer-input input::placeholder { color: #8696a0; }
+        .wa-footer-input input:disabled { opacity: 0.5; }
+        .wa-send-btn { color: #00a884 !important; cursor: pointer; transition: transform 0.15s; }
+        .wa-send-btn:hover { transform: scale(1.15); }
+        .wa-send-btn:active { transform: scale(0.95); }
+        .wa-send-btn.sending { opacity: 0.5; pointer-events: none; }
+
         /* Lightbox */
         .wa-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 200; display: flex; align-items: center; justify-content: center; cursor: zoom-out; }
         .wa-lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
@@ -189,6 +217,27 @@
                         <i class="fa-solid fa-bars"></i>
                     </button>
                 </div>
+
+                <!-- STATS PANEL (ventas del día) -->
+                <div class="wa-stats-panel" id="stats-panel">
+                    <div class="wa-stat-card">
+                        <div class="wa-stat-value green" id="stat-ventas">0</div>
+                        <div class="wa-stat-label">Ventas hoy</div>
+                    </div>
+                    <div class="wa-stat-card">
+                        <div class="wa-stat-value blue" id="stat-ingresos">S/ 0</div>
+                        <div class="wa-stat-label">Ingresos</div>
+                    </div>
+                    <div class="wa-stat-card">
+                        <div class="wa-stat-value orange" id="stat-pendientes">0</div>
+                        <div class="wa-stat-label">Pendientes</div>
+                    </div>
+                    <div class="wa-stat-card">
+                        <div class="wa-stat-value red" id="stat-activos">0</div>
+                        <div class="wa-stat-label">En chat</div>
+                    </div>
+                </div>
+
                 <div id="client-list" class="wa-client-list"></div>
             </aside>
 
@@ -218,8 +267,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="wa-chat-header-right">
-                            <i class="fa-solid fa-magnifying-glass"></i>
+                        <div class="wa-chat-header-right" style="align-items:center;">
+                            <span id="bot-toggle" class="wa-bot-toggle active" onclick="toggleBot()" title="Click para pausar/reanudar el bot">
+                                <span class="toggle-dot"></span>
+                                <span id="bot-toggle-label">Bot activo</span>
+                            </span>
                             <i class="fa-solid fa-ellipsis-vertical"></i>
                         </div>
                     </div>
@@ -232,10 +284,10 @@
                             <i class="fa-solid fa-paperclip"></i>
                         </div>
                         <div class="wa-footer-input">
-                            <span>Mensaje</span>
+                            <input type="text" id="replyInput" placeholder="Escribe un mensaje..." onkeydown="handleReplyKeydown(event)" disabled>
                         </div>
-                        <i class="fa-solid fa-microphone" style="color:#54656f; font-size:20px;"></i>
-                        <span class="read-only-badge">Solo lectura</span>
+                        <i id="sendBtn" class="fa-solid fa-paper-plane wa-send-btn" onclick="sendMessage()" style="font-size:20px; display:none;"></i>
+                        <i id="micIcon" class="fa-solid fa-microphone" style="color:#54656f; font-size:20px;"></i>
                     </div>
                 </div>
             </main>
@@ -263,26 +315,65 @@
         const auth = firebase.auth();
 
         // ==========================================
+        // ⚠️ CONFIGURACIÓN — URL DE TU BOT EN CLOUD RUN
+        // Si el inbox está alojado en el mismo Cloud Run, deja vacío: ''
+        // Si está en otro lugar, pon la URL completa, ej: 'https://tu-bot-xxxxx-uc.a.run.app'
+        // ==========================================
+        const API_BASE_URL = 'https://bot-cursos-digitales-500394828639.southamerica-west1.run.app';
+
+        // ==========================================
         // STATE
         // ==========================================
         let clientsData = {};
         let selectedClient = null;
         let unsubMessages = null;
         let unsubClients = null;
+        let ADMIN_TOKEN = '';       // Token para llamar a los endpoints admin
+        let currentBotPaused = false;  // Estado del bot para el cliente seleccionado
 
         // ==========================================
         // AUTH
         // ==========================================
-        auth.onAuthStateChanged(user => {
+        auth.onAuthStateChanged(async user => {
             if (user) {
                 document.getElementById('screen-login').classList.add('hidden');
                 document.getElementById('screen-inbox').classList.remove('hidden');
+                // Intercambiar Firebase token por Admin token
+                await exchangeAdminToken(user);
                 loadClients();
+                loadStats();
             } else {
                 document.getElementById('screen-login').classList.remove('hidden');
                 document.getElementById('screen-inbox').classList.add('hidden');
+                ADMIN_TOKEN = '';
             }
         });
+
+        async function exchangeAdminToken(user) {
+            try {
+                const idToken = await user.getIdToken();
+                const res = await fetch(`${API_BASE_URL}/api/admin-auth`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${idToken}`, 'Content-Type': 'application/json' }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    ADMIN_TOKEN = data.admin_token;
+                    console.log('✅ Admin token obtenido para:', data.email);
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    console.error('❌ Error admin-auth:', err.error || res.status);
+                    if (res.status === 403) {
+                        alert('Tu email no está autorizado como admin. Pide al dueño que agregue tu email en Firestore: config/admin');
+                        auth.signOut();
+                    } else if (res.status === 500 && err.error && err.error.includes('admins configurados')) {
+                        alert('Falta configurar admins. Crea en Firestore:\nColección: config\nDocumento: admin\nCampos: { admin_emails: ["' + user.email + '"] }');
+                    }
+                }
+            } catch (e) {
+                console.error('❌ Error conectando con el backend:', e);
+            }
+        }
 
         function doLogin() {
             const email = document.getElementById('loginEmail').value;
@@ -378,12 +469,26 @@
             document.getElementById('chat-view').style.display = 'flex';
             document.getElementById('chat-phone').textContent = phone;
 
+            // Enable reply input when admin token is available
+            const replyInput = document.getElementById('replyInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const micIcon = document.getElementById('micIcon');
+            if (ADMIN_TOKEN) {
+                replyInput.disabled = false;
+                sendBtn.style.display = 'block';
+                micIcon.style.display = 'none';
+                setTimeout(() => replyInput.focus(), 100);
+            }
+
             // Load session state
             db.collection('sesiones').doc(phone).get().then(snap => {
                 const s = snap.exists ? snap.to_dict() : {};
                 const state = s.state || 'desconocido';
                 document.getElementById('chat-state-label').textContent = formatState(state);
                 document.getElementById('chat-state-dot').className = `state-dot ${getStateBg(state)}`;
+                // Check if bot is paused for this client
+                currentBotPaused = s.bot_pausado || false;
+                updateBotToggleUI();
             });
 
             // Real-time messages
@@ -406,7 +511,8 @@
 
                     docs.forEach(doc => {
                         const m = doc.data();
-                        const isBot = m.remitente === 'bot';
+                        const isClient = m.remitente === 'cliente';
+                        const remitente = m.remitente || '';
                         const tipo = m.tipo || 'texto';
                         const ts = m.timestamp || '';
                         const timeStr = formatTimeShort(ts);
@@ -422,19 +528,19 @@
                         }
 
                         const row = document.createElement('div');
-                        row.className = `wa-msg-row ${isBot ? 'bot' : 'client'} fade-in`;
+                        row.className = `wa-msg-row ${isClient ? 'client' : 'bot'} fade-in`;
                         let html = '';
 
                         if (tipo === 'imagen') {
                             const url = m.url_media || '';
                             if (url) {
-                                html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                                html = `<div class="wa-bubble ${isClient ? 'client' : 'bot'}">
                                     <img src="${url}" class="wa-bubble-img" loading="lazy" onclick="openLightbox(this.src)" onerror="this.outerHTML='<div style=\\'padding:30px;text-align:center;\\'><i class=\\'fa-solid fa-image\\' style=\\'font-size:36px;color:#cfd4d7;\\'></i><div style=\\'font-size:12px;color:#8696a0;margin-top:8px;\\'>Imagen no disponible</div></div>'">
                                     ${m.caption ? `<div class="wa-msg-text" style="margin-top:4px;">${escapeHtml(m.caption)}</div>` : ''}
-                                    <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                                    <span class="wa-msg-time">${timeStr} ${!isClient ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
                                 </div>`;
                             } else {
-                                html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                                html = `<div class="wa-bubble ${isClient ? 'client' : 'bot'}">
                                     <div style="padding:20px;text-align:center;"><i class="fa-solid fa-image" style="font-size:28px;color:#cfd4d7;"></i><div style="font-size:12px;color:#8696a0;margin-top:6px;">📷 Imagen (captura de pago)</div></div>
                                     <span class="wa-msg-time">${timeStr}</span>
                                 </div>`;
@@ -442,7 +548,7 @@
                         } else if (tipo === 'documento') {
                             const docUrl = m.url_media || '#';
                             const docName = escapeHtml(m.caption || m.texto || 'Documento.pdf');
-                            html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                            html = `<div class="wa-bubble ${isClient ? 'client' : 'bot'}">
                                 <a href="${docUrl}" target="_blank" class="wa-doc-chip" style="text-decoration:none;">
                                     <div class="wa-doc-icon"><i class="fa-solid fa-file-pdf"></i></div>
                                     <div class="wa-doc-info">
@@ -451,39 +557,39 @@
                                     </div>
                                     <i class="fa-solid fa-download" style="color:#8696a0;font-size:18px;"></i>
                                 </a>
-                                <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                                <span class="wa-msg-time">${timeStr} ${!isClient ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
                             </div>`;
                         } else if (tipo === 'botones') {
-                            html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                            html = `<div class="wa-bubble ${isClient ? 'client' : 'bot'}">
                                 <div class="wa-btn-chip">
                                     <div class="wa-btn-icon"><i class="fa-solid fa-list"></i></div>
                                     <span class="wa-btn-text">${escapeHtml(m.texto || 'Opciones de pago')}</span>
                                 </div>
-                                <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                                <span class="wa-msg-time">${timeStr} ${!isClient ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
                             </div>`;
                         } else if (tipo === 'audio') {
-                            html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                            html = `<div class="wa-bubble ${isClient ? 'client' : 'bot'}">
                                 <div style="display:flex;align-items:center;gap:12px;padding:4px 0;">
                                     <i class="fa-solid fa-play" style="color:#00a884;font-size:20px;cursor:pointer;"></i>
                                     <div style="flex:1;height:4px;background:#e9edef;border-radius:2px;position:relative;"><div style="width:0;height:100%;background:#00a884;border-radius:2px;"></div></div>
                                     <span style="font-size:11px;color:#667781;">0:00</span>
                                 </div>
-                                <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                                <span class="wa-msg-time">${timeStr} ${!isClient ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
                             </div>`;
                         } else if (tipo === 'video') {
-                            html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                            html = `<div class="wa-bubble ${isClient ? 'client' : 'bot'}">
                                 <div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
                                     <div style="width:48px;height:48px;background:#00a884;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video" style="color:#fff;font-size:18px;"></i></div>
                                     <span style="font-size:14px;color:#111b21;">${escapeHtml(m.caption || m.texto || 'Video')}</span>
                                 </div>
-                                <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                                <span class="wa-msg-time">${timeStr} ${!isClient ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
                             </div>`;
                         } else {
                             const text = m.texto || '';
                             if (text) {
-                                html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                                html = `<div class="wa-bubble ${isClient ? 'client' : 'bot'}">
                                     <span class="wa-msg-text">${formatWAText(text)}</span>
-                                    <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                                    <span class="wa-msg-time">${timeStr} ${!isClient ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
                                 </div>`;
                             }
                         }
@@ -494,6 +600,141 @@
 
                     setTimeout(() => { area.scrollTop = area.scrollHeight; }, 50);
                 }, err => console.error(err));
+        }
+
+        // ==========================================
+        // STATS PANEL (ventas del día — real-time)
+        // ==========================================
+        function loadStats() {
+            const hoy = new Date();
+            const peruOffset = hoy.getTimezoneOffset() + 300; // UTC-5 = +300 min correction
+            const peruDate = new Date(hoy.getTime() + peruOffset * 60000);
+            const hoyISO = peruDate.toISOString().split('T')[0]; // "2026-04-22"
+
+            // Ventas de hoy (real-time)
+            db.collection('ventas')
+                .where('fecha_venta', '>=', hoyISO)
+                .onSnapshot(snap => {
+                    let ventas = 0, ingresos = 0;
+                    snap.forEach(doc => {
+                        const v = doc.data();
+                        ventas++;
+                        ingresos += parseFloat(v.precio) || 0;
+                    });
+                    document.getElementById('stat-ventas').textContent = ventas;
+                    document.getElementById('stat-ingresos').textContent = 'S/ ' + Math.round(ingresos);
+                }, err => console.error('Stats ventas error:', err));
+
+            // Vouchers pendientes (sesiones en esperando_captura)
+            db.collection('sesiones')
+                .where('flujo_enviado', '==', true)
+                .onSnapshot(snap => {
+                    let pendientes = 0, activos = 0;
+                    snap.forEach(doc => {
+                        const s = doc.data();
+                        const state = s.state || '';
+                        if (['esperando_captura', 'esperando_captura_bump', 'esperando_captura_hub'].includes(state)) {
+                            pendientes++;
+                        }
+                        if (state && state !== 'completado' && state !== 'nuevo') {
+                            activos++;
+                        }
+                    });
+                    document.getElementById('stat-pendientes').textContent = pendientes;
+                    document.getElementById('stat-activos').textContent = activos;
+                }, err => console.error('Stats sesiones error:', err));
+        }
+
+        // ==========================================
+        // ENVIAR MENSAJE MANUAL
+        // ==========================================
+        async function sendMessage() {
+            const input = document.getElementById('replyInput');
+            const text = input.value.trim();
+            if (!text || !selectedClient || !ADMIN_TOKEN) return;
+
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.classList.add('sending');
+            input.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/enviar-manual`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': ADMIN_TOKEN
+                    },
+                    body: JSON.stringify({ telefono: selectedClient, texto: text })
+                });
+
+                if (res.ok) {
+                    input.value = '';
+                    // Bot se pausa automáticamente — actualizar toggle
+                    currentBotPaused = true;
+                    updateBotToggleUI();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert('Error al enviar: ' + (err.error || 'Error desconocido'));
+                }
+            } catch (e) {
+                alert('Error de conexión con el servidor');
+                console.error('Send error:', e);
+            } finally {
+                input.disabled = false;
+                sendBtn.classList.remove('sending');
+                input.focus();
+            }
+        }
+
+        function handleReplyKeydown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // ==========================================
+        // TOGGLE BOT (pausar / reanudar)
+        // ==========================================
+        async function toggleBot() {
+            if (!selectedClient || !ADMIN_TOKEN) return;
+
+            const newState = !currentBotPaused; // Toggle: si está pausado → reanudar, si activo → pausar
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/toggle-bot`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': ADMIN_TOKEN
+                    },
+                    body: JSON.stringify({ telefono: selectedClient, pausado: newState })
+                });
+
+                if (res.ok) {
+                    currentBotPaused = newState;
+                    updateBotToggleUI();
+                } else {
+                    alert('Error al cambiar estado del bot');
+                }
+            } catch (e) {
+                alert('Error de conexión');
+                console.error('Toggle bot error:', e);
+            }
+        }
+
+        function updateBotToggleUI() {
+            const toggle = document.getElementById('bot-toggle');
+            const label = document.getElementById('bot-toggle-label');
+            if (!toggle) return;
+
+            if (currentBotPaused) {
+                toggle.className = 'wa-bot-toggle paused';
+                label.textContent = 'Bot pausado';
+            } else {
+                toggle.className = 'wa-bot-toggle active';
+                label.textContent = 'Bot activo';
+            }
         }
 
         // ==========================================

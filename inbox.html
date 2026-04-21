@@ -13,190 +13,244 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap');
         
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #111b21; color: #e9edef; }
-        
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #374045; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #54656f; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; overflow: hidden; background: #d1d7db; }
 
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* ===== WHATSAPP WEB LAYOUT ===== */
+        .wa-top-bar { background: #008069; height: 127px; position: fixed; top: 0; left: 0; right: 0; z-index: 0; }
+        .wa-container { position: relative; z-index: 1; max-width: 1600px; height: 100vh; margin: 0 auto; display: flex; box-shadow: 0 6px 18px rgba(0,0,0,0.16); }
 
-        /* Client list item */
-        .client-item { transition: background 0.15s; cursor: pointer; }
-        .client-item:hover { background: #202c33; }
-        .client-item.active { background: #2a3942; }
+        /* ===== SIDEBAR ===== */
+        .wa-sidebar { width: 440px; min-width: 340px; background: #fff; border-right: 1px solid #e9edef; display: flex; flex-direction: column; }
+        .wa-sidebar-header { background: #f0f2f5; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; height: 59px; }
+        .wa-sidebar-header .avatar { width: 40px; height: 40px; border-radius: 50%; background: #00a884; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; }
+        .wa-sidebar-header .icons { display: flex; gap: 22px; }
+        .wa-sidebar-header .icons i { color: #54656f; font-size: 18px; cursor: pointer; }
+        .wa-sidebar-header .icons i:hover { color: #313d45; }
+        .wa-search { background: #f0f2f5; padding: 8px 12px; display: flex; align-items: center; gap: 20px; }
+        .wa-search-box { background: #fff; border-radius: 8px; padding: 0 12px; display: flex; align-items: center; flex: 1; height: 35px; border: none; }
+        .wa-search-box input { border: none; outline: none; background: transparent; flex: 1; font-size: 13px; color: #3b4a54; padding: 0 12px; height: 100%; }
+        .wa-search-box input::placeholder { color: #8696a0; }
+        .wa-search-box i { color: #54656f; font-size: 14px; }
+        .wa-search-filter { background: #fff; border-radius: 8px; padding: 0 12px; height: 35px; display: flex; align-items: center; gap: 6px; cursor: pointer; color: #54656f; font-size: 12px; font-weight: 500; border: none; }
+        .wa-search-filter i { font-size: 10px; }
 
-        /* Chat bubbles */
-        .bubble-bot {
-            background: #202c33; border-radius: 0 12px 12px 12px; padding: 8px 12px 6px;
-            max-width: 65%; word-wrap: break-word; white-space: pre-wrap;
+        /* Client list */
+        .wa-client-list { flex: 1; overflow-y: auto; }
+        .wa-client-item { display: flex; align-items: center; padding: 10px 16px; cursor: pointer; border-bottom: 1px solid #f5f6f6; transition: background 0.1s; height: 72px; }
+        .wa-client-item:hover { background: #f5f6f6; }
+        .wa-client-item.active { background: #f0f2f5; }
+        .wa-client-avatar { width: 49px; height: 49px; border-radius: 50%; background: #e9edef; display: flex; align-items: center; justify-content: center; margin-right: 13px; flex-shrink: 0; }
+        .wa-client-avatar i { color: #cfd4d7; font-size: 22px; }
+        .wa-client-info { flex: 1; min-width: 0; border-bottom: 1px solid #f5f6f6; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+        .wa-client-item:last-child .wa-client-info { border-bottom: none; }
+        .wa-client-top { display: flex; justify-content: space-between; align-items: baseline; }
+        .wa-client-name { font-size: 16px; color: #111b21; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .wa-client-time { font-size: 12px; color: #667781; flex-shrink: 0; margin-left: 6px; }
+        .wa-client-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+        .wa-client-msg { font-size: 14px; color: #667781; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+        .wa-client-badge { background: #25d366; color: #111b21; min-width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; margin-left: 6px; padding: 0 5px; }
+        .wa-state-dot { width: 8px; height: 8px; border-radius: 50%; margin-left: 6px; flex-shrink: 0; }
+
+        /* ===== CHAT PANEL ===== */
+        .wa-chat-panel { flex: 1; display: flex; flex-direction: column; }
+        .wa-chat-header { background: #f0f2f5; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; height: 59px; }
+        .wa-chat-header-left { display: flex; align-items: center; gap: 15px; }
+        .wa-chat-header .avatar { width: 40px; height: 40px; border-radius: 50%; background: #e9edef; display: flex; align-items: center; justify-content: center; }
+        .wa-chat-header .avatar i { color: #cfd4d7; font-size: 18px; }
+        .wa-chat-header-info h3 { font-size: 16px; color: #111b21; font-weight: 400; margin: 0; }
+        .wa-chat-header-info .state-line { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+        .wa-chat-header-info .state-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .wa-chat-header-info .state-text { font-size: 13px; color: #667781; font-weight: 400; text-transform: capitalize; }
+        .wa-chat-header-right { display: flex; gap: 22px; }
+        .wa-chat-header-right i { color: #54656f; font-size: 18px; cursor: pointer; }
+
+        /* Chat messages area */
+        .wa-chat-bg {
+            flex: 1; overflow-y: auto; padding: 20px 60px;
+            background-color: #efeae2;
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4ccba' fill-opacity='0.4'%3E%3Cpath d='M20 20h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zM20 60h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zM20 100h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zM20 140h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zM20 180h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zM20 220h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zM20 260h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zM20 300h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zM20 340h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zM20 380h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2zm40 0h2v2h-2z'/%3E%3C/g%3E%3C/svg%3E");
         }
-        .bubble-client {
-            background: #005c4b; border-radius: 12px 0 12px 12px; padding: 8px 12px 6px;
-            max-width: 65%; word-wrap: break-word; white-space: pre-wrap;
+
+        /* Message bubbles */
+        .wa-msg-row { display: flex; margin-bottom: 4px; }
+        .wa-msg-row.bot { justify-content: flex-start; }
+        .wa-msg-row.client { justify-content: flex-end; }
+        .wa-msg-row.system { justify-content: center; }
+
+        .wa-bubble {
+            max-width: 65%; padding: 6px 7px 8px 9px; border-radius: 7.5px;
+            position: relative; word-wrap: break-word; box-shadow: 0 1px 0.5px rgba(11,20,26,0.13);
         }
+        .wa-bubble.bot { background: #fff; border-top-left-radius: 0; }
+        .wa-bubble.client { background: #d9fdd3; border-top-right-radius: 0; }
+        .wa-bubble.system { background: #ffecd2; border-radius: 7.5px; padding: 5px 12px; max-width: 90%; box-shadow: none; }
 
-        /* Chat bg pattern */
-        .chat-bg {
-            background-color: #0b141a;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23111b21' fill-opacity='0.6'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
+        .wa-msg-text { font-size: 14.2px; line-height: 19px; color: #111b21; white-space: pre-wrap; }
+        .wa-msg-time { font-size: 11px; color: #667781; float: right; margin: 4px 0 -4px 8px; position: relative; top: 5px; }
+        .wa-msg-time .fa-check-double { font-size: 16px; color: #53bdeb; }
 
-        /* Image in chat */
-        .chat-image { border-radius: 8px; max-width: 280px; max-height: 280px; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
-        .chat-image:hover { transform: scale(1.03); }
+        /* Image in bubble */
+        .wa-bubble-img { border-radius: 6px; max-width: 330px; max-height: 330px; object-fit: cover; cursor: pointer; display: block; }
+        .wa-bubble-img:hover { opacity: 0.92; }
 
-        /* Document chip */
-        .doc-chip { background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
-        .doc-chip:hover { background: rgba(0,0,0,0.3); }
+        /* Document in bubble */
+        .wa-doc-chip { display: flex; align-items: center; gap: 10px; padding: 8px 0; cursor: pointer; text-decoration: none; }
+        .wa-doc-icon { width: 44px; height: 44px; background: #00a884; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .wa-doc-icon i { color: #fff; font-size: 20px; }
+        .wa-doc-info { flex: 1; min-width: 0; }
+        .wa-doc-name { font-size: 14px; color: #111b21; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .wa-doc-size { font-size: 12px; color: #667781; margin-top: 2px; }
 
-        /* Buttons chip */
-        .btn-chip { background: rgba(0,92,75,0.3); border: 1px solid rgba(0,188,140,0.3); border-radius: 8px; padding: 10px 14px; }
+        /* Buttons in bubble */
+        .wa-btn-chip { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+        .wa-btn-icon { width: 36px; height: 36px; background: #00a884; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .wa-btn-icon i { color: #fff; font-size: 14px; }
+        .wa-btn-text { font-size: 14px; color: #111b21; }
+
+        /* Empty state */
+        .wa-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; border-bottom: 6px solid #00a884; text-align: center; }
+        .wa-empty-icon { width: 320px; height: 188px; margin-bottom: 30px; position: relative; }
+        .wa-empty-icon img { width: 100%; height: 100%; object-fit: contain; opacity: 0.08; }
+        .wa-empty h2 { font-size: 32px; color: #41525d; font-weight: 300; margin: 0 0 16px; }
+        .wa-empty p { font-size: 14px; color: #667781; max-width: 500px; line-height: 20px; margin: 0; }
+
+        /* Footer bar */
+        .wa-footer { background: #f0f2f5; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; height: 62px; border-top: 1px solid #e9edef; }
+        .wa-footer-icons { display: flex; gap: 18px; }
+        .wa-footer-icons i { color: #54656f; font-size: 20px; cursor: pointer; }
+        .wa-footer-input { flex: 1; margin: 0 12px; background: #fff; border-radius: 8px; padding: 9px 12px; display: flex; align-items: center; min-height: 42px; }
+        .wa-footer-input span { color: #8696a0; font-size: 15px; }
+        .wa-footer .read-only-badge { background: #e7fce3; color: #008069; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
 
         /* Lightbox */
-        .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: flex; align-items: center; justify-content: center; cursor: zoom-out; }
-        .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; }
+        .wa-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 200; display: flex; align-items: center; justify-content: center; cursor: zoom-out; }
+        .wa-lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .wa-lightbox-close { position: absolute; top: 20px; right: 20px; color: #fff; font-size: 28px; cursor: pointer; }
 
-        /* Status badge colors */
-        .state-nuevo { background: #3b82f6; }
-        .state-conversando { background: #8b5cf6; }
-        .state-esperando_opcion_pago { background: #f59e0b; }
-        .state-esperando_captura { background: #ef4444; }
-        .state-esperando_captura_bump { background: #f97316; }
-        .state-completado { background: #10b981; }
-        .state-default { background: #6b7280; }
+        /* Login screen */
+        .login-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #fff; border-radius: 12px; padding: 40px; width: 400px; box-shadow: 0 2px 20px rgba(0,0,0,0.15); }
+        .login-card h1 { text-align: center; color: #41525d; font-size: 24px; font-weight: 300; margin-bottom: 8px; }
+        .login-card .subtitle { text-align: center; color: #667781; font-size: 14px; margin-bottom: 30px; }
+        .login-card input { width: 100%; border: 1px solid #e9edef; border-radius: 8px; padding: 10px 14px; font-size: 14px; outline: none; color: #111b21; margin-bottom: 12px; }
+        .login-card input:focus { border-color: #00a884; }
+        .login-card button { width: 100%; background: #00a884; color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 16px; font-weight: 500; cursor: pointer; }
+        .login-card button:hover { background: #008069; }
+        .login-icon { text-align: center; margin-bottom: 20px; }
+        .login-icon i { font-size: 48px; color: #00a884; }
 
-        .unread-badge { background: #25d366; min-width: 20px; height: 20px; border-radius: 10px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 6px; }
+        .hidden { display: none !important; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .fade-in { animation: fadeIn 0.15s ease; }
     </style>
 </head>
-<body class="antialiased flex h-screen overflow-hidden">
+<body>
 
-    <!-- ========== LOGIN SCREEN ========== -->
-    <div id="screen-login" class="fixed inset-0 z-50 bg-slate-50 flex items-center justify-center fade-in">
-        <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-emerald-600 to-slate-900 rounded-b-[4rem] opacity-100 z-0"></div>
-        <div class="relative z-10 w-full max-w-sm px-6">
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 flex items-center justify-center mx-auto mb-4 shadow-xl">
-                    <i class="fa-solid fa-comments text-4xl text-white"></i>
-                </div>
-                <h1 class="text-3xl font-extrabold text-white">Inbox</h1>
-                <p class="text-emerald-200 font-medium mt-1 text-sm">Centro de Mensajes</p>
-            </div>
-            <div class="bg-white p-6 rounded-[2rem] shadow-2xl space-y-4">
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Correo</label>
-                    <div class="relative bg-slate-50 border border-slate-200 rounded-2xl">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-envelope"></i></span>
-                        <input type="email" id="loginEmail" placeholder="admin@ejemplo.com" class="w-full bg-transparent text-slate-900 py-3.5 pl-12 pr-4 outline-none font-bold text-sm">
-                    </div>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Contraseña</label>
-                    <div class="relative bg-slate-50 border border-slate-200 rounded-2xl">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-lock"></i></span>
-                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full bg-transparent text-slate-900 py-3.5 pl-12 pr-4 outline-none font-bold text-sm">
-                    </div>
-                </div>
-                <button onclick="doLogin()" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-2xl hover:bg-emerald-700 active:scale-95 transition-all text-sm mt-2 flex justify-center items-center gap-2">
-                    Ingresar <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </div>
+    <!-- ========== LOGIN ========== -->
+    <div id="screen-login" class="login-overlay">
+        <div class="login-card fade-in">
+            <div class="login-icon"><i class="fa-brands fa-whatsapp"></i></div>
+            <h1>EduDog Pro Inbox</h1>
+            <p class="subtitle">Centro de mensajes del bot</p>
+            <input type="email" id="loginEmail" placeholder="Correo electrónico">
+            <input type="password" id="loginPassword" placeholder="Contraseña">
+            <button onclick="doLogin()">Iniciar sesión</button>
         </div>
     </div>
 
-    <!-- ========== MAIN INBOX ========== -->
-    <div id="screen-inbox" class="hidden w-full h-full flex">
+    <!-- ========== MAIN ========== -->
+    <div id="screen-inbox" class="hidden">
 
-        <!-- Left Sidebar -->
-        <aside class="w-[380px] bg-[#111b21] border-r border-[#222d34] flex flex-col shrink-0">
-            <!-- Header -->
-            <div class="bg-[#202c33] px-5 py-3 flex items-center justify-between shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fa-solid fa-comments text-white"></i>
-                    </div>
-                    <div>
-                        <h2 class="font-black text-sm text-[#e9edef]">Inbox</h2>
-                        <p class="text-[10px] text-[#8696a0] font-bold" id="client-count">0 clientes</p>
-                    </div>
-                </div>
-                <button onclick="doLogout()" class="text-[#8696a0] hover:text-[#e9edef] transition-colors p-2" title="Cerrar sesión">
-                    <i class="fa-solid fa-right-from-brucket"></i>
-                </button>
-            </div>
+        <!-- Top green bar -->
+        <div class="wa-top-bar"></div>
 
-            <!-- Search -->
-            <div class="px-3 py-2 bg-[#111b21]">
-                <div class="relative">
-                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#8696a0] text-sm"><i class="fa-solid fa-magnifying-glass"></i></span>
-                    <input type="text" id="searchInput" oninput="filterClients()" placeholder="Buscar cliente..." class="w-full bg-[#202c33] border border-[#313d45] rounded-xl py-2.5 pl-10 pr-4 text-sm text-[#e9edef] outline-none focus:border-[#00a884] placeholder-[#8696a0]">
-                </div>
-            </div>
-
-            <!-- Client List -->
-            <div id="client-list" class="flex-1 overflow-y-auto"></div>
-        </aside>
-
-        <!-- Right Panel - Chat -->
-        <main class="flex-1 flex flex-col h-full">
+        <div class="wa-container">
             
-            <!-- Empty State -->
-            <div id="empty-state" class="flex-1 flex items-center justify-center chat-bg">
-                <div class="text-center">
-                    <div class="w-24 h-24 bg-[#202c33] rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fa-solid fa-comments text-4xl text-[#8696a0]"></i>
+            <!-- SIDEBAR -->
+            <aside class="wa-sidebar">
+                <div class="wa-sidebar-header">
+                    <div class="avatar"><i class="fa-solid fa-comments"></i></div>
+                    <div class="icons">
+                        <i class="fa-solid fa-users"></i>
+                        <i class="fa-solid fa-message"></i>
+                        <i class="fa-solid fa-ellipsis-vertical" onclick="doLogout()" title="Cerrar sesión"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-[#e9edef] mb-2">Inbox de Mensajes</h3>
-                    <p class="text-[#8696a0] text-sm max-w-sm">Selecciona un cliente de la lista para ver la conversación</p>
                 </div>
-            </div>
+                <div class="wa-search">
+                    <div class="wa-search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="searchInput" oninput="filterClients()" placeholder="Buscar o empezar un chat nuevo">
+                    </div>
+                    <button class="wa-search-filter">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div id="client-list" class="wa-client-list"></div>
+            </aside>
 
-            <!-- Chat View (hidden by default) -->
-            <div id="chat-view" class="hidden flex-1 flex flex-col h-full">
+            <!-- CHAT PANEL -->
+            <main class="wa-chat-panel">
                 
-                <!-- Chat Header -->
-                <div class="bg-[#202c33] px-5 py-3 flex items-center justify-between shrink-0 border-b border-[#222d34]">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-[#2a3942] rounded-full flex items-center justify-center">
-                            <i class="fa-solid fa-user text-[#8696a0]"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-[#e9edef] text-sm" id="chat-phone">—</h3>
-                            <div class="flex items-center gap-2 mt-0.5">
-                                <span class="w-2 h-2 rounded-full" id="chat-state-dot"></span>
-                                <span class="text-[11px] font-bold text-[#8696a0] uppercase" id="chat-state-label">—</span>
+                <!-- Empty state -->
+                <div id="empty-state" class="wa-empty">
+                    <div class="wa-empty-icon">
+                        <i class="fa-brands fa-whatsapp" style="font-size:120px; color:#00a884; opacity:0.15;"></i>
+                    </div>
+                    <h2>EduDog Pro Inbox</h2>
+                    <p>Selecciona un cliente de la lista para ver la conversación completa con el bot.</p>
+                    <p style="margin-top:8px; font-size:12px; color:#8696a0;">Los mensajes nuevos se actualizan en tiempo real</p>
+                </div>
+
+                <!-- Chat view -->
+                <div id="chat-view" class="hidden" style="display:flex; flex-direction:column; height:100vh;">
+                    <div class="wa-chat-header">
+                        <div class="wa-chat-header-left">
+                            <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                            <div class="wa-chat-header-info">
+                                <h3 id="chat-phone">—</h3>
+                                <div class="state-line">
+                                    <span class="state-dot" id="chat-state-dot"></span>
+                                    <span class="state-text" id="chat-state-label">cargando...</span>
+                                </div>
                             </div>
                         </div>
+                        <div class="wa-chat-header-right">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[10px] bg-[#2a3942] text-[#8696a0] px-3 py-1 rounded-full font-bold" id="chat-product">—</span>
+
+                    <div id="messages-area" class="wa-chat-bg"></div>
+
+                    <div class="wa-footer">
+                        <div class="wa-footer-icons">
+                            <i class="fa-regular fa-face-smile"></i>
+                            <i class="fa-solid fa-paperclip"></i>
+                        </div>
+                        <div class="wa-footer-input">
+                            <span>Mensaje</span>
+                        </div>
+                        <i class="fa-solid fa-microphone" style="color:#54656f; font-size:20px;"></i>
+                        <span class="read-only-badge">Solo lectura</span>
                     </div>
                 </div>
-
-                <!-- Messages Area -->
-                <div id="messages-area" class="flex-1 overflow-y-auto chat-bg px-16 py-4 space-y-2"></div>
-
-                <!-- Footer Info -->
-                <div class="bg-[#202c33] px-5 py-2 flex items-center justify-between shrink-0 border-t border-[#222d34]">
-                    <span class="text-[11px] text-[#8696a0]"><i class="fa-solid fa-shield-halved mr-1"></i> Modo solo lectura</span>
-                    <span class="text-[11px] text-[#8696a0]" id="chat-total-msgs">0 mensajes</span>
-                </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 
-    <!-- ========== LIGHTBOX ========== -->
-    <div id="lightbox" class="lightbox hidden" onclick="closeLightbox()">
-        <img id="lightbox-img" src="" alt="Imagen ampliada">
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="wa-lightbox hidden" onclick="closeLightbox()">
+        <i class="fa-solid fa-xmark wa-lightbox-close"></i>
+        <img id="lightbox-img" src="" alt="">
     </div>
 
     <script>
         // ==========================================
-        // FIREBASE CONFIG
+        // FIREBASE
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCrbqdz-JMZNV0H0zcrHwfDOawE3_ouUNw",
@@ -207,12 +261,11 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-        const storage = firebase.storage();
 
         // ==========================================
         // STATE
         // ==========================================
-        let clientsData = {};    // { phone: { lastMsg, lastTime, state, product } }
+        let clientsData = {};
         let selectedClient = null;
         let unsubMessages = null;
         let unsubClients = null;
@@ -234,61 +287,46 @@
         function doLogin() {
             const email = document.getElementById('loginEmail').value;
             const pass = document.getElementById('loginPassword').value;
-            if (!email || !pass) return alert('Completa todos los campos');
+            if (!email || !pass) return;
             auth.signInWithEmailAndPassword(email, pass).catch(e => alert('Error: ' + e.message));
         }
 
-        function doLogout() {
-            auth.signOut();
-            if (unsubMessages) unsubMessages();
-            if (unsubClients) unsubClients();
-        }
+        function doLogout() { auth.signOut(); }
 
         // ==========================================
-        // LOAD CLIENTS
+        // LOAD CLIENTS (real-time)
         // ==========================================
         function loadClients() {
-            // Listen to clientes collection (ordered by updated_at)
             unsubClients = db.collection('clientes')
                 .orderBy('updated_at', 'desc')
                 .onSnapshot(snap => {
-                    const changes = snap.docChanges();
-                    changes.forEach(change => {
+                    snap.docChanges().forEach(change => {
                         const phone = change.doc.id;
-                        const data = change.doc.data();
-
-                        if (change.type === 'removed') {
-                            delete clientsData[phone];
-                        } else {
-                            // Get last message from subcollection
+                        if (change.type === 'removed') { delete clientsData[phone]; }
+                        else {
+                            // Get last message
                             db.collection('clientes').doc(phone).collection('mensajes')
                                 .orderBy('timestamp', 'desc').limit(1).get()
                                 .then(msgSnap => {
-                                    let lastMsg = '';
-                                    let lastTime = data.updated_at || '';
-                                    let lastType = 'texto';
+                                    let lastMsg = '', lastTime = change.doc.data().updated_at || '';
                                     if (!msgSnap.empty) {
                                         const m = msgSnap.docs[0].data();
-                                        lastType = m.tipo || 'texto';
-                                        if (lastType === 'imagen') lastMsg = '📷 Imagen';
-                                        else if (lastType === 'documento') lastMsg = '📄 ' + (m.caption || m.texto || 'Documento');
-                                        else if (lastType === 'botones') lastMsg = '🔘 Botones de pago';
-                                        else if (lastType === 'audio') lastMsg = '🎤 Audio';
-                                        else if (lastType === 'video') lastMsg = '🎬 Video';
-                                        else lastMsg = m.texto || '';
+                                        const tipo = m.tipo || 'texto';
                                         lastTime = m.timestamp || lastTime;
+                                        if (tipo === 'imagen') lastMsg = '📷 Imagen';
+                                        else if (tipo === 'documento') lastMsg = '📄 ' + (m.caption || m.texto || 'PDF');
+                                        else if (tipo === 'botones') lastMsg = '🔘 Botones de pago';
+                                        else if (tipo === 'audio') lastMsg = '🎤 Audio';
+                                        else if (tipo === 'video') lastMsg = '🎬 Video';
+                                        else lastMsg = m.texto || '';
                                     }
-                                    clientsData[phone] = {
-                                        lastMsg: lastMsg.substring(0, 50),
-                                        lastTime: lastTime,
-                                        state: data.estado || '',
-                                        product: data.apps_activas?.[0] || data.ebooks_activos?.[0] || ''
-                                    };
+                                    const sessionData = change.doc.data();
+                                    clientsData[phone] = { lastMsg, lastTime, state: sessionData.estado || '' };
                                     renderClientList();
                                 });
                         }
                     });
-                }, err => console.error('Error listening clients:', err));
+                }, err => console.error(err));
         }
 
         // ==========================================
@@ -297,194 +335,165 @@
         function renderClientList(filter = '') {
             const container = document.getElementById('client-list');
             container.innerHTML = '';
-
-            const phones = Object.keys(clientsData).sort((a, b) => {
-                return (clientsData[b].lastTime || '').localeCompare(clientsData[a].lastTime || '');
-            });
-
-            const filtered = filter
-                ? phones.filter(p => p.includes(filter) || clientsData[p].lastMsg.toLowerCase().includes(filter.toLowerCase()))
-                : phones;
-
-            document.getElementById('client-count').textContent = `${filtered.length} cliente${filtered.length !== 1 ? 's' : ''}`;
+            const phones = Object.keys(clientsData).sort((a, b) => (clientsData[b].lastTime || '').localeCompare(clientsData[a].lastTime || ''));
+            const filtered = filter ? phones.filter(p => p.includes(filter) || (clientsData[p].lastMsg || '').toLowerCase().includes(filter.toLowerCase())) : phones;
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-[#8696a0] text-sm"><i class="fa-solid fa-inbox text-3xl mb-3 block"></i>No hay clientes${filter ? ' que coincidan' : ''}</div>`;
+                container.innerHTML = '<div style="text-align:center;padding:40px;color:#8696a0;font-size:14px;"><i class="fa-solid fa-inbox" style="font-size:32px;margin-bottom:12px;display:block;color:#cfd4d7;"></i>No hay chats</div>';
                 return;
             }
 
             filtered.forEach(phone => {
                 const c = clientsData[phone];
                 const isActive = selectedClient === phone;
-                const timeStr = formatTime(c.lastTime);
-                const stateLabel = formatState(c.state);
-
                 const div = document.createElement('div');
-                div.className = `client-item flex items-center gap-3 px-4 py-3 border-b border-[#222d34] ${isActive ? 'active' : ''}`;
+                div.className = `wa-client-item${isActive ? ' active' : ''}`;
                 div.onclick = () => openChat(phone);
                 div.innerHTML = `
-                    <div class="w-12 h-12 bg-[#2a3942] rounded-full flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-user text-[#8696a0]"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-sm text-[#e9edef] truncate">${phone}</span>
-                            <span class="text-[10px] text-[#8696a0] shrink-0 ml-2">${timeStr}</span>
+                    <div class="wa-client-avatar"><i class="fa-solid fa-user"></i></div>
+                    <div class="wa-client-info">
+                        <div class="wa-client-top">
+                            <span class="wa-client-name">${phone}</span>
+                            <span class="wa-client-time">${formatTime(c.lastTime)}</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs text-[#8696a0] truncate">${c.lastMsg}</span>
-                            ${c.state ? `<span class="w-2.5 h-2.5 rounded-full shrink-0 ml-2 ${getStateColor(c.state)}"></span>` : ''}
+                        <div class="wa-client-bottom">
+                            <span class="wa-client-msg">${escapeHtml(c.lastMsg)}</span>
+                            ${c.state ? `<span class="wa-state-dot ${getStateBg(c.state)}"></span>` : ''}
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 container.appendChild(div);
             });
         }
 
-        function filterClients() {
-            const q = document.getElementById('searchInput').value.trim();
-            renderClientList(q);
-        }
+        function filterClients() { renderClientList(document.getElementById('searchInput').value.trim()); }
 
         // ==========================================
-        // OPEN CHAT
+        // OPEN CHAT (real-time)
         // ==========================================
         function openChat(phone) {
             selectedClient = phone;
             renderClientList(document.getElementById('searchInput').value.trim());
-
             document.getElementById('empty-state').classList.add('hidden');
             document.getElementById('chat-view').classList.remove('hidden');
-
-            // Header info
+            document.getElementById('chat-view').style.display = 'flex';
             document.getElementById('chat-phone').textContent = phone;
 
             // Load session state
             db.collection('sesiones').doc(phone).get().then(snap => {
-                const session = snap.exists ? snap.to_dict() : {};
-                const state = session.state || 'desconocido';
-                const productId = session.producto_id || '';
-
+                const s = snap.exists ? snap.to_dict() : {};
+                const state = s.state || 'desconocido';
                 document.getElementById('chat-state-label').textContent = formatState(state);
-                document.getElementById('chat-state-dot').className = `w-2 h-2 rounded-full ${getStateColor(state)}`;
-
-                if (productId) {
-                    document.getElementById('chat-product').textContent = productId;
-                    document.getElementById('chat-product').classList.remove('hidden');
-                } else {
-                    document.getElementById('chat-product').classList.add('hidden');
-                }
+                document.getElementById('chat-state-dot').className = `state-dot ${getStateBg(state)}`;
             });
 
-            // Listen to messages in real-time
+            // Real-time messages
             if (unsubMessages) unsubMessages();
-
-            const msgArea = document.getElementById('messages-area');
-            msgArea.innerHTML = '<div class="text-center text-[#8696a0] text-sm py-8">Cargando mensajes...</div>';
+            const area = document.getElementById('messages-area');
+            area.innerHTML = '<div style="text-align:center;padding:60px;color:#8696a0;font-size:13px;">Cargando mensajes...</div>';
 
             unsubMessages = db.collection('clientes').doc(phone).collection('mensajes')
                 .orderBy('timestamp', 'asc')
                 .onSnapshot(snap => {
-                    msgArea.innerHTML = '';
+                    area.innerHTML = '';
                     const docs = snap.docs;
-                    document.getElementById('chat-total-msgs').textContent = `${docs.length} mensaje${docs.length !== 1 ? 's' : ''}`;
-
                     if (docs.length === 0) {
-                        msgArea.innerHTML = '<div class="text-center text-[#8696a0] text-sm py-8">Sin mensajes aún</div>';
+                        area.innerHTML = '<div style="text-align:center;padding:60px;color:#8696a0;font-size:13px;">Sin mensajes aún</div>';
                         return;
                     }
+
+                    // Date separators
+                    let lastDate = '';
 
                     docs.forEach(doc => {
                         const m = doc.data();
                         const isBot = m.remitente === 'bot';
-                        const timeStr = formatTime(m.timestamp);
                         const tipo = m.tipo || 'texto';
+                        const ts = m.timestamp || '';
+                        const timeStr = formatTimeShort(ts);
 
-                        const wrapper = document.createElement('div');
-                        wrapper.className = `flex ${isBot ? 'justify-start' : 'justify-end'} fade-in`;
+                        // Date separator
+                        const dateStr = formatDate(ts);
+                        if (dateStr && dateStr !== lastDate) {
+                            lastDate = dateStr;
+                            const sep = document.createElement('div');
+                            sep.className = 'wa-msg-row system';
+                            sep.innerHTML = `<div class="wa-bubble system"><span style="font-size:12px;color:#54656f;">${dateStr}</span></div>`;
+                            area.appendChild(sep);
+                        }
 
-                        let content = '';
+                        const row = document.createElement('div');
+                        row.className = `wa-msg-row ${isBot ? 'bot' : 'client'} fade-in`;
+                        let html = '';
 
                         if (tipo === 'imagen') {
                             const url = m.url_media || '';
                             if (url) {
-                                content = `
-                                    <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
-                                        <img src="${url}" class="chat-image" onclick="openLightbox('${url}')" onerror="this.parentElement.innerHTML='<span class=text-[#8696a0] text-xs>📷 Imagen no disponible</span>'">
-                                        ${m.caption ? `<p class="text-xs text-[#8696a0] mt-1">${escapeHtml(m.caption)}</p>` : ''}
-                                        <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
-                                    </div>`;
+                                html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                                    <img src="${url}" class="wa-bubble-img" loading="lazy" onclick="openLightbox(this.src)" onerror="this.outerHTML='<div style=\\'padding:30px;text-align:center;\\'><i class=\\'fa-solid fa-image\\' style=\\'font-size:36px;color:#cfd4d7;\\'></i><div style=\\'font-size:12px;color:#8696a0;margin-top:8px;\\'>Imagen no disponible</div></div>'">
+                                    ${m.caption ? `<div class="wa-msg-text" style="margin-top:4px;">${escapeHtml(m.caption)}</div>` : ''}
+                                    <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                                </div>`;
                             } else {
-                                content = `<div class="${isBot ? 'bubble-bot' : 'bubble-client'}"><span class="text-[#8696a0] text-xs">📷 Imagen</span><span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span></div>`;
+                                html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                                    <div style="padding:20px;text-align:center;"><i class="fa-solid fa-image" style="font-size:28px;color:#cfd4d7;"></i><div style="font-size:12px;color:#8696a0;margin-top:6px;">📷 Imagen (captura de pago)</div></div>
+                                    <span class="wa-msg-time">${timeStr}</span>
+                                </div>`;
                             }
                         } else if (tipo === 'documento') {
-                            content = `
-                                <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
-                                    <a href="${m.url_media || '#'}" target="_blank" class="doc-chip">
-                                        <div class="w-10 h-10 bg-[#00a884] rounded-lg flex items-center justify-center shrink-0">
-                                            <i class="fa-solid fa-file-pdf text-white"></i>
-                                        </div>
-                                        <div class="min-w-0">
-                                            <p class="text-sm font-bold text-[#e9edef] truncate">${escapeHtml(m.caption || m.texto || 'Documento')}</p>
-                                            <p class="text-[10px] text-[#8696a0]">PDF</p>
-                                        </div>
-                                        <i class="fa-solid fa-arrow-up-right-from-square text-[#8696a0] text-xs shrink-0"></i>
-                                    </a>
-                                    <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
-                                </div>`;
+                            const docUrl = m.url_media || '#';
+                            const docName = escapeHtml(m.caption || m.texto || 'Documento.pdf');
+                            html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                                <a href="${docUrl}" target="_blank" class="wa-doc-chip" style="text-decoration:none;">
+                                    <div class="wa-doc-icon"><i class="fa-solid fa-file-pdf"></i></div>
+                                    <div class="wa-doc-info">
+                                        <div class="wa-doc-name">${docName}</div>
+                                        <div class="wa-doc-size">PDF</div>
+                                    </div>
+                                    <i class="fa-solid fa-download" style="color:#8696a0;font-size:18px;"></i>
+                                </a>
+                                <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                            </div>`;
                         } else if (tipo === 'botones') {
-                            content = `
-                                <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
-                                    <div class="btn-chip">
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <i class="fa-solid fa-rectangle-list text-[#00a884] text-sm"></i>
-                                            <span class="text-sm font-bold text-[#e9edef]">Botones enviados</span>
-                                        </div>
-                                        <p class="text-xs text-[#8696a0]">${escapeHtml(m.texto || 'Opciones de pago')}</p>
-                                    </div>
-                                    <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
-                                </div>`;
+                            html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                                <div class="wa-btn-chip">
+                                    <div class="wa-btn-icon"><i class="fa-solid fa-list"></i></div>
+                                    <span class="wa-btn-text">${escapeHtml(m.texto || 'Opciones de pago')}</span>
+                                </div>
+                                <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                            </div>`;
                         } else if (tipo === 'audio') {
-                            content = `
-                                <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 bg-[#00a884] rounded-full flex items-center justify-center">
-                                            <i class="fa-solid fa-play text-white text-xs"></i>
-                                        </div>
-                                        <span class="text-xs text-[#8696a0]">Audio</span>
-                                    </div>
-                                    <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
-                                </div>`;
+                            html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                                <div style="display:flex;align-items:center;gap:12px;padding:4px 0;">
+                                    <i class="fa-solid fa-play" style="color:#00a884;font-size:20px;cursor:pointer;"></i>
+                                    <div style="flex:1;height:4px;background:#e9edef;border-radius:2px;position:relative;"><div style="width:0;height:100%;background:#00a884;border-radius:2px;"></div></div>
+                                    <span style="font-size:11px;color:#667781;">0:00</span>
+                                </div>
+                                <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                            </div>`;
                         } else if (tipo === 'video') {
-                            content = `
-                                <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-10 h-10 bg-[#00a884] rounded-lg flex items-center justify-center">
-                                            <i class="fa-solid fa-video text-white"></i>
-                                        </div>
-                                        <span class="text-xs text-[#8696a0]">${escapeHtml(m.caption || m.texto || 'Video')}</span>
-                                    </div>
-                                    <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
-                                </div>`;
+                            html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                                <div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
+                                    <div style="width:48px;height:48px;background:#00a884;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video" style="color:#fff;font-size:18px;"></i></div>
+                                    <span style="font-size:14px;color:#111b21;">${escapeHtml(m.caption || m.texto || 'Video')}</span>
+                                </div>
+                                <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                            </div>`;
                         } else {
-                            // Texto normal
                             const text = m.texto || '';
                             if (text) {
-                                content = `
-                                    <div class="${isBot ? 'bubble-bot' : 'bubble-client'}">
-                                        <p class="text-sm text-[#e9edef] leading-relaxed whitespace-pre-wrap">${formatWhatsAppText(text)}</p>
-                                        <span class="text-[10px] text-[#667781] mt-1 block text-right">${timeStr}</span>
-                                    </div>`;
+                                html = `<div class="wa-bubble ${isBot ? 'bot' : 'client'}">
+                                    <span class="wa-msg-text">${formatWAText(text)}</span>
+                                    <span class="wa-msg-time">${timeStr} ${isBot ? '<i class="fa-solid fa-check-double"></i>' : ''}</span>
+                                </div>`;
                             }
                         }
 
-                        if (content) wrapper.innerHTML = content;
-                        msgArea.appendChild(wrapper);
+                        if (html) row.innerHTML = html;
+                        area.appendChild(row);
                     });
 
-                    // Scroll to bottom
-                    setTimeout(() => { msgArea.scrollTop = msgArea.scrollHeight; }, 100);
-                }, err => console.error('Error listening messages:', err));
+                    setTimeout(() => { area.scrollTop = area.scrollHeight; }, 50);
+                }, err => console.error(err));
         }
 
         // ==========================================
@@ -494,74 +503,66 @@
             document.getElementById('lightbox-img').src = url;
             document.getElementById('lightbox').classList.remove('hidden');
         }
-        function closeLightbox() {
-            document.getElementById('lightbox').classList.add('hidden');
-        }
+        function closeLightbox() { document.getElementById('lightbox').classList.add('hidden'); }
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
         // ==========================================
         // HELPERS
         // ==========================================
-        function formatTime(isoStr) {
-            if (!isoStr) return '';
+        function formatTime(iso) {
+            if (!iso) return '';
             try {
-                const d = new Date(isoStr);
+                const d = new Date(iso);
                 const now = new Date();
                 const diff = now - d;
-                if (diff < 86400000) {
-                    return d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false });
-                }
-                if (diff < 172800000) {
-                    return 'Ayer';
-                }
+                if (diff < 86400000) return d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+                if (diff < 172800000) return 'Ayer';
                 return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' });
             } catch { return ''; }
         }
 
-        function formatState(state) {
-            const map = {
-                'nuevo': 'Nuevo',
-                'conversando': 'Conversando',
-                'esperando_accion_inicial': 'Acción inicial',
-                'esperando_opcion_pago': 'Eligiendo pago',
-                'esperando_captura': 'Esperando captura',
-                'esperando_captura_bump': 'Esperando bump',
-                'esperando_captura_hub': 'Esperando Hub',
-                'completado': 'Completado ✅'
-            };
-            return map[state] || state || '—';
+        function formatTimeShort(iso) {
+            if (!iso) return '';
+            try { return new Date(iso).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }); }
+            catch { return ''; }
         }
 
-        function getStateColor(state) {
-            const map = {
-                'nuevo': 'bg-blue-500',
-                'conversando': 'bg-violet-500',
-                'esperando_opcion_pago': 'bg-amber-500',
-                'esperando_captura': 'bg-red-500',
-                'esperando_captura_bump': 'bg-orange-500',
-                'completado': 'bg-emerald-500'
-            };
-            return map[state] || 'bg-gray-500';
+        function formatDate(iso) {
+            if (!iso) return '';
+            try {
+                const d = new Date(iso);
+                const now = new Date();
+                const diff = now - d;
+                if (diff < 86400000) return 'HOY';
+                if (diff < 172800000) return 'AYER';
+                return d.toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
+            } catch { return ''; }
         }
 
-        function escapeHtml(text) {
+        function formatState(s) {
+            const map = { 'nuevo':'Nuevo','conversando':'Conversando','esperando_opcion_pago':'Eligiendo pago','esperando_captura':'Esperando voucher','esperando_captura_bump':'Esperando bump','esperando_captura_hub':'Esperando Hub','completado':'Completado' };
+            return map[s] || s || 'desconocido';
+        }
+
+        function getStateBg(s) {
+            const map = { 'nuevo':'background:#3b82f6','conversando':'background:#8b5cf6','esperando_opcion_pago':'background:#f59e0b','esperando_captura':'background:#ef4444','esperando_captura_bump':'background:#f97316','completado':'background:#25d366' };
+            return map[s] || 'background:#8696a0';
+        }
+
+        function escapeHtml(t) {
+            if (!t) return '';
+            const d = document.createElement('div'); d.textContent = t; return d.innerHTML;
+        }
+
+        function formatWAText(text) {
             if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            let h = escapeHtml(text);
+            h = h.replace(/\*(.+?)\*/g, '<strong>$1</strong>');
+            h = h.replace(/_(.+?)_/g, '<em>$1</em>');
+            return h;
         }
 
-        function formatWhatsAppText(text) {
-            if (!text) return '';
-            // Bold: *text* → <strong>
-            let html = escapeHtml(text);
-            html = html.replace(/\*(.+?)\*/g, '<strong>$1</strong>');
-            // Italic: _text_ → <em>
-            html = html.replace(/_(.+?)_/g, '<em>$1</em>');
-            return html;
-        }
-
-        // Enter key on login
+        // Enter key login
         document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
         document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPassword').focus(); });
     </script>

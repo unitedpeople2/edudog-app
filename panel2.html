@@ -36,6 +36,12 @@
 
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #8b5cf6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .img-preview-thumb {
+            width: 52px; height: 52px; object-fit: cover; border-radius: 10px; border: 2px solid #e2e8f0;
+            transition: all 0.2s ease; flex-shrink: 0;
+        }
+        .img-preview-thumb:hover { transform: scale(1.8); box-shadow: 0 8px 25px rgba(0,0,0,0.15); z-index: 50; position: relative; }
     </style>
 </head>
 <body class="antialiased flex h-screen overflow-hidden">
@@ -243,6 +249,7 @@
                                                 </button>
                                             </div>
                                             <div id="progress-prod-imagen" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-blue-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
+                                            <div id="preview-prod-imagen" class="hidden mt-1"><img src="" class="img-preview-thumb" onerror="this.parentElement.classList.add('hidden')"></div>
                                             <p class="text-[10px] text-slate-400">Se envía con caption en el Bloque 1. Si tiene imagen → modo low-cost activado.</p>
                                         </div>
 
@@ -259,6 +266,7 @@
                                                 </button>
                                             </div>
                                             <div id="progress-prod-imagen-bonos" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-amber-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
+                                            <div id="preview-prod-imagen-bonos" class="hidden mt-1"><img src="" class="img-preview-thumb" onerror="this.parentElement.classList.add('hidden')"></div>
                                             <p class="text-[10px] text-slate-400">Se envía SOLA (sin caption) en el Bloque 2. Collage visual de los bonos.</p>
                                         </div>
                                     </div>
@@ -339,30 +347,10 @@
                                     </div>
                                 </div>
 
-                                <!-- ========== TARJETA 7: ENTREGABLES HUB (Premium) ========== -->
-                                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                                    <h3 class="font-black text-lg text-slate-800 mb-1">7. Entregables en el Hub</h3>
-                                    <p class="text-xs text-slate-500 font-medium mb-4 pb-3 border-b border-slate-100">Selecciona qué se desbloqueará en el panel del cliente.</p>
-
-                                    <div class="space-y-4">
-                                        <div class="bg-violet-50/50 border border-violet-100 p-4 rounded-xl">
-                                            <h4 class="font-bold text-violet-800 mb-3 text-xs uppercase tracking-wider"><i class="fa-solid fa-mobile-screen"></i> Apps</h4>
-                                            <div id="apps-container" class="grid grid-cols-1 gap-2">
-                                            </div>
-                                        </div>
-
-                                        <div class="bg-rose-50/50 border border-rose-100 p-4 rounded-xl">
-                                            <h4 class="font-bold text-rose-800 mb-3 text-xs uppercase tracking-wider"><i class="fa-solid fa-book-open"></i> eBooks Interactivos</h4>
-                                            <div id="ebooks-container" class="grid grid-cols-1 gap-2">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- ========== TARJETA 8: ORDER BUMP ========== -->
+                                <!-- ========== TARJETA 7: ORDER BUMP ========== -->
                                 <div class="bg-emerald-50/40 rounded-2xl p-6 border border-emerald-200 shadow-sm relative overflow-hidden">
                                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-400"></div>
-                                    <h3 class="font-black text-lg text-emerald-800 mb-1"><i class="fa-solid fa-bolt text-emerald-500 mr-1"></i> 8. Order Bump (Oferta Adicional)</h3>
+                                    <h3 class="font-black text-lg text-emerald-800 mb-1"><i class="fa-solid fa-bolt text-emerald-500 mr-1"></i> 7. Order Bump (Oferta Adicional)</h3>
                                     <p class="text-xs text-emerald-600/80 font-medium mb-5 pb-3 border-b border-emerald-200/50">Oferta adicional que se envía después de que el bot entrega el producto al cliente.</p>
                                     
                                     <div class="space-y-5">
@@ -381,6 +369,7 @@
                                                 </button>
                                             </div>
                                             <div id="progress-prod-bump-img" class="hidden w-full bg-emerald-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-emerald-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
+                                            <div id="preview-prod-bump-img" class="hidden mt-1"><img src="" class="img-preview-thumb" onerror="this.parentElement.classList.add('hidden')"></div>
                                         </div>
 
                                         <div class="grid grid-cols-2 gap-4">
@@ -615,23 +604,7 @@
 
         // Función para renderizar dinámicamente el Paso 2 y el Paso 4
         function renderDynamicCatalogs() {
-            // Generar Checkboxes para Apps
-            const appsContainer = document.getElementById('apps-container');
-            appsContainer.innerHTML = catalogApps.map(app => `
-                <label class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
-                    <input type="checkbox" value="${app.id}" class="app-chk w-4 h-4 accent-violet-600"> <span class="font-bold text-xs">${app.name}</span>
-                </label>
-            `).join('');
-
-            // Generar Checkboxes para eBooks
-            const ebooksContainer = document.getElementById('ebooks-container');
-            ebooksContainer.innerHTML = catalogEbooks.map(ebook => `
-                <label class="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
-                    <input type="checkbox" value="${ebook.id}" class="ebook-chk w-4 h-4 accent-rose-600"> <span class="font-bold text-xs">${ebook.name}</span>
-                </label>
-            `).join('');
-
-            // Generar Options para el Order Bump (Paso 4)
+            // Generar Options para el Order Bump
             const bumpSelect = document.getElementById('prod-bump-id');
             let bumpHTML = `<option value="">Selecciona qué vender...</option>`;
             
@@ -836,7 +809,6 @@
             document.getElementById('prod-bump-pdf').value = '';
             
             window._guionAudioActual = '';
-            document.querySelectorAll('.app-chk, .ebook-chk').forEach(c => c.checked = false);
             document.getElementById('editor-prod-title').innerText = "Crear Nuevo Paquete";
 
             if(editData) {
@@ -869,15 +841,6 @@
                 document.getElementById('prod-bump-precio').value = editData.precio_oferta_bump || '';
                 document.getElementById('prod-bump-desc-ia').value = editData.descripcion_bump_ia || '';
                 document.getElementById('prod-bump-pdf').value = editData.pdf_entrega_bump || '';
-                
-                (editData.apps_a_desbloquear || []).forEach(val => {
-                    const chk = document.querySelector(`.app-chk[value="${val}"]`);
-                    if(chk) chk.checked = true;
-                });
-                (editData.ebooks_a_desbloquear || []).forEach(val => {
-                    const chk = document.querySelector(`.ebook-chk[value="${val}"]`);
-                    if(chk) chk.checked = true;
-                });
             }
 
             document.getElementById('view-productos-list').classList.add('-translate-x-full');
@@ -906,8 +869,6 @@
             }
 
             list.innerHTML = allProducts.map(p => {
-                const appsCount = (p.apps_a_desbloquear || []).length;
-                const booksCount = (p.ebooks_a_desbloquear || []).length;
                 const badges = {
                     'principal': '<span class="bg-violet-100 text-violet-700 px-2 py-0.5 rounded text-[10px] font-bold border border-violet-200">GANCHO</span>',
                     'order_bump': '<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-200">ORDER BUMP</span>',
@@ -924,14 +885,17 @@
                     <p class="text-xs font-mono text-slate-400 mb-4">ID: ${p.id}</p>
                     
                     <div class="flex gap-4 mb-5 border-t border-slate-100 pt-3 mt-auto">
-                        <div class="text-xs font-bold text-slate-600"><i class="fa-solid fa-mobile-screen text-violet-400"></i> ${appsCount} Apps</div>
-                        <div class="text-xs font-bold text-slate-600"><i class="fa-solid fa-book-open text-rose-400"></i> ${booksCount} eBooks</div>
                         <div class="text-xs font-black text-emerald-600 ml-auto bg-emerald-50 px-2 py-0.5 rounded-md">S/ ${p.precio_oferta || 0}</div>
                     </div>
 
-                    <button onclick='openProductEditor(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="w-full bg-slate-50 text-slate-600 font-bold py-2.5 rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition-colors">
-                        Editar Paquete
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick='openProductEditor(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="flex-1 bg-slate-50 text-slate-600 font-bold py-2.5 rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition-colors">
+                            <i class="fa-solid fa-pen-to-square"></i> Editar
+                        </button>
+                        <button onclick='duplicateProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="bg-violet-50 text-violet-600 font-bold py-2.5 px-3.5 rounded-xl text-sm border border-violet-200 hover:bg-violet-100 transition-colors" title="Duplicar paquete">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
                 </div>`;
             }).join('');
         }
@@ -946,9 +910,6 @@
             const btnSave = document.getElementById('btn-save-prod');
             btnSave.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
             btnSave.disabled = true;
-
-            const apps = Array.from(document.querySelectorAll('.app-chk:checked')).map(c => c.value);
-            const ebooks = Array.from(document.querySelectorAll('.ebook-chk:checked')).map(c => c.value);
 
             const payload = {
                 tipo_oferta: document.getElementById('prod-tipo').value,
@@ -966,8 +927,6 @@
                 texto_bonos_detalle: document.getElementById('prod-bonos-detalle').value.trim(),
                 limite_bonos: Number(document.getElementById('prod-limite-bonos').value) || 50,
                 pdf_entrega: document.getElementById('prod-pdf-entrega').value.trim(),
-                apps_a_desbloquear: apps,
-                ebooks_a_desbloquear: ebooks,
                 
                 guion_audio: window._guionAudioActual || '',
                 
@@ -977,6 +936,8 @@
                 precio_oferta_bump: Number(document.getElementById('prod-bump-precio').value),
                 descripcion_bump_ia: document.getElementById('prod-bump-desc-ia').value.trim(),
                 pdf_entrega_bump: document.getElementById('prod-bump-pdf').value.trim(),
+                apps_a_desbloquear: firebase.firestore.FieldValue.delete(),
+                ebooks_a_desbloquear: firebase.firestore.FieldValue.delete(),
                 
                 fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -1244,6 +1205,59 @@
                 btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Guión`;
                 btn.disabled = false;
             }
+        }
+
+        // ==========================================
+        // 8. IMAGE PREVIEW
+        // ==========================================
+        function setupImagePreview(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            input.addEventListener('input', function() {
+                const url = this.value.trim();
+                const previewDiv = document.getElementById('preview-' + inputId);
+                if (!previewDiv) return;
+                if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                    const img = previewDiv.querySelector('img');
+                    img.src = url;
+                    previewDiv.classList.remove('hidden');
+                } else {
+                    previewDiv.classList.add('hidden');
+                }
+            });
+        }
+        ['prod-imagen', 'prod-imagen-bonos', 'prod-bump-img'].forEach(setupImagePreview);
+
+        // Refrescar previews cuando se carga un producto existente
+        const _origOpenProductEditor = openProductEditor;
+        openProductEditor = function(editData) {
+            _origOpenProductEditor(editData);
+            setTimeout(() => {
+                ['prod-imagen', 'prod-imagen-bonos', 'prod-bump-img'].forEach(inputId => {
+                    const input = document.getElementById(inputId);
+                    if (input) input.dispatchEvent(new Event('input'));
+                });
+            }, 100);
+        };
+
+        // ==========================================
+        // 9. DUPLICATE PRODUCT
+        // ==========================================
+        function duplicateProduct(data) {
+            // Copiar los datos pero limpiar ID y campos únicos
+            const copy = { ...data };
+            delete copy.id;
+            openProductEditor(copy);
+            // Limpiar el campo ID y cambiar título
+            setTimeout(() => {
+                const idField = document.getElementById('prod-id');
+                if (idField) {
+                    idField.value = '';
+                    idField.disabled = false;
+                }
+                document.getElementById('prod-id-edit').value = '';
+                document.getElementById('editor-prod-title').innerText = 'Duplicando: ' + (data.nombre_producto || data.id);
+            }, 100);
         }
     </script>
 </body>

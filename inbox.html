@@ -118,7 +118,7 @@
         .wa-empty p { font-size: 14px; color: #667781; max-width: 500px; line-height: 20px; margin: 0; }
 
         /* Footer bar */
-        .wa-footer { background: #f0f2f5; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; height: 62px; border-top: 1px solid #e9edef; }
+        .wa-footer { background: #f0f2f5; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; height: 62px; border-top: 1px solid #e9edef; position: relative; }
         .wa-footer-icons { display: flex; gap: 18px; }
         .wa-footer-icons i { color: #54656f; font-size: 20px; cursor: pointer; }
         .wa-footer-input { flex: 1; margin: 0 12px; background: #fff; border-radius: 8px; padding: 9px 12px; display: flex; align-items: center; min-height: 42px; }
@@ -244,6 +244,23 @@
         .wa-tag-bump { background: #fff3e0; color: #e65100; }
         .wa-tag-orden { background: #e8f5e9; color: #2e7d32; }
 
+        /* ===== QUICK TEMPLATES ===== */
+        .wa-templates-panel { position: absolute; bottom: 70px; left: 0; right: 0; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-height: 260px; overflow-y: auto; z-index: 50; display: flex; flex-direction: column; }
+        .wa-templates-panel-header { padding: 10px 14px; font-size: 12px; font-weight: 600; color: #008069; border-bottom: 1px solid #f0f2f5; position: sticky; top: 0; background: #fff; border-radius: 12px 12px 0 0; z-index: 1; }
+        .wa-template-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f5f6f6; transition: background 0.1s; }
+        .wa-template-item:hover { background: #f0f2f5; }
+        .wa-template-item:last-child { border-bottom: none; }
+        .wa-template-title { font-size: 13px; color: #111b21; font-weight: 500; margin-bottom: 2px; }
+        .wa-template-preview { font-size: 12px; color: #667781; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .wa-template-icon { color: #00a884; font-size: 14px; margin-right: 10px; }
+
+        /* ===== TAG FILTER BAR ===== */
+        .wa-filter-bar { display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto; background: #f0f2f5; border-bottom: 1px solid #e9edef; }
+        .wa-filter-bar::-webkit-scrollbar { display: none; }
+        .wa-filter-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 14px; white-space: nowrap; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; background: #e9edef; color: #54656f; }
+        .wa-filter-chip:hover { background: #dfe5e7; }
+        .wa-filter-chip.active { border-color: #00a884; background: #e7fce3; color: #008069; }
+
         .hidden { display: none !important; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -300,6 +317,9 @@
                         <i class="fa-solid fa-bars"></i>
                     </button>
                 </div>
+
+                <!-- FILTER BAR (etiquetas) -->
+                <div class="wa-filter-bar" id="filter-bar"></div>
 
                 <!-- STATS PANEL (ventas del día) -->
                 <div class="wa-stats-panel" id="stats-panel">
@@ -387,10 +407,13 @@
                     <div class="wa-footer">
                         <div class="wa-footer-icons">
                             <i class="fa-regular fa-face-smile"></i>
+                            <i class="fa-solid fa-bolt" onclick="toggleTemplates()" title="Respuestas rápidas" style="color:#f59e0b;"></i>
                             <i class="fa-solid fa-paperclip"></i>
                         </div>
-                        <div class="wa-footer-input">
+                        <div class="wa-footer-input" style="position:relative;">
                             <input type="text" id="replyInput" placeholder="Escribe un mensaje..." onkeydown="handleReplyKeydown(event)" disabled>
+                            <!-- Quick Templates Panel -->
+                            <div id="templates-panel" class="wa-templates-panel hidden"></div>
                         </div>
                         <i id="sendBtn" class="fa-solid fa-paper-plane wa-send-btn" onclick="sendMessage()" style="font-size:20px; display:none;"></i>
                         <i id="micIcon" class="fa-solid fa-microphone" style="color:#54656f; font-size:20px;"></i>
@@ -594,7 +617,22 @@
             const container = document.getElementById('client-list');
             container.innerHTML = '';
             const phones = Object.keys(clientsData).sort((a, b) => (clientsData[b].lastTime || '').localeCompare(clientsData[a].lastTime || ''));
-            const filtered = filter ? phones.filter(p => p.includes(filter) || (clientsData[p].lastMsg || '').toLowerCase().includes(filter.toLowerCase())) : phones;
+            let filtered = filter ? phones.filter(p => p.includes(filter) || (clientsData[p].lastMsg || '').toLowerCase().includes(filter.toLowerCase())) : phones;
+
+            // Aplicar filtro por etiquetas
+            if (activeFilter) {
+                filtered = filtered.filter(phone => {
+                    const t = clientTags[phone];
+                    if (!t) return false;
+                    if (activeFilter.type === 'country') {
+                        const cleanPhone = phone.replace(/\D/g, '');
+                        return cleanPhone.startsWith(activeFilter.value);
+                    } else if (activeFilter.type === 'purchase') {
+                        return t.purchase === activeFilter.value;
+                    }
+                    return true;
+                });
+            }
 
             if (filtered.length === 0) {
                 container.innerHTML = '<div style="text-align:center;padding:40px;color:#8696a0;font-size:14px;"><i class="fa-solid fa-inbox" style="font-size:32px;margin-bottom:12px;display:block;color:#cfd4d7;"></i>No hay chats</div>';
@@ -885,6 +923,7 @@
                         clientTags[phone].purchase = 'nuevo';
                     }
                 }
+                renderFilterBar();
                 renderClientList(document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim() : '');
                 if (currentView === 'kanban') renderKanban();
             });
@@ -1084,6 +1123,9 @@
                 input.disabled = false;
                 sendBtn.classList.remove('sending');
                 input.focus();
+                // Cerrar plantillas si estaban abiertas
+                const tp = document.getElementById('templates-panel');
+                if (tp) { tp.classList.add('hidden'); templatesOpen = false; }
             }
         }
 
@@ -1315,6 +1357,102 @@
             document.getElementById('kanban-count-chat').textContent = counts['chat'];
             document.getElementById('kanban-count-voucher').textContent = counts['esperando_captura'];
             document.getElementById('kanban-count-done').textContent = counts['completado'];
+        }
+
+        // ==========================================
+        // QUICK TEMPLATES
+        // ==========================================
+        const quickTemplates = [
+            { title: 'Saludo inicial', text: 'Hola, gracias por tu interés en nuestros productos. ¿En qué puedo ayudarte?' },
+            { title: 'Datos de pago', text: 'Te dejo los datos para realizar el pago:\n\nBanco: [BANCO]\nCuenta: [NUMERO]\nTitular: [NOMBRE]\nConcepto: [PRODUCTO]' },
+            { title: 'Confirmar pago recibido', text: 'Hemos recibido tu pago correctamente. En unos momentos te enviaremos tu material.' },
+            { title: 'Enviar material', text: 'Aquí tienes tu material. Si tienes alguna duda, no dudes en escribirnos.' },
+            { title: 'Pedir voucher', text: 'Por favor envíanos la captura de pantalla del comprobante de pago para validar tu compra.' },
+            { title: 'Oferta especial', text: 'Tengo una oferta especial para ti. ¿Te interesa conocer los detalles?' },
+            { title: 'Seguimiento', text: 'Hola, ¿pudiste ver el material? ¿Tienes alguna consulta?' },
+            { title: 'Despedida amable', text: 'Gracias por confiar en nosotros. ¡Que tengas un excelente día!' },
+        ];
+        let templatesOpen = false;
+
+        function toggleTemplates() {
+            if (!selectedClient || !ADMIN_TOKEN) return;
+            const panel = document.getElementById('templates-panel');
+            templatesOpen = !templatesOpen;
+            if (templatesOpen) {
+                renderTemplates();
+                panel.classList.remove('hidden');
+            } else {
+                panel.classList.add('hidden');
+            }
+        }
+
+        function renderTemplates() {
+            const panel = document.getElementById('templates-panel');
+            let html = '<div class="wa-templates-panel-header">Respuestas rápidas</div>';
+            quickTemplates.forEach((t, i) => {
+                html += `<div class="wa-template-item" onclick="useTemplate(${i})">
+                    <span class="wa-template-title"><i class="fa-solid fa-bolt wa-template-icon"></i>${escapeHtml(t.title)}</span>
+                    <span class="wa-template-preview">${escapeHtml(t.text)}</span>
+                </div>`;
+            });
+            panel.innerHTML = html;
+        }
+
+        function useTemplate(index) {
+            const input = document.getElementById('replyInput');
+            input.value = quickTemplates[index].text;
+            input.focus();
+            document.getElementById('templates-panel').classList.add('hidden');
+            templatesOpen = false;
+        }
+
+        // ==========================================
+        // TAG FILTER BAR
+        // ==========================================
+        let activeFilter = null; // { type: 'country'|'purchase', value: string }
+
+        function renderFilterBar() {
+            const bar = document.getElementById('filter-bar');
+            if (!bar) return;
+            // Detectar países únicos y estados de compra de los clientes actuales
+            const countries = {};
+            const purchases = {};
+            for (const phone in clientTags) {
+                const t = clientTags[phone];
+                if (t.country) {
+                    const key = t.country.flag + ' ' + t.country.name;
+                    countries[key] = { flag: t.country.flag, name: t.country.name, prefix: t.country.prefix || '' };
+                }
+                if (t.purchase && t.purchase !== 'nuevo') {
+                    purchases[t.purchase] = true;
+                }
+            }
+            let html = '<span class="wa-filter-chip' + (!activeFilter ? ' active' : '') + '" onclick="setFilter(null)">Todos</span>';
+            // Country chips
+            for (const key in countries) {
+                const c = countries[key];
+                const isActive = activeFilter && activeFilter.type === 'country' && activeFilter.value === c.prefix;
+                html += `<span class="wa-filter-chip${isActive ? ' active' : ''}" onclick="setFilter('country','${c.prefix}')">${c.flag} ${c.name}</span>`;
+            }
+            // Purchase chips
+            const purchaseLabels = { principal: 'Compró principal', bump: 'Compró bump', orden: 'Orden completa' };
+            for (const p in purchaseLabels) {
+                if (purchases[p]) {
+                    const isActive = activeFilter && activeFilter.type === 'purchase' && activeFilter.value === p;
+                    html += `<span class="wa-filter-chip${isActive ? ' active' : ''}" onclick="setFilter('purchase','${p}')">${purchaseLabels[p]}</span>`;
+                }
+            }
+            bar.innerHTML = html;
+        }
+
+        function setFilter(type, value) {
+            if (!type) {
+                activeFilter = null;
+            } else {
+                activeFilter = { type, value };
+            }
+            renderFilterBar();
+            renderClientList(document.getElementById('searchInput').value.trim());
         }
 
         // ==========================================

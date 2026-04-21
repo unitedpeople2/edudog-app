@@ -208,6 +208,33 @@
         .wa-view-toggle button { border: none; background: transparent; padding: 4px 10px; border-radius: 6px; font-size: 13px; color: #54656f; cursor: pointer; transition: background 0.15s; }
         .wa-view-toggle button.active { background: #fff; color: #111b21; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
+        /* ===== CLIENT PROFILE PANEL ===== */
+        .wa-profile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; }
+        .wa-profile-panel { position: fixed; top: 0; right: -420px; width: 400px; height: 100vh; background: #fff; z-index: 151; box-shadow: -6px 0 18px rgba(0,0,0,0.16); transition: right 0.25s ease; display: flex; flex-direction: column; }
+        .wa-profile-panel.open { right: 0; }
+        .wa-profile-header { background: #f0f2f5; padding: 60px 20px 20px; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .wa-profile-avatar { width: 90px; height: 90px; border-radius: 50%; background: #e9edef; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .wa-profile-avatar i { font-size: 36px; color: #cfd4d7; }
+        .wa-profile-phone { font-size: 20px; color: #111b21; font-weight: 400; }
+        .wa-profile-state { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 13px; color: #667781; }
+        .wa-profile-close { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .wa-profile-close i { color: #54656f; font-size: 20px; }
+        .wa-profile-close:hover { background: #e9edef; }
+        .wa-profile-body { flex: 1; overflow-y: auto; padding: 0; }
+        .wa-profile-section { padding: 14px 20px; border-bottom: 6px solid #f0f2f5; }
+        .wa-profile-section-title { font-size: 13px; color: #008069; font-weight: 600; margin-bottom: 10px; }
+        .wa-profile-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
+        .wa-profile-row-label { font-size: 14px; color: #667781; }
+        .wa-profile-row-value { font-size: 14px; color: #111b21; font-weight: 500; }
+        .wa-profile-row-value.green { color: #25d366; }
+        .wa-profile-row-value.blue { color: #008069; }
+        .wa-profile-row-value.orange { color: #f59e0b; }
+        .wa-profile-row-value.red { color: #ef4444; }
+        .wa-profile-tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px; }
+        .wa-profile-tag.active { background: #e7fce3; color: #008069; }
+        .wa-profile-tag.paused { background: #fce7e7; color: #d32f2f; }
+        .wa-profile-empty { text-align: center; padding: 16px; color: #8696a0; font-size: 13px; }
+
         .hidden { display: none !important; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -328,7 +355,7 @@
                 <div id="chat-view" class="hidden" style="display:flex; flex-direction:column; height:100vh;">
                     <div class="wa-chat-header">
                         <div class="wa-chat-header-left">
-                            <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                            <div class="avatar" onclick="openProfile()" style="cursor:pointer;" title="Ver perfil del cliente"><i class="fa-solid fa-user"></i></div>
                             <div class="wa-chat-header-info">
                                 <h3 id="chat-phone">—</h3>
                                 <div class="state-line">
@@ -361,6 +388,55 @@
                     </div>
                 </div>
             </main>
+        </div>
+    </div>
+
+    <!-- PROFILE PANEL -->
+    <div id="profile-overlay" class="wa-profile-overlay hidden" onclick="closeProfile()"></div>
+    <div id="profile-panel" class="wa-profile-panel">
+        <div class="wa-profile-header">
+            <button class="wa-profile-close" onclick="closeProfile()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="wa-profile-avatar"><i class="fa-solid fa-user"></i></div>
+            <div class="wa-profile-phone" id="prof-phone">—</div>
+            <div class="wa-profile-state">
+                <span class="state-dot" id="prof-state-dot"></span>
+                <span id="prof-state-label">cargando...</span>
+            </div>
+        </div>
+        <div class="wa-profile-body">
+            <!-- Info general -->
+            <div class="wa-profile-section">
+                <div class="wa-profile-section-title">Información</div>
+                <div class="wa-profile-row">
+                    <span class="wa-profile-row-label">Bot</span>
+                    <span class="wa-profile-tag active" id="prof-bot-tag">Activo</span>
+                </div>
+                <div class="wa-profile-row">
+                    <span class="wa-profile-row-label">Primer mensaje</span>
+                    <span class="wa-profile-row-value" id="prof-first-msg">—</span>
+                </div>
+                <div class="wa-profile-row">
+                    <span class="wa-profile-row-label">Última actividad</span>
+                    <span class="wa-profile-row-value" id="prof-last-activity">—</span>
+                </div>
+                <div class="wa-profile-row">
+                    <span class="wa-profile-row-label">Mensajes enviados</span>
+                    <span class="wa-profile-row-value blue" id="prof-msg-count">0</span>
+                </div>
+            </div>
+            <!-- Compras -->
+            <div class="wa-profile-section">
+                <div class="wa-profile-section-title">Compras</div>
+                <div class="wa-profile-row">
+                    <span class="wa-profile-row-label">Total ventas</span>
+                    <span class="wa-profile-row-value green" id="prof-total-ventas">0</span>
+                </div>
+                <div class="wa-profile-row">
+                    <span class="wa-profile-row-label">Ingresos totales</span>
+                    <span class="wa-profile-row-value green" id="prof-total-ingresos">S/ 0</span>
+                </div>
+                <div id="prof-ventas-list"></div>
+            </div>
         </div>
     </div>
 
@@ -1133,6 +1209,91 @@
             document.getElementById('kanban-count-chat').textContent = counts['chat'];
             document.getElementById('kanban-count-voucher').textContent = counts['esperando_captura'];
             document.getElementById('kanban-count-done').textContent = counts['completado'];
+        }
+
+        // ==========================================
+        // CLIENT PROFILE PANEL
+        // ==========================================
+        function openProfile() {
+            if (!selectedClient) return;
+            const phone = selectedClient;
+            document.getElementById('prof-phone').textContent = phone;
+            document.getElementById('profile-overlay').classList.remove('hidden');
+            document.getElementById('profile-panel').classList.add('open');
+
+            // Session data from sessionMap
+            const sData = sessionMap[phone] || {};
+            const state = sData.state || 'desconocido';
+            document.getElementById('prof-state-label').textContent = formatState(state);
+            document.getElementById('prof-state-dot').className = `state-dot ${getStateBg(state)}`;
+
+            // Bot tag
+            const botTag = document.getElementById('prof-bot-tag');
+            const paused = sData.bot_pausado || false;
+            botTag.textContent = paused ? 'Pausado' : 'Activo';
+            botTag.className = `wa-profile-tag ${paused ? 'paused' : 'active'}`;
+
+            // Load ventas for this client
+            db.collection('ventas').where('cliente_numero', '==', phone).get().then(snap => {
+                let totalVentas = snap.size;
+                let totalIngresos = 0;
+                let ventasHtml = '';
+                snap.forEach(doc => {
+                    const v = doc.data();
+                    totalIngresos += v.precio || 0;
+                    const producto = v.producto_nombre || 'Producto';
+                    const fecha = v.fecha_venta || '';
+                    const monto = v.precio || 0;
+                    ventasHtml += `
+                        <div class="wa-profile-row" style="padding-top:8px;border-top:1px solid #f0f2f5;margin-top:8px;">
+                            <div>
+                                <div style="font-size:13px;color:#111b21;font-weight:500;">${escapeHtml(producto)}</div>
+                                <div style="font-size:11px;color:#8696a0;">${fecha ? formatTime(fecha) : '—'}</div>
+                            </div>
+                            <span class="wa-profile-row-value green">S/ ${monto}</span>
+                        </div>`;
+                });
+                document.getElementById('prof-total-ventas').textContent = totalVentas;
+                document.getElementById('prof-total-ingresos').textContent = `S/ ${totalIngresos}`;
+                document.getElementById('prof-ventas-list').innerHTML = totalVentas === 0
+                    ? '<div class="wa-profile-empty">Sin compras registradas</div>'
+                    : ventasHtml;
+            });
+
+            // Load first message and message count
+            db.collection('clientes').doc(phone).collection('mensajes')
+                .orderBy('timestamp', 'asc').limit(1).get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        const firstTs = snap.docs[0].data().timestamp || '';
+                        document.getElementById('prof-first-msg').textContent = firstTs ? formatTime(firstTs) : '—';
+                    } else {
+                        document.getElementById('prof-first-msg').textContent = '—';
+                    }
+                });
+
+            db.collection('clientes').doc(phone).collection('mensajes').get().then(snap => {
+                document.getElementById('prof-msg-count').textContent = snap.size;
+                // Last activity
+                if (!snap.empty) {
+                    let lastTs = '';
+                    snap.forEach(doc => {
+                        const ts = doc.data().timestamp || '';
+                        if (ts > lastTs) lastTs = ts;
+                    });
+                    document.getElementById('prof-last-activity').textContent = lastTs ? formatTime(lastTs) : '—';
+                }
+            });
+
+            // Last activity from client doc
+            if (clientsData[phone]) {
+                document.getElementById('prof-last-activity').textContent = clientsData[phone].lastTime ? formatTime(clientsData[phone].lastTime) : '—';
+            }
+        }
+
+        function closeProfile() {
+            document.getElementById('profile-overlay').classList.add('hidden');
+            document.getElementById('profile-panel').classList.remove('open');
         }
 
         // Enter key login

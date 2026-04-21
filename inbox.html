@@ -606,10 +606,9 @@
         // STATS PANEL (ventas del día — real-time)
         // ==========================================
         function loadStats() {
-            const hoy = new Date();
-            const peruOffset = hoy.getTimezoneOffset() + 300; // UTC-5 = +300 min correction
-            const peruDate = new Date(hoy.getTime() + peruOffset * 60000);
-            const hoyISO = peruDate.toISOString().split('T')[0]; // "2026-04-22"
+            // Fecha de hoy en Perú (hora Lima UTC-5)
+            const hoyISO = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
+            // en-CA da formato "2026-04-21" directamente
 
             // Ventas de hoy (real-time)
             db.collection('ventas')

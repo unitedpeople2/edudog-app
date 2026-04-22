@@ -976,14 +976,23 @@
             db.collection('ventas')
                 .where('fecha_venta', '>=', hoyISO)
                 .onSnapshot(snap => {
-                    let ventas = 0, ingresos = 0;
+                    let ventas = 0, ingresosPEN = 0, ingresosUSD = 0;
                     snap.forEach(doc => {
                         const v = doc.data();
                         ventas++;
-                        ingresos += parseFloat(v.precio) || 0;
+                        const moneda = v.moneda || 'PEN';
+                        const monto = parseFloat(v.precio) || 0;
+                        if (moneda === 'USD') {
+                            ingresosUSD += monto;
+                        } else {
+                            ingresosPEN += monto;
+                        }
                     });
                     document.getElementById('stat-ventas').textContent = ventas;
-                    document.getElementById('stat-ingresos').textContent = 'S/ ' + Math.round(ingresos);
+                    let textoIngresos = '';
+                    if (ingresosPEN > 0) textoIngresos += 'S/ ' + Math.round(ingresosPEN);
+                    if (ingresosUSD > 0) textoIngresos += (textoIngresos ? ' + ' : '') + '$' + Math.round(ingresosUSD);
+                    document.getElementById('stat-ingresos').textContent = textoIngresos || 'S/ 0';
                 }, err => console.error('Stats ventas error:', err));
 
             // Vouchers pendientes (sesiones en esperando_captura)
@@ -1618,21 +1627,24 @@
                 let ventasHtml = '';
                 snap.forEach(doc => {
                     const v = doc.data();
-                    totalIngresos += v.precio || 0;
                     const producto = v.producto_nombre || 'Producto';
                     const fecha = v.fecha_venta || '';
                     const monto = v.precio || 0;
+                    const monedaV = v.moneda || 'PEN';
+                    const simbolo = monedaV === 'USD' ? '$' : 'S/ ';
+                    totalIngresos += monto;
                     ventasHtml += `
                         <div class="wa-profile-row" style="padding-top:8px;border-top:1px solid #f0f2f5;margin-top:8px;">
                             <div>
                                 <div style="font-size:13px;color:#111b21;font-weight:500;">${escapeHtml(producto)}</div>
                                 <div style="font-size:11px;color:#8696a0;">${fecha ? formatTime(fecha) : '—'}</div>
                             </div>
-                            <span class="wa-profile-row-value green">S/ ${monto}</span>
+                            <span class="wa-profile-row-value green">${simbolo}${monto}</span>
                         </div>`;
                 });
                 document.getElementById('prof-total-ventas').textContent = totalVentas;
-                document.getElementById('prof-total-ingresos').textContent = `S/ ${totalIngresos}`;
+                let textoTotalIngresos = `S/ ${totalIngresos}`;
+                document.getElementById('prof-total-ingresos').textContent = textoTotalIngresos;
                 document.getElementById('prof-ventas-list').innerHTML = totalVentas === 0
                     ? '<div class="wa-profile-empty">Sin compras registradas</div>'
                     : ventasHtml;

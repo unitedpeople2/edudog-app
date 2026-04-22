@@ -220,8 +220,14 @@
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Precio Oferta (S/ o USD)</label>
+                                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Precio Oferta (Perú - S/)</label>
                                             <input type="number" id="prod-precio" placeholder="25" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm">
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Precio Internacional (USD)</label>
+                                            <input type="number" id="prod-precio-usd" placeholder="7" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm">
+                                            <p class="text-[10px] text-slate-400">Precio en dólares para clientes de otros países (Hotmart).</p>
                                         </div>
 
                                         <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-100">
@@ -316,18 +322,9 @@
 
                                         <div class="space-y-1.5">
                                             <label class="text-[11px] font-bold text-amber-700 uppercase tracking-widest">Detalle completo (para Bloque 2)</label>
-                                            <textarea id="prod-bonos-detalle" rows="5" oninput="updateWAPreviewGeneric('prod-bonos-detalle','wa-preview-bonos-detalle','counter-bonos-detalle')" placeholder="1️⃣ *Guía de precios y costos* — Sabe cuánto cobrar por cada creación&#10;2️⃣ *Plantillas de atención al cliente* — Mensajes listos para copiar y pegar&#10;3️⃣ *Comunidad VIP de emprendedoras* — Soporte directo y networking&#10;4️⃣ *5 patrones exclusivos de temporada* — No están en el pack principal&#10;5️⃣ *Checklist para emprendedores* — Paso a paso para armar tu negocio" class="w-full bg-white border border-amber-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-amber-500 text-sm"></textarea>
+                                            <textarea id="prod-bonos-detalle" rows="5" oninput="updateCharCounter(this,'counter-bonos-detalle')" placeholder="1️⃣ *Guía de precios y costos* — Sabe cuánto cobrar por cada creación&#10;2️⃣ *Plantillas de atención al cliente* — Mensajes listos para copiar y pegar&#10;3️⃣ *Comunidad VIP de emprendedoras* — Soporte directo y networking&#10;4️⃣ *5 patrones exclusivos de temporada* — No están en el pack principal&#10;5️⃣ *Checklist para emprendedores* — Paso a paso para armar tu negocio" class="w-full bg-white border border-amber-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-amber-500 text-sm"></textarea>
                                             <div class="char-counter" id="counter-bonos-detalle">0 / 4096</div>
                                             <p class="text-[10px] text-amber-600/70">Detalle de cada bono con numeración. Se envía como mensaje de texto.</p>
-                                        </div>
-
-                                        <div class="mt-3 pt-3 border-t border-amber-200/50">
-                                            <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2"><i class="fa-brands fa-whatsapp"></i> Vista previa WhatsApp</p>
-                                            <div class="bg-[#e5ddd5] rounded-xl p-4 min-h-[80px]">
-                                                <div class="relative">
-                                                    <div class="wa-bubble" id="wa-preview-bonos-detalle">Escribe el detalle de bonos para ver la vista previa...</div>
-                                                </div>
-                                            </div>
                                         </div>
 
                                         <div class="space-y-1.5">
@@ -396,17 +393,8 @@
                                     <div class="space-y-5">
                                         <div class="space-y-1.5">
                                             <label class="text-[11px] font-bold text-emerald-700 uppercase tracking-widest pl-1">Mensaje Persuasivo</label>
-                                            <textarea id="prod-mbump" rows="2" oninput="updateWAPreviewGeneric('prod-mbump','wa-preview-bump','counter-mbump')" placeholder="¡Genial! Ya tienes tu acceso. 🎁 Antes de irte, por S/10 extra puedes añadir..." class="w-full bg-white border border-emerald-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-emerald-500"></textarea>
+                                            <textarea id="prod-mbump" rows="2" oninput="updateCharCounter(this,'counter-mbump')" placeholder="¡Genial! Ya tienes tu acceso. 🎁 Antes de irte, por S/10 extra puedes añadir..." class="w-full bg-white border border-emerald-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-emerald-500"></textarea>
                                             <div class="char-counter" id="counter-mbump">0 / 4096</div>
-                                        </div>
-
-                                        <div class="mt-2 pt-2 border-t border-emerald-100">
-                                            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-2"><i class="fa-brands fa-whatsapp"></i> Vista previa WhatsApp</p>
-                                            <div class="bg-[#e5ddd5] rounded-xl p-4 min-h-[80px]">
-                                                <div class="relative">
-                                                    <div class="wa-bubble" id="wa-preview-bump">Escribe el mensaje persuasivo para ver la vista previa...</div>
-                                                </div>
-                                            </div>
                                         </div>
                                         
                                         <div class="space-y-1.5">
@@ -800,6 +788,7 @@
             document.getElementById('prod-tipo').value = 'principal';
             document.getElementById('prod-nombre').value = '';
             document.getElementById('prod-precio').value = '';
+            document.getElementById('prod-precio-usd').value = '';
             document.getElementById('prod-activo').checked = false;
             document.getElementById('prod-desc-ia').value = '';
             document.getElementById('prod-link-hotmart').value = '';
@@ -831,6 +820,7 @@
                 document.getElementById('prod-tipo').value = editData.tipo_oferta || 'principal';
                 document.getElementById('prod-nombre').value = editData.nombre_producto || '';
                 document.getElementById('prod-precio').value = editData.precio_oferta || 0;
+                document.getElementById('prod-precio-usd').value = editData.precio_oferta_usd || 0;
                 document.getElementById('prod-activo').checked = editData.activo || false;
                 document.getElementById('prod-desc-ia').value = editData.descripcion_para_ia || '';
                 document.getElementById('prod-link-hotmart').value = editData.link_hotmart || '';
@@ -897,7 +887,8 @@
                     <p class="text-xs font-mono text-slate-400 mb-4">ID: ${p.id}</p>
                     
                     <div class="flex gap-4 mb-5 border-t border-slate-100 pt-3 mt-auto">
-                        <div class="text-xs font-black text-emerald-600 ml-auto bg-emerald-50 px-2 py-0.5 rounded-md">S/ ${p.precio_oferta || 0}</div>
+                        <div class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">S/ ${p.precio_oferta || 0}</div>
+                        ${p.precio_oferta_usd ? `<div class="text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">$${p.precio_oferta_usd} USD</div>` : ''}
                     </div>
 
                     <div class="flex gap-2">
@@ -931,6 +922,7 @@
                 tipo_oferta: document.getElementById('prod-tipo').value,
                 nombre_producto: document.getElementById('prod-nombre').value,
                 precio_oferta: Number(document.getElementById('prod-precio').value),
+                precio_oferta_usd: Number(document.getElementById('prod-precio-usd').value),
                 activo: document.getElementById('prod-activo').checked,
                 descripcion_para_ia: document.getElementById('prod-desc-ia').value.trim(),
                 link_hotmart: document.getElementById('prod-link-hotmart').value.trim(),
@@ -1301,17 +1293,14 @@
         // 11. WHATSAPP PREVIEW
         // ==========================================
         function updateWAPreview() {
-            updateWAPreviewGeneric('prod-copy-bloque-1', 'wa-preview-bubble', 'counter-copy-bloque-1', 'Escribe tu copy aquí para ver la vista previa...');
-        }
-
-        function updateWAPreviewGeneric(textareaId, bubbleId, counterId, placeholder) {
-            const textarea = document.getElementById(textareaId);
-            const bubble = document.getElementById(bubbleId);
+            const textarea = document.getElementById('prod-copy-bloque-1');
+            const bubble = document.getElementById('wa-preview-bubble');
+            const counterId = 'counter-copy-bloque-1';
             if (!textarea || !bubble) return;
             updateCharCounter(textarea, counterId);
             const text = textarea.value.trim();
             if (!text) {
-                bubble.innerHTML = '<span style="color:#8696a0">' + (placeholder || 'Escribe aquí para ver la vista previa...') + '</span>';
+                bubble.innerHTML = '<span style="color:#8696a0">Escribe tu copy aquí para ver la vista previa...</span>';
                 return;
             }
             // Convertir *bold* a <b> y _italic_ a <i> para el preview

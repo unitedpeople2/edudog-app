@@ -363,7 +363,15 @@
                                                 <i class="fa-solid fa-link"></i> Link de Hotmart (Checkout)
                                             </label>
                                             <input type="url" id="prod-link-hotmart" placeholder="https://pay.hotmart.com/..." class="w-full bg-emerald-50 border border-emerald-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-emerald-500 text-sm">
-                                            <p class="text-[10px] text-slate-400">Para ventas internacionales. El bot lo envía si el cliente quiere tarjeta.</p>
+                                            <p class="text-[10px] text-slate-400">Para ventas internacionales (países sin dLocal). El bot lo envía si el cliente quiere tarjeta.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5 pt-3 border-t border-slate-100 mt-3">
+                                            <label class="text-[11px] font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-1">
+                                                <i class="fa-solid fa-globe"></i> Precio dLocal (USD)
+                                            </label>
+                                            <input type="number" id="prod-precio-dlocal" placeholder="27" step="0.01" class="w-full bg-indigo-50 border border-indigo-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-indigo-500 text-sm">
+                                            <p class="text-[10px] text-indigo-600/70">Precio en USD para pagos con dLocal Go (Colombia, etc.). Se cobra en moneda local del país del cliente.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -793,6 +801,7 @@
             document.getElementById('prod-activo').checked = false;
             document.getElementById('prod-desc-ia').value = '';
             document.getElementById('prod-link-hotmart').value = '';
+            document.getElementById('prod-precio-dlocal').value = '';
             document.getElementById('prod-imagen').value = '';
             document.getElementById('prod-nicho-audiencia').value = '';
             document.getElementById('prod-nicho-emoji').value = '';
@@ -825,6 +834,7 @@
                 document.getElementById('prod-activo').checked = editData.activo || false;
                 document.getElementById('prod-desc-ia').value = editData.descripcion_para_ia || '';
                 document.getElementById('prod-link-hotmart').value = editData.link_hotmart || '';
+                document.getElementById('prod-precio-dlocal').value = editData.precio_dlocal_usd || 0;
                 document.getElementById('prod-imagen').value = editData.imagen_producto || '';
                 document.getElementById('prod-nicho-audiencia').value = editData.nicho_audiencia || '';
                 document.getElementById('prod-nicho-emoji').value = editData.nicho_emoji || '';
@@ -889,7 +899,8 @@
                     <p class="text-xs font-mono text-slate-400 mb-4">ID: ${p.id}</p>
                     
                     <div class="flex gap-4 mb-5 border-t border-slate-100 pt-3 mt-auto">
-                        <div class="text-xs font-black text-emerald-600 ml-auto bg-emerald-50 px-2 py-0.5 rounded-md">S/ ${p.precio_oferta || 0}</div>
+                        <div class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">S/ ${p.precio_oferta || 0}</div>
+                        ${p.precio_dlocal_usd ? `<div class="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">$${p.precio_dlocal_usd} dLocal</div>` : ''}
                     </div>
 
                     <div class="flex gap-2">
@@ -926,6 +937,7 @@
                 activo: document.getElementById('prod-activo').checked,
                 descripcion_para_ia: document.getElementById('prod-desc-ia').value.trim(),
                 link_hotmart: document.getElementById('prod-link-hotmart').value.trim(),
+                precio_dlocal_usd: Number(document.getElementById('prod-precio-dlocal').value) || 0,
                 imagen_producto: document.getElementById('prod-imagen').value.trim(),
                 nicho_audiencia: document.getElementById('prod-nicho-audiencia').value.trim(),
                 nicho_emoji: document.getElementById('prod-nicho-emoji').value.trim(),

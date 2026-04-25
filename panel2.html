@@ -1,1355 +1,871 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centro de Mando - EduDog Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+# -*- coding: utf-8 -*-
+# ==========================================================
+# BOT CURSOS DIGITALES - VERSIÓN 3.0 (FUNNEL 5 FASES)
+# Stack: Cloud Run + Firebase + WhatsApp API + Vertex AI
+# ==========================================================
+
+import logging
+import os
+import sys
+import traceback
+import requests
+import google.auth
+import google.auth.transport.requests
+from datetime import datetime, timezone, timedelta
+from io import BytesIO
+import base64
+import re
+import json
+import time
+import uuid
+import hashlib
+import hmac
+import threading
+import random 
+from instagram_engine import ejecutar_publicacion_espejo
+from google.cloud import secretmanager
+
+# --- LOGGING ---
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    stream=sys.stdout
+)
+logger = logging.getLogger(__name__)
+logger.info("--- INICIO BOT CURSOS DIGITALES v3.0 ---")
+
+try:
+    from flask import Flask, request, jsonify
+    from flask_cors import CORS
+    import firebase_admin
+    from firebase_admin import credentials, firestore, storage, auth
+    logger.info("Importaciones completadas.")
+
+    app = Flask(__name__)
+    CORS(app)
+
+except Exception as e:
+    logger.error(f"FALLO CRÍTICO EN INICIALIZACIÓN: {e}")
+    sys.exit(1)
+
+
+# ==========================================================
+# 1. VARIABLES GLOBALES
+# ==========================================================
+
+db               = None
+CONFIG_LOADED    = False
+PRODUCTO_ACTIVO  = {}   
+CONFIG_PAGOS     = {}
+PROMPT_MAESTRO   = ""   
+
+# Variables de entorno
+PERU_TZ          = timezone(timedelta(hours=-5))
+
+def access_secret_version(secret_id, version_id="latest"):
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{os.environ.get('GOOGLE_CLOUD_PROJECT')}/secrets/{secret_id}/versions/{version_id}"
+    response = client.access_secret_version(request={"name": name})
+    return response.payload.data.decode("UTF-8")
+
+try:
+    raw_config = access_secret_version("CONFIG_CURSOS")
+    config_data = json.loads(raw_config)
     
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f1f5f9; 
-            color: #0f172a;
-        }
-
-        .premium-input:focus-within {
-            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
-            border-color: #8b5cf6;
-        }
-
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #8b5cf6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .img-preview-thumb {
-            width: 52px; height: 52px; object-fit: cover; border-radius: 10px; border: 2px solid #e2e8f0;
-            transition: all 0.2s ease; flex-shrink: 0;
-        }
-        .img-preview-thumb:hover { transform: scale(1.8); box-shadow: 0 8px 25px rgba(0,0,0,0.15); z-index: 50; position: relative; }
-
-        .card-product-thumb {
-            width: 100%; height: 100px; object-fit: cover; border-radius: 12px 12px 0 0;
-            background: linear-gradient(135deg, #e2e8f0, #f1f5f9);
-        }
-
-        .wa-bubble {
-            background: #dcf8c6; border-radius: 0 12px 12px 12px; padding: 10px 14px;
-            font-size: 13.5px; line-height: 1.45; color: #111b21; max-width: 280px;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.06); white-space: pre-wrap; word-wrap: break-word;
-        }
-        .wa-bubble::before {
-            content: ''; position: absolute; top: 0; left: -8px; width: 0; height: 0;
-            border-top: 0 solid transparent; border-bottom: 10px solid transparent;
-            border-right: 10px solid #dcf8c6;
-        }
-
-        .char-counter { font-size: 10px; color: #94a3b8; text-align: right; margin-top: 2px; }
-        .char-counter.warn { color: #f59e0b; }
-        .char-counter.danger { color: #ef4444; font-weight: 700; }
-    </style>
-</head>
-<body class="antialiased flex h-screen overflow-hidden">
-
-    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-full shadow-2xl z-[100] transform -translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 font-semibold text-sm pointer-events-none">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
-        <span id="toast-msg">Mensaje</span>
-    </div>
-
-    <div id="screen-login" class="fixed inset-0 z-50 bg-slate-50 flex items-center justify-center fade-in">
-        <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-violet-600 to-slate-900 rounded-b-[4rem] opacity-100 z-0"></div>
-        
-        <div class="relative z-10 w-full max-w-sm px-6">
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 flex items-center justify-center mx-auto mb-4 shadow-xl">
-                    <i class="fa-solid fa-shield-dog text-4xl text-white"></i>
-                </div>
-                <h1 class="text-3xl font-extrabold text-white">Admin Hub</h1>
-                <p class="text-violet-200 font-medium mt-1 text-sm">Centro de Mando</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-[2rem] shadow-2xl space-y-4">
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Correo Electrónico</label>
-                    <div class="relative premium-input transition-all rounded-2xl border border-slate-200 bg-slate-50">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-envelope"></i></span>
-                        <input type="email" id="loginEmail" placeholder="admin@ejemplo.com" class="w-full bg-transparent text-slate-900 py-3.5 pl-12 pr-4 outline-none font-bold text-sm">
-                    </div>
-                </div>
-
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Contraseña</label>
-                    <div class="relative premium-input transition-all rounded-2xl border border-slate-200 bg-slate-50">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-lock"></i></span>
-                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full bg-transparent text-slate-900 py-3.5 pl-12 pr-4 outline-none font-bold text-sm">
-                    </div>
-                </div>
-
-                <button onclick="doLogin()" id="btnLogin" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-slate-800 active:scale-95 transition-all text-sm mt-2 flex justify-center items-center gap-2">
-                    Ingresar al Sistema <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="screen-dashboard" class="hidden w-full h-full flex bg-slate-100">
-        
-        <aside class="w-64 bg-slate-900 text-white flex flex-col transition-all border-r border-slate-800 shrink-0">
-            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center text-xl shadow-lg shadow-violet-600/20">
-                    <i class="fa-solid fa-shield-dog"></i>
-                </div>
-                <div>
-                    <h2 class="font-black text-sm tracking-wide">EduDog Pro</h2>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest" id="status-db">Conectando...</p>
-                </div>
-            </div>
-
-            <nav class="flex-1 p-4 space-y-2">
-                <button onclick="switchTab('productos')" id="nav-productos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold bg-violet-600/20 text-violet-400 transition-colors">
-                    <i class="fa-solid fa-box-open w-5"></i> Productos (Ofertas)
-                </button>
-                <button onclick="switchTab('campanas')" id="nav-campanas" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors">
-                    <i class="fa-solid fa-bullhorn w-5"></i> Campañas Ads
-                </button>
-                <button onclick="switchTab('cerebro')" id="nav-cerebro" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors border border-violet-500/30">
-                    <i class="fa-solid fa-brain w-5 text-violet-400"></i> Cerebro IA
-                </button>
-                <button onclick="switchTab('copyia')" id="nav-copyia" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors border border-amber-500/30">
-                    <i class="fa-solid fa-robot w-5 text-amber-400"></i> Copy IA
-                </button>
-            </nav>
-
-            <div class="p-4 border-t border-slate-800">
-                <button onclick="doLogout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 transition-colors">
-                    <i class="fa-solid fa-right-from-bracket w-5"></i> Cerrar Sesión
-                </button>
-            </div>
-        </aside>
-
-        <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-slate-50">
-            
-            <div id="tab-productos" class="tab-content w-full h-full flex flex-col fade-in relative">
-                
-                <div id="view-productos-list" class="w-full h-full flex flex-col absolute inset-0 z-10 bg-slate-50 transition-transform duration-300">
-                    <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
-                        <div>
-                            <h1 class="text-2xl font-black text-slate-900">Estructura de Ofertas</h1>
-                            <p class="text-sm text-slate-500 font-medium">Crea los paquetes que el bot venderá por WhatsApp.</p>
-                        </div>
-                        <button onclick="openProductEditor()" class="bg-violet-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-violet-700 shadow-md shadow-violet-600/20 transition-all flex gap-2 items-center">
-                            <i class="fa-solid fa-plus"></i> Nuevo Paquete
-                        </button>
-                    </header>
-                    <div class="flex-1 p-8 overflow-y-auto">
-                        <div id="productsList" class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6"></div>
-                    </div>
-                </div>
-
-                <div id="view-producto-editor" class="w-full h-full flex flex-col absolute inset-0 z-20 bg-slate-50 transform translate-x-full transition-transform duration-300">
-                    
-                    <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0 shadow-sm z-10">
-                        <div class="flex items-center gap-4">
-                            <button onclick="closeProductEditor()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
-                                <i class="fa-solid fa-arrow-left"></i>
-                            </button>
-                            <div>
-                                <h1 class="text-xl font-black text-slate-900" id="editor-prod-title">Crear Nuevo Paquete</h1>
-                                <p class="text-xs font-bold text-violet-600 uppercase tracking-widest mt-0.5">Editor de Oferta</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-3">
-                            <button onclick="closeProductEditor()" class="text-slate-500 font-bold px-4 py-2 hover:text-slate-800 transition-colors">Cancelar</button>
-                            <button onclick="saveProduct()" id="btn-save-prod" class="bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-emerald-600 shadow-md transition-all flex items-center gap-2">
-                                <i class="fa-solid fa-floppy-disk"></i> Guardar Paquete
-                            </button>
-                        </div>
-                    </header>
-
-                    <div class="flex-1 overflow-y-auto p-8">
-                        <input type="hidden" id="prod-id-edit">
-                        
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-7xl mx-auto">
-                            
-                            <div class="lg:col-span-5 space-y-6">
-                                
-                                <!-- ========== TARJETA 1: IDENTIDAD BÁSICA ========== -->
-                                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-                                        <h3 class="font-black text-lg text-slate-800">1. Identidad</h3>
-                                        <label class="flex items-center gap-2 cursor-pointer">
-                                            <span class="font-bold text-xs text-slate-500">¿Activo?</span>
-                                            <input type="checkbox" id="prod-activo" class="w-5 h-5 accent-emerald-500 rounded cursor-pointer">
-                                        </label>
-                                    </div>
-
-                                    <div class="space-y-4">
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">ID (Sin espacios)</label>
-                                                <input type="text" id="prod-id" placeholder="ej. app_edudog" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm">
-                                            </div>
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Tipo</label>
-                                                <select id="prod-tipo" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm appearance-none">
-                                                    <option value="principal">Gancho (Principal)</option>
-                                                    <option value="order_bump">Order Bump</option>
-                                                    <option value="upsell_interno">Upsell Hub</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Nombre Público</label>
-                                            <input type="text" id="prod-nombre" placeholder="EduDog Pro - Generador de Rutinas" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm">
-                                        </div>
-
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Precio Oferta (S/ o USD)</label>
-                                            <input type="number" id="prod-precio" placeholder="25" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm">
-                                        </div>
-
-                                        <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-100">
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Emoji del Producto</label>
-                                                <input type="text" id="prod-nicho-emoji" placeholder="🧶" maxlength="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm text-center">
-                                            </div>
-                                            <div class="space-y-1.5">
-                                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Audiencia</label>
-                                                <input type="text" id="prod-nicho-audiencia" placeholder="emprendedoras, creativas..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-xs">
-                                            </div>
-                                        </div>
-                                        <p class="text-[10px] text-slate-400 mt-1">Emoji: personalidad del producto (Gemini lo usa). Audiencia: para quién es (recordatorios + IA).</p>
-
-                                        <div class="mt-4 pt-4 border-t border-slate-100 space-y-1.5">
-                                            <label class="text-[11px] font-bold text-violet-600 uppercase tracking-widest flex items-center gap-1">
-                                                <i class="fa-brands fa-whatsapp"></i> Número WhatsApp API (Phone ID)
-                                            </label>
-                                            <input type="text" id="prod-whatsapp-phone-id" placeholder="Dejar vacío = usa el número principal" class="w-full bg-violet-50 border border-violet-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm">
-                                            <p class="text-[10px] text-violet-600/70">Asigna este producto a un número de WhatsApp específico. Si lo dejas vacío, el número principal lo atenderá. Necesitas el Phone Number ID de Meta Business Manager.</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- ========== TARJETA 2: BLOQUE 1 - CAPTION ========== -->
-                                <div class="bg-white rounded-2xl p-6 border border-blue-200 shadow-sm relative overflow-hidden">
-                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-400"></div>
-                                    <h3 class="font-black text-lg text-blue-800 mb-1"><i class="fa-solid fa-message text-blue-500 mr-1"></i> 2. Bloque 1 (Caption de la Imagen)</h3>
-                                    <p class="text-xs text-blue-600/80 font-medium mb-4 pb-3 border-b border-blue-200/50">Texto exacto que el bot enviará debajo de la imagen en el Bloque 1.</p>
-
-                                    <div class="space-y-1.5">
-                                        <textarea id="prod-copy-bloque-1" rows="8" oninput="updateWAPreview()" placeholder="🧶 *Kit +60 Moldes de Pijamas*&#10;&#10;💰 S/10&#10;&#10;🎁 +5 BONOS EXCLUSIVOS: Guía de precios, plantillas de atención, Comunidad VIP, 5 patrones de temporada y checklist emprendedor.&#10;&#10;⚠️ Solo primeras 50 compras de abril reciben los bonos.&#10;&#10;¿Te interesa? 😊" class="w-full bg-white border border-blue-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-blue-500 text-sm leading-relaxed"></textarea>
-                                        <div class="char-counter" id="counter-copy-bloque-1">0 / 4096</div>
-                                    </div>
-
-                                    <div class="mt-4 pt-4 border-t border-blue-200/50">
-                                        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2"><i class="fa-brands fa-whatsapp"></i> Vista previa WhatsApp</p>
-                                        <div class="bg-[#e5ddd5] rounded-xl p-4 min-h-[80px]">
-                                            <div class="relative">
-                                                <div class="wa-bubble" id="wa-preview-bubble">Escribe tu copy aquí para ver la vista previa...</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- ========== TARJETA 3: IMÁGENES ========== -->
-                                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                                    <h3 class="font-black text-lg text-slate-800 mb-1">3. Imágenes</h3>
-                                    <p class="text-xs text-slate-500 font-medium mb-4 pb-3 border-b border-slate-100">Imágenes que el bot enviará en los Bloques 1 y 2.</p>
-
-                                    <div class="space-y-5">
-                                        <!-- Imagen del Producto -->
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1">
-                                                <i class="fa-solid fa-image"></i> Imagen del Producto (Bloque 1)
-                                            </label>
-                                            <div class="flex gap-2 items-center">
-                                                <input type="text" id="prod-imagen" placeholder="https://firebasestorage..." class="flex-1 bg-blue-50 border border-blue-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-blue-500 text-xs">
-                                                <input type="file" id="file-imagen" accept="image/*" class="hidden" onchange="uploadFileToStorage(this, 'prod-imagen')">
-                                                <button type="button" onclick="document.getElementById('file-imagen').click()" class="w-10 h-10 shrink-0 bg-blue-50 text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-100 transition-colors flex items-center justify-center shadow-sm" title="Subir Imagen">
-                                                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                                                </button>
-                                            </div>
-                                            <div id="progress-prod-imagen" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-blue-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
-                                            <div id="preview-prod-imagen" class="hidden mt-1"><img src="" class="img-preview-thumb" onerror="this.parentElement.classList.add('hidden')"></div>
-                                            <p class="text-[10px] text-slate-400">Se envía con caption en el Bloque 1. Si tiene imagen → modo low-cost activado.</p>
-                                        </div>
-
-                                        <!-- Imagen de Bonos -->
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-amber-600 uppercase tracking-widest flex items-center gap-1">
-                                                <i class="fa-solid fa-gift"></i> Imagen de Bonos (Bloque 2)
-                                            </label>
-                                            <div class="flex gap-2 items-center">
-                                                <input type="text" id="prod-imagen-bonos" placeholder="https://firebasestorage..." class="flex-1 bg-amber-50 border border-amber-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-amber-500 text-xs">
-                                                <input type="file" id="file-imagen-bonos" accept="image/*" class="hidden" onchange="uploadFileToStorage(this, 'prod-imagen-bonos')">
-                                                <button type="button" onclick="document.getElementById('file-imagen-bonos').click()" class="w-10 h-10 shrink-0 bg-amber-50 text-amber-600 border border-amber-200 rounded-xl hover:bg-amber-100 transition-colors flex items-center justify-center shadow-sm" title="Subir Imagen de Bonos">
-                                                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                                                </button>
-                                            </div>
-                                            <div id="progress-prod-imagen-bonos" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-amber-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
-                                            <div id="preview-prod-imagen-bonos" class="hidden mt-1"><img src="" class="img-preview-thumb" onerror="this.parentElement.classList.add('hidden')"></div>
-                                            <p class="text-[10px] text-slate-400">Se envía SOLA (sin caption) en el Bloque 2. Collage visual de los bonos.</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- ========== TARJETA 4: BONOS (LOW-COST) ========== -->
-                                <div class="bg-white rounded-2xl p-6 border border-amber-200 shadow-sm relative overflow-hidden">
-                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-amber-400"></div>
-                                    <h3 class="font-black text-lg text-amber-800 mb-1"><i class="fa-solid fa-gift text-amber-500 mr-1"></i> 4. Bonos (Low-Cost)</h3>
-                                    <p class="text-xs text-amber-600/80 font-medium mb-4 pb-3 border-b border-amber-200/50">Ancla de valor: resumen en Bloque 1, detalle en Bloque 2.</p>
-
-                                    <div class="space-y-4">
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-amber-700 uppercase tracking-widest">Resumen corto (para Bloque 1)</label>
-                                            <textarea id="prod-bonos-corto" rows="3" placeholder="• Guía de precios y costos para tu negocio&#10;• Plantillas de atención al cliente&#10;• Acceso a comunidad de emprendedoras&#10;• 5 patrones exclusivos de temporada&#10;• Checklist para emprendedores" class="w-full bg-white border border-amber-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-amber-500 text-sm"></textarea>
-                                            <p class="text-[10px] text-amber-600/70">Máximo 5 líneas con bullet points. Va en el caption de la imagen.</p>
-                                        </div>
-
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-amber-700 uppercase tracking-widest">Detalle completo (para Bloque 2)</label>
-                                            <textarea id="prod-bonos-detalle" rows="5" oninput="updateCharCounter(this,'counter-bonos-detalle')" placeholder="1️⃣ *Guía de precios y costos* — Sabe cuánto cobrar por cada creación&#10;2️⃣ *Plantillas de atención al cliente* — Mensajes listos para copiar y pegar&#10;3️⃣ *Comunidad VIP de emprendedoras* — Soporte directo y networking&#10;4️⃣ *5 patrones exclusivos de temporada* — No están en el pack principal&#10;5️⃣ *Checklist para emprendedores* — Paso a paso para armar tu negocio" class="w-full bg-white border border-amber-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-amber-500 text-sm"></textarea>
-                                            <div class="char-counter" id="counter-bonos-detalle">0 / 4096</div>
-                                            <p class="text-[10px] text-amber-600/70">Detalle de cada bono con numeración. Se envía como mensaje de texto.</p>
-                                        </div>
-
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-amber-700 uppercase tracking-widest">Límite de bonos por mes</label>
-                                            <input type="number" id="prod-limite-bonos" placeholder="50" value="50" class="w-full bg-white border border-amber-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-amber-500 text-sm">
-                                            <p class="text-[10px] text-amber-600/70">Escasez REAL. El bot dirá: "solo para las primeras X compras del mes".</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div class="lg:col-span-7 space-y-6">
-
-                                <!-- ========== TARJETA 5: ENTREGA (PDF + LINKS) ========== -->
-                                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                                    <h3 class="font-black text-lg text-slate-800 mb-1">5. Entrega al Cliente</h3>
-                                    <p class="text-xs text-slate-500 font-medium mb-4 pb-3 border-b border-slate-100">Qué recibe el cliente después de pagar (PDF, links de pago).</p>
-
-                                    <div class="space-y-4">
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-rose-600 uppercase tracking-widest flex items-center gap-1">
-                                                <i class="fa-solid fa-file-pdf"></i> PDF de Entrega
-                                            </label>
-                                            <div class="flex gap-2 items-center">
-                                                <input type="text" id="prod-pdf-entrega" placeholder="https://firebasestorage.../pack_amigurumi.pdf" class="flex-1 bg-rose-50 border border-rose-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-rose-500 text-xs">
-                                                <input type="file" id="file-pdf-entrega" accept=".pdf" class="hidden" onchange="uploadFileToStorage(this, 'prod-pdf-entrega')">
-                                                <button type="button" onclick="document.getElementById('file-pdf-entrega').click()" class="w-10 h-10 shrink-0 bg-rose-50 text-rose-600 border border-rose-200 rounded-xl hover:bg-rose-100 transition-colors flex items-center justify-center shadow-sm" title="Subir PDF">
-                                                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                                                </button>
-                                            </div>
-                                            <div id="progress-prod-pdf-entrega" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-rose-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
-                                            <p class="text-[10px] text-slate-400">PDF que se envía automáticamente al cliente tras pagar (Perú y dLocal).</p>
-                                        </div>
-
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-1">
-                                                <i class="fa-solid fa-link"></i> Link de Hotmart (Checkout)
-                                            </label>
-                                            <input type="url" id="prod-link-hotmart" placeholder="https://pay.hotmart.com/..." class="w-full bg-emerald-50 border border-emerald-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-emerald-500 text-sm">
-                                            <p class="text-[10px] text-slate-400">Para ventas internacionales (países sin dLocal). Fallback si dLocal falla.</p>
-                                        </div>
-
-                                        <div class="space-y-1.5 pt-3 border-t border-slate-100 mt-3">
-                                            <label class="text-[11px] font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-1">
-                                                <i class="fa-solid fa-globe"></i> Precio dLocal (USD)
-                                            </label>
-                                            <input type="number" id="prod-precio-dlocal" placeholder="27" step="0.01" class="w-full bg-indigo-50 border border-indigo-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-indigo-500 text-sm">
-                                            <p class="text-[10px] text-indigo-600/70">Precio en USD para pagos con dLocal Go (Colombia, etc.)</p>
-                                        </div>
-
-                                        <div class="space-y-1.5 pt-3 border-t border-slate-100 mt-3">
-                                            <label class="text-[11px] font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-1">
-                                                <i class="fa-solid fa-link"></i> Link de pago dLocal Go
-                                            </label>
-                                            <input type="url" id="prod-link-dlocal" placeholder="https://pay.dlocalgo.com/..." class="w-full bg-indigo-50 border border-indigo-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-indigo-500 text-sm">
-                                            <p class="text-[10px] text-indigo-600/70">Link de pago creado en dLocal Go > Link de pago. Si está vacío, usa Hotmart como respaldo.</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- ========== TARJETA 6: CEREBRO IA ========== -->
-                                <div class="bg-white rounded-2xl p-6 border border-violet-200 shadow-sm relative overflow-hidden">
-                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-violet-400"></div>
-                                    <h3 class="font-black text-lg text-violet-800 mb-1"><i class="fa-solid fa-robot text-violet-500 mr-1"></i> 6. Cerebro IA</h3>
-                                    <p class="text-xs text-violet-600/80 font-medium mb-4 pb-3 border-b border-violet-200/50">Texto que Gemini lee para saber cómo vender este producto.</p>
-
-                                    <div class="space-y-1.5">
-                                        <label class="text-[11px] font-bold text-violet-700 uppercase tracking-widest">Resumen para la IA</label>
-                                        <textarea id="prod-desc-ia" rows="4" oninput="updateCharCounter(this,'counter-desc-ia')" placeholder="Ej: NutriCan Vital es una app que calcula dieta natural para perros. Resuelve problemas de alergias, sobrepeso y transición a comida casera. Incluye +200 recetas y planes personalizados..." class="w-full bg-white border border-violet-200 rounded-xl py-3 px-4 font-bold text-slate-700 outline-none focus:border-violet-500 text-sm"></textarea>
-                                        <div class="char-counter" id="counter-desc-ia">0 / 4096</div>
-                                        <p class="text-[10px] text-violet-600/70">Describe qué es el producto, qué problemas resuelve y quién lo necesita. Gemini usará esto para responder dudas y cerrar ventas.</p>
-                                    </div>
-                                </div>
-
-                                <!-- ========== TARJETA 7: ORDER BUMP ========== -->
-                                <div class="bg-emerald-50/40 rounded-2xl p-6 border border-emerald-200 shadow-sm relative overflow-hidden">
-                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-400"></div>
-                                    <h3 class="font-black text-lg text-emerald-800 mb-1"><i class="fa-solid fa-bolt text-emerald-500 mr-1"></i> 7. Order Bump (Oferta Adicional)</h3>
-                                    <p class="text-xs text-emerald-600/80 font-medium mb-5 pb-3 border-b border-emerald-200/50">Oferta adicional que se envía después de que el bot entrega el producto al cliente.</p>
-                                    
-                                    <div class="space-y-5">
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-emerald-700 uppercase tracking-widest pl-1">Mensaje Persuasivo</label>
-                                            <textarea id="prod-mbump" rows="2" oninput="updateCharCounter(this,'counter-mbump')" placeholder="¡Genial! Ya tienes tu acceso. 🎁 Antes de irte, por S/10 extra puedes añadir..." class="w-full bg-white border border-emerald-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-emerald-500"></textarea>
-                                            <div class="char-counter" id="counter-mbump">0 / 4096</div>
-                                        </div>
-                                        
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-emerald-700 uppercase tracking-widest pl-1"><i class="fa-solid fa-image"></i> URL de Imagen (Para llamar la atención)</label>
-                                            <div class="flex gap-2 items-center">
-                                                <input type="text" id="prod-bump-img" placeholder="https://firebasestorage.googleapis.com/..." class="w-full bg-white border border-emerald-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-emerald-500 text-xs">
-                                                <input type="file" id="file-bump-img" accept="image/*" class="hidden" onchange="uploadFileToStorage(this, 'prod-bump-img')">
-                                                <button type="button" onclick="document.getElementById('file-bump-img').click()" class="w-10 h-10 shrink-0 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors flex items-center justify-center shadow-sm" title="Subir Imagen">
-                                                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                                                </button>
-                                            </div>
-                                            <div id="progress-prod-bump-img" class="hidden w-full bg-emerald-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-emerald-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
-                                            <div id="preview-prod-bump-img" class="hidden mt-1"><img src="" class="img-preview-thumb" onerror="this.parentElement.classList.add('hidden')"></div>
-                                        </div>
-
-                                        <div class="space-y-1.5">
-                                            <label class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Precio a Validar (S/)</label>
-                                            <input type="number" id="prod-bump-precio" placeholder="10" class="w-full bg-white border border-emerald-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-emerald-500 text-xs">
-                                        </div>
-
-                                        <div class="space-y-1.5 pt-2 border-t border-emerald-100 mt-2">
-                                            <label class="text-[11px] font-bold text-emerald-700 uppercase tracking-widest flex items-center gap-1.5">
-                                                <i class="fa-solid fa-file-pdf text-emerald-500"></i> PDF de Entrega (Order Bump)
-                                            </label>
-                                            <div class="flex gap-2 items-center">
-                                                <input type="text" id="prod-bump-pdf" placeholder="https://firebasestorage.../bump_extra.pdf" class="flex-1 bg-white border border-emerald-200 rounded-xl py-2.5 px-3 font-medium text-slate-700 outline-none focus:border-emerald-500 text-xs">
-                                                <input type="file" id="file-bump-pdf" accept=".pdf" class="hidden" onchange="uploadFileToStorage(this, 'prod-bump-pdf')">
-                                                <button type="button" onclick="document.getElementById('file-bump-pdf').click()" class="w-10 h-10 shrink-0 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors flex items-center justify-center shadow-sm" title="Subir PDF del Bump">
-                                                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                                                </button>
-                                            </div>
-                                            <div id="progress-prod-bump-pdf" class="hidden w-full bg-emerald-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-emerald-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
-                                            <p class="text-[10px] text-emerald-600/70">PDF que se enviará al cliente cuando pague el Order Bump. Si lo deja vacío, solo se desbloqueará el contenido en el Hub.</p>
-                                        </div>
-
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-emerald-700 uppercase tracking-widest flex items-center gap-1.5">
-                                                <i class="fa-solid fa-robot text-emerald-500"></i> Resumen para la IA (Order Bump)
-                                            </label>
-                                            <textarea id="prod-bump-desc-ia" rows="4" oninput="updateCharCounter(this,'counter-bump-desc-ia')" placeholder="Ej: El cliente ya compró NutriCan Vital. Ahora se le ofrece el recetario BARF con 50 recetas listas..." class="w-full bg-white border border-emerald-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-emerald-500 text-sm leading-relaxed"></textarea>
-                                            <div class="char-counter" id="counter-bump-desc-ia">0 / 4096</div>
-                                            <p class="text-[10px] text-emerald-600/70">Gemini leerá esto para defender el bono cuando el cliente haga preguntas.</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="h-12"></div> 
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-campanas" class="tab-content hidden w-full h-full flex flex-col fade-in relative">
-                <div id="view-campanas-list" class="w-full h-full flex flex-col absolute inset-0 z-10 bg-slate-50 transition-transform duration-300">
-                    <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
-                        <div>
-                            <h1 class="text-2xl font-black text-slate-900">Campañas y Tráfico</h1>
-                            <p class="text-sm text-slate-500 font-medium">Asocia frases de entrada de tus anuncios con tus productos.</p>
-                        </div>
-                        <button onclick="openCampaignEditor()" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 shadow-md transition-all flex gap-2 items-center">
-                            <i class="fa-solid fa-plus"></i> Nueva Campaña
-                        </button>
-                    </header>
-                    <div class="flex-1 p-8 overflow-y-auto">
-                        <div id="campaignsList" class="space-y-4 max-w-4xl mx-auto"></div>
-                    </div>
-                </div>
-
-                <div id="view-campana-editor" class="w-full h-full flex flex-col absolute inset-0 z-20 bg-slate-50 transform translate-x-full transition-transform duration-300">
-                    <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0 shadow-sm z-10">
-                        <div class="flex items-center gap-4">
-                            <button onclick="closeCampaignEditor()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
-                                <i class="fa-solid fa-arrow-left"></i>
-                            </button>
-                            <div>
-                                <h1 class="text-xl font-black text-slate-900" id="editor-camp-title">Configurar Campaña</h1>
-                                <p class="text-xs font-bold text-violet-600 uppercase tracking-widest mt-0.5">Editor de Tráfico</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-3">
-                            <button onclick="closeCampaignEditor()" class="text-slate-500 font-bold px-4 py-2 hover:text-slate-800 transition-colors">Cancelar</button>
-                            <button onclick="saveCampaign()" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-slate-800 shadow-md transition-all">
-                                Guardar Campaña
-                            </button>
-                        </div>
-                    </header>
-
-                    <div class="flex-1 overflow-y-auto p-8 flex justify-center items-start">
-                        <div class="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-sm p-8 space-y-6">
-                            <input type="hidden" id="camp-id-edit">
-                            
-                            <div class="flex justify-between items-center">
-                                <h3 class="font-black text-lg text-slate-800">Detalles Básicos</h3>
-                                <label class="flex items-center gap-2 cursor-pointer">
-                                    <span class="font-bold text-xs text-slate-500">¿Encendida?</span>
-                                    <input type="checkbox" id="camp-activo" class="w-5 h-5 accent-emerald-500 rounded cursor-pointer" checked>
-                                </label>
-                            </div>
-
-                            <div class="space-y-1.5">
-                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Nombre de Campaña</label>
-                                <input type="text" id="camp-nombre" placeholder="ej. Fb Ads - Dolor Higiene" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-700 outline-none focus:border-slate-500 text-sm">
-                            </div>
-
-                            <div class="space-y-1.5">
-                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Vender Producto (Paquete)</label>
-                                <select id="camp-producto" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-700 outline-none focus:border-slate-500 text-sm appearance-none">
-                                </select>
-                            </div>
-
-                            <div class="pt-6 border-t border-slate-100">
-                                <div class="flex justify-between items-end mb-4">
-                                    <div>
-                                        <h3 class="font-black text-lg text-slate-800 mb-1">Frases Activadoras</h3>
-                                        <p class="text-xs text-slate-500 font-medium">¿Qué texto exacto enviará el cliente por WhatsApp?</p>
-                                    </div>
-                                    <button onclick="addFraseRow()" class="text-xs font-bold bg-violet-50 text-violet-600 px-3 py-1.5 rounded-lg hover:bg-violet-100 transition-colors">+ Agregar Frase</button>
-                                </div>
-                                <div id="frases-container" class="space-y-3"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-cerebro" class="tab-content hidden w-full h-full flex flex-col fade-in relative">
-                <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
-                    <div>
-                        <h1 class="text-2xl font-black text-slate-900">Cerebro de la IA</h1>
-                        <p class="text-sm text-slate-500 font-medium">Define la personalidad y reglas globales de tu asistente Gemini.</p>
-                    </div>
-                    <button onclick="saveCerebro()" id="btn-save-cerebro" class="bg-violet-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-violet-700 shadow-md shadow-violet-600/20 transition-all flex gap-2 items-center">
-                        <i class="fa-solid fa-floppy-disk"></i> Guardar Prompt
-                    </button>
-                </header>
-                <div class="flex-1 p-8 overflow-y-auto flex justify-center items-start">
-                    <div class="bg-white w-full max-w-4xl rounded-2xl border border-slate-200 shadow-sm p-8 space-y-4">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-10 h-10 bg-violet-100 text-violet-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
-                                <i class="fa-solid fa-robot"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-black text-lg text-slate-800">Prompt Maestro (System Prompt)</h3>
-                                <p class="text-xs text-slate-500 font-medium">Instrucciones base para responder preguntas abierta por WhatsApp. Aplica a toda tu marca.</p>
-                            </div>
-                        </div>
-                        <textarea id="cerebro-prompt" rows="18" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-violet-500 leading-relaxed" placeholder="Eres un asesor experto de ventas de cursos caninos. Responde de forma amable, corta y con emojis..."></textarea>
-                        
-                        <div class="bg-blue-50/50 border border-blue-100 rounded-xl p-4 mt-4">
-                            <h4 class="font-bold text-blue-800 text-xs mb-1 uppercase tracking-widest"><i class="fa-solid fa-circle-info"></i> Recuerda</h4>
-                            <p class="text-xs text-slate-600">Este texto es el "Manual de Empleado" de Gemini. Las características específicas de cada producto (como precios y detalles de la app) se las pasaremos desde la pestaña de "Productos", no necesitas escribirlas aquí.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-copyia" class="tab-content hidden w-full h-full flex flex-col fade-in relative">
-                <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
-                    <div>
-                        <h1 class="text-2xl font-black text-slate-900">Copy IA</h1>
-                        <p class="text-sm text-slate-500 font-medium">Tu prompt para generar mensajes del funnel con Claude.</p>
-                    </div>
-                    <button onclick="saveCopyIA()" id="btn-save-copyia" class="bg-amber-500 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all flex gap-2 items-center">
-                        <i class="fa-solid fa-floppy-disk"></i> Guardar Prompt
-                    </button>
-                </header>
-                <div class="flex-1 p-8 overflow-y-auto flex justify-center items-start">
-                    <div class="bg-white w-full max-w-4xl rounded-2xl border border-slate-200 shadow-sm p-8 space-y-5">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
-                                <i class="fa-solid fa-robot"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-black text-lg text-slate-800">Prompt Generador de Copy</h3>
-                                <p class="text-xs text-slate-500 font-medium">Copia este prompt, pégalo en Claude junto con el HTML de tu app y obtén los 4 mensajes listos.</p>
-                            </div>
-                        </div>
-
-                        <textarea id="copyia-prompt" rows="20" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-amber-400 leading-relaxed" placeholder="Pega aquí tu prompt de instrucción para generar mensajes del funnel..."></textarea>
-
-                        <div class="flex gap-3">
-                            <button onclick="copiarPromptCopyIA()" class="flex items-center gap-2 bg-amber-50 text-amber-700 border border-amber-200 font-bold px-5 py-2.5 rounded-xl hover:bg-amber-100 transition-colors text-sm">
-                                <i class="fa-solid fa-copy"></i> Copiar Prompt
-                            </button>
-                        </div>
-
-                        <div class="bg-amber-50/50 border border-amber-100 rounded-xl p-4">
-                            <h4 class="font-bold text-amber-800 text-xs mb-1 uppercase tracking-widest"><i class="fa-solid fa-circle-info"></i> Cómo usarlo</h4>
-                            <p class="text-xs text-slate-600 leading-relaxed">1. Presiona <strong>Copiar Prompt</strong> · 2. Abre un chat nuevo con Claude · 3. Pega el prompt · 4. Al final agrega el HTML de tu app · 5. Claude te genera Mensaje 1, Guión Audio, Mensaje 3 y Mensaje 4 listos para copiar a Firestore.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-    </div>
-
-    <div id="modal-guion" class="hidden fixed inset-0 z-[200] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-6">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden" style="max-height: 85vh;">
-            <div class="flex items-center justify-between px-7 py-5 border-b border-slate-100">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
-                        <i class="fa-solid fa-robot"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-black text-slate-900 text-base">Guión del Audio</h3>
-                        <p class="text-[11px] text-slate-400 font-medium">Solo para tu referencia. El bot no lo usa.</p>
-                    </div>
-                </div>
-                <button onclick="closeGuionModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-7">
-                <textarea id="modal-guion-text" rows="14" placeholder="Hola, soy Valeria de NutriCan Vital...&#10;&#10;Pega aquí el guión completo del audio para este producto." class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-5 text-sm font-medium text-slate-700 outline-none focus:border-amber-400 leading-relaxed resize-none"></textarea>
-            </div>
-            <div class="px-7 py-5 border-t border-slate-100 flex gap-3">
-                <button onclick="closeGuionModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors text-sm">Cancelar</button>
-                <button onclick="saveGuion()" id="btn-save-guion" class="flex-1 bg-amber-500 text-white font-bold py-3 rounded-xl hover:bg-amber-600 transition-colors text-sm flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-floppy-disk"></i> Guardar Guión
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // ==========================================
-        // 1. FIREBASE CONFIG 
-        // ==========================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyCrbqdz-JMZNV0H0zcrHwfDOawE3_ouUNw",
-            authDomain: "guias-facil-bot.firebaseapp.com",
-            projectId: "guias-facil-bot",
-            storageBucket: "guias-facil-bot.firebasestorage.app"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        const storage = firebase.storage();
-
-        let allProducts = [];
-
-        // ==========================================
-        // 2. AUTHENTICATION & INIT
-        // ==========================================
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                document.getElementById('screen-login').classList.add('hidden');
-                document.getElementById('screen-dashboard').classList.remove('hidden');
-                document.getElementById('status-db').innerText = "Sistema en línea";
-                document.getElementById('status-db').classList.add('text-emerald-400');
-                loadProducts();
-                loadCampaigns();
-                loadCerebro();
-                loadCopyIA();
-            } else {
-                document.getElementById('screen-login').classList.remove('hidden');
-                document.getElementById('screen-dashboard').classList.add('hidden');
-            }
-        });
-
-        async function doLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const pass = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('btnLogin');
-            if(!email || !pass) return showToast("Faltan datos", "error");
-            
-            btn.innerHTML = `<div class="loader"></div> Ingresando...`;
-            try {
-                await auth.signInWithEmailAndPassword(email, pass);
-                showToast("Bienvenido Administrador");
-            } catch(e) {
-                showToast("Credenciales incorrectas", "error");
-            } finally {
-                btn.innerHTML = `Ingresar al Sistema <i class="fa-solid fa-arrow-right"></i>`;
-            }
-        }
-
-        function doLogout() { auth.signOut(); }
-
-        // ==========================================
-        // 3. UI UTILS & TOAST
-        // ==========================================
-        function showToast(msg, type = 'success') {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
-            document.getElementById('toast-icon').className = type === 'error' ? 'fa-solid fa-circle-xmark text-rose-400' : 'fa-solid fa-circle-check text-emerald-400';
-            t.classList.remove('-translate-y-24', 'opacity-0');
-            setTimeout(() => t.classList.add('-translate-y-24', 'opacity-0'), 3000);
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            
-            document.querySelectorAll('.nav-btn').forEach(el => {
-                el.classList.remove('bg-violet-600/20', 'text-violet-400', 'border-violet-500/30', 'bg-amber-500/20', 'text-amber-400', 'border-amber-500/30');
-                el.classList.add('text-slate-400');
-                
-                const icon = el.querySelector('i');
-                icon.classList.remove('text-violet-400', 'text-amber-400');
-            });
-            
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            
-            const btn = document.getElementById(`nav-${tabId}`);
-            btn.classList.remove('text-slate-400');
-
-            if(tabId === 'copyia') {
-                btn.classList.add('bg-amber-500/20', 'text-amber-400', 'border', 'border-amber-500/30');
-                btn.querySelector('i').classList.add('text-amber-400');
-            } else {
-                btn.classList.add('bg-violet-600/20', 'text-violet-400');
-                if(tabId === 'cerebro') btn.classList.add('border', 'border-violet-500/30');
-                btn.querySelector('i').classList.add('text-violet-400');
-            }
-
-            if(tabId === 'productos') closeProductEditor();
-            if(tabId === 'campanas') closeCampaignEditor();
-            if(tabId === 'copyia') loadCopyIA();
-        }
-
-        // ==========================================
-        // 4. LÓGICA DE SUBIDA A STORAGE
-        // ==========================================
-        async function uploadFileToStorage(input, targetInputId) {
-            const file = input.files[0];
-            if (!file) return;
-
-            const docId = document.getElementById('prod-id-edit').value || document.getElementById('prod-id').value.trim();
-            if (!docId) {
-                showToast('Error: Primero escribe un ID para el paquete en el Paso 1', 'error');
-                input.value = ''; 
-                return;
-            }
-
-            const btn = input.nextElementSibling;
-            const originalHTML = btn.innerHTML;
-            const progressBarContainer = document.getElementById(`progress-${targetInputId}`);
-            const progressBar = progressBarContainer.querySelector('div');
-
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-            btn.disabled = true;
-            progressBarContainer.classList.remove('hidden');
-            progressBar.style.width = '0%';
-
-            try {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${targetInputId}_${Date.now()}.${fileExt}`;
-                const path = `productos/${docId}/${fileName}`;
-                const ref = storage.ref().child(path);
-
-                const task = ref.put(file);
-
-                task.on('state_changed', 
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        progressBar.style.width = progress + '%';
-                    }, 
-                    (error) => {
-                        showToast('Error subiendo archivo: ' + error.message, 'error');
-                        resetUploadUI(btn, originalHTML, progressBarContainer, input);
-                    }, 
-                    async () => {
-                        const downloadURL = await task.snapshot.ref.getDownloadURL();
-                        document.getElementById(targetInputId).value = downloadURL;
-                        showToast('✅ Archivo subido exitosamente', 'success');
-                        resetUploadUI(btn, originalHTML, progressBarContainer, input);
+    PHONE_NUMBER_ID    = config_data.get('WHATSAPP_PHONE_NUMBER_ID')
+    WHATSAPP_TOKEN     = config_data.get('WHATSAPP_ACCESS_TOKEN')
+    VERIFY_TOKEN       = config_data.get('VERIFY_TOKEN')
+    ADMIN_WHATSAPP     = config_data.get('ADMIN_WHATSAPP_NUMBER')
+    ADMIN_SECRET_TOKEN = config_data.get('ADMIN_SECRET_TOKEN', '')
+    FIREBASE_BUCKET    = config_data.get('FIREBASE_STORAGE_BUCKET')
+    
+    FIREBASE_SA_JSON   = config_data.get('FIREBASE_SERVICE_ACCOUNT')
+    sa_data = None
+    if FIREBASE_SA_JSON:
+        if isinstance(FIREBASE_SA_JSON, dict):
+            sa_data = FIREBASE_SA_JSON
+        elif isinstance(FIREBASE_SA_JSON, str):
+            try: sa_data = json.loads(FIREBASE_SA_JSON)
+            except Exception: pass
+    if sa_data:
+        try:
+            _sa_path = '/tmp/service_account.json'
+            with open(_sa_path, 'w') as f:
+                json.dump(sa_data, f)
+            FIREBASE_CREDS_PATH = _sa_path
+        except Exception as e:
+            FIREBASE_CREDS_PATH = None
+    else:
+        FIREBASE_CREDS_PATH = None
+    
+except Exception as e:
+    logger.warning(f"⚠️ Fallo al cargar secreto agrupado, usando variables de entorno: {e}")
+    PHONE_NUMBER_ID    = os.environ.get('WHATSAPP_PHONE_NUMBER_ID')
+    WHATSAPP_TOKEN     = os.environ.get('WHATSAPP_ACCESS_TOKEN')
+    VERIFY_TOKEN       = os.environ.get('VERIFY_TOKEN')
+    ADMIN_WHATSAPP     = os.environ.get('ADMIN_WHATSAPP_NUMBER')
+    ADMIN_SECRET_TOKEN = os.environ.get('ADMIN_SECRET_TOKEN', '')
+    FIREBASE_BUCKET    = os.environ.get('FIREBASE_STORAGE_BUCKET')
+    FIREBASE_CREDS_PATH = None
+
+_vertex_token_cache = {'token': None, 'expiry': None}
+
+vertexai_project_id = None
+vertexai_region     = None
+MODEL_ID            = None
+
+TIPO_CAMBIO_PERU = 3.50
+
+def calcular_precio_local(precio_base, from_number, producto=None, session_id=None):
+    try: precio = float(precio_base)
+    except (ValueError, TypeError): return 0, "PEN" if from_number.startswith('51') else "USD"
+
+    sid = session_id or from_number
+    es_hotmart = False
+    flujo_tipo = ''
+    try:
+        session_actual = get_session(sid)
+        flujo_forzado = session_actual.get('flujo_forzado', '')
+        if flujo_forzado in ('hotmart', 'dlocal'):
+            es_hotmart = True
+            flujo_tipo = flujo_forzado
+        elif flujo_forzado == 'peru':
+            es_hotmart = False
+            flujo_tipo = 'peru'
+        else:
+            es_hotmart = not from_number.startswith('51')
+            flujo_tipo = 'hotmart' if es_hotmart else 'peru'
+    except Exception:
+        es_hotmart = not from_number.startswith('51')
+        flujo_tipo = 'hotmart' if es_hotmart else 'peru'
+
+    if not es_hotmart:
+        return round(precio), "PEN"
+    else:
+        if flujo_tipo == 'dlocal' and producto:
+            precio_usd = producto.get('precio_dlocal_usd') or producto.get('precio_oferta_usd', precio_base)
+        elif producto:
+            precio_usd = producto.get('precio_oferta_usd', precio_base)
+        else:
+            precio_usd = precio_base
+        return float(precio_usd), "USD"
+
+# ==========================================================
+# 2. CARGA DE CONFIGURACIÓN
+# ==========================================================
+
+def load_config_if_needed():
+    global CONFIG_LOADED, db, PRODUCTO_ACTIVO, CONFIG_PAGOS, PROMPT_MAESTRO
+    global vertexai_project_id, vertexai_region, MODEL_ID
+ 
+    if CONFIG_LOADED and db: return
+ 
+    if not db:
+        try:
+            _sa_paths = ['/tmp/service_account.json', '/secrets_fb/service_account.json']
+            cred = None
+            for _path in _sa_paths:
+                if os.path.exists(_path):
+                    cred = credentials.Certificate(_path)
+                    break
+            if not firebase_admin._apps:
+                if cred: firebase_admin.initialize_app(cred, {'storageBucket': FIREBASE_BUCKET})
+                else: firebase_admin.initialize_app()
+            db = firestore.client()
+        except Exception as e:
+            logger.error(f"❌ Error conectando Firebase: {e}")
+            return
+ 
+    try:
+        PROJECT_ID = os.environ.get('GOOGLE_CLOUD_PROJECT')
+        vertexai_project_id = PROJECT_ID
+        vertexai_region     = 'us-central1'
+        MODEL_ID            = 'gemini-2.5-flash'
+    except Exception as e:
+        vertexai_project_id = None
+ 
+    if db:
+        try:
+            docs = db.collection('productos').where('activo', '==', True).limit(1).stream()
+            for doc in docs:
+                PRODUCTO_ACTIVO.update(doc.to_dict())
+                PRODUCTO_ACTIVO['id'] = doc.id
+                break
+        except Exception as e: pass
+ 
+    if db:
+        try:
+            doc = db.collection('config').document('pagos').get()
+            if doc.exists: CONFIG_PAGOS.update(doc.to_dict())
+        except Exception as e: pass
+ 
+    if db:
+        try:
+            doc_bot = db.collection('config').document('bot').get()
+            if doc_bot.exists: PROMPT_MAESTRO = doc_bot.to_dict().get('prompt_maestro', '')
+        except Exception as e: pass
+ 
+    CONFIG_LOADED = True
+
+def reload_producto_activo():
+    global PRODUCTO_ACTIVO
+    if not db: return
+    try:
+        PRODUCTO_ACTIVO.clear()
+        docs = db.collection('productos').where('activo', '==', True).limit(1).stream()
+        for doc in docs:
+            PRODUCTO_ACTIVO.update(doc.to_dict())
+            PRODUCTO_ACTIVO['id'] = doc.id
+            break
+    except Exception as e: pass
+
+def detectar_campana(texto: str) -> dict:
+    if not db or not texto: return {'encontrada': False}
+    try:
+        campanas = db.collection('campanas').where('activo', '==', True).stream()
+        texto_lower = texto.lower().strip()
+        for doc in campanas:
+            d = doc.to_dict()
+            for frase in d.get('frases', []):
+                if frase.get('texto', '').lower().strip() == texto_lower:
+                    return {
+                        'encontrada':  True,
+                        'campana_id':  doc.id,
+                        'nombre':      d.get('nombre', ''),
+                        'producto_id': d.get('producto_id', ''),
+                        'fuente':      frase.get('fuente', 'Desconocido'),
+                        'frase':       frase.get('texto', '')
                     }
-                );
-            } catch(e) {
-                showToast('Error: ' + e.message, 'error');
-                resetUploadUI(btn, originalHTML, progressBarContainer, input);
+    except Exception as e: pass
+    return {'encontrada': False}
+
+def cargar_producto_por_id(producto_id: str) -> dict:
+    if not db or not producto_id: return {}
+    try:
+        doc = db.collection('productos').document(producto_id).get()
+        if doc.exists:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            return data
+    except Exception as e: pass
+    return {}
+
+def reemplazar_placeholders(texto: str, producto: dict, from_number: str = "", session_id: str = "") -> str:
+    if not texto: return texto
+    
+    sid_busqueda = session_id or from_number
+    link_base = str(producto.get('link_hotmart', ''))
+    link_final = link_base
+    if link_base and from_number:
+        conector = "&" if "?" in link_base else "?"
+        link_final = f"{link_base}{conector}src={from_number}"
+
+    precio_local_text = ''
+    if from_number:
+        precio_local_text = construir_texto_precio(producto.get('precio_oferta', 0), from_number, producto, session_id=sid_busqueda)
+
+    es_hotmart = False
+    if sid_busqueda:
+        try:
+            session_actual = get_session(sid_busqueda)
+            flujo_forzado = session_actual.get('flujo_forzado', '')
+            if flujo_forzado in ('hotmart', 'dlocal'): es_hotmart = True
+            elif flujo_forzado == 'peru': es_hotmart = False
+            else: es_hotmart = not from_number.startswith('51')
+        except Exception:
+            es_hotmart = not from_number.startswith('51')
+
+    link_para_mostrar = link_final if es_hotmart else ''
+
+    replacements = {
+        '[LINK_HOTMART]':       link_final,
+        '{{LINK_HOTMART}}':     link_para_mostrar,
+        '[PRECIO_NORMAL]':      str(producto.get('precio_normal', '')),
+        '[PRECIO_OFERTA]':      str(producto.get('precio_oferta', '')),
+        '[PRECIO_LOCAL]':       precio_local_text,
+        '{{PRECIO}}':           precio_local_text,
+        '{{NUM_BONOS}}':        str(producto.get('num_bonos', 5)),
+        '[NOMBRE_EBOOK]':       str(producto.get('nombre_producto', '')),
+        '[YAPE_NUMERO]':        str(CONFIG_PAGOS.get('yape_numero', '')),
+        '[YAPE_TITULAR]':       str(CONFIG_PAGOS.get('yape_titular', '')),
+        '[BCP_NUMERO_CUENTA]':  str(CONFIG_PAGOS.get('bcp_numero_cuenta', '')),
+        '[BCP_CCI]':            str(CONFIG_PAGOS.get('bcp_cci', '')),
+        '[BCP_TITULAR]':        str(CONFIG_PAGOS.get('bcp_titular', '')),
+    }
+    for placeholder, valor in replacements.items():
+        texto = texto.replace(placeholder, valor)
+
+    return texto.replace('\n\n\n', '\n\n')
+
+# ==========================================================
+# 3. FIREBASE - SESIONES, CLIENTES E HISTORIAL
+# ==========================================================
+
+def guardar_mensaje_historial(telefono: str, texto: str, remitente: str, tipo: str = 'texto', url_media: str = '', caption: str = ''):
+    if not db: return
+    try:
+        mensaje_data = {'texto': texto, 'remitente': remitente, 'tipo': tipo, 'timestamp': datetime.now(PERU_TZ).isoformat()}
+        if url_media: mensaje_data['url_media'] = url_media
+        if caption: mensaje_data['caption'] = caption
+        db.collection('clientes').document(telefono).collection('mensajes').add(mensaje_data)
+        db.collection('clientes').document(telefono).set({'updated_at': datetime.now(PERU_TZ).isoformat()}, merge=True)
+    except Exception as e: pass
+
+def guardar_imagen_storage(image_bytes, telefono: str, timestamp_str: str) -> str:
+    if not image_bytes or not storage: return ''
+    try:
+        bucket = storage.bucket()
+        ruta = f"inbox/{telefono}/{timestamp_str}.jpg"
+        blob = bucket.blob(ruta)
+        blob.upload_from_string(image_bytes, content_type='image/jpeg')
+        blob.make_public()
+        return blob.public_url
+    except Exception as e: return ''
+
+def obtener_historial_reciente(session_id: str, limite: int = 6):
+    if not db: return []
+    try:
+        docs = db.collection('clientes').document(session_id).collection('mensajes').order_by('timestamp', direction=firestore.Query.DESCENDING).limit(limite * 2).stream()
+        mensajes = [doc.to_dict() for doc in docs]
+        mensajes.reverse()
+        return [m for m in mensajes if m.get('remitente') == 'cliente'][-limite:]
+    except Exception as e: return []
+
+def get_session(session_id: str) -> dict:
+    if not db: return {}
+    try:
+        doc = db.collection('sesiones').document(session_id).get()
+        if doc.exists: return doc.to_dict()
+        return {}
+    except Exception as e: return {}
+
+def save_session(session_id: str, session: dict):
+    if not db: return
+    try:
+        session['updated_at'] = datetime.now(PERU_TZ).isoformat()
+        db.collection('sesiones').document(session_id).set(session, merge=True)
+    except Exception as e: pass
+ 
+def registrar_venta(from_number: str, producto_data: dict, metodo_pago: str = 'desconocido', es_bump: bool = False, moneda: str = 'PEN'):
+    if not db: return
+    try:
+        venta = {
+            'cliente_numero':  from_number,
+            'producto_id':     producto_data.get('id', ''),
+            'producto_nombre': producto_data.get('nombre_producto', ''),
+            'precio':          producto_data.get('precio_oferta_bump', 0) if es_bump else producto_data.get('precio_oferta', 0),
+            'moneda':          moneda,
+            'fecha_venta':     datetime.now(PERU_TZ).isoformat(),
+            'metodo_pago':     metodo_pago,
+            'estado':          'confirmado',
+            'bono_entregado':  True,
+            'es_bump':         es_bump
+        }
+        db.collection('ventas').add(venta)
+    except Exception as e: pass
+
+def obtener_credenciales_nicho(whatsapp_business_id):
+    tk = WHATSAPP_TOKEN
+    pid = whatsapp_business_id if whatsapp_business_id else PHONE_NUMBER_ID
+    return tk, pid
+
+# ==========================================================
+# 4. WHATSAPP - ENVÍO DE MENSAJES
+# ==========================================================
+def enviar_mensaje(to: str, texto: str, remitente: str = 'bot', token=None, phone_id=None):
+    tk, pid = token or WHATSAPP_TOKEN, phone_id or PHONE_NUMBER_ID
+    if not tk or not pid: return
+    url = f"https://graph.facebook.com/v20.0/{pid}/messages"
+    headers = {"Authorization": f"Bearer {tk}", "Content-Type": "application/json"}
+    payload = {"messaging_product": "whatsapp", "to": to, "type": "text", "text": {"body": texto}}
+    try:
+        res = requests.post(url, headers=headers, json=payload, timeout=15)
+        res.raise_for_status()
+        guardar_mensaje_historial(to, texto, remitente, tipo='texto')
+    except Exception as e: pass
+
+def enviar_audio(to: str, audio_url: str, token=None, phone_id=None):
+    tk, pid = token or WHATSAPP_TOKEN, phone_id or PHONE_NUMBER_ID
+    url = f"https://graph.facebook.com/v20.0/{pid}/messages"
+    headers = {"Authorization": f"Bearer {tk}", "Content-Type": "application/json"}
+    payload = {"messaging_product": "whatsapp", "to": to, "type": "audio", "audio": {"link": audio_url}}
+    try:
+        res = requests.post(url, headers=headers, json=payload, timeout=15)
+        res.raise_for_status()
+        guardar_mensaje_historial(to, "", 'bot', tipo='audio', url_media=audio_url)
+    except Exception as e: pass
+
+def enviar_imagen(to: str, img_url: str, caption: str = "", token=None, phone_id=None):
+    tk, pid = token or WHATSAPP_TOKEN, phone_id or PHONE_NUMBER_ID
+    if not tk or not pid: return
+    url = f"https://graph.facebook.com/v20.0/{pid}/messages"
+    headers = {"Authorization": f"Bearer {tk}", "Content-Type": "application/json"}
+    payload = {"messaging_product": "whatsapp", "to": to, "type": "image", "image": {"link": img_url}}
+    if caption: payload["image"]["caption"] = caption
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=15)
+        response.raise_for_status()
+        guardar_mensaje_historial(to, caption, 'bot', tipo='imagen', url_media=img_url, caption=caption)
+    except Exception as e: pass
+
+def enviar_documento(to: str, doc_url: str, filename: str = "", caption: str = "", token=None, phone_id=None):
+    tk, pid = token or WHATSAPP_TOKEN, phone_id or PHONE_NUMBER_ID
+    if not tk or not pid: return
+    url = f"https://graph.facebook.com/v20.0/{pid}/messages"
+    headers = {"Authorization": f"Bearer {tk}", "Content-Type": "application/json"}
+    payload = {"messaging_product": "whatsapp", "to": to, "type": "document", "document": {"link": doc_url}}
+    if filename: payload["document"]["filename"] = filename
+    if caption: payload["document"]["caption"] = caption
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=15)
+        response.raise_for_status()
+        guardar_mensaje_historial(to, caption or filename, 'bot', tipo='documento', url_media=doc_url, caption=caption or filename)
+    except Exception as e: pass
+
+def enviar_botones_metodo_pago(to: str, token=None, phone_id=None):
+    tk, pid = token or WHATSAPP_TOKEN, phone_id or PHONE_NUMBER_ID
+    if not tk or not pid: return
+    url = f"https://graph.facebook.com/v20.0/{pid}/messages"
+    headers = {"Authorization": f"Bearer {tk}", "Content-Type": "application/json"}
+    payload = {
+        "messaging_product": "whatsapp", "to": to, "type": "interactive",
+        "interactive": {
+            "type": "button", "body": {"text": "¿Con qué método prefieres pagar?"},
+            "action": {
+                "buttons": [
+                    {"type": "reply", "reply": {"id": "pago_yape", "title": "💛 Yape/Plin"}},
+                    {"type": "reply", "reply": {"id": "pago_bcp", "title": "🏦 Transferencia"}}
+                ]
             }
         }
+    }
+    try:
+        res = requests.post(url, headers=headers, json=payload, timeout=15)
+        res.raise_for_status()
+        guardar_mensaje_historial(to, "Yape/Plin | Transferencia", 'bot', tipo='botones')
+    except Exception as e: pass
 
-        function resetUploadUI(btn, originalHTML, progressBarContainer, input) {
-            btn.innerHTML = originalHTML;
-            btn.disabled = false;
-            setTimeout(() => { progressBarContainer.classList.add('hidden'); }, 2000);
-            input.value = '';
-        }
+def enviar_botones_pago(to: str, token=None, phone_id=None, session_id=None):
+    tk, pid = token or WHATSAPP_TOKEN, phone_id or PHONE_NUMBER_ID
+    if not tk or not pid: return
+    url = f"https://graph.facebook.com/v20.0/{pid}/messages"
+    headers = {"Authorization": f"Bearer {tk}", "Content-Type": "application/json"}
+    s_id = session_id if session_id else to
+    session = get_session(s_id) 
+    p = obtener_producto_para_cliente(session)
+    mensaje_botones = reemplazar_placeholders(CONFIG_PAGOS.get('mensaje_botones', 'Aquí tienes el link de pago seguro: [LINK_HOTMART]'), p, from_number=to, session_id=s_id)
+    payload = {"messaging_product": "whatsapp", "to": to, "type": "text", "text": {"body": mensaje_botones}}
+    try:
+        res = requests.post(url, headers=headers, json=payload, timeout=15)
+        res.raise_for_status()
+        guardar_mensaje_historial(s_id, mensaje_botones, 'bot', tipo='texto')
+    except Exception as e: pass
 
-        // ==========================================
-        // 5. EDITOR DE PRODUCTOS
-        // ==========================================
-        function openProductEditor(editData = null) {
-            document.getElementById('prod-id').disabled = false;
-            document.getElementById('prod-id').value = '';
-            document.getElementById('prod-id-edit').value = '';
-            document.getElementById('prod-tipo').value = 'principal';
-            document.getElementById('prod-nombre').value = '';
-            document.getElementById('prod-precio').value = '';
-            document.getElementById('prod-activo').checked = false;
-            document.getElementById('prod-desc-ia').value = '';
-            document.getElementById('prod-link-hotmart').value = '';
-            document.getElementById('prod-precio-dlocal').value = '';
-            document.getElementById('prod-link-dlocal').value = '';
-            document.getElementById('prod-imagen').value = '';
-            document.getElementById('prod-nicho-audiencia').value = '';
-            document.getElementById('prod-nicho-emoji').value = '';
-            document.getElementById('prod-whatsapp-phone-id').value = '';
-            document.getElementById('prod-copy-bloque-1').value = '';
-            document.getElementById('prod-bonos-corto').value = '';
-            document.getElementById('prod-imagen-bonos').value = '';
-            document.getElementById('prod-bonos-detalle').value = '';
-            document.getElementById('prod-limite-bonos').value = '50';
-            document.getElementById('prod-pdf-entrega').value = '';
+def notificar_admin(mensaje: str):
+    if ADMIN_WHATSAPP: enviar_mensaje(ADMIN_WHATSAPP, mensaje)
+
+# ==========================================================
+# HELPERS DE PAGO REUTILIZABLES
+# ==========================================================
+
+FRASES_YA_PAGO = ["ya pague", "ya pagué", "te pague", "ya hice el pago", "transferi", "voucher", "comprobante"]
+
+def construir_texto_precio(precio_base, from_number: str, producto=None, session_id=None) -> str:
+    precio_local, moneda = calcular_precio_local(precio_base, from_number, producto, session_id=session_id)
+    return f"S/ {precio_local}" if moneda == "PEN" else f"${precio_local} USD"
+
+def enviar_datos_yape(from_number: str, texto_precio: str, contexto: str = 'acceso'):
+    yape_num = CONFIG_PAGOS.get('yape_numero', '')
+    yape_tit = CONFIG_PAGOS.get('yape_titular', '')
+    cierre = "pásame la captura y te activo el acceso al instante. 🚀" if contexto == 'acceso' else "pásame la captura y te lo activo. 🚀"
+    enviar_mensaje(from_number, f"¡Perfecto! Aquí lo tienes:\n\n📲 *Yape/Plin:* {yape_num}\n👤 *A nombre de:* {yape_tit}\n💰 *Monto exacto:* {texto_precio}\n\nCuando lo hagas, {cierre}")
+
+def enviar_datos_bcp(from_number: str, texto_precio: str, contexto: str = 'acceso'):
+    bcp_cci = CONFIG_PAGOS.get('bcp_cci', '')
+    bcp_num = CONFIG_PAGOS.get('bcp_numero_cuenta', '')
+    bcp_tit = CONFIG_PAGOS.get('bcp_titular', '')
+    enviar_mensaje(from_number, f"🏦 *Aceptamos transferencia desde:*\n✅ BCP ✅ BBVA\n✅ Interbank ✅ Scotiabank\n\n👤 *A nombre de:* {bcp_tit}\n💰 *Monto exacto:* {texto_precio}")
+    msg_cuentas = ""
+    if bcp_num: msg_cuentas = "Si transfieres desde BCP → *Cuenta:* {num}\n"
+    if bcp_cci: msg_cuentas += "Si transfieres desde otro banco → *CCI:* {cci}\n\nCopialo fácil aquí 👇"
+    if bcp_num or bcp_cci:
+        msg_cuentas = msg_cuentas.format(num=bcp_num, cci=bcp_cci)
+        time.sleep(1)
+        enviar_mensaje(from_number, msg_cuentas)
+    if bcp_num:
+        time.sleep(1)
+        enviar_mensaje(from_number, bcp_num)
+    if bcp_cci:
+        time.sleep(1)
+        enviar_mensaje(from_number, bcp_cci)
+    cierre = "Mándame la foto del voucher de tu pago y te lo envio inmediatamente por WhatsApp 🚀" if contexto == 'acceso' else "Mándame la captura cuando transfieras y te lo activo. 🚀"
+    time.sleep(1)
+    enviar_mensaje(from_number, cierre)
+
+# ==========================================================
+# 4B. INTEGRACIÓN dLOCAL GO
+# ==========================================================
+DLOCAL_COUNTRIES = {'57': 'CO', '58': 'VE', '591': 'BO', '593': 'EC', '52': 'MX', '54': 'AR', '56': 'CL', '55': 'BR', '51': 'PE', '502': 'GT', '503': 'SV', '504': 'HN', '506': 'CR', '507': 'PA', '53': 'CU', '809': 'DO', '829': 'DO', '849': 'DO', '598': 'UY', '595': 'PY'}
+DLOCAL_DEFAULT_COUNTRY = 'CO'
+
+def detectar_pais_dlocal(from_number: str) -> str:
+    for prefix, country_code in DLOCAL_COUNTRIES.items():
+        if from_number.startswith(prefix): return country_code
+    return ''
+
+def es_pais_dlocal(from_number: str) -> bool: return detectar_pais_dlocal(from_number) != ''
+
+def enviar_link_dlocal(from_number: str, producto: dict, token=None, phone_id=None, session_id=None):
+    tk, pid = token or WHATSAPP_TOKEN, phone_id or PHONE_NUMBER_ID
+    s_id = session_id if session_id else from_number
+    nombre = producto.get('nombre_producto', 'nuestro producto')
+    link_dlocal = producto.get('link_dlocal', '').strip()
+    link_hotmart = producto.get('link_hotmart', '').strip()
+
+    if link_dlocal:
+        enviar_mensaje(from_number, f"💳 *¡Listo! Paga de forma segura con dLocal:*")
+        enviar_mensaje(from_number, f"👉 {link_dlocal}", token=tk, phone_id=pid)
+        time.sleep(0.5)
+        num_bonos = producto.get('num_bonos', 5)
+        enviar_mensaje(from_number, f"📸 *Un último paso...*\n\nCuando te inscribas, envíame una captura de tu compra para activarte *{num_bonos} bonos exclusivos* 🎁\n\n¡Solo necesito la captura para activarte todo! 🚀", token=tk, phone_id=pid)
+        session = get_session(s_id)
+        session['state'] = 'esperando_pago_dlocal'
+        session['metodo_pago_usado'] = 'dlocal'
+        session['estado_timestamp'] = datetime.now(PERU_TZ).isoformat()
+        save_session(s_id, session)
+        return
+
+    if link_hotmart:
+        link_final = f"{link_hotmart}&src={from_number}" if '?' in link_hotmart else f"{link_hotmart}?src={from_number}"
+        enviar_mensaje(from_number, f"📘 *¿Cómo recibir {nombre}? Solo 1 paso:*\n\n🛒 Haz clic aquí para pagar de forma segura:\n👉 {link_final}", token=tk, phone_id=pid)
+        time.sleep(0.5)
+        num_bonos = producto.get('num_bonos', 5)
+        enviar_mensaje(from_number, f"📸 *Un último paso...*\n\nCuando te inscribas, envíame una captura de tu compra para activarte *{num_bonos} bonos exclusivos* 🎁", token=tk, phone_id=pid)
+        session = get_session(s_id)
+        session['state'] = 'esperando_captura_hotmart'
+        session['metodo_pago_usado'] = 'hotmart_fallback'
+        save_session(s_id, session)
+    else:
+        enviar_mensaje(from_number, f"📘 Para adquirir *{nombre}*, escríbenos y te compartimos el link seguro.", token=tk, phone_id=pid)
+        session = get_session(s_id)
+        session['state'] = 'completado'
+        save_session(s_id, session)
+
+# ==========================================================
+# 5. INTEGRACIÓN GEMINI (VISIÓN Y TEXTO)
+# ==========================================================
+def get_vertex_access_token():
+    ahora = datetime.now(timezone.utc)
+    cache = _vertex_token_cache
+    if cache['token'] and cache['expiry'] and cache['expiry'].replace(tzinfo=timezone.utc) > ahora + timedelta(minutes=5):
+        return cache['token']
+    creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+    auth_request = google.auth.transport.requests.Request()
+    creds.refresh(auth_request)
+    cache['token'], cache['expiry'] = creds.token, creds.expiry
+    return creds.token
+
+def consultar_gemini_ventas(mensaje_cliente, historial_chat, prompt_maestro, producto, session_id):
+    try:
+        nicho_audiencia = producto.get('nicho_audiencia', 'cliente')
+        nicho_emoji = producto.get('nicho_emoji', '✨')
+        nombre_prod = producto.get('nombre_producto', 'nuestra herramienta')
+        descripcion_ia = str(producto.get('descripcion_para_ia', '') or '').strip()[:1000]
+
+        contexto_historial = "".join([f"{'Cliente' if msg.get('remitente')=='cliente' else 'Asesor'}: {msg.get('texto', '')}\n" for msg in historial_chat])
+
+        prompt = f"""{prompt_maestro}\n\nTU IDENTIDAD ACTUAL: Estás vendiendo '{nombre_prod}'. Público: {nicho_audiencia}. Emoji: {nicho_emoji}.\nCONTEXTO: {descripcion_ia}\n\nHISTORIAL:\n{contexto_historial}\n\nCLIENTE: {mensaje_cliente}\nRESPUESTA:"""
+
+        access_token = get_vertex_access_token()
+        url = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{os.environ.get('GOOGLE_CLOUD_PROJECT')}/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent"
+        payload = {"contents": [{"role": "user", "parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.7, "maxOutputTokens": 300, "thinkingConfig": {"thinkingBudget": 0}}}
+        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+        
+        res = requests.post(url, headers=headers, json=payload, timeout=18)
+        res.raise_for_status()
+        return res.json()["candidates"][0]["content"]["parts"][0]["text"].strip().replace("**", "*")
+    except Exception as e:
+        logger.error(f"❌ Error Gemini en {session_id}: {e}")
+        return f"Cuéntame un poquito más sobre eso para poder orientarte mejor {producto.get('nicho_emoji', '✨')}"
+
+# ==========================================================
+# MOTOR HÍBRIDO Y HELPERS
+# ==========================================================
+
+def obtener_producto_para_cliente(session: dict) -> dict:
+    producto_id = session.get('producto_id', '')
+    if producto_id:
+        p = cargar_producto_por_id(producto_id)
+        if p: return p
+    return PRODUCTO_ACTIVO
+
+def obtener_producto_por_numero(whatsapp_business_id: str) -> dict:
+    if not db or not whatsapp_business_id: return {}
+    try:
+        docs = db.collection('productos').where('whatsapp_phone_id', '==', whatsapp_business_id).where('activo', '==', True).limit(1).stream()
+        for doc in docs:
+            p = doc.to_dict()
+            p['id'] = doc.id
+            return p
+    except Exception: pass
+    return {}
+
+def detectar_intencion_cliente(texto: str, session: dict) -> str:
+    if not texto: return 'gemini'
+    texto_limpio = texto.lower().strip()
+    if any(f in texto_limpio for f in ["quiero un asesor", "hablar con humano", "agente"]): return 'humano'
+    if any(f in texto_limpio for f in FRASES_YA_PAGO): return 'ya_pago'
+    if any(f in texto_limpio for f in ["yape", "plin"]): return 'metodo_yape'
+    if any(f in texto_limpio for f in ["bcp", "numero de cuenta", "cci", "transferencia bancaria"]): return 'metodo_bcp'
+    if any(f in texto_limpio for f in ["tarjeta", "hotmart"]): return 'metodo_tarjeta'
+    if any(f in texto_limpio for f in ["quiero pagar", "quiero comprar", "como pago"]): return 'quiere_pagar'
+    if any(texto_limpio == a or texto_limpio.startswith(a + " ") for a in ["si", "sí", "ok", "dale", "genial", "perfecto", "listo", "quiero"]):
+        if session.get('state') == 'esperando_cierre': return 'afirmacion'
+    return 'gemini'
+
+def _extraer_texto(message: dict) -> tuple:
+    msg_type = message.get('type', 'text')
+    if msg_type == 'text': return message.get('text', {}).get('body', '').strip(), msg_type
+    elif msg_type == 'interactive': return message.get('interactive', {}).get('button_reply', {}).get('id', ''), msg_type
+    return '', msg_type
+
+def _cargar_prompt_maestro() -> str:
+    global PROMPT_MAESTRO
+    if PROMPT_MAESTRO: return PROMPT_MAESTRO
+    try:
+        doc_bot = db.collection('config').document('bot').get()
+        if doc_bot.exists: PROMPT_MAESTRO = doc_bot.to_dict().get('prompt_maestro', '')
+    except Exception: pass
+    return PROMPT_MAESTRO
+
+def _responder_con_gemini(from_number: str, text: str, session: dict, producto: dict, session_id: str, guardar_tipo: str = 'objecion'):
+    prompt_maestro = _cargar_prompt_maestro()
+    historial = obtener_historial_reciente(session_id, limite=4)
+    respuesta = consultar_gemini_ventas(text, historial, prompt_maestro, producto, session_id)
+    enviar_mensaje(from_number, respuesta, remitente='bot')
+    session['ultimo_tipo_respuesta'] = guardar_tipo
+    save_session(session_id, session)
+
+# ==========================================================
+# 8. HANDLERS DEL FUNNEL (5 FASES)
+# ==========================================================
+
+# ── FASE 1: GANCHO ──
+def _handle_nuevo(from_number, message, session, text, msg_type, session_id, whatsapp_business_id):
+    token, phone_id = obtener_credenciales_nicho(whatsapp_business_id)
+    
+    campana = detectar_campana(text)
+    producto_por_numero = obtener_producto_por_numero(whatsapp_business_id)
+    producto_para_flujo = producto_por_numero if producto_por_numero else PRODUCTO_ACTIVO
+
+    if campana.get('encontrada'):
+        prod_campana = cargar_producto_por_id(campana.get('producto_id', ''))
+        if prod_campana: producto_para_flujo = prod_campana
+        frase_activacion = campana.get('frase', '').lower().strip()
+        if 'sistema 2' in frase_activacion: session['flujo_forzado'] = 'hotmart'
+        elif 'sistema 1' in frase_activacion: session['flujo_forzado'] = 'peru'
+        elif 'sistema 3' in frase_activacion: session['flujo_forzado'] = 'dlocal'
+
+    session['producto_id'] = producto_para_flujo.get('id', '')
+    session['flujo_enviado'] = True
+    session['whatsapp_business_id'] = whatsapp_business_id
+    
+    gancho = producto_para_flujo.get('mensaje_fase_0', '').strip()
+    if not gancho:
+        gancho = f"Hola 😊 Vi que te interesó {producto_para_flujo.get('nombre_producto', 'nuestro producto')}. Déjame preguntarte algo rápido... ¿Tu mascota es cachorro o adulto?"
+
+    enviar_mensaje(from_number, gancho, token=token, phone_id=phone_id)
+    
+    session['state'] = 'esperando_calificacion'
+    save_session(session_id, session)
+    logger.info(f"Fase 1: Gancho enviado a {from_number}")
+
+# ── FASE 2, 3 Y 4: CONEXIÓN, VALOR Y MICRO-CIERRE ──
+def ejecutar_fases_2_3_4(from_number, text, p, session, token, phone_id, session_id):
+    try:
+        # FASE 2: Conexión con IA
+        prompt_maestro = _cargar_prompt_maestro()
+        prompt_fase2 = f"{prompt_maestro}\n\nEl cliente respondió a nuestra pregunta inicial con: '{text}'. Genera UNA respuesta CORTA (1-2 líneas) validando su situación con empatía y haciendo un puente directo diciendo: 'Por eso armamos esto 👇'"
+        
+        historial = obtener_historial_reciente(session_id, limite=2)
+        respuesta_fase2 = consultar_gemini_ventas(text, historial, prompt_fase2, p, session_id)
+        enviar_mensaje(from_number, respuesta_fase2, token=token, phone_id=phone_id)
+        
+        time.sleep(2)
+        
+        # FASE 3: Presentación de Valor
+        img_prod = p.get('imagen_producto', '').strip()
+        copy1 = p.get('copy_bloque_1', '').strip()
+        if copy1:
+            copy1 = reemplazar_placeholders(copy1, p, from_number=from_number, session_id=session_id)
+        if img_prod:
+            enviar_imagen(from_number, img_prod, caption=copy1, token=token, phone_id=phone_id)
+        elif copy1:
+            enviar_mensaje(from_number, copy1, token=token, phone_id=phone_id)
             
-            document.getElementById('prod-mbump').value = '';
-            document.getElementById('prod-bump-img').value = '';
-            document.getElementById('prod-bump-precio').value = '';
-            document.getElementById('prod-bump-desc-ia').value = '';
-            document.getElementById('prod-bump-pdf').value = '';
+        time.sleep(2)
+        
+        img_bonos = p.get('imagen_bonos', '').strip()
+        if img_bonos:
+            enviar_imagen(from_number, img_bonos, caption='', token=token, phone_id=phone_id)
+            time.sleep(1.5)
             
-            window._guionAudioActual = '';
-            document.getElementById('editor-prod-title').innerText = "Crear Nuevo Paquete";
-
-            if(editData) {
-                document.getElementById('editor-prod-title').innerText = "Editar Paquete: " + editData.id;
-                document.getElementById('prod-id').value = editData.id;
-                document.getElementById('prod-id').disabled = true;
-                document.getElementById('prod-id-edit').value = editData.id;
-                
-                document.getElementById('prod-tipo').value = editData.tipo_oferta || 'principal';
-                document.getElementById('prod-nombre').value = editData.nombre_producto || '';
-                document.getElementById('prod-precio').value = editData.precio_oferta || 0;
-                document.getElementById('prod-activo').checked = editData.activo || false;
-                document.getElementById('prod-desc-ia').value = editData.descripcion_para_ia || '';
-                document.getElementById('prod-link-hotmart').value = editData.link_hotmart || '';
-                document.getElementById('prod-precio-dlocal').value = editData.precio_dlocal_usd || 0;
-                document.getElementById('prod-link-dlocal').value = editData.link_dlocal || '';
-                document.getElementById('prod-imagen').value = editData.imagen_producto || '';
-                document.getElementById('prod-nicho-audiencia').value = editData.nicho_audiencia || '';
-                document.getElementById('prod-nicho-emoji').value = editData.nicho_emoji || '';
-                document.getElementById('prod-whatsapp-phone-id').value = editData.whatsapp_phone_id || '';
-                document.getElementById('prod-copy-bloque-1').value = editData.copy_bloque_1 || '';
-                document.getElementById('prod-bonos-corto').value = editData.texto_bonos_corto || '';
-                document.getElementById('prod-imagen-bonos').value = editData.imagen_bonos || '';
-                document.getElementById('prod-bonos-detalle').value = editData.texto_bonos_detalle || '';
-                document.getElementById('prod-limite-bonos').value = editData.limite_bonos || 50;
-                document.getElementById('prod-pdf-entrega').value = editData.pdf_entrega || '';
-                
-                window._guionAudioActual = editData.guion_audio || '';
-                
-                document.getElementById('prod-mbump').value = editData.mensaje_oferta_bump || '';
-                document.getElementById('prod-bump-img').value = editData.url_imagen_bump || '';
-                document.getElementById('prod-bump-precio').value = editData.precio_oferta_bump || '';
-                document.getElementById('prod-bump-desc-ia').value = editData.descripcion_bump_ia || '';
-                document.getElementById('prod-bump-pdf').value = editData.pdf_entrega_bump || '';
-            }
-
-            document.getElementById('view-productos-list').classList.add('-translate-x-full');
-            document.getElementById('view-producto-editor').classList.remove('translate-x-full');
-        }
-
-        function closeProductEditor() {
-            document.getElementById('view-productos-list').classList.remove('-translate-x-full');
-            document.getElementById('view-producto-editor').classList.add('translate-x-full');
-        }
-
-        async function loadProducts() {
-            try {
-                const snap = await db.collection('productos').get();
-                allProducts = [];
-                snap.forEach(doc => allProducts.push({ id: doc.id, ...doc.data() }));
-                renderProducts();
-            } catch(e) { showToast('Error al cargar productos', 'error'); }
-        }
-
-        function renderProducts() {
-            const list = document.getElementById('productsList');
-            if(!allProducts.length) {
-                list.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400"><div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl"><i class="fa-solid fa-box-open"></i></div><p class="font-bold">No tienes paquetes creados.</p></div>`;
-                return;
-            }
-
-            list.innerHTML = allProducts.map(p => {
-                const badges = {
-                    'principal': '<span class="bg-violet-100 text-violet-700 px-2 py-0.5 rounded text-[10px] font-bold border border-violet-200">GANCHO</span>',
-                    'order_bump': '<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-200">ORDER BUMP</span>',
-                    'upsell_interno': '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-200">UPSELL HUB</span>'
-                };
-
-                return `
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative group flex flex-col overflow-hidden">
-                    ${p.imagen_producto ? `<img src="${p.imagen_producto}" class="card-product-thumb" onerror="this.style.display='none'">` : ''}
-                    <div class="p-5 flex flex-col flex-1">
-                    <div class="absolute top-4 right-4 flex gap-2 z-10 ${p.imagen_producto ? 'mt-[100px]' : ''}">
-                        <div class="w-2.5 h-2.5 rounded-full ${p.activo ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300'}"></div>
-                    </div>
-                    <div class="mb-1">${badges[p.tipo_oferta] || ''}</div>
-                    <h3 class="font-black text-lg text-slate-800 mb-0.5">${p.nombre_producto || p.id}</h3>
-                    <p class="text-xs font-mono text-slate-400 mb-4">ID: ${p.id}</p>
-                    
-                    <div class="flex gap-4 mb-5 border-t border-slate-100 pt-3 mt-auto">
-                        <div class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">S/ ${p.precio_oferta || 0}</div>
-                        ${p.precio_dlocal_usd ? `<div class="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">$${p.precio_dlocal_usd} dLocal</div>` : ''}
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button onclick='openProductEditor(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="flex-1 bg-slate-50 text-slate-600 font-bold py-2.5 rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition-colors">
-                            <i class="fa-solid fa-pen-to-square"></i> Editar
-                        </button>
-                        <button onclick='duplicateProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="bg-violet-50 text-violet-600 font-bold py-2.5 px-3.5 rounded-xl text-sm border border-violet-200 hover:bg-violet-100 transition-colors" title="Duplicar paquete">
-                            <i class="fa-solid fa-copy"></i>
-                        </button>
-                        <button onclick='deleteProduct("${p.id}","${(p.nombre_producto || p.id).replace(/"/g, '\\"')}")' class="bg-rose-50 text-rose-500 font-bold py-2.5 px-3.5 rounded-xl text-sm border border-rose-200 hover:bg-rose-100 transition-colors opacity-0 group-hover:opacity-100" title="Eliminar paquete">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        async function saveProduct() {
-            const idInput = document.getElementById('prod-id').value.trim();
-            const idEdit = document.getElementById('prod-id-edit').value;
-            const docId = idEdit || idInput;
-
-            if(!docId) return showToast('El ID es obligatorio', 'error');
-
-            const btnSave = document.getElementById('btn-save-prod');
-            btnSave.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
-            btnSave.disabled = true;
-
-            const payload = {
-                tipo_oferta: document.getElementById('prod-tipo').value,
-                nombre_producto: document.getElementById('prod-nombre').value,
-                precio_oferta: Number(document.getElementById('prod-precio').value),
-                activo: document.getElementById('prod-activo').checked,
-                descripcion_para_ia: document.getElementById('prod-desc-ia').value.trim(),
-                link_hotmart: document.getElementById('prod-link-hotmart').value.trim(),
-                link_dlocal: document.getElementById('prod-link-dlocal').value.trim(),
-                precio_dlocal_usd: Number(document.getElementById('prod-precio-dlocal').value) || 0,
-                imagen_producto: document.getElementById('prod-imagen').value.trim(),
-                nicho_audiencia: document.getElementById('prod-nicho-audiencia').value.trim(),
-                nicho_emoji: document.getElementById('prod-nicho-emoji').value.trim(),
-                whatsapp_phone_id: document.getElementById('prod-whatsapp-phone-id').value.trim(),
-                copy_bloque_1: document.getElementById('prod-copy-bloque-1').value.trim(),
-                texto_bonos_corto: document.getElementById('prod-bonos-corto').value.trim(),
-                imagen_bonos: document.getElementById('prod-imagen-bonos').value.trim(),
-                texto_bonos_detalle: document.getElementById('prod-bonos-detalle').value.trim(),
-                limite_bonos: Number(document.getElementById('prod-limite-bonos').value) || 50,
-                pdf_entrega: document.getElementById('prod-pdf-entrega').value.trim(),
-                
-                guion_audio: window._guionAudioActual || '',
-                
-                mensaje_oferta_bump: document.getElementById('prod-mbump').value,
-                url_imagen_bump: document.getElementById('prod-bump-img').value,
-                precio_oferta_bump: Number(document.getElementById('prod-bump-precio').value),
-                descripcion_bump_ia: document.getElementById('prod-bump-desc-ia').value.trim(),
-                pdf_entrega_bump: document.getElementById('prod-bump-pdf').value.trim(),
-                id_oferta_bump: firebase.firestore.FieldValue.delete(),
-                apps_a_desbloquear: firebase.firestore.FieldValue.delete(),
-                ebooks_a_desbloquear: firebase.firestore.FieldValue.delete(),
-                
-                fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            payload.mensaje_3 = firebase.firestore.FieldValue.delete();
-            payload.mensaje_4 = firebase.firestore.FieldValue.delete();
-
-            if(!idEdit) payload.fecha_creacion = firebase.firestore.FieldValue.serverTimestamp();
-
-            try {
-                await db.collection('productos').doc(docId).set(payload, { merge: true });
-                showToast("Paquete guardado con éxito");
-                closeProductEditor();
-                loadProducts(); 
-            } catch(e) {
-                showToast("Error guardando datos", "error");
-            } finally {
-                btnSave.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Paquete`;
-                btnSave.disabled = false;
-            }
-        }
-
-        // ==========================================
-        // 6. EDITOR DE CAMPAÑAS
-        // ==========================================
-        function openCampaignEditor(editData = null) {
-            document.getElementById('camp-id-edit').value = '';
-            document.getElementById('camp-nombre').value = '';
-            document.getElementById('camp-activo').checked = true;
-            document.getElementById('frases-container').innerHTML = '';
-            document.getElementById('editor-camp-title').innerText = "Configurar Campaña";
+        bonos_detalle = p.get('texto_bonos_detalle', '').strip()
+        if bonos_detalle:
+            bonos_detalle = reemplazar_placeholders(bonos_detalle, p, from_number=from_number)
+            enviar_mensaje(from_number, bonos_detalle, token=token, phone_id=phone_id)
             
-            const sel = document.getElementById('camp-producto');
-            sel.innerHTML = '<option value="">Selecciona un paquete para vender...</option>';
-            allProducts.forEach(p => { sel.innerHTML += `<option value="${p.id}">${p.nombre_producto || p.id} (S/ ${p.precio_oferta})</option>`; });
-
-            if(editData) {
-                document.getElementById('editor-camp-title').innerText = "Editar Campaña";
-                document.getElementById('camp-id-edit').value = editData.id;
-                document.getElementById('camp-nombre').value = editData.nombre;
-                document.getElementById('camp-producto').value = editData.producto_id;
-                document.getElementById('camp-activo').checked = editData.activo;
-                (editData.frases || []).forEach(f => addFraseRow(f.texto, f.fuente));
-            } else {
-                addFraseRow();
-            }
-
-            document.getElementById('view-campanas-list').classList.add('-translate-x-full');
-            document.getElementById('view-campana-editor').classList.remove('translate-x-full');
-        }
-
-        function closeCampaignEditor() {
-            document.getElementById('view-campanas-list').classList.remove('-translate-x-full');
-            document.getElementById('view-campana-editor').classList.add('translate-x-full');
-        }
-
-        function addFraseRow(texto = '', fuente = 'Facebook Ads') {
-            const div = document.createElement('div');
-            div.className = 'flex gap-2 items-center';
-            div.innerHTML = `
-                <input type="text" placeholder="Ej. Quiero info del curso" value="${texto}" class="frase-txt flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium outline-none focus:border-violet-500">
-                <select class="frase-src bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium outline-none focus:border-violet-500">
-                    <option value="Facebook Ads" ${fuente==='Facebook Ads'?'selected':''}>Fb Ads</option>
-                    <option value="Instagram Ads" ${fuente==='Instagram Ads'?'selected':''}>Ig Ads</option>
-                    <option value="TikTok Ads" ${fuente==='TikTok Ads'?'selected':''}>TikTok</option>
-                    <option value="Orgánico" ${fuente==='Orgánico'?'selected':''}>Orgánico</option>
-                </select>
-                <button onclick="this.parentElement.remove()" class="text-rose-400 hover:text-rose-600 bg-rose-50 p-2.5 rounded-xl transition-colors"><i class="fa-solid fa-trash"></i></button>
-            `;
-            document.getElementById('frases-container').appendChild(div);
-        }
-
-        async function loadCampaigns() {
-            try {
-                const snap = await db.collection('campanas').get();
-                const list = document.getElementById('campaignsList');
-                if(snap.empty) {
-                    list.innerHTML = `<div class="text-center py-16 text-slate-400"><div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl"><i class="fa-solid fa-bullhorn"></i></div><p class="font-bold">Sin campañas activas.</p></div>`;
-                    return;
-                }
-                
-                let html = '';
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    d.id = doc.id;
-                    html += `
-                    <div class="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
-                        <div>
-                            <div class="flex items-center gap-3 mb-1">
-                                <h3 class="font-black text-slate-800 text-lg">${d.nombre}</h3>
-                                ${d.activo ? '<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-200">ACTIVA</span>' : '<span class="bg-slate-200 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold border border-slate-300">PAUSADA</span>'}
-                            </div>
-                            <p class="text-xs text-slate-500 font-medium font-mono mb-3">Vende Paquete ID: <span class="text-violet-600 font-bold">${d.producto_id}</span></p>
-                            <div class="flex flex-wrap gap-2">
-                                ${(d.frases||[]).map(f => `<span class="bg-slate-50 border border-slate-200 text-slate-600 text-[11px] font-medium px-2.5 py-1 rounded-lg shadow-sm"><i class="fa-solid fa-quote-left text-violet-400 mr-1.5"></i>${f.texto}</span>`).join('')}
-                            </div>
-                        </div>
-                        <div class="flex gap-2 pl-4">
-                            <button onclick='openCampaignEditor(${JSON.stringify(d).replace(/'/g, "&#39;")})' class="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-100 transition-colors shadow-sm"><i class="fa-solid fa-pen"></i></button>
-                        </div>
-                    </div>`;
-                });
-                list.innerHTML = html;
-            } catch(e) { showToast('Error cargando campañas', 'error'); }
-        }
-
-        async function saveCampaign() {
-            const idEdit = document.getElementById('camp-id-edit').value;
-            const docId = idEdit || 'camp_' + Date.now();
-            const nombre = document.getElementById('camp-nombre').value.trim();
-            const prod = document.getElementById('camp-producto').value;
-
-            if(!nombre || !prod) return showToast('Nombre y Producto requeridos', 'error');
-
-            const frases = [];
-            document.querySelectorAll('#frases-container > div').forEach(row => {
-                const txt = row.querySelector('.frase-txt').value.trim();
-                const src = row.querySelector('.frase-src').value;
-                if(txt) frases.push({ texto: txt, fuente: src });
-            });
-
-            if(frases.length === 0) return showToast('Agrega al menos una frase', 'error');
-
-            try {
-                await db.collection('campanas').doc(docId).set({
-                    nombre: nombre,
-                    producto_id: prod,
-                    activo: document.getElementById('camp-activo').checked,
-                    frases: frases,
-                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                
-                showToast("Campaña guardada");
-                closeCampaignEditor();
-                loadCampaigns();
-            } catch(e) { showToast("Error guardando campaña", "error"); }
-        }
-
-        // ==========================================
-        // 7. CEREBRO IA
-        // ==========================================
-        async function loadCerebro() {
-            try {
-                const doc = await db.collection('config').doc('bot').get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    document.getElementById('cerebro-prompt').value = data.prompt_maestro || '';
-                }
-            } catch(e) { 
-                console.error('Error cargando Cerebro IA:', e); 
-            }
-        }
-
-        async function saveCerebro() {
-            const prompt = document.getElementById('cerebro-prompt').value.trim();
-            const btn = document.getElementById('btn-save-cerebro');
+        time.sleep(2)
+        
+        # FASE 4: Confianza y Micro-Cierre
+        img_fase4 = p.get('imagen_fase_4', '').strip()
+        msg_fase4 = p.get('mensaje_fase_4', '').strip()
+        if not msg_fase4:
+            msg_fase4 = "¿Te paso los métodos de pago para empezar hoy mismo? 🚀"
             
-            if(!prompt) return showToast('El prompt no puede estar vacío', 'error');
+        if img_fase4:
+            enviar_imagen(from_number, img_fase4, caption=msg_fase4, token=token, phone_id=phone_id)
+        elif msg_fase4:
+            enviar_mensaje(from_number, msg_fase4, token=token, phone_id=phone_id)
+            
+        session['state'] = 'esperando_cierre'
+        save_session(session_id, session)
+        logger.info(f"Fases 2, 3 y 4 completadas para {from_number}")
+        
+    except Exception as e:
+        logger.error(f"❌ Error ejecutando fases 2,3,4 para {from_number}: {e}")
 
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
-            btn.disabled = true;
+def _handle_calificacion(from_number, message, session, text, msg_type, session_id, whatsapp_business_id):
+    p = obtener_producto_para_cliente(session)
+    token, phone_id = obtener_credenciales_nicho(whatsapp_business_id)
+    
+    if msg_type != 'text':
+        _responder_con_gemini(from_number, text, session, p, session_id)
+        return
+        
+    # Ejecutamos el bloque conversacional en un hilo para no bloquear Cloud Run
+    threading.Thread(
+        target=ejecutar_fases_2_3_4,
+        args=(from_number, text, p, session, token, phone_id, session_id),
+        daemon=True
+    ).start()
 
-            try {
-                await db.collection('config').doc('bot').set({
-                    prompt_maestro: prompt,
-                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                
-                showToast("Prompt guardado con éxito");
-            } catch(e) { 
-                showToast("Error guardando el Cerebro IA", "error"); 
-            } finally {
-                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Prompt`;
-                btn.disabled = false;
-            }
-        }
+# ── FASE 5: ENTREGA DE PAGOS ──
+def _handle_cierre(from_number, message, session, text, msg_type, session_id, whatsapp_business_id):
+    p = obtener_producto_para_cliente(session)
+    token, phone_id = obtener_credenciales_nicho(whatsapp_business_id)
+    
+    intencion = detectar_intencion_cliente(text, session)
+    texto_limpio = text.lower().strip()
+    frases_no = ["no quiero", "no me interesa", "ya no", "no gracias", "después", "no por ahora"]
+    
+    if any(f in texto_limpio for f in frases_no):
+        nicho_emoji = p.get('nicho_emoji', '✨')
+        enviar_mensaje(from_number, f"¡No hay problema! Si cambias de opinión, aquí estaré. Un abrazo {nicho_emoji} ✌️", token=token, phone_id=phone_id)
+        session['state'] = 'completado'
+        save_session(session_id, session)
+        return
 
-        // ==========================================
-        // 8. COPY IA
-        // ==========================================
-        async function loadCopyIA() {
-            try {
-                const doc = await db.collection('config').doc('copy_ia').get();
-                if (doc.exists) {
-                    document.getElementById('copyia-prompt').value = doc.data().prompt || '';
-                }
-            } catch(e) {
-                console.error('Error cargando Copy IA:', e);
-            }
-        }
+    # Si acepta o pregunta por pago
+    if intencion in ['afirmacion', 'quiere_pagar', 'metodo_yape', 'metodo_bcp', 'metodo_tarjeta'] or any(w in texto_limpio for w in ['si', 'sí', 'claro', 'pasa', 'dale', 'ok', 'metodos', 'métodos']):
+        
+        # Enviar audio antes de los botones interactivos para maximizar conversión
+        url_audio = p.get('url_audio_cierre', 'https://firebasestorage.googleapis.com/v0/b/guias-facil-bot.firebasestorage.app/o/audio_cierre_default.mp3?alt=media')
+        enviar_audio(from_number, url_audio, token=token, phone_id=phone_id)
+        time.sleep(1.5)
+        
+        es_peru = session.get('flujo_forzado') == 'peru' or (not session.get('flujo_forzado') and from_number.startswith('51'))
+        es_dlocal = session.get('flujo_forzado') == 'dlocal' or (es_pais_dlocal(from_number) and session.get('flujo_forzado') != 'hotmart')
 
-        async function saveCopyIA() {
-            const prompt = document.getElementById('copyia-prompt').value.trim();
-            const btn = document.getElementById('btn-save-copyia');
-            if(!prompt) return showToast('El prompt no puede estar vacío', 'error');
+        if es_peru:
+            enviar_botones_metodo_pago(from_number, token=token, phone_id=phone_id)
+            session['state'] = 'esperando_opcion_pago'
+        elif es_dlocal:
+            enviar_link_dlocal(from_number, p, token=token, phone_id=phone_id, session_id=session_id)
+            # enviar_link_dlocal ya actualiza a esperando_pago_dlocal
+        else:
+            enviar_botones_pago(from_number, token=token, phone_id=phone_id, session_id=session_id)
+            session['state'] = 'esperando_captura_hotmart'
+            
+        session['bloque_pago_enviado'] = True
+        save_session(session_id, session)
+        logger.info(f"Fase 5: Métodos de pago enviados a {from_number}")
+    else:
+        # Responder dudas con Gemini
+        _responder_con_gemini(from_number, text, session, p, session_id)
 
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
-            btn.disabled = true;
+# (Los demás handlers de la app se mantienen intactos ya que controlan el proceso post-venta)
+def _handle_opcion_pago(from_number, message, session, text, msg_type, session_id, whatsapp_business_id):
+    p = obtener_producto_para_cliente(session)
+    token, phone_id = obtener_credenciales_nicho(whatsapp_business_id)
+    texto_precio = construir_texto_precio(p.get('precio_oferta', 0), from_number, p, session_id=session_id)
 
-            try {
-                await db.collection('config').doc('copy_ia').set({
-                    prompt: prompt,
-                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                showToast("Prompt Copy IA guardado");
-            } catch(e) {
-                showToast("Error guardando", "error");
-            } finally {
-                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Prompt`;
-                btn.disabled = false;
-            }
-        }
+    if msg_type == 'interactive' and text == 'pago_yape':
+        enviar_datos_yape(from_number, texto_precio, contexto='acceso')
+        session['state'] = 'esperando_captura'
+        session['metodo_pago_usado'] = 'yape_plin'
+        save_session(session_id, session)
+        return
 
-        function copiarPromptCopyIA() {
-            const texto = document.getElementById('copyia-prompt').value.trim();
-            if(!texto) return showToast('El prompt está vacío', 'error');
-            navigator.clipboard.writeText(texto).then(() => {
-                showToast("Prompt copiado al portapapeles ✅");
-            }).catch(() => {
-                showToast("Error al copiar", "error");
-            });
-        }
+    if msg_type == 'interactive' and text == 'pago_bcp':
+        enviar_datos_bcp(from_number, texto_precio, contexto='acceso')
+        session['state'] = 'esperando_captura'
+        session['metodo_pago_usado'] = 'transferencia'
+        save_session(session_id, session)
+        return
 
-        // ==========================================
-        // 9. MODAL GUIÓN DE AUDIO
-        // ==========================================
-        window._guionAudioActual = '';
+    if msg_type == 'text':
+        if any(f in text.lower().strip() for f in FRASES_YA_PAGO):
+            _responder_con_gemini(from_number, text, session, p, session_id, guardar_tipo='postpago_pendiente')
+            time.sleep(1)
+            enviar_botones_metodo_pago(from_number, token=token, phone_id=phone_id)
+            return
+        _responder_con_gemini(from_number, text, session, p, session_id)
 
-        function openGuionModal() {
-            document.getElementById('modal-guion-text').value = window._guionAudioActual || '';
-            document.getElementById('modal-guion').classList.remove('hidden');
-            document.getElementById('modal-guion').classList.add('flex');
-        }
+def _handle_completado(from_number, message, session, text, msg_type, session_id, whatsapp_business_id):
+    p = obtener_producto_para_cliente(session)
+    _responder_con_gemini(from_number, text, session, p, session_id, guardar_tipo='postventa')
 
-        function closeGuionModal() {
-            document.getElementById('modal-guion').classList.add('hidden');
-            document.getElementById('modal-guion').classList.remove('flex');
-        }
+# ── ROUTER PRINCIPAL ─────────────────────────────────────────
+def procesar_mensaje(from_number: str, message: dict, whatsapp_business_id: str = None):
+    load_config_if_needed()
+    session_id = f"{whatsapp_business_id}_{from_number}" if whatsapp_business_id else from_number
+    session = get_session(session_id)
 
-        async function saveGuion() {
-            const texto = document.getElementById('modal-guion-text').value.trim();
-            const docId = document.getElementById('prod-id-edit').value || document.getElementById('prod-id').value.trim();
-            const btn = document.getElementById('btn-save-guion');
+    state = session.get('state', 'nuevo')
+    text, msg_type = _extraer_texto(message)
 
-            if(!docId) {
-                showToast('Primero guarda el producto con un ID', 'error');
-                return;
-            }
+    if msg_type == 'text':
+        guardar_mensaje_historial(from_number, text, 'cliente', tipo='texto')
 
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...`;
-            btn.disabled = true;
+    if session.get('bot_pausado'):
+        return
 
-            try {
-                await db.collection('productos').doc(docId).set({
-                    guion_audio: texto,
-                    fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
+    if msg_type == 'text':
+        campana = detectar_campana(text)
+        if campana.get('encontrada'):
+            session['state'] = 'nuevo'
+            session['flujo_forzado'] = None 
+            save_session(session_id, session)
+            _handle_nuevo(from_number, message, session, text, msg_type, session_id, whatsapp_business_id)
+            return
 
-                window._guionAudioActual = texto;
-                showToast("Guión guardado en el producto ✅");
-                closeGuionModal();
-            } catch(e) {
-                showToast("Error guardando guión", "error");
-            } finally {
-                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Guión`;
-                btn.disabled = false;
-            }
-        }
+    handlers = {
+        'nuevo':                  _handle_nuevo,
+        'esperando_calificacion': _handle_calificacion,
+        'esperando_cierre':       _handle_cierre,
+        'esperando_opcion_pago':  _handle_opcion_pago,
+        'completado':             _handle_completado,
+    }
 
-        // ==========================================
-        // 8. IMAGE PREVIEW
-        // ==========================================
-        function setupImagePreview(inputId) {
-            const input = document.getElementById(inputId);
-            if (!input) return;
-            input.addEventListener('input', function() {
-                const url = this.value.trim();
-                const previewDiv = document.getElementById('preview-' + inputId);
-                if (!previewDiv) return;
-                if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
-                    const img = previewDiv.querySelector('img');
-                    img.src = url;
-                    previewDiv.classList.remove('hidden');
-                } else {
-                    previewDiv.classList.add('hidden');
-                }
-            });
-        }
-        ['prod-imagen', 'prod-imagen-bonos', 'prod-bump-img'].forEach(setupImagePreview);
+    handler = handlers.get(state)
+    if handler:
+        handler(from_number, message, session, text, msg_type, session_id, whatsapp_business_id)
 
-        // Refrescar previews cuando se carga un producto existente
-        const _origOpenProductEditor = openProductEditor;
-        openProductEditor = function(editData) {
-            _origOpenProductEditor(editData);
-            setTimeout(() => {
-                ['prod-imagen', 'prod-imagen-bonos', 'prod-bump-img'].forEach(inputId => {
-                    const input = document.getElementById(inputId);
-                    if (input) input.dispatchEvent(new Event('input'));
-                });
-            }, 100);
-        };
 
-        // ==========================================
-        // 9. DUPLICATE PRODUCT
-        // ==========================================
-        function duplicateProduct(data) {
-            // Copiar los datos pero limpiar ID y campos únicos
-            const copy = { ...data };
-            delete copy.id;
-            openProductEditor(copy);
-            // Limpiar el campo ID y cambiar título
-            setTimeout(() => {
-                const idField = document.getElementById('prod-id');
-                if (idField) {
-                    idField.value = '';
-                    idField.disabled = false;
-                }
-                document.getElementById('prod-id-edit').value = '';
-                document.getElementById('editor-prod-title').innerText = 'Duplicando: ' + (data.nombre_producto || data.id);
-            }, 100);
-        }
-
-        // ==========================================
-        // 10. CHARACTER COUNTER
-        // ==========================================
-        function updateCharCounter(textarea, counterId) {
-            const counter = document.getElementById(counterId);
-            if (!counter) return;
-            const len = textarea.value.length;
-            const max = 4096;
-            counter.textContent = `${len} / ${max}`;
-            counter.className = 'char-counter' + (len > max ? ' danger' : len > max * 0.85 ? ' warn' : '');
-        }
-
-        // Init counters on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('textarea').forEach(ta => {
-                const counterId = 'counter-' + ta.id;
-                const counter = document.getElementById(counterId);
-                if (counter) updateCharCounter(ta, counterId);
-            });
-        });
-
-        // ==========================================
-        // 11. WHATSAPP PREVIEW
-        // ==========================================
-        function updateWAPreview() {
-            const textarea = document.getElementById('prod-copy-bloque-1');
-            const bubble = document.getElementById('wa-preview-bubble');
-            const counterId = 'counter-copy-bloque-1';
-            if (!textarea || !bubble) return;
-            updateCharCounter(textarea, counterId);
-            const text = textarea.value.trim();
-            if (!text) {
-                bubble.innerHTML = '<span style="color:#8696a0">Escribe tu copy aquí para ver la vista previa...</span>';
-                return;
-            }
-            // Convertir *bold* a <b> y _italic_ a <i> para el preview
-            const formatted = text
-                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-                .replace(/\*(.*?)\*/g, '<b>$1</b>')
-                .replace(/_(.*?)_/g, '<i>$1</i>')
-                .replace(/~(.*?)~/g, '<s>$1</s>')
-                .replace(/\n/g, '<br>');
-            bubble.innerHTML = formatted;
-        }
-
-        // ==========================================
-        // 12. DELETE PRODUCT
-        // ==========================================
-        async function deleteProduct(docId, name) {
-            if (!confirm(`¿Estás seguro de eliminar "${name}"?\n\nEsta acción NO se puede deshacer.`)) return;
-            try {
-                await db.collection('productos').doc(docId).delete();
-                showToast(`"${name}" eliminado`);
-                loadProducts();
-            } catch(e) {
-                showToast('Error eliminando producto', 'error');
-            }
-        }
-    </script>
-</body>
-</html>
+# ==========================================================
+# EL MOTOR 
+# ==========================================================
+if __name__ == "__main__":
+    logger.info("Ejecutando en modo local.")
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

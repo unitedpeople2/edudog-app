@@ -375,7 +375,15 @@
                                                 <i class="fa-solid fa-globe"></i> Precio dLocal (USD)
                                             </label>
                                             <input type="number" id="prod-precio-dlocal" placeholder="27" step="0.01" class="w-full bg-indigo-50 border border-indigo-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-indigo-500 text-sm">
-                                            <p class="text-[10px] text-indigo-600/70">Precio en USD para pagos con dLocal Go (Colombia, etc.). El bot genera el link automáticamente.</p>
+                                            <p class="text-[10px] text-indigo-600/70">Precio en USD para pagos con dLocal Go (Colombia, etc.)</p>
+                                        </div>
+
+                                        <div class="space-y-1.5 pt-3 border-t border-slate-100 mt-3">
+                                            <label class="text-[11px] font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-1">
+                                                <i class="fa-solid fa-link"></i> Link de pago dLocal Go
+                                            </label>
+                                            <input type="url" id="prod-link-dlocal" placeholder="https://pay.dlocalgo.com/..." class="w-full bg-indigo-50 border border-indigo-200 rounded-xl py-2.5 px-3 font-bold text-slate-700 outline-none focus:border-indigo-500 text-sm">
+                                            <p class="text-[10px] text-indigo-600/70">Link de pago creado en dLocal Go > Link de pago. Si está vacío, usa Hotmart como respaldo.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -802,6 +810,7 @@
             document.getElementById('prod-desc-ia').value = '';
             document.getElementById('prod-link-hotmart').value = '';
             document.getElementById('prod-precio-dlocal').value = '';
+            document.getElementById('prod-link-dlocal').value = '';
             document.getElementById('prod-imagen').value = '';
             document.getElementById('prod-nicho-audiencia').value = '';
             document.getElementById('prod-nicho-emoji').value = '';
@@ -835,6 +844,7 @@
                 document.getElementById('prod-desc-ia').value = editData.descripcion_para_ia || '';
                 document.getElementById('prod-link-hotmart').value = editData.link_hotmart || '';
                 document.getElementById('prod-precio-dlocal').value = editData.precio_dlocal_usd || 0;
+                document.getElementById('prod-link-dlocal').value = editData.link_dlocal || '';
                 document.getElementById('prod-imagen').value = editData.imagen_producto || '';
                 document.getElementById('prod-nicho-audiencia').value = editData.nicho_audiencia || '';
                 document.getElementById('prod-nicho-emoji').value = editData.nicho_emoji || '';
@@ -937,6 +947,7 @@
                 activo: document.getElementById('prod-activo').checked,
                 descripcion_para_ia: document.getElementById('prod-desc-ia').value.trim(),
                 link_hotmart: document.getElementById('prod-link-hotmart').value.trim(),
+                link_dlocal: document.getElementById('prod-link-dlocal').value.trim(),
                 precio_dlocal_usd: Number(document.getElementById('prod-precio-dlocal').value) || 0,
                 imagen_producto: document.getElementById('prod-imagen').value.trim(),
                 nicho_audiencia: document.getElementById('prod-nicho-audiencia').value.trim(),

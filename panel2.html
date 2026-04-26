@@ -519,6 +519,185 @@
                                 </div>
 
                             </div>
+
+                                <!-- ========== TARJETA 8: RECORDATORIOS DE ABANDONO ========== -->
+                                <div class="bg-white rounded-2xl p-6 border border-orange-200 shadow-sm relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-orange-400"></div>
+                                    <div class="flex items-center gap-3 mb-1">
+                                        <h3 class="font-black text-lg text-orange-800"><i class="fa-solid fa-bell text-orange-500 mr-1"></i> 8. Recordatorios de Abandono</h3>
+                                    </div>
+                                    <p class="text-xs text-orange-600/80 font-medium mb-4 pb-3 border-b border-orange-200/50">Mensajes automáticos cuando el cliente deja de responder en cada fase. Máximo 2 por fase, dentro de la ventana de 24h de WhatsApp.</p>
+
+                                    <!-- ── FASE 2: Gancho ── -->
+                                    <div class="mb-5">
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <span class="w-6 h-6 bg-green-100 text-green-700 rounded-lg flex items-center justify-center text-xs font-black">2</span>
+                                            <p class="font-black text-sm text-slate-700">Gancho — no respondió la pregunta inicial</p>
+                                        </div>
+                                        <div class="space-y-3 pl-8">
+                                            <!-- R1 Gancho -->
+                                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Recordatorio 1</span>
+                                                    <div class="flex items-center gap-2">
+                                                        <label class="text-[10px] font-bold text-slate-400">Delay (min)</label>
+                                                        <input type="number" id="rec-gancho-r1-delay" value="1" min="1" class="w-16 bg-white border border-slate-200 rounded-lg py-1 px-2 text-xs font-bold text-slate-700 outline-none focus:border-orange-400">
+                                                    </div>
+                                                </div>
+                                                <textarea id="rec-gancho-r1-texto" rows="2" oninput="updateCharCounter(this,'counter-rec-gancho-r1')" placeholder="Hola 😊 Solo quería saber si te llegó mi mensaje. ¿Lo buscas para hobby o para emprender?" class="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-sm font-medium text-slate-700 outline-none focus:border-orange-400 leading-relaxed"></textarea>
+                                                <div class="char-counter" id="counter-rec-gancho-r1">0 / 4096</div>
+                                            </div>
+                                            <!-- R2 Gancho -->
+                                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Recordatorio 2</span>
+                                                    <div class="flex items-center gap-2">
+                                                        <label class="text-[10px] font-bold text-slate-400">Delay (min)</label>
+                                                        <input type="number" id="rec-gancho-r2-delay" value="2" min="1" class="w-16 bg-white border border-slate-200 rounded-lg py-1 px-2 text-xs font-bold text-slate-700 outline-none focus:border-orange-400">
+                                                    </div>
+                                                </div>
+                                                <textarea id="rec-gancho-r2-texto" rows="2" oninput="updateCharCounter(this,'counter-rec-gancho-r2')" placeholder="Te cuento algo rápido 🧶 Este pack lo están usando cientos de personas para generar ingresos desde casa. ¿Te animas a echarle un vistazo?" class="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-sm font-medium text-slate-700 outline-none focus:border-orange-400 leading-relaxed"></textarea>
+                                                <div class="char-counter" id="counter-rec-gancho-r2">0 / 4096</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ── FASE 4: Confirmación pago ── -->
+                                    <div class="mb-5 pt-5 border-t border-orange-100">
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <span class="w-6 h-6 bg-teal-100 text-teal-700 rounded-lg flex items-center justify-center text-xs font-black">4</span>
+                                            <p class="font-black text-sm text-slate-700">Fase 4 — vio el producto pero no confirmó el pago</p>
+                                            <span class="text-[10px] font-bold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">Imagen opcional</span>
+                                        </div>
+                                        <div class="space-y-3 pl-8">
+                                            <!-- R1 Fase 4 -->
+                                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Recordatorio 1</span>
+                                                    <div class="flex items-center gap-2">
+                                                        <label class="text-[10px] font-bold text-slate-400">Delay (min)</label>
+                                                        <input type="number" id="rec-fase4-r1-delay" value="1" min="1" class="w-16 bg-white border border-slate-200 rounded-lg py-1 px-2 text-xs font-bold text-slate-700 outline-none focus:border-orange-400">
+                                                    </div>
+                                                </div>
+                                                <!-- Imagen opcional Fase 4 R1 -->
+                                                <div class="space-y-1.5">
+                                                    <label class="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1"><i class="fa-solid fa-image"></i> Imagen (opcional)</label>
+                                                    <div class="flex gap-2 items-center">
+                                                        <input type="text" id="rec-fase4-r1-imagen" placeholder="https://firebasestorage... (dejar vacío = solo texto)" class="flex-1 bg-teal-50 border border-teal-200 rounded-xl py-2 px-3 font-medium text-slate-700 outline-none focus:border-teal-500 text-xs">
+                                                        <input type="file" id="file-rec-fase4-r1-imagen" accept="image/*" class="hidden" onchange="uploadFileToStorage(this, 'rec-fase4-r1-imagen')">
+                                                        <button type="button" onclick="document.getElementById('file-rec-fase4-r1-imagen').click()" class="w-9 h-9 shrink-0 bg-teal-50 text-teal-600 border border-teal-200 rounded-xl hover:bg-teal-100 transition-colors flex items-center justify-center" title="Subir imagen">
+                                                            <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div id="progress-rec-fase4-r1-imagen" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-teal-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
+                                                    <div id="preview-rec-fase4-r1-imagen" class="hidden mt-1"><img src="" class="img-preview-thumb" onerror="this.parentElement.classList.add('hidden')"></div>
+                                                </div>
+                                                <textarea id="rec-fase4-r1-texto" rows="2" oninput="updateCharCounter(this,'counter-rec-fase4-r1')" placeholder="Hola 😊 Solo quería recordarte que los bonos son solo para las primeras 50 compras. ¿Te paso los métodos de pago?" class="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-sm font-medium text-slate-700 outline-none focus:border-orange-400 leading-relaxed"></textarea>
+                                                <div class="char-counter" id="counter-rec-fase4-r1">0 / 4096</div>
+                                            </div>
+                                            <!-- R2 Fase 4 -->
+                                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Recordatorio 2</span>
+                                                    <div class="flex items-center gap-2">
+                                                        <label class="text-[10px] font-bold text-slate-400">Delay (min)</label>
+                                                        <input type="number" id="rec-fase4-r2-delay" value="2" min="1" class="w-16 bg-white border border-slate-200 rounded-lg py-1 px-2 text-xs font-bold text-slate-700 outline-none focus:border-orange-400">
+                                                    </div>
+                                                </div>
+                                                <!-- Imagen opcional Fase 4 R2 -->
+                                                <div class="space-y-1.5">
+                                                    <label class="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1"><i class="fa-solid fa-image"></i> Imagen (opcional)</label>
+                                                    <div class="flex gap-2 items-center">
+                                                        <input type="text" id="rec-fase4-r2-imagen" placeholder="https://firebasestorage... (dejar vacío = solo texto)" class="flex-1 bg-teal-50 border border-teal-200 rounded-xl py-2 px-3 font-medium text-slate-700 outline-none focus:border-teal-500 text-xs">
+                                                        <input type="file" id="file-rec-fase4-r2-imagen" accept="image/*" class="hidden" onchange="uploadFileToStorage(this, 'rec-fase4-r2-imagen')">
+                                                        <button type="button" onclick="document.getElementById('file-rec-fase4-r2-imagen').click()" class="w-9 h-9 shrink-0 bg-teal-50 text-teal-600 border border-teal-200 rounded-xl hover:bg-teal-100 transition-colors flex items-center justify-center" title="Subir imagen">
+                                                            <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div id="progress-rec-fase4-r2-imagen" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden"><div class="bg-teal-400 h-1 rounded-full transition-all" style="width: 0%"></div></div>
+                                                    <div id="preview-rec-fase4-r2-imagen" class="hidden mt-1"><img src="" class="img-preview-thumb" onerror="this.parentElement.classList.add('hidden')"></div>
+                                                </div>
+                                                <textarea id="rec-fase4-r2-texto" rows="2" oninput="updateCharCounter(this,'counter-rec-fase4-r2')" placeholder="Última vez que te escribo 🙏 El pack más completo para empezar a crear y vender. ¿Quieres que te ayude a dar el paso hoy?" class="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-sm font-medium text-slate-700 outline-none focus:border-orange-400 leading-relaxed"></textarea>
+                                                <div class="char-counter" id="counter-rec-fase4-r2">0 / 4096</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ── CAPTURA Yape/BCP ── -->
+                                    <div class="mb-5 pt-5 border-t border-orange-100">
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <span class="w-6 h-6 bg-yellow-100 text-yellow-700 rounded-lg flex items-center justify-center text-xs font-black">💛</span>
+                                            <p class="font-black text-sm text-slate-700">Captura — eligió Yape/BCP pero no envió el comprobante</p>
+                                        </div>
+                                        <div class="space-y-3 pl-8">
+                                            <!-- R1 Captura -->
+                                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Recordatorio 1</span>
+                                                    <div class="flex items-center gap-2">
+                                                        <label class="text-[10px] font-bold text-slate-400">Delay (min)</label>
+                                                        <input type="number" id="rec-captura-r1-delay" value="1" min="1" class="w-16 bg-white border border-slate-200 rounded-lg py-1 px-2 text-xs font-bold text-slate-700 outline-none focus:border-orange-400">
+                                                    </div>
+                                                </div>
+                                                <textarea id="rec-captura-r1-texto" rows="2" oninput="updateCharCounter(this,'counter-rec-captura-r1')" placeholder="Hola 😊 ¿Pudiste hacer el pago? Cuando tengas la captura me la mandas y te activo todo al instante 🚀" class="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-sm font-medium text-slate-700 outline-none focus:border-orange-400 leading-relaxed"></textarea>
+                                                <div class="char-counter" id="counter-rec-captura-r1">0 / 4096</div>
+                                            </div>
+                                            <!-- R2 Captura -->
+                                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Recordatorio 2</span>
+                                                    <div class="flex items-center gap-2">
+                                                        <label class="text-[10px] font-bold text-slate-400">Delay (min)</label>
+                                                        <input type="number" id="rec-captura-r2-delay" value="2" min="1" class="w-16 bg-white border border-slate-200 rounded-lg py-1 px-2 text-xs font-bold text-slate-700 outline-none focus:border-orange-400">
+                                                    </div>
+                                                </div>
+                                                <textarea id="rec-captura-r2-texto" rows="2" oninput="updateCharCounter(this,'counter-rec-captura-r2')" placeholder="Sigo por aquí cuando lo necesites 🙏 Solo mándame la foto del pago y listo, en segundos te envío todo el material." class="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-sm font-medium text-slate-700 outline-none focus:border-orange-400 leading-relaxed"></textarea>
+                                                <div class="char-counter" id="counter-rec-captura-r2">0 / 4096</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ── CAPTURA Hotmart/dLocal ── -->
+                                    <div class="pt-5 border-t border-orange-100">
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <span class="w-6 h-6 bg-indigo-100 text-indigo-700 rounded-lg flex items-center justify-center text-xs font-black">🌐</span>
+                                            <p class="font-black text-sm text-slate-700">Link — recibió Hotmart/dLocal pero no pagó</p>
+                                        </div>
+                                        <div class="space-y-3 pl-8">
+                                            <!-- R1 Hotmart -->
+                                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Recordatorio 1</span>
+                                                    <div class="flex items-center gap-2">
+                                                        <label class="text-[10px] font-bold text-slate-400">Delay (min)</label>
+                                                        <input type="number" id="rec-hotmart-r1-delay" value="1" min="1" class="w-16 bg-white border border-slate-200 rounded-lg py-1 px-2 text-xs font-bold text-slate-700 outline-none focus:border-orange-400">
+                                                    </div>
+                                                </div>
+                                                <textarea id="rec-hotmart-r1-texto" rows="2" oninput="updateCharCounter(this,'counter-rec-hotmart-r1')" placeholder="Hola 😊 ¿Pudiste ver el link de pago? Si tienes alguna duda del proceso aquí estoy para ayudarte 🚀" class="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-sm font-medium text-slate-700 outline-none focus:border-orange-400 leading-relaxed"></textarea>
+                                                <div class="char-counter" id="counter-rec-hotmart-r1">0 / 4096</div>
+                                            </div>
+                                            <!-- R2 Hotmart -->
+                                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Recordatorio 2</span>
+                                                    <div class="flex items-center gap-2">
+                                                        <label class="text-[10px] font-bold text-slate-400">Delay (min)</label>
+                                                        <input type="number" id="rec-hotmart-r2-delay" value="2" min="1" class="w-16 bg-white border border-slate-200 rounded-lg py-1 px-2 text-xs font-bold text-slate-700 outline-none focus:border-orange-400">
+                                                    </div>
+                                                </div>
+                                                <textarea id="rec-hotmart-r2-texto" rows="2" oninput="updateCharCounter(this,'counter-rec-hotmart-r2')" placeholder="Te dejo el link de nuevo por si lo necesitas 👇 El pago es seguro y el acceso es inmediato. ¡Cualquier duda aquí estoy!" class="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-sm font-medium text-slate-700 outline-none focus:border-orange-400 leading-relaxed"></textarea>
+                                                <div class="char-counter" id="counter-rec-hotmart-r2">0 / 4096</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 bg-orange-50 border border-orange-200 rounded-xl p-3">
+                                        <p class="text-[10px] font-bold text-orange-700 uppercase tracking-widest mb-1"><i class="fa-solid fa-circle-info"></i> Tiempos de prueba vs. producción</p>
+                                        <p class="text-[11px] text-orange-800 leading-relaxed">Delay actual: minutos (para pruebas). En producción cambiar a: Gancho R1=40min R2=300min · Fase4 R1=30min R2=240min · Captura R1=20min R2=180min · Hotmart R1=25min R2=240min.</p>
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
                         <div class="h-12"></div> 
                     </div>
@@ -917,6 +1096,29 @@
             document.getElementById('prod-bump-desc-ia').value = '';
             document.getElementById('prod-bump-pdf').value = '';
             
+            // Reset recordatorios
+            const recFields = [
+                'rec-gancho-r1-texto','rec-gancho-r1-delay',
+                'rec-gancho-r2-texto','rec-gancho-r2-delay',
+                'rec-fase4-r1-texto','rec-fase4-r1-delay','rec-fase4-r1-imagen',
+                'rec-fase4-r2-texto','rec-fase4-r2-delay','rec-fase4-r2-imagen',
+                'rec-captura-r1-texto','rec-captura-r1-delay',
+                'rec-captura-r2-texto','rec-captura-r2-delay',
+                'rec-hotmart-r1-texto','rec-hotmart-r1-delay',
+                'rec-hotmart-r2-texto','rec-hotmart-r2-delay'
+            ];
+            const recDefaults = {
+                'rec-gancho-r1-delay':1,'rec-gancho-r2-delay':2,
+                'rec-fase4-r1-delay':1,'rec-fase4-r2-delay':2,
+                'rec-captura-r1-delay':1,'rec-captura-r2-delay':2,
+                'rec-hotmart-r1-delay':1,'rec-hotmart-r2-delay':2
+            };
+            recFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.value = recDefaults[id] !== undefined ? recDefaults[id] : '';
+            });
+            
             window._guionAudioActual = '';
             document.getElementById('editor-prod-title').innerText = "Crear Nuevo Paquete";
 
@@ -956,6 +1158,37 @@
                 document.getElementById('prod-bump-precio').value = editData.precio_oferta_bump || '';
                 document.getElementById('prod-bump-desc-ia').value = editData.descripcion_bump_ia || '';
                 document.getElementById('prod-bump-pdf').value = editData.pdf_entrega_bump || '';
+
+                // Cargar recordatorios si existen
+                const rec = editData.recordatorios || {};
+                const setRec = (id, val) => { const el = document.getElementById(id); if(el) el.value = val || ''; };
+                const setRecNum = (id, val, def) => { const el = document.getElementById(id); if(el) el.value = val !== undefined ? val : def; };
+                setRec('rec-gancho-r1-texto', rec.gancho_r1_texto);
+                setRecNum('rec-gancho-r1-delay', rec.gancho_r1_delay, 1);
+                setRec('rec-gancho-r2-texto', rec.gancho_r2_texto);
+                setRecNum('rec-gancho-r2-delay', rec.gancho_r2_delay, 2);
+                setRec('rec-fase4-r1-texto', rec.fase4_r1_texto);
+                setRecNum('rec-fase4-r1-delay', rec.fase4_r1_delay, 1);
+                setRec('rec-fase4-r1-imagen', rec.fase4_r1_imagen);
+                setRec('rec-fase4-r2-texto', rec.fase4_r2_texto);
+                setRecNum('rec-fase4-r2-delay', rec.fase4_r2_delay, 2);
+                setRec('rec-fase4-r2-imagen', rec.fase4_r2_imagen);
+                setRec('rec-captura-r1-texto', rec.captura_r1_texto);
+                setRecNum('rec-captura-r1-delay', rec.captura_r1_delay, 1);
+                setRec('rec-captura-r2-texto', rec.captura_r2_texto);
+                setRecNum('rec-captura-r2-delay', rec.captura_r2_delay, 2);
+                setRec('rec-hotmart-r1-texto', rec.hotmart_r1_texto);
+                setRecNum('rec-hotmart-r1-delay', rec.hotmart_r1_delay, 1);
+                setRec('rec-hotmart-r2-texto', rec.hotmart_r2_texto);
+                setRecNum('rec-hotmart-r2-delay', rec.hotmart_r2_delay, 2);
+
+                // Refrescar previews de imágenes de recordatorios
+                setTimeout(() => {
+                    ['rec-fase4-r1-imagen','rec-fase4-r2-imagen'].forEach(inputId => {
+                        const input = document.getElementById(inputId);
+                        if (input) input.dispatchEvent(new Event('input'));
+                    });
+                }, 100);
             }
 
             document.getElementById('view-productos-list').classList.add('-translate-x-full');
@@ -1067,6 +1300,28 @@
                 id_oferta_bump: firebase.firestore.FieldValue.delete(),
                 apps_a_desbloquear: firebase.firestore.FieldValue.delete(),
                 ebooks_a_desbloquear: firebase.firestore.FieldValue.delete(),
+
+                // Recordatorios de abandono (delay en minutos — cambiar a horas en producción)
+                recordatorios: {
+                    gancho_r1_texto:   document.getElementById('rec-gancho-r1-texto').value.trim(),
+                    gancho_r1_delay:   Number(document.getElementById('rec-gancho-r1-delay').value) || 1,
+                    gancho_r2_texto:   document.getElementById('rec-gancho-r2-texto').value.trim(),
+                    gancho_r2_delay:   Number(document.getElementById('rec-gancho-r2-delay').value) || 2,
+                    fase4_r1_texto:    document.getElementById('rec-fase4-r1-texto').value.trim(),
+                    fase4_r1_delay:    Number(document.getElementById('rec-fase4-r1-delay').value) || 1,
+                    fase4_r1_imagen:   document.getElementById('rec-fase4-r1-imagen').value.trim(),
+                    fase4_r2_texto:    document.getElementById('rec-fase4-r2-texto').value.trim(),
+                    fase4_r2_delay:    Number(document.getElementById('rec-fase4-r2-delay').value) || 2,
+                    fase4_r2_imagen:   document.getElementById('rec-fase4-r2-imagen').value.trim(),
+                    captura_r1_texto:  document.getElementById('rec-captura-r1-texto').value.trim(),
+                    captura_r1_delay:  Number(document.getElementById('rec-captura-r1-delay').value) || 1,
+                    captura_r2_texto:  document.getElementById('rec-captura-r2-texto').value.trim(),
+                    captura_r2_delay:  Number(document.getElementById('rec-captura-r2-delay').value) || 2,
+                    hotmart_r1_texto:  document.getElementById('rec-hotmart-r1-texto').value.trim(),
+                    hotmart_r1_delay:  Number(document.getElementById('rec-hotmart-r1-delay').value) || 1,
+                    hotmart_r2_texto:  document.getElementById('rec-hotmart-r2-texto').value.trim(),
+                    hotmart_r2_delay:  Number(document.getElementById('rec-hotmart-r2-delay').value) || 2,
+                },
                 
                 fecha_actualizacion: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -1358,7 +1613,8 @@
                 }
             });
         }
-        ['prod-imagen', 'prod-imagen-bonos', 'prod-imagen-sello', 'prod-bump-img'].forEach(setupImagePreview);
+        ['prod-imagen', 'prod-imagen-bonos', 'prod-imagen-sello', 'prod-bump-img',
+         'rec-fase4-r1-imagen', 'rec-fase4-r2-imagen'].forEach(setupImagePreview);
 
         // Refrescar previews cuando se carga un producto existente
         const _origOpenProductEditor = openProductEditor;

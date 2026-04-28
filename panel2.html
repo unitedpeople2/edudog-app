@@ -350,6 +350,13 @@
                                             <p class="text-[10px] font-bold text-green-700 uppercase tracking-widest mb-1"><i class="fa-solid fa-diagram-project"></i> Flujo cuando está activo</p>
                                             <p class="text-[11px] text-green-800 leading-relaxed">Cliente llega → recibe este gancho → responde → Gemini empatiza → dispara el producto automáticamente.</p>
                                         </div>
+
+                                        <div class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-green-700 uppercase tracking-widest">🚪 Mensaje si el cliente rechaza en Fase 1</label>
+                                            <textarea id="prod-cierre-rechazo" rows="2" oninput="updateCharCounter(this,'counter-cierre-rechazo')" placeholder="¡No hay problema! Si en algún momento cambias de opinión, aquí estaré 🐾 ✌️" class="w-full bg-white border border-green-200 rounded-xl py-3 px-4 font-medium text-slate-700 outline-none focus:border-green-500 text-sm leading-relaxed"></textarea>
+                                            <div class="char-counter" id="counter-cierre-rechazo">0 / 200</div>
+                                            <p class="text-[10px] text-green-600/70">Se envía cuando el cliente dice "no quiero", "no gracias", etc. Si está vacío, el bot usa un mensaje genérico con el emoji del nicho. Máx. 200 caracteres.</p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1090,6 +1097,7 @@
             document.getElementById('prod-pdf-entrega').value = '';
             document.getElementById('prod-gancho-bloque-0').value = '';
             document.getElementById('prod-gancho-activo').checked = false;
+            document.getElementById('prod-cierre-rechazo').value = '';
             document.getElementById('prod-imagen-sello').value = '';
             document.getElementById('prod-texto-bloque-4').value = '';
             
@@ -1151,6 +1159,7 @@
                 document.getElementById('prod-pdf-entrega').value = editData.pdf_entrega || '';
                 document.getElementById('prod-gancho-bloque-0').value = editData.gancho_bloque_0 || '';
                 document.getElementById('prod-gancho-activo').checked = editData.gancho_bloque_0_activo || false;
+                document.getElementById('prod-cierre-rechazo').value = editData.mensaje_cierre_rechazo || '';
                 document.getElementById('prod-imagen-sello').value = editData.imagen_sello_garantia || '';
                 document.getElementById('prod-texto-bloque-4').value = editData.texto_bloque_4 || '';
                 
@@ -1290,6 +1299,7 @@
                 pdf_entrega: document.getElementById('prod-pdf-entrega').value.trim(),
                 gancho_bloque_0: document.getElementById('prod-gancho-bloque-0').value.trim(),
                 gancho_bloque_0_activo: document.getElementById('prod-gancho-activo').checked,
+                mensaje_cierre_rechazo: document.getElementById('prod-cierre-rechazo').value.trim(),
                 imagen_sello_garantia: document.getElementById('prod-imagen-sello').value.trim(),
                 texto_bloque_4: document.getElementById('prod-texto-bloque-4').value.trim(),
                 
